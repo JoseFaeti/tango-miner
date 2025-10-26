@@ -37,6 +37,19 @@ SKIP_POS = {
 RE_ALL_KATAKANA = re.compile(r"^[ァ-ンー]+$")
 RE_SMALL_KANA_END = re.compile(r"[っゃゅょァィゥェォッャュョー]+$")
 
+# Common priority tags — higher = more common
+PRI_WEIGHTS = {
+    "ichi1": 10000,
+    "news1": 800,
+    "spec1": 15000,
+    "gai1": 10,
+    "ichi2": 5000,
+    "news2": 50,
+    "spec2": 8000,
+    "gai2": 9,
+    # "nfXX" tags handled dynamically
+}
+
 class Column(IntEnum):
     WORD = 0
     INDEX = 1
@@ -52,6 +65,12 @@ class ProcessingStep(IntEnum):
 
 
 tagger = Tagger()
+
+
+def get_jamdict():
+    if not hasattr(get_jamdict, "_instance"):
+        get_jamdict._instance = Jamdict(memory_mode = True)
+    return get_jamdict._instance
 
 
 def tokenize(input_path, output_path):
@@ -85,7 +104,7 @@ def tokenize(input_path, output_path):
         for word, (index, frequency) in word_data.items():
             writer.writerow([word, index, frequency])
             processed += 1
-            print_step_progress(ProcessingStep.TOKENIZING, processed, total, f'total tokens: {processed}')
+            print_step_progress(ProcessingStep.TOKENIZING, processed, total, f'Total tokens: {processed}')
 
     # print(f'total tokens: {token_index}')
 
@@ -188,7 +207,7 @@ def filter_useful_words(input_csv: str, output_csv: str, min_frequency = MIN_FRE
                 writer.writerow(row)
                 kept += 1
 
-            print_step_progress(ProcessingStep.FILTERING, processed, total_filtered, f'filtered words: {kept}/{total}')
+            print_step_progress(ProcessingStep.FILTERING, processed, total_filtered, f'Filtered vocab: {kept}/{total}')
 
 
 def add_readings(input_file, output_file):
@@ -230,21 +249,121 @@ def add_readings(input_file, output_file):
             print_step_progress(ProcessingStep.READINGS, processed, total, f'{processed}/{total}')
 
 
-def add_and_filter_for_definitions(input_file, output_file):
-    jam = Jamdict()
+def best_entries(entries, search_word, tie_break="all"):
+    """
+    Selects the most common Jamdict entries based on priority tags
+    from kanji and reading elements.
     
-    def get_english_definition(word):
-        """Get English gloss from local JMDict via Jamdict (no API)."""
-        result = jam.lookup(word)
-        if not result or not result.entries:
-            return ""
-        entry = result.entries[0]
-        senses = entry.senses
-        if not senses:
-            return ""
-        glosses = senses[0].gloss
-        return "; ".join(gloss.text for gloss in glosses)
+    tie_break='all' -> return all top-scoring entries
+    tie_break='defs' -> return the one with the most definitions among the top ones
+    """
 
+    if not entries:
+        return []
+
+    kana_only = re.fullmatch(r"[ぁ-んァ-ンー]+", search_word) is not None
+    print(f'kana only = {kana_only}')
+
+    def score_forms(forms):
+        score = 0
+
+        for r in forms:
+            print(f'check form: {r} -> {r.pri}')
+
+            tags = r.pri
+            tag_found = False
+
+            # if 'ichi1' in tags:
+            #     score += PRI_WEIGHTS['ichi1']
+            #     print(f'found tag ichi1 ({PRI_WEIGHTS["ichi1"]}) -> score = {score}')
+            #     tag_found = True
+            # else:
+            for tag in tags:
+              if tag.startswith('nf'):
+                  score += (50 - int(tag[2:])) * 50
+                  print(f'found tag {tag[0:2]}[{tag[2:]}] ({(50 - int(tag[2:])) * 50}) -> score = {score}')
+                  tag_found = True
+              elif tag in PRI_WEIGHTS:
+                  score += PRI_WEIGHTS[tag]
+                  print(f'found tag {tag} ({PRI_WEIGHTS[tag]}) -> score = {score}')
+              else:
+                  score += 1
+
+            # no 'ichi1' or 'nfXX' tags found
+            # if not tag_found:
+            #   for tag in tags:
+            #       if tag in PRI_WEIGHTS:
+            #           score += PRI_WEIGHTS[tag]
+            #           print(f'found tag {tag} ({PRI_WEIGHTS[tag]}) -> score = {score}')
+            #       else:
+            #           score += 1
+
+        return score
+
+
+    def score_entry(e):
+        print(f'check entry {e}')
+        print('score = 0')
+
+        # Check kanji elements
+        kanji_score = score_forms(e.kanji_forms) if not kana_only else 0
+        kana_score = score_forms(e.kana_forms)
+
+        print(f'kanji score = {kanji_score}')
+        print(f'kana score = {kana_score}')
+
+        return kanji_score + kana_score
+
+    # Compute scores
+    scored = [(e, score_entry(e)) for e in entries]
+    print("scored:")
+    print('\n'.join(f'[{score}] {term}' for term, score in scored))
+    max_score = max(score for _, score in scored)
+
+    if max_score == 0: return []
+
+    top_entries = [e for e, score in scored if score == max_score]
+
+    if tie_break == "all":
+        return top_entries
+    elif tie_break == "defs":
+        # Among the tied ones, pick the entry with the most senses
+        return [max(top_entries, key=lambda e: len(e.senses))]
+    else:
+        raise ValueError("tie_break must be 'all' or 'defs'")
+
+
+def get_most_common_definition(word: str) -> str:
+    result = get_jamdict().lookup(word)
+
+    if not result.entries:
+        return ""
+
+    # Pick the entry with the highest score
+    print(result.entries)
+    best_entries_result = best_entries(result.entries, word, tie_break="defs")
+
+    if len(best_entries_result) == 0: return
+
+    best_entry = best_entries_result[0] #max(result.entries, key=entry_rank)
+
+    # Get the top 2 English glosses
+    english_defs = []
+
+    for i, s in enumerate(best_entry.senses):
+        glosses = []
+
+        if hasattr(s, "gloss"):
+            glosses += (g.text for g in s.gloss)
+        
+        index = f'{i+1}. ' if len(best_entry.senses) > 1 else ''
+        
+        english_defs.append(f'{index}{"/".join(glosses)}')
+
+    return "<br>".join(english_defs)
+
+
+def add_and_filter_for_definitions(input_file, output_file):
     total = get_total_lines(input_file)
     processed = 0
 
@@ -259,7 +378,7 @@ def add_and_filter_for_definitions(input_file, output_file):
                 continue
 
             word = row[0].strip()
-            definition = get_english_definition(word)
+            definition = get_most_common_definition(word)
 
             if definition:
                 row.append(definition)
@@ -267,7 +386,7 @@ def add_and_filter_for_definitions(input_file, output_file):
 
             # Show progress
             processed += 1
-            print_step_progress(ProcessingStep.DEFINITIONS, processed, total)
+            print_step_progress(ProcessingStep.DEFINITIONS, processed, total, f'Vocab kept: {processed}/{total}')
 
 
 def add_tags(input_file, output_file, tags):
@@ -314,13 +433,13 @@ def get_total_lines(input_file):
 def print_step_progress(step, amount, total, additional_text=''):
     step_text = {
         step.TOKENIZING: 'Tokenizing',
-        step.FILTERING: 'Filtering useful words',
+        step.FILTERING: 'Filtering useful vocab',
         step.READINGS: 'Adding readings',
         step.DEFINITIONS: 'Adding definitions'
     }
 
     if amount == total:
-        print(f"\r{step_text[step]}... 100% {additional_text}", flush=True)
+        print(f"\r{step_text[step]}... done. {additional_text}", flush=True)
         return
 
     print(f"\r{step_text[step]}... {amount / total :.0%} {additional_text}", end="", flush=True)
@@ -347,7 +466,7 @@ def process_script():
 
     debug = args.debug
 
-    print(f'Processing file {input_path}...')
+    print(f'Mining vocabulary from {input_path}...')
     print(f'Min frequency: {min_frequency}')
 
     with TemporaryDirectory() as tmpdir:
