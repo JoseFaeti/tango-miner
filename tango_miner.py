@@ -54,8 +54,9 @@ class Column(IntEnum):
     WORD = 0
     INDEX = 1
     FREQUENCY = 2
-    KANA = 3
-    DEFINITION = 4
+    NORMALIZED_FREQUENCY = 3
+    KANA = 4
+    DEFINITION = 5
 
 class ProcessingStep(IntEnum):
     TOKENIZING = 0
@@ -63,8 +64,14 @@ class ProcessingStep(IntEnum):
     READINGS = 2
     DEFINITIONS = 3
 
+print_debug = lambda *a: None
 
 tagger = Tagger()
+
+
+def enable_debug_logging():
+    global print_debug
+    print_debug = print
 
 
 def get_jamdict():
@@ -102,7 +109,7 @@ def tokenize(input_path, output_path):
         total = len(word_data.items())
 
         for word, (index, frequency) in word_data.items():
-            writer.writerow([word, index, frequency])
+            writer.writerow([word, index, frequency, frequency / total])
             processed += 1
             print_step_progress(ProcessingStep.TOKENIZING, processed, total, f'Total tokens: {processed}')
 
@@ -116,10 +123,12 @@ def filter_for_min_occurrence(word_list, min_occurrence: int):
     for row in word_list:
         if not row or len(row) < 2:
             continue
+
         try:
             count = int(row[Column.FREQUENCY].strip())
         except ValueError:
             continue
+
         if count >= min_occurrence:
             filtered.append(row)
 
@@ -257,18 +266,19 @@ def best_entries(entries, search_word, tie_break="all"):
     tie_break='all' -> return all top-scoring entries
     tie_break='defs' -> return the one with the most definitions among the top ones
     """
+    print_debug(f'best_entries({entries}, {search_word}, tie_break={tie_break})')
 
     if not entries:
         return []
 
     kana_only = re.fullmatch(r"[ぁ-んァ-ンー]+", search_word) is not None
-    print(f'kana only = {kana_only}')
+    print_debug(f'kana only = {kana_only}')
 
     def score_forms(forms):
         score = 0
 
         for r in forms:
-            print(f'check form: {r} -> {r.pri}')
+            print_debug(f'check form: {r} -> {r.pri}')
 
             tags = r.pri
             tag_found = False
@@ -281,11 +291,11 @@ def best_entries(entries, search_word, tie_break="all"):
             for tag in tags:
               if tag.startswith('nf'):
                   score += (50 - int(tag[2:])) * 50
-                  print(f'found tag {tag[0:2]}[{tag[2:]}] ({(50 - int(tag[2:])) * 50}) -> score = {score}')
+                  print_debug(f'found tag {tag[0:2]}[{tag[2:]}] ({(50 - int(tag[2:])) * 50}) -> score = {score}')
                   tag_found = True
               elif tag in PRI_WEIGHTS:
                   score += PRI_WEIGHTS[tag]
-                  print(f'found tag {tag} ({PRI_WEIGHTS[tag]}) -> score = {score}')
+                  print_debug(f'found tag {tag} ({PRI_WEIGHTS[tag]}) -> score = {score}')
               else:
                   score += 1
 
@@ -302,23 +312,25 @@ def best_entries(entries, search_word, tie_break="all"):
 
 
     def score_entry(e):
-        print(f'check entry {e}')
-        print('score = 0')
+        print_debug(f'score entry {e}')
+        print_debug('score = 0')
 
         # Check kanji elements
         kanji_score = score_forms(e.kanji_forms) if not kana_only else 0
         kana_score = score_forms(e.kana_forms)
 
-        print(f'kanji score = {kanji_score}')
-        print(f'kana score = {kana_score}')
+        print_debug(f'kanji score = {kanji_score}')
+        print_debug(f'kana score = {kana_score}')
 
         return kanji_score + kana_score
 
     # Compute scores
     scored = [(e, score_entry(e)) for e in entries]
-    print("scored:")
-    print('\n'.join(f'[{score}] {term}' for term, score in scored))
+    print_debug("scored:")
+    print_debug('\n'.join(f'[{score}] {term}' for term, score in scored))
     max_score = max(score for _, score in scored)
+
+    print_debug(f'max score: {max_score}')
 
     if max_score == 0: return []
 
@@ -340,7 +352,7 @@ def get_most_common_definition(word: str) -> str:
         return ""
 
     # Pick the entry with the highest score
-    print(result.entries)
+    print_debug(result.entries)
     best_entries_result = best_entries(result.entries, word, tie_break="defs")
 
     if len(best_entries_result) == 0: return
@@ -358,9 +370,12 @@ def get_most_common_definition(word: str) -> str:
         
         index = f'{i+1}. ' if len(best_entry.senses) > 1 else ''
         
-        english_defs.append(f'{index}{"/".join(glosses)}')
+        english_defs.append(f'{index}{"; ".join(glosses)}')
 
-    return "<br>".join(english_defs)
+    final_definition = "<br>".join(english_defs)
+    print_debug(f'final definition:\n{final_definition}\n')
+
+    return final_definition
 
 
 def add_and_filter_for_definitions(input_file, output_file):
@@ -466,12 +481,15 @@ def process_script():
 
     debug = args.debug
 
+    if debug:
+        enable_debug_logging()
+
     print(f'Mining vocabulary from {input_path}...')
     print(f'Min frequency: {min_frequency}')
+    print_debug('debug = true')
 
     with TemporaryDirectory() as tmpdir:
-        if debug:
-            print(f'Created temp dir: {tmpdir}')
+        print_debug(f'Created temp dir: {tmpdir}')
 
         input_file = input_path
         output_file = path.join(tmpdir, '-1.tokenized.tmp')
