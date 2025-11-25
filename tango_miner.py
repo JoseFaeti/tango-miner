@@ -13,6 +13,8 @@ from enum import IntEnum
 from jamdict import Jamdict
 from tempfile import TemporaryDirectory
 from os import path
+import appdirs
+import shelve
 
 
 MIN_FREQUENCY_DEFAULT = 3
@@ -67,6 +69,35 @@ class ProcessingStep(IntEnum):
 print_debug = lambda *a: None
 
 tagger = Tagger()
+cache = None
+
+
+def open_cache():
+    global cache
+
+    print_debug('creating cache file...')
+    # Cross-platform cache directory
+    cache_dir = Path(appdirs.user_cache_dir("tango_miner"))
+    cache_dir.mkdir(parents=True, exist_ok=True)
+    cache_file = cache_dir / "definitions.db"
+    cache = shelve.open(str(cache_file), writeback=False)
+    print_debug(f'cache file created: {cache} at {cache_file}')
+
+def close_cache():
+    global cache
+    if cache is not None:
+        print_debug('closing cache file...')
+        cache.close()
+        cache = None
+
+def cache_definition(word, definition):
+    global cache
+    if cache.get(word) != definition:
+        cache[word] = definition
+
+def get_cached_definition(word):    
+    global cache
+    return cache.get(word)
 
 
 def enable_debug_logging():
@@ -381,6 +412,7 @@ def get_most_common_definition(word: str) -> str:
 def add_and_filter_for_definitions(input_file, output_file):
     total = get_total_lines(input_file)
     processed = 0
+    cached = 0
 
     with open(input_file, "r", encoding="utf-8") as infile, \
          open(output_file, "w", encoding="utf-8", newline="") as outfile:
@@ -393,7 +425,15 @@ def add_and_filter_for_definitions(input_file, output_file):
                 continue
 
             word = row[0].strip()
-            definition = get_most_common_definition(word)
+
+            definition = get_cached_definition(word)
+
+            if not definition:
+                definition = get_most_common_definition(word)
+                cache_definition(word, definition)
+            else:
+                cached += 1
+                print_debug(f'found cached definition for {word}')
 
             if definition:
                 row.append(definition)
@@ -401,7 +441,7 @@ def add_and_filter_for_definitions(input_file, output_file):
 
             # Show progress
             processed += 1
-            print_step_progress(ProcessingStep.DEFINITIONS, processed, total, f'Vocab kept: {processed}/{total}')
+            print_step_progress(ProcessingStep.DEFINITIONS, processed, total, f'Vocab kept: {processed}/{total} ({cached} cached)')
 
 
 def add_tags(input_file, output_file, tags):
@@ -509,7 +549,9 @@ def process_script():
         input_file = output_file
         output_file = path.join(tmpdir, '-4.definitions.tmp')
 
+        open_cache()
         add_and_filter_for_definitions(input_file, output_file)
+        close_cache()
 
         if tags:
             input_file = output_file
