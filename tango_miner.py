@@ -121,17 +121,18 @@ def tokenize(input_path, output_path):
     token_index = 0
     
     for token in tagger(text):
-        surface = token.surface.strip()
+        # print(token.feature)
+        lemma = token.feature.lemma
         
-        if not surface:
+        if not lemma:
             continue
 
         token_index += 1
 
-        if surface in word_data:
-            word_data[surface][1] += 1
+        if lemma in word_data:
+            word_data[lemma][1] += 1
         else:
-            word_data[surface] = [token_index, 1]
+            word_data[lemma] = [token_index, 1]
 
     with open(output_path, 'w', encoding='utf-8', newline='') as f:
         writer = csv.writer(f)
@@ -247,7 +248,7 @@ def filter_useful_words(input_csv: str, output_csv: str, min_frequency = MIN_FRE
                 writer.writerow(row)
                 kept += 1
 
-            print_step_progress(ProcessingStep.FILTERING, processed, total_filtered, f'Filtered vocab: {kept}/{total}')
+            print_step_progress(ProcessingStep.FILTERING, processed, total_filtered, f'Vocab kept: {kept}/{total}')
 
 
 def add_readings(input_file, output_file):
@@ -441,7 +442,7 @@ def add_and_filter_for_definitions(input_file, output_file):
 
             # Show progress
             processed += 1
-            print_step_progress(ProcessingStep.DEFINITIONS, processed, total, f'Vocab kept: {processed}/{total} ({cached} cached)')
+            print_step_progress(ProcessingStep.DEFINITIONS, processed, total, f'{processed}/{total} ({cached} cached)')
 
 
 def add_tags(input_file, output_file, tags):
