@@ -111,39 +111,52 @@ def get_jamdict():
     return get_jamdict._instance
 
 
-def tokenize(input_path, output_path):
+def tokenize(input_path, output_path, word_data=None):
     tagger = Tagger(f"-d \"{Path(unidic.DICDIR)}\"")
 
-    with open(input_path, encoding='utf-8') as f:
-        text = f.read()
+    if word_data is None:
+        word_data = OrderedDict()
+        token_index = 0
+    else:
+        # continue token index from the last entry
+        token_index = max((v[0] for v in word_data.values()), default=0)
 
-    word_data = OrderedDict()
-    token_index = 0
-    
-    for token in tagger(text):
-        # print(token.feature)
-        lemma = token.feature.lemma
+    if input_path is not None:
+        with open(input_path, encoding='utf-8') as f:
+            text = f.read()
         
-        if not lemma:
-            continue
+        for token in tagger(text):
+            # print(token.feature)
+            lemma = token.feature.orthBase or token.feature.lemma
+            
+            if not lemma:
+                continue
 
-        token_index += 1
+            token_index += 1
 
-        if lemma in word_data:
-            word_data[lemma][1] += 1
-        else:
-            word_data[lemma] = [token_index, 1]
+            if lemma in word_data:
+                word_data[lemma][1] += 1
+            else:
+                word_data[lemma] = [token_index, 1]
 
-    with open(output_path, 'w', encoding='utf-8', newline='') as f:
-        writer = csv.writer(f)
+    if not output_path:
+        return word_data
+    else:
+        with open(output_path, 'w', encoding='utf-8', newline='') as f:
+            writer = csv.writer(f)
 
-        processed = 0
-        total = len(word_data.items())
+            processed = 0
+            total_words = len(word_data.items())
+            total_tokens = token_index
 
-        for word, (index, frequency) in word_data.items():
-            writer.writerow([word, index, frequency, frequency / total])
-            processed += 1
-            print_step_progress(ProcessingStep.TOKENIZING, processed, total, f'Total tokens: {processed}')
+            for word, (index, frequency) in word_data.items():
+                index_normalized = 1 - (index / total_tokens)
+                frequency_normalized = frequency / total_tokens
+                score = round(index_normalized * frequency_normalized * 10_000, 10)
+
+                writer.writerow([word, index, frequency, score])
+                processed += 1
+                print_step_progress(ProcessingStep.TOKENIZING, processed, total_words, f'Total tokens: {processed}')
 
     # print(f'total tokens: {token_index}')
 
@@ -463,6 +476,54 @@ def add_tags(input_file, output_file, tags):
             writer.writerow(row)
 
 
+def read_tokens_to_dict(file_path):
+    """
+    Reads a Tango Miner CSV/TMP file and returns a dictionary of tokens.
+    Format returned:
+    {
+        'token1': {'frequency': 3, 'reading': 'よみ', 'definition': 'meaning', ...},
+        'token2': {...},
+        ...
+    }
+    """
+    tokens = {}
+
+    with open(file_path, "r", encoding="utf-8") as f:
+        reader = csv.DictReader(f)
+
+        for row in reader:
+            token = row.get("token") or row.get("Token")
+
+            if not token:
+                continue
+
+            # parse frequency as int
+            try:
+                frequency = int(row.get("frequency", 1))
+            except ValueError:
+                frequency = 1
+
+            # store other fields as needed
+            token_info = {
+                "frequency": frequency,
+                "reading": row.get("reading", ""),
+                "definition": row.get("definition", ""),
+            }
+
+            # if token already exists, sum frequencies
+            if token in tokens:
+                tokens[token]["frequency"] += frequency
+                # optionally merge readings/definitions if they differ
+                if row.get("reading") and row.get("reading") not in tokens[token]["reading"]:
+                    tokens[token]["reading"] += f";{row.get('reading')}"
+                if row.get("definition") and row.get("definition") not in tokens[token]["definition"]:
+                    tokens[token]["definition"] += f";{row.get('definition')}"
+            else:
+                tokens[token] = token_info
+
+    return tokens
+
+
 def write_final_file(input_file, output_file):
     with open(input_file, "r", encoding="utf-8") as infile, \
          open(output_file, "w", encoding="utf-8", newline="") as outfile:
@@ -506,7 +567,7 @@ def process_script():
     parser = argparse.ArgumentParser(description="Process a Japanese text and extract word frequencies.")
 
     parser.add_argument("--input", "-i", required=True, help="Path to input text file")
-    parser.add_argument("--output", "-o", required=True, help="Path to output CSV file")
+    parser.add_argument("--output", "-o", required=False, help="Path to output CSV file")
 
     parser.add_argument("--tags", "-t", required=False, help="Tags to add to every word")
     parser.add_argument("--minFrequency", "-f", type=int, required=False, help="Min amount of times a word needs to appear in the text to be included")
@@ -515,7 +576,6 @@ def process_script():
     # Parse arguments
     args = parser.parse_args()
     input_path = args.input
-    output_path = args.output
 
     tags = args.tags
     min_frequency = args.minFrequency or MIN_FREQUENCY_DEFAULT
@@ -525,47 +585,102 @@ def process_script():
     if debug:
         enable_debug_logging()
 
-    print(f'Mining vocabulary from {input_path}...')
     print(f'Min frequency: {min_frequency}')
     print_debug('debug = true')
 
     with TemporaryDirectory() as tmpdir:
-        print_debug(f'Created temp dir: {tmpdir}')
+        input_path_obj = Path(input_path)
 
-        input_file = input_path
+        if input_path_obj.is_file():
+            print_debug(f'Created temp dir: {tmpdir}')
+            output_path = args.output or args.input + '.csv'
+            mine_file(input_path, output_path, tmpdir, min_frequency, tags)
+        elif input_path_obj.is_dir():
+            print(f'Mining all relevant files from directory {input_path}...')
+
+            output_path = Path(args.output)
+
+            single_file_mode = False
+
+            # create output path and intermetiade directories if necessary
+            if output_path.exists():
+                if output_path.is_dir():
+                    final_path = output_path
+                else:
+                    final_path = output_path
+                    single_file_mode = True
+            else:
+                if output_path.suffix:
+                    final_path = output_path
+                    # create missing directories if necessary
+                    output_path.parent.mkdir(parents=True, exist_ok=True)
+                    single_file_mode = True
+                else:
+                    final_path = output_path
+                    output_path.mkdir(parents=True, exist_ok=True)
+
+            print_debug(f'output_path: {output_path}')
+            print_debug(f'output_path exists = {output_path.exists()}')
+            print(f'output path: {final_path}')
+            print_debug(f'single file mode = {single_file_mode}')
+            
+            combined_tokens = OrderedDict()
+            tokens_file_path = Path(tmpdir) / 'tokens.tmp'
+
+            # process directory contents
+            for file in input_path_obj.iterdir():
+                if file.is_file() and file.suffix.lower() in {".txt", ".csv", ".pdf", ".xml", ".html", ".srt"}:
+                    if single_file_mode:
+                        print(f"Tokenizing {file}...")
+                        combined_tokens = tokenize(file, None, combined_tokens)
+                    else:
+                        mine_file(file, output_path / (file.name + '.csv'), tmpdir, min_frequency, tags)
+
+            if single_file_mode:
+                tokenize(None, tokens_file_path, combined_tokens)
+                mine_file(tokens_file_path, final_path, tmpdir, min_frequency, tags, skip_tokenize=True)
+
+
+def mine_file(input_path, output_path, tmpdir, min_frequency=MIN_FREQUENCY_DEFAULT, tags=False, skip_tokenize=False):
+    print(f'Mining vocabulary from {input_path}...')
+    print_debug(f'mining from {input_path} to {output_path}')
+    input_file = input_path
+
+    if skip_tokenize:
+        output_file = input_file
+    else:
         output_file = path.join(tmpdir, '-1.tokenized.tmp')
-
         tokenize(input_file, output_file)
 
+    input_file = output_file
+    output_file = path.join(tmpdir, '-2.filtered.tmp')
+
+    filter_useful_words(input_file, output_file, min_frequency)
+
+    input_file = output_file
+    output_file = path.join(tmpdir, '-3.readings.tmp')
+
+    add_readings(input_file, output_file)
+
+    input_file = output_file
+    output_file = path.join(tmpdir, '-4.definitions.tmp')
+
+    open_cache()
+    add_and_filter_for_definitions(input_file, output_file)
+    close_cache()
+
+    if tags:
         input_file = output_file
-        output_file = path.join(tmpdir, '-2.filtered.tmp')
+        output_file = path.join(tmpdir, '-5.tags.tmp')
 
-        filter_useful_words(input_file, output_file, min_frequency)
+        print('adding tags...', end="", flush=True)
+        add_tags(input_file, output_file, tags)
+        print('done')
 
-        input_file = output_file
-        output_file = path.join(tmpdir, '-3.readings.tmp')
+    input_file = output_file
 
-        add_readings(input_file, output_file)
-
-        input_file = output_file
-        output_file = path.join(tmpdir, '-4.definitions.tmp')
-
-        open_cache()
-        add_and_filter_for_definitions(input_file, output_file)
-        close_cache()
-
-        if tags:
-            input_file = output_file
-            output_file = path.join(tmpdir, '-5.tags.tmp')
-
-            print('adding tags...', end="", flush=True)
-            add_tags(input_file, output_file, tags)
-            print('done')
-
-        input_file = output_file
-
-        write_final_file(input_file, output_path)
-        print(f'{output_path} generated successfully')
+    write_final_file(input_file, output_path)
+    print(f'{output_path} generated successfully')
 
 
 if __name__ == '__main__':
