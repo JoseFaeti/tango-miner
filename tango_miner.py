@@ -52,6 +52,17 @@ PRI_WEIGHTS = {
     # "nfXX" tags handled dynamically
 }
 
+# Order in which the word data is written to the final CSV file
+CSV_FIELD_ORDER = [
+    "word",
+    "index",
+    "frequency",
+    "frequency_normalized",
+    "reading",
+    "definition",
+    "tags",
+]
+
 class Column(IntEnum):
     WORD = 0
     INDEX = 1
@@ -107,11 +118,17 @@ def enable_debug_logging():
 
 def get_jamdict():
     if not hasattr(get_jamdict, "_instance"):
-        get_jamdict._instance = Jamdict(memory_mode = True)
+        get_jamdict._instance = Jamdict(memory_mode = False)
     return get_jamdict._instance
 
 
 def tokenize(input_path, output_path, word_data=None):
+    tag = None
+
+    if input_path is not None:
+        match = re.search(r"\[(.+?)\]", str(input_path))
+        tag = match.group(1) if match else None
+
     tagger = Tagger(f"-d \"{Path(unidic.DICDIR)}\"")
 
     if word_data is None:
@@ -137,7 +154,10 @@ def tokenize(input_path, output_path, word_data=None):
             if lemma in word_data:
                 word_data[lemma][1] += 1
             else:
-                word_data[lemma] = [token_index, 1]
+                word_data[lemma] = [token_index, 1, set()]
+                
+            if tag:
+                word_data[lemma][2].add(tag)
 
     if not output_path:
         return word_data
@@ -149,12 +169,12 @@ def tokenize(input_path, output_path, word_data=None):
             total_words = len(word_data.items())
             total_tokens = token_index
 
-            for word, (index, frequency) in word_data.items():
+            for word, (index, frequency, tags) in word_data.items():
                 index_normalized = 1 - (index / total_tokens)
                 frequency_normalized = frequency / total_tokens
                 score = round(index_normalized * frequency_normalized * 10_000, 10)
 
-                writer.writerow([word, index, frequency, score])
+                writer.writerow([word, index, frequency, score, " ".join(sorted(tags))])
                 processed += 1
                 print_step_progress(ProcessingStep.TOKENIZING, processed, total_words, f'Total tokens: {processed}')
 
@@ -531,11 +551,31 @@ def write_final_file(input_file, output_file):
         reader = csv.reader(infile)
         writer = csv.writer(outfile)
 
-        for i, row in enumerate(reader):
+        for row in reader:
             if not row or not row[0].strip():
                 continue
 
-            writer.writerow(row)
+            print("RAW ROW:", row)
+            record = row_to_record(row)
+            ordered_row = record_to_row(record, CSV_FIELD_ORDER)
+
+            writer.writerow(ordered_row)
+
+
+def row_to_record(row):
+    return {
+        "word": row[0] if len(row) > 0 else "",
+        "index": row[1] if len(row) > 1 else "",
+        "frequency": row[2] if len(row) > 2 else "",
+        "frequency_normalized": row[3] if len(row) > 3 else "",
+        "tags": row[4] if len(row) > 4 else "",
+        "reading": row[5] if len(row) > 5 else "",
+        "definition": row[6] if len(row) > 6 else "",
+    }
+
+
+def record_to_row(record, field_order):
+    return [record.get(field, "") for field in field_order]
 
 
 def get_total_lines(input_file):
@@ -638,7 +678,7 @@ def process_script():
 
             if single_file_mode:
                 tokenize(None, tokens_file_path, combined_tokens)
-                mine_file(tokens_file_path, final_path, tmpdir, min_frequency, tags, skip_tokenize=True)
+                mine_file(tokens_file_path, final_path, tmpdir, min_frequency, skip_tokenize=True)
 
 
 def mine_file(input_path, output_path, tmpdir, min_frequency=MIN_FREQUENCY_DEFAULT, tags=False, skip_tokenize=False):
