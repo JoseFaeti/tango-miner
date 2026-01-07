@@ -16,6 +16,9 @@ from os import path
 import appdirs
 import shelve
 
+from src.Pipeline import Pipeline
+from src.PipelineStep import DebugStep, NoOpStep
+
 
 MIN_FREQUENCY_DEFAULT = 3
 
@@ -555,7 +558,6 @@ def write_final_file(input_file, output_file):
             if not row or not row[0].strip():
                 continue
 
-            print("RAW ROW:", row)
             record = row_to_record(row)
             ordered_row = record_to_row(record, CSV_FIELD_ORDER)
 
@@ -627,6 +629,17 @@ def process_script():
 
     print(f'Min frequency: {min_frequency}')
     print_debug('debug = true')
+
+    pipeline = Pipeline([
+        DebugStep("step-1"),
+        NoOpStep(),
+        DebugStep("step-2"),
+    ])
+
+    result = pipeline.run("initial input")
+
+    return
+
 
     with TemporaryDirectory() as tmpdir:
         input_path_obj = Path(input_path)
