@@ -1,0 +1,221 @@
+
+import appdirs
+import csv
+import shelve
+import re
+
+from jamdict import Jamdict
+from pathlib import Path
+
+from .Artifact import Artifact
+from .PipelineStep import PipelineStep
+from .ProcessingStep import ProcessingStep
+
+cache = None
+
+
+def open_cache():
+    global cache
+
+    # print_debug('creating cache file...')
+    # Cross-platform cache directory
+    cache_dir = Path(appdirs.user_cache_dir("tango_miner"))
+    cache_dir.mkdir(parents=True, exist_ok=True)
+    cache_file = cache_dir / "definitions.db"
+    cache = shelve.open(str(cache_file), writeback=False)
+    # print_debug(f'cache file created: {cache} at {cache_file}')
+
+def close_cache():
+    global cache
+    if cache is not None:
+        # print_debug('closing cache file...')
+        cache.close()
+        cache = None
+
+def cache_definition(word, definition):
+    global cache
+    if cache.get(word) != definition:
+        cache[word] = definition
+
+def get_cached_definition(word):    
+    global cache
+    return cache.get(word)
+
+
+class AddDefinitionsStep(PipelineStep):
+    def process(self, artifact: Artifact) -> Artifact:
+        output_path = Path("-4.definitions.tmp")
+        open_cache()
+        add_and_filter_for_definitions(artifact.data, output_path, self.progress)
+        close_cache()
+        return Artifact(output_path, is_path=True)
+
+
+def add_and_filter_for_definitions(input_file, output_file, progress_handler):
+    total = get_total_lines(input_file)
+    processed = 0
+    cached = 0
+
+    with open(input_file, "r", encoding="utf-8") as infile, \
+         open(output_file, "w", encoding="utf-8", newline="") as outfile:
+        
+        reader = csv.reader(infile)
+        writer = csv.writer(outfile)
+
+        for i, row in enumerate(reader, start=1):
+            if not row or not row[0].strip():
+                continue
+
+            word = row[0].strip()
+
+            definition = get_cached_definition(word)
+
+            if not definition:
+                definition = get_most_common_definition(word)
+                cache_definition(word, definition)
+            else:
+                cached += 1
+                # print_debug(f'found cached definition for {word}')
+
+            if definition:
+                row.append(definition)
+                writer.writerow(row)
+
+            # Show progress
+            processed += 1
+            progress_handler(ProcessingStep.DEFINITIONS, processed, total)#, f'{processed}/{total} ({cached} cached)')
+
+
+def get_most_common_definition(word: str) -> str:
+    result = get_jamdict().lookup(word)
+
+    if not result.entries:
+        return ""
+
+    # Pick the entry with the highest score
+    # print_debug(result.entries)
+    best_entries_result = best_entries(result.entries, word, tie_break="defs")
+
+    if len(best_entries_result) == 0: return
+
+    best_entry = best_entries_result[0] #max(result.entries, key=entry_rank)
+
+    # Get the top 2 English glosses
+    english_defs = []
+
+    for i, s in enumerate(best_entry.senses):
+        glosses = []
+
+        if hasattr(s, "gloss"):
+            glosses += (g.text for g in s.gloss)
+        
+        index = f'{i+1}. ' if len(best_entry.senses) > 1 else ''
+        
+        english_defs.append(f'{index}{"; ".join(glosses)}')
+
+    final_definition = "<br>".join(english_defs)
+    # print_debug(f'final definition:\n{final_definition}\n')
+
+    return final_definition
+
+
+def get_jamdict():
+    if not hasattr(get_jamdict, "_instance"):
+        get_jamdict._instance = Jamdict(memory_mode = False)
+    return get_jamdict._instance
+
+
+def best_entries(entries, search_word, tie_break="all"):
+    """
+    Selects the most common Jamdict entries based on priority tags
+    from kanji and reading elements.
+    
+    tie_break='all' -> return all top-scoring entries
+    tie_break='defs' -> return the one with the most definitions among the top ones
+    """
+    # print_debug(f'best_entries({entries}, {search_word}, tie_break={tie_break})')
+
+    if not entries:
+        return []
+
+    kana_only = re.fullmatch(r"[ぁ-んァ-ンー]+", search_word) is not None
+    # print_debug(f'kana only = {kana_only}')
+
+    def score_forms(forms):
+        score = 0
+
+        for r in forms:
+            # print_debug(f'check form: {r} -> {r.pri}')
+
+            tags = r.pri
+            tag_found = False
+
+            # if 'ichi1' in tags:
+            #     score += PRI_WEIGHTS['ichi1']
+            #     print(f'found tag ichi1 ({PRI_WEIGHTS["ichi1"]}) -> score = {score}')
+            #     tag_found = True
+            # else:
+            for tag in tags:
+              if tag.startswith('nf'):
+                  score += (50 - int(tag[2:])) * 50
+                  # print_debug(f'found tag {tag[0:2]}[{tag[2:]}] ({(50 - int(tag[2:])) * 50}) -> score = {score}')
+                  tag_found = True
+              elif tag in PRI_WEIGHTS:
+                  score += PRI_WEIGHTS[tag]
+                  # print_debug(f'found tag {tag} ({PRI_WEIGHTS[tag]}) -> score = {score}')
+              else:
+                  score += 1
+
+            # no 'ichi1' or 'nfXX' tags found
+            # if not tag_found:
+            #   for tag in tags:
+            #       if tag in PRI_WEIGHTS:
+            #           score += PRI_WEIGHTS[tag]
+            #           print(f'found tag {tag} ({PRI_WEIGHTS[tag]}) -> score = {score}')
+            #       else:
+            #           score += 1
+
+        return score
+
+
+    def score_entry(e):
+        # print_debug(f'score entry {e}')
+        # print_debug('score = 0')
+
+        # Check kanji elements
+        kanji_score = score_forms(e.kanji_forms) if not kana_only else 0
+        kana_score = score_forms(e.kana_forms)
+
+        # print_debug(f'kanji score = {kanji_score}')
+        # print_debug(f'kana score = {kana_score}')
+
+        return kanji_score + kana_score
+
+    # Compute scores
+    scored = [(e, score_entry(e)) for e in entries]
+    # print_debug("scored:")
+    # print_debug('\n'.join(f'[{score}] {term}' for term, score in scored))
+    max_score = max(score for _, score in scored)
+
+    # print_debug(f'max score: {max_score}')
+
+    if max_score == 0: return []
+
+    top_entries = [e for e, score in scored if score == max_score]
+
+    if tie_break == "all":
+        return top_entries
+    elif tie_break == "defs":
+        # Among the tied ones, pick the entry with the most senses
+        return [max(top_entries, key=lambda e: len(e.senses))]
+    else:
+        raise ValueError("tie_break must be 'all' or 'defs'")
+
+
+def get_total_lines(input_file):
+    total = 0
+
+    with open(input_file, "r", encoding="utf-8") as f:
+        total = sum(1 for _ in f)
+
+    return total

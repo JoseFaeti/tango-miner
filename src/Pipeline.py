@@ -1,9 +1,16 @@
 from typing import Iterable, Any, List
-from src.PipelineStep import PipelineStep
+
+from .PipelineStep import PipelineStep, ProgressEvent
+
 
 class Pipeline:
-    def __init__(self, steps: Iterable[PipelineStep]):
+    def __init__(self, steps: Iterable[PipelineStep], on_progress=None):
         self.steps: List[PipelineStep] = list(steps)
+        self.on_progress = on_progress
+
+        for step in steps:
+            step._progress_handler = self._handle_progress
+
 
     def run(self, initial_input: Any) -> Any:
         data = initial_input
@@ -12,3 +19,8 @@ class Pipeline:
             data = step.process(data)
 
         return data
+
+
+    def _handle_progress(self, event: ProgressEvent):
+        if self.on_progress:
+            self.on_progress(event.step, event.current, event.total)

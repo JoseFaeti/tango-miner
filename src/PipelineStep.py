@@ -1,7 +1,14 @@
 from abc import ABC, abstractmethod
+from dataclasses import dataclass
 from typing import Any
 
+from .ProcessingStep import ProcessingStep
+
 class PipelineStep(ABC):
+    def __init__(self):
+        self._progress_handler = None
+
+
     @abstractmethod
     def process(self, input_data: Any) -> Any:
         """
@@ -9,6 +16,19 @@ class PipelineStep(ABC):
         return output_data (object, path, whatever).
         """
         pass
+
+
+    def progress(self, step, current, total):
+        if self._progress_handler:
+            self._progress_handler(ProgressEvent(step, current, total))
+
+
+@dataclass
+class ProgressEvent:
+    step: ProcessingStep
+    current: int
+    total: int
+    # message: str = ""
 
 
 class NoOpStep(PipelineStep):
