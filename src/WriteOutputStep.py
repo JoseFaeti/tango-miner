@@ -27,21 +27,13 @@ class WriteOutputStep(PipelineStep):
         return artifact
 
 
-def write_final_file(input_file, output_file):
-    with open(input_file, "r", encoding="utf-8") as infile, \
-         open(output_file, "w", encoding="utf-8", newline="") as outfile:
-        
-        reader = csv.reader(infile)
+def write_final_file(input, output_file):
+    with open(output_file, "w", encoding="utf-8", newline="") as outfile:
         writer = csv.writer(outfile)
 
-        for row in reader:
-            if not row or not row[0].strip():
-                continue
-
-            record = row_to_record(row)
-            ordered_row = record_to_row(record, CSV_FIELD_ORDER)
-
-            writer.writerow(ordered_row)
+        for word in input:
+            word_data = input[word]
+            writer.writerow([word, word_data.index, word_data.frequency, word_data.reading])
 
 
 def row_to_record(row):

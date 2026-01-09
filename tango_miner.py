@@ -13,25 +13,13 @@ from src.Column import Column
 from src.Pipeline import Pipeline
 from src.PipelineStep import DebugStep, NoOpStep, PipelineStep
 from src.ProcessingStep import ProcessingStep
+from src.TokenizeDirectoryStep import TokenizeDirectoryStep
 from src.TokenizeStep import TokenizeStep
 from src.FilterFrequencyStep import FilterFrequencyStep
 from src.WriteOutputStep import WriteOutputStep
 
 
 MIN_FREQUENCY_DEFAULT = 3
-
-# Common priority tags — higher = more common
-PRI_WEIGHTS = {
-    "ichi1": 10000,
-    "news1": 800,
-    "spec1": 15000,
-    "gai1": 10,
-    "ichi2": 5000,
-    "news2": 50,
-    "spec2": 8000,
-    "gai2": 9,
-    # "nfXX" tags handled dynamically
-}
 
 
 print_debug = lambda *a: None
@@ -152,22 +140,8 @@ def process_script():
     print(f'Min frequency: {min_frequency}')
     print_debug('debug = true')
 
-    initial_artifact = Artifact(input_path, is_path=True)
-
-    pipeline = build_mining_pipeline(
-        output_path=args.output,
-        min_frequency=min_frequency,
-        tags=args.tags,
-    )
-
-    pipeline.run(initial_artifact)
-
-    print('pipeline completed')
-
-    return
-
-
-    with TemporaryDirectory() as tmpdir:
+    with TemporaryDirectory() as tmpdir_str:
+        tmpdir = Path(tmpdir_str)
         input_path_obj = Path(input_path)
 
         if input_path_obj.is_file():
@@ -206,18 +180,29 @@ def process_script():
             combined_tokens = OrderedDict()
             tokens_file_path = Path(tmpdir) / 'tokens.tmp'
 
-            # process directory contents
-            for file in input_path_obj.iterdir():
-                if file.is_file() and file.suffix.lower() in {".txt", ".csv", ".pdf", ".xml", ".html", ".srt"}:
-                    if single_file_mode:
-                        print(f"Tokenizing {file}...")
-                        combined_tokens = tokenize(file, None, combined_tokens)
-                    else:
-                        mine_file(file, output_path / (file.name + '.csv'), tmpdir, min_frequency, tags)
+            steps = [
+                TokenizeDirectoryStep(input_path_obj),
+                FilterFrequencyStep(min_frequency),
+                # AddReadingsStep(),
+                # AddDefinitionsStep(),
+                WriteOutputStep(output_path)
+            ]
 
-            if single_file_mode:
-                tokenize(None, tokens_file_path, combined_tokens)
-                mine_file(tokens_file_path, final_path, tmpdir, min_frequency, skip_tokenize=True)
+            directory_pipeline = Pipeline(steps=steps, on_progress=print_step_progress)
+            directory_pipeline.run(Artifact(input_path, tmpdir=tmpdir))
+
+            # process directory contents
+            # for file in input_path_obj.iterdir():
+            #     if file.is_file() and file.suffix.lower() in {".txt", ".csv", ".pdf", ".xml", ".html", ".srt"}:
+            #         if single_file_mode:
+            #             print(f"Tokenizing {file}...")
+            #             combined_tokens = tokenize(file, None, combined_tokens)
+            #         else:
+            #             mine_file(file, output_path / (file.name + '.csv'), tmpdir, min_frequency, tags)
+
+            # if single_file_mode:
+            #     tokenize(None, tokens_file_path, combined_tokens)
+            #     mine_file(tokens_file_path, final_path, tmpdir, min_frequency, skip_tokenize=True)
 
 
 def build_mining_pipeline(output_path, min_frequency, tags=None):
@@ -239,45 +224,55 @@ def build_mining_pipeline(output_path, min_frequency, tags=None):
 
 
 def mine_file(input_path, output_path, tmpdir, min_frequency=MIN_FREQUENCY_DEFAULT, tags=False, skip_tokenize=False):
-    print(f'Mining vocabulary from {input_path}...')
+    print(f'Mining vocabulary from {Path(input_path).resolve()}...')
     print_debug(f'mining from {input_path} to {output_path}')
     input_file = input_path
+    
+    initial_artifact = Artifact(input_path, tmpdir=tmpdir, is_path=True)
 
-    if skip_tokenize:
-        output_file = input_file
-    else:
-        output_file = path.join(tmpdir, '-1.tokenized.tmp')
-        tokenize(input_file, output_file)
+    pipeline = build_mining_pipeline(
+        output_path=output_path,
+        min_frequency=min_frequency,
+        tags=tags,
+    )
 
-    input_file = output_file
-    output_file = path.join(tmpdir, '-2.filtered.tmp')
+    pipeline.run(initial_artifact)
 
-    filter_useful_words(input_file, output_file, min_frequency)
+    # if skip_tokenize:
+    #     output_file = input_file
+    # else:
+    #     output_file = path.join(tmpdir, '-1.tokenized.tmp')
+    #     tokenize(input_file, output_file)
 
-    input_file = output_file
-    output_file = path.join(tmpdir, '-3.readings.tmp')
+    # input_file = output_file
+    # output_file = path.join(tmpdir, '-2.filtered.tmp')
 
-    add_readings(input_file, output_file)
+    # filter_useful_words(input_file, output_file, min_frequency)
 
-    input_file = output_file
-    output_file = path.join(tmpdir, '-4.definitions.tmp')
+    # input_file = output_file
+    # output_file = path.join(tmpdir, '-3.readings.tmp')
 
-    open_cache()
-    add_and_filter_for_definitions(input_file, output_file)
-    close_cache()
+    # add_readings(input_file, output_file)
 
-    if tags:
-        input_file = output_file
-        output_file = path.join(tmpdir, '-5.tags.tmp')
+    # input_file = output_file
+    # output_file = path.join(tmpdir, '-4.definitions.tmp')
 
-        print('adding tags...', end="", flush=True)
-        add_tags(input_file, output_file, tags)
-        print('done')
+    # open_cache()
+    # add_and_filter_for_definitions(input_file, output_file)
+    # close_cache()
 
-    input_file = output_file
+    # if tags:
+    #     input_file = output_file
+    #     output_file = path.join(tmpdir, '-5.tags.tmp')
 
-    write_final_file(input_file, output_path)
-    print(f'{output_path} generated successfully')
+    #     print('adding tags...', end="", flush=True)
+    #     add_tags(input_file, output_file, tags)
+    #     print('done')
+
+    # input_file = output_file
+
+    # write_final_file(input_file, output_path)
+    print(f'{Path(output_path).resolve()} generated successfully')
 
 
 if __name__ == '__main__':

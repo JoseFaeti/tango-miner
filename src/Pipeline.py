@@ -14,10 +14,12 @@ class Pipeline:
 
     def run(self, initial_input: Any) -> Any:
         data = initial_input
+        tmpdir = data.tmpdir
 
         for step in self.steps:
             data = step.process(data)
-
+            data.tmpdir = tmpdir
+            
         return data
 
 

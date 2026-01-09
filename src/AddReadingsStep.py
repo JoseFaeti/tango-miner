@@ -1,20 +1,22 @@
 import csv
 
+from collections import OrderedDict
 from fugashi import Tagger
 from pathlib import Path
 
 from .Artifact import Artifact
+from .Column import Column
 from .PipelineStep import PipelineStep
 from .ProcessingStep import ProcessingStep
 
 class AddReadingsStep(PipelineStep):
     def process(self, artifact: Artifact) -> Artifact:
-        output_path = Path("-3.readings.tmp")
-        add_readings(artifact.data, output_path, self.progress)
-        return Artifact(output_path, is_path=True)
+        # output_path = artifact.tmpdir / "-3.readings.tmp"
+        data = add_readings(artifact.data, self.progress)
+        return Artifact(data)
 
 
-def add_readings(input_file, output_file, progress_handler):
+def add_readings(input, progress_handler):
     def kata_to_hira(text: str) -> str:
         """Convert katakana to hiragana."""
         result = []
@@ -26,36 +28,25 @@ def add_readings(input_file, output_file, progress_handler):
         return "".join(result)
 
     tagger = Tagger()
+    total = len(input)
+    kept = OrderedDict()
 
-    total = get_total_lines(input_file)
-    processed = 0
+    for i, word in enumerate(input, start=1):
+        original_word = word
+        word = word.strip()
+        if not word or not input.get(original_word):
+            continue
 
-    with open(input_file, "r", encoding="utf-8") as fin, \
-         open(output_file, "w", encoding="utf-8", newline="") as fout:
+        parsed = list(tagger(word))
+        readings = []
+        for m in parsed:
+            reading = getattr(m.feature, "reading", "") or getattr(m.feature, "kana", "") or m.surface
+            readings.append(reading)
+        kana = kata_to_hira("".join(readings))
+        input[original_word].reading = kana  # use the original key, not stripped
 
-        reader = csv.reader(fin)
-        writer = csv.writer(fout)
+        kept[original_word] = input[original_word]
+        print(word)
+        progress_handler(ProcessingStep.READINGS, i, total)#, f'{processed}/{total}')
 
-        for row in reader:
-            if not row:
-                continue
-            word = row[0].strip()
-            parsed = list(tagger(word))
-            readings = []
-            for m in parsed:
-                reading = getattr(m.feature, "reading", "") or getattr(m.feature, "kana", "") or m.surface
-                readings.append(reading)
-            kana = kata_to_hira("".join(readings))
-            writer.writerow(row + [kana])
-
-            processed += 1
-            progress_handler(ProcessingStep.READINGS, processed, total)#, f'{processed}/{total}')
-
-
-def get_total_lines(input_file):
-    total = 0
-
-    with open(input_file, "r", encoding="utf-8") as f:
-        total = sum(1 for _ in f)
-
-    return total
+    return kept

@@ -11,6 +11,19 @@ from .Artifact import Artifact
 from .PipelineStep import PipelineStep
 from .ProcessingStep import ProcessingStep
 
+# Common priority tags — higher = more common
+PRI_WEIGHTS = {
+    "ichi1": 10000,
+    "news1": 800,
+    "spec1": 15000,
+    "gai1": 10,
+    "ichi2": 5000,
+    "news2": 50,
+    "spec2": 8000,
+    "gai2": 9,
+    # "nfXX" tags handled dynamically
+}
+
 cache = None
 
 
@@ -44,46 +57,31 @@ def get_cached_definition(word):
 
 class AddDefinitionsStep(PipelineStep):
     def process(self, artifact: Artifact) -> Artifact:
-        output_path = Path("-4.definitions.tmp")
         open_cache()
-        add_and_filter_for_definitions(artifact.data, output_path, self.progress)
+        data = add_and_filter_for_definitions(artifact.data, self.progress)
         close_cache()
-        return Artifact(output_path, is_path=True)
+        return Artifact(data)
 
 
-def add_and_filter_for_definitions(input_file, output_file, progress_handler):
-    total = get_total_lines(input_file)
-    processed = 0
+def add_and_filter_for_definitions(input: OrderedDict, progress_handler):
+    total = len(input)
     cached = 0
 
-    with open(input_file, "r", encoding="utf-8") as infile, \
-         open(output_file, "w", encoding="utf-8", newline="") as outfile:
+    for i, word in enumerate(input, start=1):
+        definition = get_cached_definition(word)
         
-        reader = csv.reader(infile)
-        writer = csv.writer(outfile)
+        if not definition:
+            definition = get_most_common_definition(word)
+            cache_definition(word, definition)
+        else:
+            cached += 1
+            # print_debug(f'found cached definition for {word}')
 
-        for i, row in enumerate(reader, start=1):
-            if not row or not row[0].strip():
-                continue
+        if definition:
+            input[word].definition = definition
 
-            word = row[0].strip()
-
-            definition = get_cached_definition(word)
-
-            if not definition:
-                definition = get_most_common_definition(word)
-                cache_definition(word, definition)
-            else:
-                cached += 1
-                # print_debug(f'found cached definition for {word}')
-
-            if definition:
-                row.append(definition)
-                writer.writerow(row)
-
-            # Show progress
-            processed += 1
-            progress_handler(ProcessingStep.DEFINITIONS, processed, total)#, f'{processed}/{total} ({cached} cached)')
+        # Show progress
+        progress_handler(ProcessingStep.DEFINITIONS, i, total)#, f'{processed}/{total} ({cached} cached)')
 
 
 def get_most_common_definition(word: str) -> str:
@@ -210,12 +208,3 @@ def best_entries(entries, search_word, tie_break="all"):
         return [max(top_entries, key=lambda e: len(e.senses))]
     else:
         raise ValueError("tie_break must be 'all' or 'defs'")
-
-
-def get_total_lines(input_file):
-    total = 0
-
-    with open(input_file, "r", encoding="utf-8") as f:
-        total = sum(1 for _ in f)
-
-    return total
