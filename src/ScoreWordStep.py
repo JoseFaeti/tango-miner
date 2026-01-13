@@ -1,3 +1,4 @@
+import math
 from collections import OrderedDict
 
 from .Artifact import Artifact
@@ -41,7 +42,21 @@ def calculate_score(
     w_freq: float = 0.7,
     w_index: float = 0.3
 ) -> float:
-    index_score = 1 - (index / max_index)
-    frequency_score = frequency / max_frequency
+    """
+    index: position of the word (0 = first)
+    max_index: max index in corpus
+    frequency: raw frequency of the word
+    max_frequency: max frequency in corpus
+    w_freq: weight for frequency
+    w_index: weight for position
+    """
 
+    # Normalize index between 0 (start) and 1 (end)
+    index_score = 1 - (index / max_index) if max_index > 0 else 1.0
+
+    # Log-scale frequency to spread out scores for common words
+    frequency_score = math.log1p(frequency) / math.log1p(max_frequency) if max_frequency > 0 else 0
+
+    # Weighted combination
     return w_freq * frequency_score + w_index * index_score
+

@@ -123,6 +123,7 @@ def process_script():
     parser.add_argument("--tags", "-t", required=False, help="Tags to add to every word")
     parser.add_argument("--minFrequency", "-f", type=int, required=False, help="Min amount of times a word needs to appear in the text to be included")
     parser.add_argument("--debug", "-d", action='store_true')
+    parser.add_argument("--recursive", "-r", required=False, action='store_true')
 
     # Parse arguments
     args = parser.parse_args()
@@ -132,12 +133,14 @@ def process_script():
     min_frequency = args.minFrequency or MIN_FREQUENCY_DEFAULT
 
     debug = args.debug
+    recursive = args.recursive
 
     if debug:
         enable_debug_logging()
 
     print(f'Min frequency: {min_frequency}')
     print_debug('debug = true')
+    print_debug(f'recursive mode = {recursive}')
 
     with TemporaryDirectory() as tmpdir_str:
         tmpdir = Path(tmpdir_str)
@@ -180,7 +183,7 @@ def process_script():
             # tokens_file_path = Path(tmpdir) / 'tokens.tmp'
 
             steps = [
-                TokenizeDirectoryStep(input_path_obj),
+                TokenizeDirectoryStep(input_path_obj, include_subdirectories=recursive),
                 FilterFrequencyStep(min_frequency),
                 ScoreWordStep(),
                 AddReadingsStep(),

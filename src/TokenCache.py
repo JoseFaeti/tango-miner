@@ -32,17 +32,17 @@ class TokenCache:
         key = self._compute_key(normalized)
         path = self._cache_path(key)
 
-        # print(f'Cache: key={key}, path={path}')
-
         if not path.exists():
-            # print('Cache path does not exist!')
             return None
 
-        with gzip.open(path, "rt", encoding="utf-8") as f:
-            payload = json.load(f)
-            # print(f'Found cache: {payload}')
-
-        return payload["tokens"]
+        try:
+            with gzip.open(path, "rt", encoding="utf-8") as f:
+                payload = json.load(f)
+            return payload["tokens"]
+        except (json.JSONDecodeError, EOFError, OSError):
+            # Corrupt cache -> remove file and treat as cache miss
+            path.unlink(missing_ok=True)
+            return None
 
     def put(self, text: str, tokens: list[dict]) -> None:
         normalized = self._normalize_text(text)

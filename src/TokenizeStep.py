@@ -41,11 +41,8 @@ class TokenizeStep(PipelineStep):
 
 
 def tokenize(input_path, output_path, word_data=None, cache_dir=None, progress_handler=None):
-    tag = None
-
-    if input_path is not None:
-        match = re.search(r"\[(.+?)\]", str(input_path))
-        tag = match.group(1) if match else None
+    match = re.search(r"\[(.+?)\]", str(input_path))
+    tag = match.group(1) if match else None
 
     token_index = 0
 
