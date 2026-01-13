@@ -1,6 +1,7 @@
 from collections import OrderedDict
 from pathlib import Path
 import csv
+import math
 import re
 
 from .Artifact import Artifact
@@ -23,9 +24,8 @@ def filter_useful_words(input: OrderedDict, min_frequency: int, progress_handler
     kept = OrderedDict()
 
     for i, (word, stats) in enumerate(input.items(), 1):
-        w = word.strip() if word else ""
-        if w and stats.frequency >= min_frequency:
-            kept[w] = stats
+        if stats.frequency >= max(min_frequency, int(math.log10(total) * min_frequency)):
+            kept[word] = stats
 
         if progress_handler:
             progress_handler(ProcessingStep.FILTERING, i, total)

@@ -18,9 +18,9 @@ class PipelineStep(ABC):
         pass
 
 
-    def progress(self, step, current, total):
+    def progress(self, step, current, total, message=""):
         if self._progress_handler:
-            self._progress_handler(ProgressEvent(step, current, total))
+            self._progress_handler(ProgressEvent(step, current, total, message))
 
 
 @dataclass
@@ -28,7 +28,7 @@ class ProgressEvent:
     step: ProcessingStep
     current: int
     total: int
-    # message: str = ""
+    message: str = ""
 
 
 class NoOpStep(PipelineStep):
@@ -41,5 +41,5 @@ class DebugStep(PipelineStep):
         self.name = name
 
     def process(self, input_data: Any) -> Any:
-        print(f"[{self.name}] received:", input_data)
+        # print(f"[{self.name}] received:", input_data)
         return input_data

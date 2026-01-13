@@ -2,7 +2,7 @@
 import argparse
 from collections import OrderedDict
 from pathlib import Path
-import csv, sys
+import csv, sys, shutil
 from tempfile import TemporaryDirectory
 from os import path
 
@@ -13,6 +13,7 @@ from src.Column import Column
 from src.Pipeline import Pipeline
 from src.PipelineStep import DebugStep, NoOpStep, PipelineStep
 from src.ProcessingStep import ProcessingStep
+from src.ScoreWordStep import ScoreWordStep
 from src.TokenizeDirectoryStep import TokenizeDirectoryStep
 from src.TokenizeStep import TokenizeStep
 from src.FilterFrequencyStep import FilterFrequencyStep
@@ -28,24 +29,6 @@ print_debug = lambda *a: None
 def enable_debug_logging():
     global print_debug
     print_debug = print
-
-
-def add_tags(input_file, output_file, tags):
-    if not tags:
-        return
-
-    with open(input_file, "r", encoding="utf-8") as infile, \
-         open(output_file, "w", encoding="utf-8", newline="") as outfile:
-        
-        reader = csv.reader(infile)
-        writer = csv.writer(outfile)
-
-        for i, row in enumerate(reader):
-            if not row or not row[0].strip():
-                continue
-
-            row.append(tags)
-            writer.writerow(row)
 
 
 def read_tokens_to_dict(file_path):
@@ -96,22 +79,38 @@ def read_tokens_to_dict(file_path):
     return tokens
 
 
-def print_step_progress(step, amount, total, additional_text=''):
+_LAST_LEN = 0
+
+def print_step_progress(step, amount, total, additional_text=""):
     step_text = {
-        step.TOKENIZING: 'Tokenizing',
-        step.FILTERING: 'Filtering useful vocab',
-        step.READINGS: 'Adding readings',
-        step.DEFINITIONS: 'Adding definitions'
+        step.TOKENIZING: "Tokenizing",
+        step.FILTERING: "Filtering useful vocab",
+        step.READINGS: "Adding readings",
+        step.DEFINITIONS: "Adding definitions",
+        step.SCORING: "Calculating scores"
     }
 
-    if step == step.TOKENIZING:
-        additional_text = f'Total tokens: {amount}'
+    if amount >= total:
+        _print_progress_line(f"{step_text[step]}... done. {additional_text}", newline=True)
+    else:
+        percent = f"{amount / total:.0%}"
+        _print_progress_line(f"{step_text[step]}... {percent} {additional_text}", newline=False)
 
-    if amount == total:
-        print(f"\r{step_text[step]}... done. {additional_text}", flush=True)
-        return
 
-    print(f"\r{step_text[step]}... {amount / total :.0%} {additional_text}", end="", flush=True)
+def _print_progress_line(text: str, newline: bool):
+    global _LAST_LEN
+
+    # Pad with spaces to fully overwrite previous output
+    padded = text.ljust(_LAST_LEN)
+
+    sys.stdout.write("\r" + padded)
+    if newline:
+        sys.stdout.write("\n")
+        _LAST_LEN = 0
+    else:
+        _LAST_LEN = len(padded)
+
+    sys.stdout.flush()
 
 
 def process_script():
@@ -149,7 +148,7 @@ def process_script():
             output_path = args.output or args.input + '.csv'
             mine_file(input_path, output_path, tmpdir, min_frequency, tags)
         elif input_path_obj.is_dir():
-            print(f'Mining all relevant files from directory {input_path}...')
+            print(f'Mining all relevant files from directory {input_path_obj.resolve()}...')
 
             output_path = Path(args.output)
 
@@ -172,19 +171,20 @@ def process_script():
                     final_path = output_path
                     output_path.mkdir(parents=True, exist_ok=True)
 
-            print_debug(f'output_path: {output_path}')
+            print_debug(f'output_path: {output_path.resolve()}')
             print_debug(f'output_path exists = {output_path.exists()}')
-            print(f'output path: {final_path}')
+            print(f'output path: {final_path.resolve()}')
             print_debug(f'single file mode = {single_file_mode}')
             
-            combined_tokens = OrderedDict()
-            tokens_file_path = Path(tmpdir) / 'tokens.tmp'
+            # combined_tokens = OrderedDict()
+            # tokens_file_path = Path(tmpdir) / 'tokens.tmp'
 
             steps = [
                 TokenizeDirectoryStep(input_path_obj),
                 FilterFrequencyStep(min_frequency),
-                # AddReadingsStep(),
-                # AddDefinitionsStep(),
+                ScoreWordStep(),
+                AddReadingsStep(),
+                AddDefinitionsStep(),
                 WriteOutputStep(output_path)
             ]
 

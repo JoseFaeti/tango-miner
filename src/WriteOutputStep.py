@@ -6,18 +6,6 @@ from .Artifact import Artifact
 from .PipelineStep import PipelineStep
 
 
-# Order in which the word data is written to the final CSV file
-CSV_FIELD_ORDER = [
-    "word",
-    "index",
-    "frequency",
-    "frequency_normalized",
-    "reading",
-    "definition",
-    "tags",
-]
-
-
 class WriteOutputStep(PipelineStep):
     def __init__(self, output_path: Path):
         self.output_path = output_path
@@ -29,24 +17,23 @@ class WriteOutputStep(PipelineStep):
 
 def write_final_file(input, output_file):
     with open(output_file, "w", encoding="utf-8", newline="") as outfile:
+        sorted_items = sorted(
+            input.items(),
+            key=lambda item: item[1].score,  # sort by score
+            reverse=True                  # highest score first
+        )
+
+        sorted_words_by_score = dict(sorted_items)
+
         writer = csv.writer(outfile)
 
-        for word in input:
-            word_data = input[word]
-            writer.writerow([word, word_data.index, word_data.frequency, word_data.reading])
-
-
-def row_to_record(row):
-    return {
-        "word": row[0] if len(row) > 0 else "",
-        "index": row[1] if len(row) > 1 else "",
-        "frequency": row[2] if len(row) > 2 else "",
-        "frequency_normalized": row[3] if len(row) > 3 else "",
-        "tags": row[4] if len(row) > 4 else "",
-        "reading": row[5] if len(row) > 5 else "",
-        "definition": row[6] if len(row) > 6 else "",
-    }
-
-
-def record_to_row(record, field_order):
-    return [record.get(field, "") for field in field_order]
+        for word in sorted_words_by_score:
+            word_data = sorted_words_by_score[word]
+            writer.writerow([
+                word,
+                word_data.reading,
+                word_data.index,
+                word_data.frequency,
+                word_data.score,
+                word_data.definition,
+                " ".join(sorted(word_data.tags))])

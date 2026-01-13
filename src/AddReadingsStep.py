@@ -34,19 +34,23 @@ def add_readings(input, progress_handler):
     for i, word in enumerate(input, start=1):
         original_word = word
         word = word.strip()
+
         if not word or not input.get(original_word):
             continue
 
         parsed = list(tagger(word))
         readings = []
+        
         for m in parsed:
             reading = getattr(m.feature, "reading", "") or getattr(m.feature, "kana", "") or m.surface
             readings.append(reading)
+        
         kana = kata_to_hira("".join(readings))
         input[original_word].reading = kana  # use the original key, not stripped
 
         kept[original_word] = input[original_word]
-        print(word)
+        # print(word)
+        
         progress_handler(ProcessingStep.READINGS, i, total)#, f'{processed}/{total}')
 
     return kept

@@ -4,4 +4,5 @@ class ProcessingStep(IntEnum):
     TOKENIZING = 0
     FILTERING = 1
     READINGS = 2
-    DEFINITIONS = 3
+    DEFINITIONS = 3,
+    SCORING = 4

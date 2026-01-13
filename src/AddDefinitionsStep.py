@@ -4,6 +4,7 @@ import csv
 import shelve
 import re
 
+from collections import OrderedDict
 from jamdict import Jamdict
 from pathlib import Path
 
@@ -25,6 +26,9 @@ PRI_WEIGHTS = {
 }
 
 cache = None
+
+KANA_RE = re.compile(r"[ぁ-んァ-ンー]+")
+NO_DEFINITION = object()
 
 
 def open_cache():
@@ -52,7 +56,7 @@ def cache_definition(word, definition):
 
 def get_cached_definition(word):    
     global cache
-    return cache.get(word)
+    return cache.get(word, NO_DEFINITION)
 
 
 class AddDefinitionsStep(PipelineStep):
@@ -65,23 +69,27 @@ class AddDefinitionsStep(PipelineStep):
 
 def add_and_filter_for_definitions(input: OrderedDict, progress_handler):
     total = len(input)
+    kept = OrderedDict()
     cached = 0
 
-    for i, word in enumerate(input, start=1):
-        definition = get_cached_definition(word)
-        
-        if not definition:
+    for i, word in enumerate(input, 1):
+        cached_value = get_cached_definition(word)
+
+        if cached_value is NO_DEFINITION:
             definition = get_most_common_definition(word)
-            cache_definition(word, definition)
+            cache_definition(word, definition)  # may be None
         else:
+            definition = cached_value
             cached += 1
-            # print_debug(f'found cached definition for {word}')
 
         if definition:
-            input[word].definition = definition
+            stats = input[word]
+            stats.definition = definition
+            kept[word] = stats
 
-        # Show progress
-        progress_handler(ProcessingStep.DEFINITIONS, i, total)#, f'{processed}/{total} ({cached} cached)')
+        progress_handler(ProcessingStep.DEFINITIONS, i, total)
+
+    return kept
 
 
 def get_most_common_definition(word: str) -> str:
@@ -135,8 +143,10 @@ def best_entries(entries, search_word, tie_break="all"):
 
     if not entries:
         return []
+    elif len(entries) == 1:
+        return entries
 
-    kana_only = re.fullmatch(r"[ぁ-んァ-ンー]+", search_word) is not None
+    kana_only = KANA_RE.fullmatch(search_word) is not None
     # print_debug(f'kana only = {kana_only}')
 
     def score_forms(forms):

@@ -19,10 +19,10 @@ class Pipeline:
         for step in self.steps:
             data = step.process(data)
             data.tmpdir = tmpdir
-            
+
         return data
 
 
     def _handle_progress(self, event: ProgressEvent):
         if self.on_progress:
-            self.on_progress(event.step, event.current, event.total)
+            self.on_progress(event.step, event.current, event.total, event.message)

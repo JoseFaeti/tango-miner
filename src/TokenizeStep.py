@@ -8,6 +8,7 @@ import csv
 from .Artifact import Artifact
 from .PipelineStep import PipelineStep
 from .ProcessingStep import ProcessingStep
+from .TokenCache import TokenCache
 from .WordStats import WordStats
 
 # Regex for detecting Katakana-only and small kana endings
@@ -30,81 +31,78 @@ SKIP_POS = {
     "接尾辞",     # suffix
 }
 
+TOKENIZER_FINGERPRINT = "unidic-2.1.2+postproc-v1"
+
 class TokenizeStep(PipelineStep):
     def process(self, artifact: Artifact) -> Artifact:
-        if artifact.is_path:
-            output_path = artifact.tmpdir / "-1.tokenized.tmp"
-            tokenize(artifact.data, output_path, progress_handler=self.progress)
-            return Artifact(output_path, is_path=True)
-        return artifact
+        output_path = artifact.tmpdir / "-1.tokenized.tmp"
+        word_data = tokenize(artifact.data, output_path, progress_handler=self.progress)
+        return Artifact(word_data, is_path=True)
 
 
-def tokenize(input_path, output_path, word_data=None, progress_handler=None):
+def tokenize(input_path, output_path, word_data=None, cache_dir=None, progress_handler=None):
     tag = None
 
     if input_path is not None:
         match = re.search(r"\[(.+?)\]", str(input_path))
         tag = match.group(1) if match else None
 
-    tagger = Tagger(f"-d \"{Path(unidic.DICDIR)}\"")
+    token_index = 0
 
     if word_data is None:
         word_data = OrderedDict()
-        token_index = 0
     else:
         # continue token index from the last entry
-        token_index = max((v[0] for v in word_data.values()), default=0)
+        token_index += 1
 
-    if input_path is not None:
-        with open(input_path, encoding='utf-8') as f:
-            text = f.read()
-        
-        for token in tagger(text):
-            # print(token.feature)
-            lemma = token.feature.orthBase or token.feature.lemma
+    with open(input_path, encoding='utf-8') as f:
+        text = f.read()
+
+    cache = TokenCache(cache_dir=cache_dir, tokenizer_fingerprint=TOKENIZER_FINGERPRINT)
+    tokens = cache.get(text)
+
+    if tokens is None:
+        normalized_text = cache._normalize_text(text)
+        tagger = Tagger(f"-d \"{Path(unidic.DICDIR)}\"")
+        tokens = [unidic_node_to_dict(n) for n in tagger(text)]
+        cache.put(text, tokens)
+
+    for token in tokens:
+        # print(token.feature)
+        lemma = (token["base_form"] or token["lemma"] or "").strip()
+
+        if not lemma or is_useless(token):
+            continue
+
+        token_index += 1
+
+        if lemma in word_data:
+            word_data[lemma].frequency += 1
+        else:
+            word_data[lemma] = WordStats(token_index, 1, 0.0, '', '', set(), set())
             
-            if not lemma or is_useless(token):
-                continue
+        if tag:
+            word_data[lemma].tags.add(tag)
 
-            token_index += 1
+    return word_data
 
-            if lemma in word_data:
-                word_data[lemma].frequency += 1
-            else:
-                word_data[lemma] = WordStats(token_index, 1, '', '', set(), set())
-                
-            if tag:
-                word_data[lemma].tags.add(tag)
 
-    # calculate normalized frequency
-    total_words = len(word_data.items())
-    total_tokens = token_index
+def unidic_node_to_dict(node) -> dict:
+    f = node.feature  # UniDic feature object
 
-    if not output_path:
-        return word_data
-    else:
-        with open(output_path, 'w', encoding='utf-8', newline='') as f:
-            writer = csv.writer(f)
-
-            processed = 0
-
-            for word, (index, frequency, tags) in word_data.items():
-                index_normalized = 1 - (index / total_tokens)
-                frequency_normalized = frequency / total_tokens
-                score = round(index_normalized * frequency_normalized * 10_000, 10)
-
-                writer.writerow([word, index, frequency, score, " ".join(sorted(tags))])
-                processed += 1
-
-                progress_handler(ProcessingStep.TOKENIZING, processed, total_words)#, f'Total tokens: {processed}')
-
-    # print(f'total tokens: {token_index}')
+    return {
+        "surface": node.surface,
+        "base_form": getattr(f, "orthBase", None),
+        "lemma": getattr(f, "lemma", None),
+        "reading": getattr(f, "reading", None),
+        "pos": [f.pos1, f.pos2, f.pos3, f.pos4],
+    }
 
 
 def is_useless(token: str) -> bool:
     """Return True if the token is noise or non-lexical."""
-    lemma = token.feature.orthBase or token.feature.lemma
-    pos_list = [token.feature.pos1, token.feature.pos2, token.feature.pos3, token.feature.pos4]
+    lemma = token["base_form"] or token["lemma"]
+    pos_list = token["pos"]
 
     # Skip non-Japanese and Katakana-only
     if RE_ALL_KATAKANA.fullmatch(lemma):
