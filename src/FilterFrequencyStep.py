@@ -37,6 +37,6 @@ def filter_useful_words(input: OrderedDict, min_frequency: int, keep_percent: in
             kept[word] = stats
 
         if progress_handler:
-            progress_handler(ProcessingStep.FILTERING, i, total)
+            progress_handler(ProcessingStep.FILTERING, i, total, f'{len(kept)} tokens filtered')
 
     return kept

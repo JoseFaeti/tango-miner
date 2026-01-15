@@ -1,13 +1,13 @@
 #!/usr/bin/env python3
 import argparse
-from collections import OrderedDict
 from pathlib import Path
-import csv, sys, shutil
+import sys, shutil
 from tempfile import TemporaryDirectory
 from os import path
 
 from src.AddDefinitionsStep import AddDefinitionsStep
 from src.AddReadingsStep import AddReadingsStep
+from src.AddWordsToAnkiStep import AddWordsToAnkiStep
 from src.Artifact import Artifact
 from src.Column import Column
 from src.Pipeline import Pipeline
@@ -31,54 +31,6 @@ def enable_debug_logging():
     print_debug = print
 
 
-def read_tokens_to_dict(file_path):
-    """
-    Reads a Tango Miner CSV/TMP file and returns a dictionary of tokens.
-    Format returned:
-    {
-        'token1': {'frequency': 3, 'reading': 'よみ', 'definition': 'meaning', ...},
-        'token2': {...},
-        ...
-    }
-    """
-    tokens = {}
-
-    with open(file_path, "r", encoding="utf-8") as f:
-        reader = csv.DictReader(f)
-
-        for row in reader:
-            token = row.get("token") or row.get("Token")
-
-            if not token:
-                continue
-
-            # parse frequency as int
-            try:
-                frequency = int(row.get("frequency", 1))
-            except ValueError:
-                frequency = 1
-
-            # store other fields as needed
-            token_info = {
-                "frequency": frequency,
-                "reading": row.get("reading", ""),
-                "definition": row.get("definition", ""),
-            }
-
-            # if token already exists, sum frequencies
-            if token in tokens:
-                tokens[token]["frequency"] += frequency
-                # optionally merge readings/definitions if they differ
-                if row.get("reading") and row.get("reading") not in tokens[token]["reading"]:
-                    tokens[token]["reading"] += f";{row.get('reading')}"
-                if row.get("definition") and row.get("definition") not in tokens[token]["definition"]:
-                    tokens[token]["definition"] += f";{row.get('definition')}"
-            else:
-                tokens[token] = token_info
-
-    return tokens
-
-
 _LAST_LEN = 0
 
 def print_step_progress(step, amount, total, additional_text=""):
@@ -87,13 +39,14 @@ def print_step_progress(step, amount, total, additional_text=""):
         step.FILTERING: "Filtering useful vocab",
         step.READINGS: "Adding readings",
         step.DEFINITIONS: "Adding definitions",
-        step.SCORING: "Calculating scores"
+        step.SCORING: "Calculating scores",
+        step.ANKI_EXPORT: "Sending words to Anki"
     }
 
     if amount >= total:
         _print_progress_line(f"{step_text[step]}... done. {additional_text}", newline=True)
     else:
-        percent = f"{amount / total:.0%}"
+        percent = f"{amount / total:.1%}"
         _print_progress_line(f"{step_text[step]}... {percent} {additional_text}", newline=False)
 
 
@@ -178,9 +131,6 @@ def process_script():
             print_debug(f'output_path exists = {output_path.exists()}')
             print(f'output path: {final_path.resolve()}')
             print_debug(f'single file mode = {single_file_mode}')
-            
-            # combined_tokens = OrderedDict()
-            # tokens_file_path = Path(tmpdir) / 'tokens.tmp'
 
             steps = [
                 TokenizeDirectoryStep(input_path_obj, include_subdirectories=recursive),
@@ -188,7 +138,8 @@ def process_script():
                 ScoreWordStep(),
                 AddReadingsStep(),
                 AddDefinitionsStep(),
-                WriteOutputStep(output_path)
+                WriteOutputStep(output_path),
+                AddWordsToAnkiStep()
             ]
 
             directory_pipeline = Pipeline(steps=steps, on_progress=print_step_progress)
@@ -207,6 +158,7 @@ def process_script():
             #     tokenize(None, tokens_file_path, combined_tokens)
             #     mine_file(tokens_file_path, final_path, tmpdir, min_frequency, skip_tokenize=True)
 
+    print('Processing done.')
 
 def build_mining_pipeline(output_path, min_frequency, tags=None):
     steps = [
@@ -241,40 +193,6 @@ def mine_file(input_path, output_path, tmpdir, min_frequency=MIN_FREQUENCY_DEFAU
 
     pipeline.run(initial_artifact)
 
-    # if skip_tokenize:
-    #     output_file = input_file
-    # else:
-    #     output_file = path.join(tmpdir, '-1.tokenized.tmp')
-    #     tokenize(input_file, output_file)
-
-    # input_file = output_file
-    # output_file = path.join(tmpdir, '-2.filtered.tmp')
-
-    # filter_useful_words(input_file, output_file, min_frequency)
-
-    # input_file = output_file
-    # output_file = path.join(tmpdir, '-3.readings.tmp')
-
-    # add_readings(input_file, output_file)
-
-    # input_file = output_file
-    # output_file = path.join(tmpdir, '-4.definitions.tmp')
-
-    # open_cache()
-    # add_and_filter_for_definitions(input_file, output_file)
-    # close_cache()
-
-    # if tags:
-    #     input_file = output_file
-    #     output_file = path.join(tmpdir, '-5.tags.tmp')
-
-    #     print('adding tags...', end="", flush=True)
-    #     add_tags(input_file, output_file, tags)
-    #     print('done')
-
-    # input_file = output_file
-
-    # write_final_file(input_file, output_path)
     print(f'{Path(output_path).resolve()} generated successfully')
 
 

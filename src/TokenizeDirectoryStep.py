@@ -27,14 +27,14 @@ class TokenizeDirectoryStep(PipelineStep):
       cache_dir = Path(appdirs.user_cache_dir("tango_miner"))
 
       total = count_files(self.directory, self.include_subdirectories)
-      index = 1
+      index = 0
 
       for dir_path, file_path in iter_input_files(self.directory, include_subdirectories=self.include_subdirectories):
           self.progress(
               ProcessingStep.TOKENIZING,
               index,
               total,
-              str(Path(file_path).name)
+              f'{len(combined_tokens)} tokens {str(Path(file_path).name)}'
           )
 
           combined_tokens = tokenize(file_path, None, combined_tokens, cache_dir=cache_dir)
@@ -43,7 +43,8 @@ class TokenizeDirectoryStep(PipelineStep):
       self.progress(
           ProcessingStep.TOKENIZING,
           total,
-          total
+          total,
+          f'{len(combined_tokens)} tokens'
       )
 
       return Artifact(combined_tokens)
