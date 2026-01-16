@@ -34,6 +34,10 @@ def enable_debug_logging():
 _LAST_LEN = 0
 
 def print_step_progress(step, amount, total, additional_text=""):
+    if step is None:
+        print(additional_text)
+        return
+
     step_text = {
         step.TOKENIZING: "Tokenizing",
         step.FILTERING: "Filtering useful vocab",
@@ -135,9 +139,9 @@ def process_script():
             steps = [
                 TokenizeDirectoryStep(input_path_obj, include_subdirectories=recursive),
                 FilterFrequencyStep(min_frequency),
-                ScoreWordStep(),
                 AddReadingsStep(),
                 AddDefinitionsStep(),
+                ScoreWordStep(),
                 WriteOutputStep(output_path),
                 AddWordsToAnkiStep()
             ]
@@ -158,7 +162,7 @@ def process_script():
             #     tokenize(None, tokens_file_path, combined_tokens)
             #     mine_file(tokens_file_path, final_path, tmpdir, min_frequency, skip_tokenize=True)
 
-    print('Processing done.')
+    print('All tasks completed.')
 
 def build_mining_pipeline(output_path, min_frequency, tags=None):
     steps = [

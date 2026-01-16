@@ -25,38 +25,55 @@ PRI_WEIGHTS = {
     # "nfXX" tags handled dynamically
 }
 
-cache = None
+cache = None               # shelve handle
+_cache_mem = None          # in-memory dict
+_cache_dirty = None        # set of modified keys
 
 KANA_RE = re.compile(r"[ぁ-んァ-ンー]+")
 NO_DEFINITION = object()
 
 
 def open_cache():
-    global cache
+    global cache, _cache_mem, _cache_dirty
 
-    # print_debug('creating cache file...')
-    # Cross-platform cache directory
     cache_dir = Path(appdirs.user_cache_dir("tango_miner"))
     cache_dir.mkdir(parents=True, exist_ok=True)
     cache_file = cache_dir / "definitions.db"
+
     cache = shelve.open(str(cache_file), writeback=False)
-    # print_debug(f'cache file created: {cache} at {cache_file}')
+
+    # LOAD ONCE
+    _cache_mem = dict(cache)
+    _cache_dirty = set()
 
 def close_cache():
-    global cache
+    global cache, _cache_mem, _cache_dirty
+
     if cache is not None:
-        # print_debug('closing cache file...')
+        # FLUSH ONLY DIRTY KEYS
+        for key in _cache_dirty:
+            cache[key] = _cache_mem[key]
+
         cache.close()
-        cache = None
+
+    cache = None
+    _cache_mem = None
+    _cache_dirty = None
 
 def cache_definition(word, definition):
-    global cache
-    if cache.get(word) != definition:
-        cache[word] = definition
+    word = normalize_word(word)
 
-def get_cached_definition(word):    
-    global cache
-    return cache.get(word, NO_DEFINITION)
+    # Avoid marking dirty if unchanged
+    if _cache_mem.get(word) != definition:
+        _cache_mem[word] = definition
+        _cache_dirty.add(word)
+
+def get_cached_definition(word):
+    word = normalize_word(word)
+    return _cache_mem.get(word)
+
+def normalize_word(word: str) -> str:
+    return word.strip()
 
 
 class AddDefinitionsStep(PipelineStep):
@@ -70,17 +87,14 @@ class AddDefinitionsStep(PipelineStep):
 def add_and_filter_for_definitions(input: OrderedDict, progress_handler):
     total = len(input)
     kept = OrderedDict()
-    cached = 0
 
     for i, word in enumerate(input, 1):
-        cached_value = get_cached_definition(word)
+        word_norm = normalize_word(word)
+        definition = get_cached_definition(word_norm)
 
-        if cached_value is NO_DEFINITION:
-            definition = get_most_common_definition(word)
-            cache_definition(word, definition)  # may be None
-        else:
-            definition = cached_value
-            cached += 1
+        if definition is None:
+            definition = get_most_common_definition(word_norm) or ""
+            cache_definition(word_norm, definition)
 
         if definition:
             stats = input[word]

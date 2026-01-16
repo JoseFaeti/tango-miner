@@ -49,37 +49,77 @@ def tokenize(input_path, output_path, word_data=None, cache_dir=None, progress_h
     if word_data is None:
         word_data = OrderedDict()
     else:
-        # continue token index from the last entry
         token_index += 1
 
-    with open(input_path, encoding='utf-8') as f:
+    with open(input_path, encoding="utf-8") as f:
         text = f.read()
 
     cache = TokenCache(cache_dir=cache_dir, tokenizer_fingerprint=TOKENIZER_FINGERPRINT)
     tokens = cache.get(text)
 
     if tokens is None:
-        normalized_text = cache._normalize_text(text)
-        tagger = Tagger(f"-d \"{Path(unidic.DICDIR)}\"")
+        tagger = Tagger(f'-d "{Path(unidic.DICDIR)}"')
         tokens = [unidic_node_to_dict(n) for n in tagger(text)]
         cache.put(text, tokens)
 
+    current_sentence_tokens = []
+    current_sentence_lemmas = []
+
+    def is_japanese_char(c):
+        """Return True if character is Japanese: kanji, hiragana, katakana, numbers, or common punctuation"""
+        return (
+            "\u3040" <= c <= "\u309F"  # Hiragana
+            or "\u30A0" <= c <= "\u30FF"  # Katakana
+            or "\uFF65" <= c <= "\uFF9F"  # Half-width Katakana
+            or "\u4E00" <= c <= "\u9FFF"  # Kanji
+            # or "0" <= c <= "9"  # ASCII numbers
+            or "０" <= c <= "９"  # Full-width numbers
+            or c in "。、！？ー・「」（）"  # Common punctuation
+        )
+
+    sentence_endings = {"。", "！", "？"}
+
     for token in tokens:
-        # print(token.feature)
+        surface = token["surface"]
+
+        # reset sentence if non-Japanese character is found
+        if any(not is_japanese_char(c) for c in surface):
+            current_sentence_tokens = []
+            current_sentence_lemmas = []
+            continue
+
+        # add characters one by one to handle punctuation attached to word
+        for char in surface:
+            current_sentence_tokens.append(char)
+            if char in sentence_endings:
+                sentence = "".join(current_sentence_tokens).strip()
+                sentence += f'<br>[{tag}]' if tag else ""
+                if len(sentence) > 5:
+                    for lemma in set(current_sentence_lemmas):
+                        ws = word_data.get(lemma)
+                        if ws and len(ws.sentences) < 3:
+                            ws.sentences.append(sentence)
+                current_sentence_tokens = []
+                current_sentence_lemmas = []
+
         lemma = (token["base_form"] or token["lemma"] or "").strip()
 
+        # lexical filtering
         if not lemma or is_useless(token):
             continue
 
+        current_sentence_lemmas.append(lemma)
         token_index += 1
 
         if lemma in word_data:
-            word_data[lemma].frequency += 1
+            ws = word_data[lemma]
+            ws.frequency += 1
         else:
-            word_data[lemma] = WordStats(token_index, 1, 0.0, '', '', set(), set())
-            
+            ws = WordStats(token_index, 1, 0.0, "", "", set(), [])
+            word_data[lemma] = ws
+
         if tag:
-            word_data[lemma].tags.add(tag)
+            ws.tags.add(tag)
 
     return word_data
 

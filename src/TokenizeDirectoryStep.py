@@ -34,7 +34,7 @@ class TokenizeDirectoryStep(PipelineStep):
               ProcessingStep.TOKENIZING,
               index,
               total,
-              f'{len(combined_tokens)} tokens {str(Path(file_path).name)}'
+              f'{len(combined_tokens)} tokens ({str(Path(file_path).name)})'
           )
 
           combined_tokens = tokenize(file_path, None, combined_tokens, cache_dir=cache_dir)

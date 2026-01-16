@@ -11,11 +11,11 @@ class WriteOutputStep(PipelineStep):
         self.output_path = output_path
 
     def process(self, artifact: Artifact) -> Artifact:
-        write_final_file(artifact.data, self.output_path)
+        write_final_file(artifact.data, self.output_path, self.progress)
         return artifact
 
 
-def write_final_file(input, output_file):
+def write_final_file(input, output_file, progress_handler=None):
     with open(output_file, "w", encoding="utf-8", newline="") as outfile:
         sorted_items = sorted(
             input.items(),
@@ -29,6 +29,8 @@ def write_final_file(input, output_file):
 
         for word in sorted_words_by_score:
             word_data = sorted_words_by_score[word]
+            first_sentence = word_data.sentences[0] if word_data.sentences else ""
+
             writer.writerow([
                 word,
                 word_data.reading,
@@ -36,4 +38,9 @@ def write_final_file(input, output_file):
                 word_data.frequency,
                 word_data.score,
                 word_data.definition,
-                " ".join(sorted(word_data.tags))])
+                " ".join(sorted(word_data.tags)),
+                first_sentence
+            ])
+
+    if progress_handler:
+        progress_handler(None, 1, 1, f'Output written to {Path(output_file).resolve()}.')

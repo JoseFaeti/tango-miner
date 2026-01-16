@@ -50,20 +50,23 @@ def get_model_fields(model_name: str) -> list[str]:
 
 def export_words_to_anki(
     deck_name: str,
-    words: list,
+    words: dict,
     model_name: str,
     progress_handler=None,
 ):
-    from collections import defaultdict
+    def update_progress(current, total, message: str):
+        nonlocal progress_handler
+        if progress_handler:
+            progress_handler(ProcessingStep.ANKI_EXPORT, current, total, message)
 
     batch_size = 50
+    note_fetching_batch_size = 1000
     existing_words = {}
 
     # --------------------------------------------------
     # 1. Fetch ALL existing note IDs for this model/deck
     # --------------------------------------------------
-    if progress_handler:
-        progress_handler(ProcessingStep.ANKI_EXPORT, 0, 100, "Fetching existing notes from Anki...")
+    # update_progress(0, 100, "Fetching existing notes from Anki...")
 
     all_note_ids = anki_invoke("findNotes", {
         "query": f'deck:\"{deck_name}\" note:\"{model_name}\"'
@@ -72,8 +75,8 @@ def export_words_to_anki(
     # --------------------------------------------------
     # 2. Fetch notesInfo in batches
     # --------------------------------------------------
-    for i in range(0, len(all_note_ids), batch_size):
-        batch_ids = all_note_ids[i:i + batch_size]
+    for i in range(0, len(all_note_ids), note_fetching_batch_size):
+        batch_ids = all_note_ids[i:i + note_fetching_batch_size]
 
         notes = anki_invoke("notesInfo", {
             "notes": batch_ids
@@ -83,14 +86,25 @@ def export_words_to_anki(
             jp_field = note["fields"]["Japanese"]["value"]
             existing_words[jp_field] = note
 
-        if progress_handler:
-            progress = int((i + batch_size) / max(len(all_note_ids), 1) * 100)
-            progress_handler(
-                ProcessingStep.ANKI_EXPORT,
-                0,
-                100,
-                f"Fetching existing notes from Anki... {min(progress, 100)}%",
-            )
+        progress = (i + note_fetching_batch_size) / max(len(all_note_ids), 1) * 25
+        update_progress(progress, 100, "Fetching existing notes from Anki...")
+
+    # --------------------------------------------------
+    # 2.5 DELETE OBSOLETE NOTES
+    # --------------------------------------------------
+    desired_words = set(words.keys())
+    existing_set = set(existing_words.keys())
+
+    obsolete_words = existing_set - desired_words
+    obsolete_note_ids = [
+        existing_words[word]["noteId"]
+        for word in obsolete_words
+    ]
+
+    for i in range(0, len(obsolete_note_ids), batch_size):
+        anki_invoke("deleteNotes", {
+            "notes": obsolete_note_ids[i:i + batch_size]
+        })
 
     # --------------------------------------------------
     # 3. Prepare add + update batches
@@ -99,18 +113,16 @@ def export_words_to_anki(
     update_actions = []
     total_notes_to_update = 0
 
-    for word, stats in words.items():
+    for i, (word, stats) in enumerate(words.items(), start=1):
         new_tags = set(stats.tags)
 
         if word in existing_words:
             note = existing_words[word]
             note_id = note["noteId"]
 
-            # TODO
             dirty = anki_fields_differ_from_stats(note, stats)
 
             if dirty:
-                # ---- update fields ----
                 update_actions.append({
                     "action": "updateNoteFields",
                     "params": {
@@ -121,14 +133,14 @@ def export_words_to_anki(
                                 "Reading": stats.reading,
                                 "Meaning": stats.definition,
                                 "Position": str(stats.index),
-                                "Frequency": str(stats.frequency),
+                                "Frequency": str(int(stats.frequency)),
                                 "FrequencyNormalized": str(stats.score),
+                                "Sentence": stats.sentences[0] if stats.sentences else ""
                             }
                         }
                     }
                 })
 
-            # ---- merge tags ----
             old_tags = set(note["tags"])
             merged = new_tags - old_tags
             if merged:
@@ -143,14 +155,11 @@ def export_words_to_anki(
             if dirty or merged:
                 total_notes_to_update += 1
         else:
-            # Defensive duplicate check (Anki is stricter than we are)
-            dup_ids = anki_invoke("findNotes", {
-                "query": f'Japanese:"{word}"'
-            })
-
-            if dup_ids:
-                # Treat as existing → skip add entirely
-                continue
+            # dup_ids = anki_invoke("findNotes", {
+            #     "query": f'Japanese:\"{word}\"'
+            # })
+            # if dup_ids:
+            #     continue
 
             notes_to_add.append({
                 "deckName": deck_name,
@@ -162,28 +171,33 @@ def export_words_to_anki(
                     "Position": str(stats.index),
                     "Frequency": str(stats.frequency),
                     "FrequencyNormalized": str(stats.score),
+                    "Sentence": stats.sentences[0] if stats.sentences else ""
                 },
                 "tags": list(new_tags),
             })
+
+        update_progress(
+            25 + (i / len(words) * 25),
+            100,
+            "Preparing actions...",
+        )
 
     total = len(update_actions) + len(notes_to_add)
     processed = 0
 
     # --------------------------------------------------
-    # 4. Batch update existing notes (fields + tags)
+    # 4. Batch update existing notes
     # --------------------------------------------------
     for i in range(0, len(update_actions), batch_size):
         anki_invoke("multi", {
             "actions": update_actions[i:i + batch_size]
         })
 
-        if progress_handler:
-            progress_handler(
-                ProcessingStep.ANKI_EXPORT,
-                i,
-                total,
-                "Updating existing notes...",
-            )
+        update_progress(
+            50 + (i / max(total, 1) * 50),
+            100,
+            "Updating existing notes...",
+        )
 
     processed = len(update_actions)
 
@@ -195,32 +209,43 @@ def export_words_to_anki(
             "notes": notes_to_add[i:i + batch_size]
         })
 
-        if progress_handler:
-            progress_handler(
-                ProcessingStep.ANKI_EXPORT,
-                processed + i,
-                total,
-                "Adding new notes...",
-            )
+        update_progress(
+            50 + ((processed + i) / max(total, 1) * 50),
+            100,
+            "Adding new notes...",
+        )
 
-    if progress_handler:
-        progress_handler(ProcessingStep.ANKI_EXPORT, 100, 100, f'{total_notes_to_update} notes updated and {len(notes_to_add)} added.')
+    update_progress(
+        100,
+        100,
+        f"{len(obsolete_note_ids)} deleted, {total_notes_to_update} updated, {len(notes_to_add)} added.",
+    )
 
 
 def anki_fields_differ_from_stats(note, stats) -> bool:
     note_fields = note["fields"]
 
-    if stats.reading != note_fields["Reading"]["value"]:
+    # Map stats attributes to Anki field names and whether they need str()
+    stats_to_note_fields = {
+        "reading": "Reading",
+        "definition": "Meaning",
+        "index": "Position",
+        "frequency": "Frequency",
+        "score": "FrequencyNormalized"
+    }
+
+    for attr, field_name in stats_to_note_fields.items():
+        stats_value = str(getattr(stats, attr))
+        note_value = note_fields[field_name]["value"]
+        
+        if stats_value != note_value:
+            return True
+
+    # Handle sentence separately
+    note_sentence = note_fields["Sentence"]["value"]
+    stats_sentence = stats.sentences[0] if stats.sentences else ""
+    
+    if stats_sentence != note_sentence:
         return True
 
-    if stats.definition != note_fields["Meaning"]["value"]:
-        return True
-
-    if str(stats.index) != note_fields["Position"]["value"]:
-        return True
-
-    if str(stats.frequency) != note_fields["Frequency"]["value"]:
-        return True
-
-    if str(stats.score) != note_fields["FrequencyNormalized"]["value"]:
-        return True
+    return False
