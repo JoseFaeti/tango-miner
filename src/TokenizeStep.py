@@ -51,30 +51,54 @@ def tokenize(input_path, output_path, word_data=None, cache_dir=None, progress_h
     else:
         token_index += 1
 
-    with open(input_path, encoding="utf-8") as f:
-        text = f.read()
+    input_path = Path(input_path)
+    file_mtime = input_path.stat().st_mtime_ns  # cheap + precise
 
-    cache = TokenCache(cache_dir=cache_dir, tokenizer_fingerprint=TOKENIZER_FINGERPRINT)
-    tokens = cache.get(text)
+    cache = TokenCache(
+        cache_dir=cache_dir,
+        tokenizer_fingerprint=TOKENIZER_FINGERPRINT,
+    )
 
-    if tokens is None:
-        tagger = Tagger(f'-d "{Path(unidic.DICDIR)}"')
-        tokens = [unidic_node_to_dict(n) for n in tagger(text)]
-        cache.put(text, tokens)
+    # --------------------------------------------------
+    # 1. Fast path: mtime-based cache check
+    # --------------------------------------------------
+    cached = cache.get_by_mtime(input_path, file_mtime)
 
+    if cached is not None:
+        tokens = cached
+    else:
+        # --------------------------------------------------
+        # 2. Slow path: read + hash + tokenize
+        # --------------------------------------------------
+        with open(input_path, encoding="utf-8") as f:
+            text = f.read()
+
+        tokens = cache.get(text)
+
+        if tokens is None:
+            tagger = Tagger(f'-d "{Path(unidic.DICDIR)}"')
+            tokens = [unidic_node_to_dict(n) for n in tagger(text)]
+            cache.put(text, tokens)
+
+        # --------------------------------------------------
+        # 3. Store mtime → token mapping
+        # --------------------------------------------------
+        cache.put_by_mtime(input_path, file_mtime, text, tokens)
+
+    # --------------------------------------------------
+    # Sentence extraction + stats (unchanged)
+    # --------------------------------------------------
     current_sentence_tokens = []
     current_sentence_lemmas = []
 
     def is_japanese_char(c):
-        """Return True if character is Japanese: kanji, hiragana, katakana, numbers, or common punctuation"""
         return (
-            "\u3040" <= c <= "\u309F"  # Hiragana
-            or "\u30A0" <= c <= "\u30FF"  # Katakana
-            or "\uFF65" <= c <= "\uFF9F"  # Half-width Katakana
-            or "\u4E00" <= c <= "\u9FFF"  # Kanji
-            # or "0" <= c <= "9"  # ASCII numbers
-            or "０" <= c <= "９"  # Full-width numbers
-            or c in "。、！？ー・「」（）"  # Common punctuation
+            "\u3040" <= c <= "\u309F"
+            or "\u30A0" <= c <= "\u30FF"
+            or "\uFF65" <= c <= "\uFF9F"
+            or "\u4E00" <= c <= "\u9FFF"
+            or "０" <= c <= "９"
+            or c in "。、！？ー・「」（）"
         )
 
     sentence_endings = {"。", "！", "？"}
@@ -82,13 +106,11 @@ def tokenize(input_path, output_path, word_data=None, cache_dir=None, progress_h
     for token in tokens:
         surface = token["surface"]
 
-        # reset sentence if non-Japanese character is found
         if any(not is_japanese_char(c) for c in surface):
             current_sentence_tokens = []
             current_sentence_lemmas = []
             continue
 
-        # add characters one by one to handle punctuation attached to word
         for char in surface:
             current_sentence_tokens.append(char)
             if char in sentence_endings:
@@ -104,7 +126,6 @@ def tokenize(input_path, output_path, word_data=None, cache_dir=None, progress_h
 
         lemma = (token["base_form"] or token["lemma"] or "").strip()
 
-        # lexical filtering
         if not lemma or is_useless(token):
             continue
 
