@@ -9,3 +9,5 @@ class WordStats:
     definition: str
     tags: set[str]
     sentences: list[str]
+    lemma: str
+    pos: list[str]

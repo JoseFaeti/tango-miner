@@ -135,7 +135,7 @@ def export_words_to_anki(
                                 "Position": str(stats.index),
                                 "Frequency": str(int(stats.frequency)),
                                 "FrequencyNormalized": str(stats.score),
-                                "Sentence": stats.sentences[0] if stats.sentences else ""
+                                "Sentence": '<br><br>'.join(stats.sentences) if stats.sentences else ""
                             }
                         }
                     }
@@ -171,7 +171,7 @@ def export_words_to_anki(
                     "Position": str(stats.index),
                     "Frequency": str(stats.frequency),
                     "FrequencyNormalized": str(stats.score),
-                    "Sentence": stats.sentences[0] if stats.sentences else ""
+                    "Sentence": '<br><br>'.join(stats.sentences) if stats.sentences else ""
                 },
                 "tags": list(new_tags),
             })
@@ -231,7 +231,7 @@ def anki_fields_differ_from_stats(note, stats) -> bool:
         "definition": "Meaning",
         "index": "Position",
         "frequency": "Frequency",
-        "score": "FrequencyNormalized"
+        "score": "FrequencyNormalized",
     }
 
     for attr, field_name in stats_to_note_fields.items():
@@ -243,7 +243,7 @@ def anki_fields_differ_from_stats(note, stats) -> bool:
 
     # Handle sentence separately
     note_sentence = note_fields["Sentence"]["value"]
-    stats_sentence = stats.sentences[0] if stats.sentences else ""
+    stats_sentence = '<br><br>'.join(stats.sentences) if stats.sentences else ""
     
     if stats_sentence != note_sentence:
         return True

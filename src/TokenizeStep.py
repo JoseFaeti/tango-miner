@@ -31,7 +31,7 @@ SKIP_POS = {
     "接尾辞",     # suffix
 }
 
-TOKENIZER_FINGERPRINT = "unidic-2.1.2+postproc-v1"
+TOKENIZER_FINGERPRINT = "unidic-2.1.2+postproc-v1.2026/01/16"
 
 class TokenizeStep(PipelineStep):
     def process(self, artifact: Artifact) -> Artifact:
@@ -101,7 +101,7 @@ def tokenize(input_path, output_path, word_data=None, cache_dir=None, progress_h
             or c in "。、！？ー・「」（）"
         )
 
-    sentence_endings = {"。", "！", "？"}
+    sentence_endings = {"。", "！", "？", "「", "」"}
 
     for token in tokens:
         surface = token["surface"]
@@ -113,14 +113,18 @@ def tokenize(input_path, output_path, word_data=None, cache_dir=None, progress_h
 
         for char in surface:
             current_sentence_tokens.append(char)
+            
             if char in sentence_endings:
                 sentence = "".join(current_sentence_tokens).strip()
-                sentence += f'<br>[{tag}]' if tag else ""
+                
                 if len(sentence) > 5:
+                    sentence += f'<br>[{tag}]' if tag else ""
+                    
                     for lemma in set(current_sentence_lemmas):
                         ws = word_data.get(lemma)
                         if ws and len(ws.sentences) < 3:
                             ws.sentences.append(sentence)
+                
                 current_sentence_tokens = []
                 current_sentence_lemmas = []
 
@@ -136,7 +140,17 @@ def tokenize(input_path, output_path, word_data=None, cache_dir=None, progress_h
             ws = word_data[lemma]
             ws.frequency += 1
         else:
-            ws = WordStats(token_index, 1, 0.0, "", "", set(), [])
+            ws = WordStats(
+                token_index,
+                1,
+                0.0,
+                kata_to_hira(token.get("reading") or ""),
+                "",   # definition later
+                set(),
+                [],
+                lemma,
+                token['pos']
+            )
             word_data[lemma] = ws
 
         if tag:
@@ -148,13 +162,37 @@ def tokenize(input_path, output_path, word_data=None, cache_dir=None, progress_h
 def unidic_node_to_dict(node) -> dict:
     f = node.feature  # UniDic feature object
 
+    # Pick the lemma we will use everywhere
+    lemma = (
+        getattr(f, "orthBase", None)
+        or getattr(f, "lemma", None)
+        or node.surface
+    )
+
+    # Pick the matching reading for THAT lemma
+    reading = (
+        getattr(f, "kanaBase", None)   # reading of the base form
+        or getattr(f, "kana", None)    # surface reading fallback
+    )
+
     return {
         "surface": node.surface,
-        "base_form": getattr(f, "orthBase", None),
-        "lemma": getattr(f, "lemma", None),
-        "reading": getattr(f, "reading", None),
+        "lemma": lemma,
+        "base_form": lemma,   # keep compatibility with existing code
+        "reading": kata_to_hira(reading),
         "pos": [f.pos1, f.pos2, f.pos3, f.pos4],
     }
+
+
+def kata_to_hira(text: str) -> str:
+    """Convert katakana to hiragana."""
+    result = []
+    for ch in text:
+        code = ord(ch)
+        if 0x30A1 <= code <= 0x30F3:  # Katakana range
+            ch = chr(code - 0x60)
+        result.append(ch)
+    return "".join(result)
 
 
 def is_useless(token: str) -> bool:

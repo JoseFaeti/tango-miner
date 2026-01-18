@@ -29,7 +29,6 @@ def write_final_file(input, output_file, progress_handler=None):
 
         for word in sorted_words_by_score:
             word_data = sorted_words_by_score[word]
-            first_sentence = word_data.sentences[0] if word_data.sentences else ""
 
             writer.writerow([
                 word,
@@ -39,7 +38,7 @@ def write_final_file(input, output_file, progress_handler=None):
                 word_data.score,
                 word_data.definition,
                 " ".join(sorted(word_data.tags)),
-                first_sentence
+                '<br><br>'.join(word_data.sentences) if word_data.sentences else ""
             ])
 
     if progress_handler:

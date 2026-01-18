@@ -6,7 +6,6 @@ from tempfile import TemporaryDirectory
 from os import path
 
 from src.AddDefinitionsStep import AddDefinitionsStep
-from src.AddReadingsStep import AddReadingsStep
 from src.AddWordsToAnkiStep import AddWordsToAnkiStep
 from src.Artifact import Artifact
 from src.Column import Column
@@ -139,7 +138,6 @@ def process_script():
             steps = [
                 TokenizeDirectoryStep(input_path_obj, include_subdirectories=recursive),
                 FilterFrequencyStep(min_frequency),
-                AddReadingsStep(),
                 AddDefinitionsStep(),
                 ScoreWordStep(),
                 WriteOutputStep(output_path),
