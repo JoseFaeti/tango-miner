@@ -9,7 +9,7 @@ from .Artifact import Artifact
 from .PipelineStep import PipelineStep
 from .ProcessingStep import ProcessingStep
 from .TokenCache import TokenCache
-from .WordStats import WordStats
+from .WordStats import WordStats, Sentence
 
 # Regex for detecting Katakana-only and small kana endings
 RE_ALL_KATAKANA = re.compile(r"^[ァ-ンー]+$")
@@ -32,6 +32,7 @@ SKIP_POS = {
 }
 
 TOKENIZER_FINGERPRINT = "unidic-2.1.2+postproc-v1.2026/01/16"
+SENT_BOUNDARY = "␤"  # any char that will never appear naturally
 
 class TokenizeStep(PipelineStep):
     def process(self, artifact: Artifact) -> Artifact:
@@ -73,6 +74,9 @@ def tokenize(input_path, output_path, word_data=None, cache_dir=None, progress_h
         with open(input_path, encoding="utf-8") as f:
             text = f.read()
 
+        text = text.replace("\r\n", "\n").replace("\r", "\n")
+        text = text.replace("\n", SENT_BOUNDARY)
+
         tokens = cache.get(text)
 
         if tokens is None:
@@ -98,10 +102,10 @@ def tokenize(input_path, output_path, word_data=None, cache_dir=None, progress_h
             or "\uFF65" <= c <= "\uFF9F"
             or "\u4E00" <= c <= "\u9FFF"
             or "０" <= c <= "９"
-            or c in "。、！？ー・「」（）"
+            or c in "。、！？ー・「」（）…  "
         )
 
-    sentence_endings = {"。", "！", "？", "「", "」"}
+    sentence_endings = {"。", "！", "？", "「", "」", "・", SENT_BOUNDARY}
 
     for token in tokens:
         surface = token["surface"]
@@ -118,12 +122,11 @@ def tokenize(input_path, output_path, word_data=None, cache_dir=None, progress_h
                 sentence = "".join(current_sentence_tokens).strip()
                 
                 if len(sentence) > 5:
-                    sentence += f'<br>[{tag}]' if tag else ""
-                    
                     for lemma in set(current_sentence_lemmas):
                         ws = word_data.get(lemma)
                         if ws and len(ws.sentences) < 3:
-                            ws.sentences.append(sentence)
+                            # print(sentence, tag, input_path)
+                            ws.sentences.append(Sentence(sentence, tag, input_path))
                 
                 current_sentence_tokens = []
                 current_sentence_lemmas = []
@@ -185,6 +188,9 @@ def unidic_node_to_dict(node) -> dict:
 
 
 def kata_to_hira(text: str) -> str:
+    if not text:
+        return
+
     """Convert katakana to hiragana."""
     result = []
     for ch in text:

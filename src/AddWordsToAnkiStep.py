@@ -135,7 +135,10 @@ def export_words_to_anki(
                                 "Position": str(stats.index),
                                 "Frequency": str(int(stats.frequency)),
                                 "FrequencyNormalized": str(stats.score),
-                                "Sentence": '<br><br>'.join(stats.sentences) if stats.sentences else ""
+                                "Sentence": "<br><br>".join(
+                                    f"{s.text}<br><small>{s.tag}</small>"
+                                    for s in stats.sentences
+                                ) if stats.sentences else ""
                             }
                         }
                     }
@@ -171,7 +174,10 @@ def export_words_to_anki(
                     "Position": str(stats.index),
                     "Frequency": str(stats.frequency),
                     "FrequencyNormalized": str(stats.score),
-                    "Sentence": '<br><br>'.join(stats.sentences) if stats.sentences else ""
+                    "Sentence": "<br><br>".join(
+                        f"{s.text}<br><small>{s.tag}</small>"
+                        for s in stats.sentences
+                    ) if stats.sentences else ""
                 },
                 "tags": list(new_tags),
             })
@@ -243,7 +249,10 @@ def anki_fields_differ_from_stats(note, stats) -> bool:
 
     # Handle sentence separately
     note_sentence = note_fields["Sentence"]["value"]
-    stats_sentence = '<br><br>'.join(stats.sentences) if stats.sentences else ""
+    stats_sentence = "<br><br>".join(
+        f"{s.text}<br><small>{s.tag}</small>"
+        for s in stats.sentences
+    ) if stats.sentences else ""
     
     if stats_sentence != note_sentence:
         return True

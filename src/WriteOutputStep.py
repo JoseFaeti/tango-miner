@@ -38,7 +38,10 @@ def write_final_file(input, output_file, progress_handler=None):
                 word_data.score,
                 word_data.definition,
                 " ".join(sorted(word_data.tags)),
-                '<br><br>'.join(word_data.sentences) if word_data.sentences else ""
+                "<br><br>".join(
+                    f"{s.text}<br><small>{s.tag}</small>"
+                    for s in word_data.sentences
+                ) if word_data.sentences else ""
             ])
 
     if progress_handler:
