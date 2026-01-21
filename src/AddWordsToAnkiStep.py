@@ -128,18 +128,7 @@ def export_words_to_anki(
                     "params": {
                         "note": {
                             "id": note_id,
-                            "fields": {
-                                "Japanese": word,
-                                "Reading": stats.reading,
-                                "Meaning": stats.definition,
-                                "Position": str(stats.index),
-                                "Frequency": str(int(stats.frequency)),
-                                "FrequencyNormalized": str(stats.score),
-                                "Sentence": "<br><br>".join(
-                                    f"{s.text}<br><small>{s.tag}</small>"
-                                    for s in stats.sentences
-                                ) if stats.sentences else ""
-                            }
+                            "fields": word_to_anki_fields(word, stats)
                         }
                     }
                 })
@@ -158,27 +147,17 @@ def export_words_to_anki(
             if dirty or merged:
                 total_notes_to_update += 1
         else:
-            # dup_ids = anki_invoke("findNotes", {
-            #     "query": f'Japanese:\"{word}\"'
-            # })
-            # if dup_ids:
-            #     continue
+            dup_ids = anki_invoke("findNotes", {
+                "query": f'Japanese:\"{word}\"'
+            })
+            
+            if dup_ids:
+                continue
 
             notes_to_add.append({
                 "deckName": deck_name,
                 "modelName": model_name,
-                "fields": {
-                    "Japanese": word,
-                    "Reading": stats.reading,
-                    "Meaning": stats.definition,
-                    "Position": str(stats.index),
-                    "Frequency": str(stats.frequency),
-                    "FrequencyNormalized": str(stats.score),
-                    "Sentence": "<br><br>".join(
-                        f"{s.text}<br><small>{s.tag}</small>"
-                        for s in stats.sentences
-                    ) if stats.sentences else ""
-                },
+                "fields": word_to_anki_fields(word, stats),
                 "tags": list(new_tags),
             })
 
@@ -228,6 +207,20 @@ def export_words_to_anki(
     )
 
 
+def word_to_anki_fields(word: str, stats):
+    return {
+        "Japanese": word,
+        "Reading": stats.reading,
+        "Meaning": stats.definition,
+        "Position": str(stats.index),
+        "Frequency": str(int(stats.frequency)),
+        "FrequencyNormalized": str(stats.score),
+        "Sentence": "<br><br>".join(
+            s.to_html() for s in stats.sentences
+        ) if stats.sentences else ""
+    }
+
+
 def anki_fields_differ_from_stats(note, stats) -> bool:
     note_fields = note["fields"]
 
@@ -241,20 +234,21 @@ def anki_fields_differ_from_stats(note, stats) -> bool:
     }
 
     for attr, field_name in stats_to_note_fields.items():
-        stats_value = str(getattr(stats, attr))
+        stats_value = str(getattr(stats, attr, ""))
         note_value = note_fields[field_name]["value"]
         
         if stats_value != note_value:
+            # print(f'different {field_name}: {stats_value} != {note_value}')
             return True
 
     # Handle sentence separately
     note_sentence = note_fields["Sentence"]["value"]
     stats_sentence = "<br><br>".join(
-        f"{s.text}<br><small>{s.tag}</small>"
-        for s in stats.sentences
+        s.to_html() for s in stats.sentences
     ) if stats.sentences else ""
     
     if stats_sentence != note_sentence:
+        # print(f'sentences differ: {stats_sentence} != {note_sentence}')
         return True
 
     return False

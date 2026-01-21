@@ -4,7 +4,6 @@ import csv
 import shelve
 import re
 
-from collections import OrderedDict
 from jamdict import Jamdict
 from pathlib import Path
 
@@ -84,9 +83,11 @@ class AddDefinitionsStep(PipelineStep):
         return Artifact(data)
 
 
-def add_and_filter_for_definitions(input: OrderedDict, progress_handler):
+def add_and_filter_for_definitions(input: dict, progress_handler):
     total = len(input)
-    kept = OrderedDict()
+    kept = {}
+
+    progress_handler(ProcessingStep.DEFINITIONS, 0, total)
 
     for i, word in enumerate(input, 1):
         word_norm = normalize_word(word)
@@ -102,6 +103,8 @@ def add_and_filter_for_definitions(input: OrderedDict, progress_handler):
             kept[word] = stats
 
         progress_handler(ProcessingStep.DEFINITIONS, i, total)
+
+    progress_handler(ProcessingStep.DEFINITIONS, 1, 1, f'{len(kept)} words kept')
 
     return kept
 

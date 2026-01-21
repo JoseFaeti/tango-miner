@@ -1,3 +1,4 @@
+import re
 from dataclasses import dataclass
 
 
@@ -6,7 +7,24 @@ class Sentence:
     text: str
     tag: str
     origin: str
-    
+    surface_form: str
+
+    def __str__(self) -> str:
+        return f'{self.text}'#' [{self.tag}][{self.origin}][{self.surface_form}]'
+
+    def to_html(self) -> str:
+        text = self.text
+
+        pattern = re.escape(self.surface_form)
+        text = re.sub(
+            pattern,
+            rf"<span class='highlight'>{self.surface_form}</span>",
+            text,
+            count=1
+        )
+
+        return f"{text}<br><span class='tag'>{self.tag}</span>"
+
 @dataclass(frozen=False)
 class WordStats:
     index: int

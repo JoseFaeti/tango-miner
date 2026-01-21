@@ -1,5 +1,4 @@
 import math
-from collections import OrderedDict
 
 from .Artifact import Artifact
 from .PipelineStep import PipelineStep
@@ -12,8 +11,11 @@ class ScoreWordStep(PipelineStep):
         return Artifact(data)
 
 
-def score_words(input: OrderedDict, progress_handler=None) -> OrderedDict:
+def score_words(input: dict, progress_handler=None) -> dict:
     total_words = len(input)
+
+    if not total_words:
+        return input
 
     max_frequency = max(stats.frequency for stats in input.values())
     max_index = max(stats.index for stats in input.values())

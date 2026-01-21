@@ -1,4 +1,4 @@
-from collections import Counter, OrderedDict
+from collections import Counter
 from fugashi import Tagger
 from pathlib import Path
 import re
@@ -18,11 +18,11 @@ RE_SMALL_KANA_END = re.compile(r"[っゃゅょァィゥェォッャュョー]+$"
 # POS categories to skip — if any level of POS matches one of these, skip it
 SKIP_POS = {
     "助詞",       # particle
-    "助動詞",     # auxiliary verb
+    # "助動詞",     # auxiliary verb
     "記号",       # symbol/punctuation
     "感動詞",     # interjection
     "接続詞",     # conjunction
-    "連体詞",     # prenominal adjective
+    # "連体詞",     # prenominal adjective
     "フィラー",      # filler like "えーと"
     "その他",      # other
     "名詞-固有名詞", # proper noun
@@ -32,7 +32,7 @@ SKIP_POS = {
 }
 
 TOKENIZER_FINGERPRINT = "unidic-2.1.2+postproc-v1.2026/01/16"
-SENT_BOUNDARY = "␤"  # any char that will never appear naturally
+SENT_BOUNDARY = "🐍"  # any char that will never appear naturally
 
 class TokenizeStep(PipelineStep):
     def process(self, artifact: Artifact) -> Artifact:
@@ -45,12 +45,8 @@ def tokenize(input_path, output_path, word_data=None, cache_dir=None, progress_h
     match = re.search(r"\[(.+?)\]", str(input_path))
     tag = match.group(1) if match else None
 
-    token_index = 0
-
     if word_data is None:
-        word_data = OrderedDict()
-    else:
-        token_index += 1
+        word_data = {}
 
     input_path = Path(input_path)
     file_mtime = input_path.stat().st_mtime_ns  # cheap + precise
@@ -59,14 +55,16 @@ def tokenize(input_path, output_path, word_data=None, cache_dir=None, progress_h
         cache_dir=cache_dir,
         tokenizer_fingerprint=TOKENIZER_FINGERPRINT,
     )
-
+    
     # --------------------------------------------------
     # 1. Fast path: mtime-based cache check
     # --------------------------------------------------
-    cached = cache.get_by_mtime(input_path, file_mtime)
+    mtime_ns = input_path.stat().st_mtime_ns
+    hash = cache.get_hash_by_mtime(input_path, mtime_ns)
 
-    if cached is not None:
-        tokens = cached
+    if hash:
+        payload = cache.load_by_hash(hash)
+        tokens = payload["tokens"]
     else:
         # --------------------------------------------------
         # 2. Slow path: read + hash + tokenize
@@ -77,59 +75,96 @@ def tokenize(input_path, output_path, word_data=None, cache_dir=None, progress_h
         text = text.replace("\r\n", "\n").replace("\r", "\n")
         text = text.replace("\n", SENT_BOUNDARY)
 
-        tokens = cache.get(text)
-
-        if tokens is None:
-            tagger = Tagger(f'-d "{Path(unidic.DICDIR)}"')
-            tokens = [unidic_node_to_dict(n) for n in tagger(text)]
-            cache.put(text, tokens)
-
-        # --------------------------------------------------
-        # 3. Store mtime → token mapping
-        # --------------------------------------------------
+        tagger = Tagger(f'-d "{Path(unidic.DICDIR)}"')
+        tokens = [unidic_node_to_dict(n) for n in tagger(text)]
+        
+        cache.put(text, tokens)
         cache.put_by_mtime(input_path, file_mtime, text, tokens)
 
+    total_tokens = len(tokens)
+
     # --------------------------------------------------
-    # Sentence extraction + stats (unchanged)
+    # Sentence extraction + stats
     # --------------------------------------------------
+    sentence = ""
     current_sentence_tokens = []
     current_sentence_lemmas = []
+    current_sentence_surfaces = {}
 
-    def is_japanese_char(c):
-        return (
-            "\u3040" <= c <= "\u309F"
-            or "\u30A0" <= c <= "\u30FF"
-            or "\uFF65" <= c <= "\uFF9F"
-            or "\u4E00" <= c <= "\u9FFF"
-            or "０" <= c <= "９"
-            or c in "。、！？ー・「」（）…  "
-        )
+    sentence_endings = {"。", "！", "？", "・", SENT_BOUNDARY}
 
-    sentence_endings = {"。", "！", "？", "「", "」", "・", SENT_BOUNDARY}
+    token_index = 0
 
-    for token in tokens:
+    for i, token in enumerate(tokens):
+        if progress_handler and (i % 1000 == 0 or i == total_tokens):
+            progress_handler(ProcessingStep.TOKENIZING, i, total_tokens)
+
+        token_index += 1
+        
         surface = token["surface"]
 
-        if any(not is_japanese_char(c) for c in surface):
-            current_sentence_tokens = []
-            current_sentence_lemmas = []
-            continue
-
         for char in surface:
-            current_sentence_tokens.append(char)
+            if not is_japanese_char(char):
+                current_sentence_tokens.clear()
+                current_sentence_lemmas.clear()
+                current_sentence_surfaces.clear()
+                continue
+
+            if char != SENT_BOUNDARY:
+                current_sentence_tokens.append(char)
             
-            if char in sentence_endings:
-                sentence = "".join(current_sentence_tokens).strip()
-                
-                if len(sentence) > 5:
-                    for lemma in set(current_sentence_lemmas):
-                        ws = word_data.get(lemma)
-                        if ws and len(ws.sentences) < 3:
-                            # print(sentence, tag, input_path)
-                            ws.sentences.append(Sentence(sentence, tag, input_path))
-                
-                current_sentence_tokens = []
-                current_sentence_lemmas = []
+            if char not in sentence_endings:
+                continue
+
+            if len(current_sentence_tokens) < 4:
+                continue
+
+            sentence = "".join(current_sentence_tokens).strip()
+            new_sentence_length = len(sentence)
+
+            # print(f'sentence = {sentence}')
+
+            lemmas_in_sentence = set(current_sentence_lemmas)
+            
+            for lemma in lemmas_in_sentence:
+                ws = word_data.get(lemma)
+                if not ws:
+                    continue
+
+                if sentence_exists(ws, sentence, tag):
+                    continue
+
+                sentences = ws.sentences
+                surface_to_highlight = current_sentence_surfaces.get(lemma, "")
+
+                if len(ws.sentences) < 3:
+                    ws.sentences.append(
+                        Sentence(sentence, tag, input_path, surface_to_highlight)
+                    )
+
+                elif new_sentence_length < 30:
+                    existing_same_tag = [s for s in sentences if s.tag == tag]
+                    
+                    if existing_same_tag:
+                        worst = min(existing_same_tag, key=lambda s: len(s.text))
+                        if new_sentence_length > len(worst.text):
+                            sentences.remove(worst)
+                            sentences.append(
+                                Sentence(sentence, tag, input_path, surface_to_highlight)
+                            )
+                    else:
+                        # new tag, lemma full → replace globally worst if better
+                        worst = min(sentences, key=lambda s: len(s.text))
+
+                        if new_sentence_length > len(worst.text):
+                            sentences.remove(worst)
+                            sentences.append(
+                                Sentence(sentence, tag, input_path, surface_to_highlight)
+                            )
+
+            current_sentence_tokens.clear()
+            current_sentence_lemmas.clear()
+            current_sentence_surfaces.clear()
 
         lemma = (token["base_form"] or token["lemma"] or "").strip()
 
@@ -137,7 +172,7 @@ def tokenize(input_path, output_path, word_data=None, cache_dir=None, progress_h
             continue
 
         current_sentence_lemmas.append(lemma)
-        token_index += 1
+        current_sentence_surfaces[lemma] = surface
 
         if lemma in word_data:
             ws = word_data[lemma]
@@ -159,7 +194,13 @@ def tokenize(input_path, output_path, word_data=None, cache_dir=None, progress_h
         if tag:
             ws.tags.add(tag)
 
+    cache.flush_mtime_index()
+
     return word_data
+
+
+def sentence_exists(ws, sentence_text: str, tag: str) -> bool:
+    return any(s.text == sentence_text and s.tag == tag for s in ws.sentences)
 
 
 def unidic_node_to_dict(node) -> dict:
@@ -240,3 +281,35 @@ def is_useless(token: str) -> bool:
             return True
 
     return False
+
+
+def is_japanese_char(c: str) -> bool:
+    return (
+        c == SENT_BOUNDARY
+        # Hiragana
+        or "\u3040" <= c <= "\u309F"
+        # Katakana
+        or "\u30A0" <= c <= "\u30FF"
+        # Half-width Katakana
+        or "\uFF65" <= c <= "\uFF9F"
+        # Kanji
+        or "\u4E00" <= c <= "\u9FFF"
+        # Iteration / repetition marks (kanji & kana)
+        or c in "々〻ゝゞヽヾ"
+        # Full-width numbers
+        or "０" <= c <= "９"
+        # ASCII numbers
+        or "0" <= c <= "9"
+        # Full-width Latin letters
+        or "Ａ" <= c <= "Ｚ"
+        or "ａ" <= c <= "ｚ"
+        # ASCII Latin letters
+        or "A" <= c <= "Z"
+        or "a" <= c <= "z"
+        # Common punctuation & symbols
+        or c in "。、！？ー・「」（）()【】『』…‥―〜〜“”\"'<>#%&+=*/:;@￥$^_〜|\\-"
+        # Spaces
+        # or c in " \u3000"
+        or c.isspace()
+    )
+

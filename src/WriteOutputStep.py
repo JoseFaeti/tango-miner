@@ -39,9 +39,28 @@ def write_final_file(input, output_file, progress_handler=None):
                 word_data.definition,
                 " ".join(sorted(word_data.tags)),
                 "<br><br>".join(
-                    f"{s.text}<br><small>{s.tag}</small>"
-                    for s in word_data.sentences
+                    s.to_html() for s in word_data.sentences
                 ) if word_data.sentences else ""
+            ])
+
+    p = output_file
+    with open(p.with_name(p.stem + ".sentence" + p.suffix), 'w', encoding='utf-8', newline="") as sentence_file:
+        sorted_items = sorted(
+            input.items(),
+            key=lambda item: item[1].score,  # sort by score
+            reverse=True                  # highest score first
+        )
+
+        sorted_words_by_score = dict(sorted_items)
+
+        writer = csv.writer(sentence_file)
+
+        for word, word_data in sorted_words_by_score.items():
+            if not word_data.sentences:
+                continue
+
+            writer.writerow([
+                "\n".join(str(s) for s in word_data.sentences)
             ])
 
     if progress_handler:

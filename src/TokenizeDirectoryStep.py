@@ -1,6 +1,5 @@
 import appdirs
 
-from collections import OrderedDict
 from pathlib import Path
 
 from .Artifact import Artifact
@@ -23,31 +22,40 @@ class TokenizeDirectoryStep(PipelineStep):
       self.include_subdirectories = include_subdirectories
 
   def process(self, artifact: Artifact) -> Artifact:
-      combined_tokens = OrderedDict()
+      combined_tokens = {}
       cache_dir = Path(appdirs.user_cache_dir("tango_miner"))
 
-      total = count_files(self.directory, self.include_subdirectories)
-      index = 0
+      self.total = count_files(self.directory, self.include_subdirectories)
+      self.total_tokens = 0
+      self.index = 0
+      self.current_file = None
 
       for dir_path, file_path in iter_input_files(self.directory, include_subdirectories=self.include_subdirectories):
+          self.current_file = Path(file_path)
+
           self.progress(
               ProcessingStep.TOKENIZING,
-              index,
-              total,
-              f'{len(combined_tokens)} tokens ({str(Path(file_path).name)})'
+              self.index,
+              self.total,
+              f'{len(combined_tokens)} tokens ({self.current_file.name})'
           )
 
-          combined_tokens = tokenize(file_path, None, combined_tokens, cache_dir=cache_dir)
-          index += 1
+          combined_tokens = tokenize(file_path, None, combined_tokens, cache_dir=cache_dir, progress_handler=self.tokenizer_progress)
+          self.index += 1
+          self.total_tokens = len(combined_tokens)
           
       self.progress(
           ProcessingStep.TOKENIZING,
-          total,
-          total,
+          1,
+          1,
           f'{len(combined_tokens)} tokens'
       )
 
       return Artifact(combined_tokens)
+
+
+  def tokenizer_progress(self, step, current, total, message=""):
+      self.progress(step, (current/total*100) + 100 * self.index, 100 * self.total, f'{self.total_tokens} tokens ({self.current_file.name})')
 
   
 def iter_input_files(directory: Path, *, include_subdirectories: bool):

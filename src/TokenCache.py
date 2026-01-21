@@ -1,9 +1,10 @@
-import gzip
 import json
 import hashlib
 import unicodedata
+import pickle
 from datetime import datetime
 from pathlib import Path
+
 
 class TokenCache:
     def __init__(self, cache_dir: Path, tokenizer_fingerprint: str):
@@ -11,7 +12,6 @@ class TokenCache:
         self.fingerprint = tokenizer_fingerprint
         self.cache_dir.mkdir(parents=True, exist_ok=True)
 
-        # separate index for mtime → content hash
         self.mtime_index_path = self.cache_dir / "mtime_index.json"
 
         if self.mtime_index_path.exists():
@@ -22,7 +22,10 @@ class TokenCache:
         else:
             self._mtime_index = {}
 
-    # ---------------- core helpers ----------------
+        self._mtime_dirty = False
+
+
+    # ---------------- helpers ----------------
 
     def _normalize_text(self, text: str) -> str:
         text = unicodedata.normalize("NFKC", text)
@@ -36,29 +39,30 @@ class TokenCache:
         return h.hexdigest()
 
     def _cache_path(self, key: str) -> Path:
-        return self.cache_dir / f"{key}.json.gz"
+        return self.cache_dir / f"{key}.pkl"
 
-    def _flush_mtime_index(self):
+    def flush_mtime_index(self):
+        if not self._mtime_dirty:
+            return
+
         self.mtime_index_path.write_text(
             json.dumps(self._mtime_index, ensure_ascii=False),
             encoding="utf-8",
         )
+        self._mtime_dirty = False
+
 
     # ---------------- hash-based cache ----------------
 
-    def get(self, text: str):
-        normalized = self._normalize_text(text)
-        key = self._compute_key(normalized)
+    def load_by_hash(self, key: str):
         path = self._cache_path(key)
-
         if not path.exists():
             return None
 
         try:
-            with gzip.open(path, "rt", encoding="utf-8") as f:
-                payload = json.load(f)
-            return payload["tokens"]
-        except (json.JSONDecodeError, EOFError, OSError):
+            with open(path, "rb") as f:
+                return pickle.load(f)
+        except Exception:
             path.unlink(missing_ok=True)
             return None
 
@@ -74,41 +78,28 @@ class TokenCache:
             "tokens": tokens,
         }
 
-        with gzip.open(path, "wt", encoding="utf-8") as f:
-            json.dump(payload, f, ensure_ascii=False)
+        with open(path, "wb") as f:
+            pickle.dump(payload, f, protocol=pickle.HIGHEST_PROTOCOL)
 
-        return key  # important: return hash for mtime index
+        return key
+
 
     # ---------------- mtime-based shortcut ----------------
 
-    def get_by_mtime(self, path: Path, mtime_ns: int):
-        key = str(path.resolve())
-        entry = self._mtime_index.get(key)
-
-        if not entry or entry["mtime"] != mtime_ns:
-            return None
-
-        cache_path = self._cache_path(entry["hash"])
-        if not cache_path.exists():
-            return None
-
-        try:
-            with gzip.open(cache_path, "rt", encoding="utf-8") as f:
-                payload = json.load(f)
-            return payload["tokens"]
-        except Exception:
-            return None
+    def get_hash_by_mtime(self, path: Path, mtime_ns: int):
+        entry = self._mtime_index.get(str(path.resolve()))
+        if entry and entry["mtime"] == mtime_ns:
+            return entry["hash"]
+        return None
 
     def put_by_mtime(self, path: Path, mtime_ns: int, text: str, tokens):
         normalized = self._normalize_text(text)
         content_hash = self._compute_key(normalized)
 
-        # store token blob
         self.put(text, tokens)
 
-        # update index
         self._mtime_index[str(path.resolve())] = {
             "mtime": mtime_ns,
             "hash": content_hash,
         }
-        self._flush_mtime_index()
+        self._mtime_dirty = True
