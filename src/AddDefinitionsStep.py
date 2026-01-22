@@ -89,7 +89,7 @@ def add_and_filter_for_definitions(input: dict, progress_handler):
 
     progress_handler(ProcessingStep.DEFINITIONS, 0, total)
 
-    for i, word in enumerate(input, 1):
+    for i, word in enumerate(input):
         word_norm = normalize_word(word)
         definition = get_cached_definition(word_norm)
 

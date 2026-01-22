@@ -42,33 +42,32 @@ class TokenizeStep(PipelineStep):
 
 
 def tokenize(input_path, output_path, word_data=None, cache_dir=None, progress_handler=None):
-    match = re.search(r"\[(.+?)\]", str(input_path))
+    input_path = Path(input_path)
+    path_str = str(input_path)
+
+    match = re.search(r"\[(.+?)\]", path_str)
     tag = match.group(1) if match else None
 
     if word_data is None:
         word_data = {}
 
-    input_path = Path(input_path)
-    file_mtime = input_path.stat().st_mtime_ns  # cheap + precise
+    stat = input_path.stat()
+    file_mtime = stat.st_mtime_ns
 
     cache = TokenCache(
         cache_dir=cache_dir,
         tokenizer_fingerprint=TOKENIZER_FINGERPRINT,
     )
-    
-    # --------------------------------------------------
-    # 1. Fast path: mtime-based cache check
-    # --------------------------------------------------
-    mtime_ns = input_path.stat().st_mtime_ns
-    hash = cache.get_hash_by_mtime(input_path, mtime_ns)
 
-    if hash:
-        payload = cache.load_by_hash(hash)
+    # ------------------------------
+    # Cache fast path
+    # ------------------------------
+    hash_ = cache.get_hash_by_mtime(input_path, file_mtime)
+
+    if hash_:
+        payload = cache.load_by_hash(hash_)
         tokens = payload["tokens"]
     else:
-        # --------------------------------------------------
-        # 2. Slow path: read + hash + tokenize
-        # --------------------------------------------------
         with open(input_path, encoding="utf-8") as f:
             text = f.read()
 
@@ -77,42 +76,52 @@ def tokenize(input_path, output_path, word_data=None, cache_dir=None, progress_h
 
         tagger = Tagger(f'-d "{Path(unidic.DICDIR)}"')
         tokens = [unidic_node_to_dict(n) for n in tagger(text)]
-        
+
         cache.put(text, tokens)
         cache.put_by_mtime(input_path, file_mtime, text, tokens)
 
     total_tokens = len(tokens)
 
-    # --------------------------------------------------
-    # Sentence extraction + stats
-    # --------------------------------------------------
-    sentence = ""
+    # ------------------------------
+    # Local bindings (HOT PATH)
+    # ------------------------------
+    is_jp_char = is_japanese_char
+    is_useless_local = is_useless
+    sentence_exists_local = sentence_exists
+    kata_to_hira_local = kata_to_hira
+    WordStats_local = WordStats
+    Sentence_local = Sentence
+    word_data_get = word_data.get
+
+    SENT = SENT_BOUNDARY
+    sentence_endings = {"。", "！", "？", "・", SENT}
+
     current_sentence_tokens = []
     current_sentence_lemmas = []
     current_sentence_surfaces = {}
 
-    sentence_endings = {"。", "！", "？", "・", SENT_BOUNDARY}
-
     token_index = 0
 
+    # ------------------------------
+    # Main loop
+    # ------------------------------
     for i, token in enumerate(tokens):
-        if progress_handler and (i % 1000 == 0 or i == total_tokens):
+        if progress_handler and (i % 1000 == 0):
             progress_handler(ProcessingStep.TOKENIZING, i, total_tokens)
 
         token_index += 1
-        
         surface = token["surface"]
 
         for char in surface:
-            if not is_japanese_char(char):
-                current_sentence_tokens.clear()
-                current_sentence_lemmas.clear()
-                current_sentence_surfaces.clear()
+            if not is_jp_char(char):
+                current_sentence_tokens = []
+                current_sentence_lemmas = []
+                current_sentence_surfaces = {}
                 continue
 
-            if char != SENT_BOUNDARY:
+            if char != SENT:
                 current_sentence_tokens.append(char)
-            
+
             if char not in sentence_endings:
                 continue
 
@@ -120,74 +129,72 @@ def tokenize(input_path, output_path, word_data=None, cache_dir=None, progress_h
                 continue
 
             sentence = "".join(current_sentence_tokens).strip()
-            new_sentence_length = len(sentence)
-
-            # print(f'sentence = {sentence}')
+            new_len = len(sentence)
 
             lemmas_in_sentence = set(current_sentence_lemmas)
-            
+
             for lemma in lemmas_in_sentence:
-                ws = word_data.get(lemma)
+                ws = word_data_get(lemma)
                 if not ws:
                     continue
 
-                if sentence_exists(ws, sentence, tag):
+                if sentence_exists_local(ws, sentence, tag):
                     continue
 
                 sentences = ws.sentences
-                surface_to_highlight = current_sentence_surfaces.get(lemma, "")
+                surface_hl = current_sentence_surfaces.get(lemma, "")
 
-                if len(ws.sentences) < 3:
-                    ws.sentences.append(
-                        Sentence(sentence, tag, input_path, surface_to_highlight)
+                if len(sentences) < 3:
+                    sentences.append(
+                        Sentence_local(sentence, tag, input_path, surface_hl)
                     )
+                elif new_len < 30:
+                    worst = None
 
-                elif new_sentence_length < 30:
-                    existing_same_tag = [s for s in sentences if s.tag == tag]
-                    
-                    if existing_same_tag:
-                        worst = min(existing_same_tag, key=lambda s: len(s.text))
-                        if new_sentence_length > len(worst.text):
-                            sentences.remove(worst)
-                            sentences.append(
-                                Sentence(sentence, tag, input_path, surface_to_highlight)
-                            )
-                    else:
-                        # new tag, lemma full → replace globally worst if better
-                        worst = min(sentences, key=lambda s: len(s.text))
+                    if tag:
+                        for s in sentences:
+                            if s.tag == tag and (worst is None or len(s.text) < len(worst.text)):
+                                worst = s
 
-                        if new_sentence_length > len(worst.text):
-                            sentences.remove(worst)
-                            sentences.append(
-                                Sentence(sentence, tag, input_path, surface_to_highlight)
-                            )
+                    if worst is None:
+                        for s in sentences:
+                            if worst is None or len(s.text) < len(worst.text):
+                                worst = s
 
-            current_sentence_tokens.clear()
-            current_sentence_lemmas.clear()
-            current_sentence_surfaces.clear()
+                    if worst and new_len > len(worst.text):
+                        sentences.remove(worst)
+                        sentences.append(
+                            Sentence_local(sentence, tag, input_path, surface_hl)
+                        )
 
-        lemma = (token["base_form"] or token["lemma"] or "").strip()
+            current_sentence_tokens = []
+            current_sentence_lemmas = []
+            current_sentence_surfaces = {}
 
-        if not lemma or is_useless(token):
+        lemma = token["base_form"] or token["lemma"]
+        if not lemma or not token.get("reading"):
+            continue
+
+        if is_useless_local(token):
             continue
 
         current_sentence_lemmas.append(lemma)
         current_sentence_surfaces[lemma] = surface
 
-        if lemma in word_data:
-            ws = word_data[lemma]
+        ws = word_data_get(lemma)
+        if ws:
             ws.frequency += 1
         else:
-            ws = WordStats(
+            ws = WordStats_local(
                 token_index,
                 1,
                 0.0,
-                kata_to_hira(token.get("reading") or ""),
-                "",   # definition later
+                kata_to_hira_local(token["reading"]),
+                "",
                 set(),
                 [],
                 lemma,
-                token['pos']
+                token["pos"],
             )
             word_data[lemma] = ws
 
@@ -195,7 +202,7 @@ def tokenize(input_path, output_path, word_data=None, cache_dir=None, progress_h
             ws.tags.add(tag)
 
     cache.flush_mtime_index()
-
+    
     return word_data
 
 
@@ -242,43 +249,74 @@ def kata_to_hira(text: str) -> str:
     return "".join(result)
 
 
-def is_useless(token: str) -> bool:
-    """Return True if the token is noise or non-lexical."""
+def is_useless(token: dict) -> bool:
     lemma = token["base_form"] or token["lemma"]
     pos_list = token["pos"]
 
-    # Skip non-Japanese and Katakana-only
-    if RE_ALL_KATAKANA.fullmatch(lemma):
-        return True
-    if not re.search(r"[ぁ-んァ-ン一-龯]", lemma):
-        return True
+    # Local bindings (faster lookups)
+    skip_pos = SKIP_POS
+    re_all_katakana = RE_ALL_KATAKANA
+    re_small_kana_end = RE_SMALL_KANA_END
 
-    # Filter by POS
-    for pos in pos_list:
-        if not pos:
-            continue
-        for skip in SKIP_POS:
-            if pos.startswith(skip):
-                return True
-
-    # Truncated stems like 言っ, しょっ, etc.
-    if RE_SMALL_KANA_END.search(lemma):
+    # Empty / trivial guard
+    if not lemma:
         return True
 
-    # Non-content single kana or noise
-    if len(lemma) == 1 and re.match(r"[ぁ-んァ-ン]", lemma):
+    # Skip katakana-only early (cheap regex, very selective)
+    if re_all_katakana.fullmatch(lemma):
         return True
 
     # Skip words ending with small tsu or elongation mark
-    if lemma.endswith(('っ', 'ッ', 'ー')):
+    last = lemma[-1]
+    if last in ("っ", "ッ", "ー"):
         return True
 
-    # Skip kana-only repeated characters (like はははははは)
-    if all('ぁ' <= c <= 'ん' or c in "ーっッ" for c in lemma):
-        counter = Counter(lemma)
-        most_common_count = counter.most_common(1)[0][1]
-        if most_common_count / len(lemma) > 0.6:
+    # Require at least one Japanese character (manual loop beats regex)
+    has_japanese = False
+    for c in lemma:
+        if (
+            "ぁ" <= c <= "ん"
+            or "ァ" <= c <= "ン"
+            or "一" <= c <= "龯"
+        ):
+            has_japanese = True
+            break
+    if not has_japanese:
+        return True
+
+    # POS filtering (flattened)
+    for pos in pos_list:
+        if pos:
+            for skip in skip_pos:
+                if pos.startswith(skip):
+                    return True
+
+    # Truncated stems like 言っ, しょっ
+    if re_small_kana_end.search(lemma):
+        return True
+
+    # Single kana noise
+    if len(lemma) == 1:
+        c = lemma[0]
+        if "ぁ" <= c <= "ん" or "ァ" <= c <= "ン":
             return True
+
+    # Kana-only repetition detection (no Counter)
+    kana_only = True
+    freq = {}
+    max_count = 0
+
+    for c in lemma:
+        if not ("ぁ" <= c <= "ん" or c in "ーっッ"):
+            kana_only = False
+            break
+        count = freq.get(c, 0) + 1
+        freq[c] = count
+        if count > max_count:
+            max_count = count
+
+    if kana_only and max_count / len(lemma) > 0.6:
+        return True
 
     return False
 

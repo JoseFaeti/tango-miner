@@ -54,7 +54,7 @@ def calculate_score(
     """
 
     # Normalize index between 0 (start) and 1 (end)
-    index_score = 1 - (index / max_index) if max_index > 0 else 1.0
+    index_score = 1 - (index / max_index) ** 1.5 if max_index > 0 else 1.0
 
     # Log-scale frequency to spread out scores for common words
     frequency_score = math.log1p(frequency) / math.log1p(max_frequency) if max_frequency > 0 else 0

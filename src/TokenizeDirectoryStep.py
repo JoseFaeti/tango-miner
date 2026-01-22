@@ -48,7 +48,7 @@ class TokenizeDirectoryStep(PipelineStep):
           ProcessingStep.TOKENIZING,
           1,
           1,
-          f'{len(combined_tokens)} tokens'
+          f'{len(combined_tokens)} tokens from {self.index} files'
       )
 
       return Artifact(combined_tokens)
