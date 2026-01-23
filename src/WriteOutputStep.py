@@ -53,15 +53,13 @@ def write_final_file(input, output_file, progress_handler=None):
 
         sorted_words_by_score = dict(sorted_items)
 
-        writer = csv.writer(sentence_file)
-
         for word, word_data in sorted_words_by_score.items():
             if not word_data.sentences:
                 continue
 
-            writer.writerow([
+            sentence_file.write(
                 "\n".join(str(s) for s in word_data.sentences)
-            ])
+            )
 
     if progress_handler:
         progress_handler(None, 1, 1, f'Output written to {Path(output_file).resolve()}.')

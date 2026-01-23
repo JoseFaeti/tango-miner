@@ -4,7 +4,6 @@ import csv
 import shelve
 import re
 
-from jamdict import Jamdict
 from pathlib import Path
 
 from .Artifact import Artifact
@@ -24,52 +23,38 @@ PRI_WEIGHTS = {
     # "nfXX" tags handled dynamically
 }
 
-cache = None               # shelve handle
-_cache_mem = None          # in-memory dict
-_cache_dirty = None        # set of modified keys
-
 KANA_RE = re.compile(r"[ぁ-んァ-ンー]+")
 NO_DEFINITION = object()
 
 
+cache = None
+_pending_writes = None
+
 def open_cache():
-    global cache, _cache_mem, _cache_dirty
+    global cache, _pending_writes
+    if cache is not None:
+        return
 
     cache_dir = Path(appdirs.user_cache_dir("tango_miner"))
     cache_dir.mkdir(parents=True, exist_ok=True)
-    cache_file = cache_dir / "definitions.db"
 
-    cache = shelve.open(str(cache_file), writeback=False)
-
-    # LOAD ONCE
-    _cache_mem = dict(cache)
-    _cache_dirty = set()
-
-def close_cache():
-    global cache, _cache_mem, _cache_dirty
-
-    if cache is not None:
-        # FLUSH ONLY DIRTY KEYS
-        for key in _cache_dirty:
-            cache[key] = _cache_mem[key]
-
-        cache.close()
-
-    cache = None
-    _cache_mem = None
-    _cache_dirty = None
-
-def cache_definition(word, definition):
-    word = normalize_word(word)
-
-    # Avoid marking dirty if unchanged
-    if _cache_mem.get(word) != definition:
-        _cache_mem[word] = definition
-        _cache_dirty.add(word)
+    cache = shelve.open(str(cache_dir / "definitions.db"), writeback=False)
+    _pending_writes = {}
 
 def get_cached_definition(word):
-    word = normalize_word(word)
-    return _cache_mem.get(word)
+    try:
+        return cache[word]
+    except KeyError:
+        return None
+
+def cache_definition(word, definition):
+    _pending_writes[word] = definition
+
+def close_cache():
+    for k, v in _pending_writes.items():
+        cache[k] = v
+    cache.close()
+
 
 def normalize_word(word: str) -> str:
     return word.strip()
@@ -144,6 +129,7 @@ def get_most_common_definition(word: str) -> str:
 
 def get_jamdict():
     if not hasattr(get_jamdict, "_instance"):
+        from jamdict import Jamdict
         get_jamdict._instance = Jamdict(memory_mode = False)
     return get_jamdict._instance
 

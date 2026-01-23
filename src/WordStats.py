@@ -27,6 +27,10 @@ class Sentence:
 
 @dataclass(frozen=False)
 class WordStats:
+    __slots__ = (
+        "index", "frequency", "score", "reading",
+        "definition", "tags", "sentences", "lemma", "pos"
+    )
     index: int
     frequency: int
     score: float

@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 import argparse
 from pathlib import Path
-import sys, shutil
+import sys
 from tempfile import TemporaryDirectory
 from os import path
 
@@ -147,19 +147,6 @@ def process_script():
             directory_pipeline = Pipeline(steps=steps, on_progress=print_step_progress)
             directory_pipeline.run(Artifact(input_path, tmpdir=tmpdir))
 
-            # process directory contents
-            # for file in input_path_obj.iterdir():
-            #     if file.is_file() and file.suffix.lower() in {".txt", ".csv", ".pdf", ".xml", ".html", ".srt"}:
-            #         if single_file_mode:
-            #             print(f"Tokenizing {file}...")
-            #             combined_tokens = tokenize(file, None, combined_tokens)
-            #         else:
-            #             mine_file(file, output_path / (file.name + '.csv'), tmpdir, min_frequency, tags)
-
-            # if single_file_mode:
-            #     tokenize(None, tokens_file_path, combined_tokens)
-            #     mine_file(tokens_file_path, final_path, tmpdir, min_frequency, skip_tokenize=True)
-
     print('All tasks completed.')
 
 def build_mining_pipeline(output_path, min_frequency, tags=None):
@@ -169,9 +156,6 @@ def build_mining_pipeline(output_path, min_frequency, tags=None):
         AddReadingsStep(),
         AddDefinitionsStep(),
     ]
-
-    # if tags:
-    #     steps.append(AddTagsStep(tags))
 
     steps.append(WriteOutputStep(output_path))
 
