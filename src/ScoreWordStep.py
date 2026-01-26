@@ -28,6 +28,8 @@ def score_words(input: dict, progress_handler=None) -> dict:
             max_frequency
         )
 
+        score *= tag_diversity_factor(len(stats.tags))
+
         stats.score = round(score * 1000, 2)
 
         if progress_handler:
@@ -62,3 +64,18 @@ def calculate_score(
     # Weighted combination
     return w_freq * frequency_score + w_index * index_score
 
+
+def tag_diversity_factor(tag_count: int, min_tags=3, saturation_tags=10) -> float:
+    """
+    Continuous soft penalty for tag coverage.
+    1 tag → ~0.1
+    min_tags → ~0.4–0.5
+    saturation_tags → 1.0
+    """
+    if tag_count >= saturation_tags:
+        return 1.0
+    else:
+        # Continuous ramp from 1 → saturation_tags
+        # Set minimal factor for 1 tag
+        min_factor = 0.1
+        return min_factor + (1 - min_factor) * ((tag_count - 1) / (saturation_tags - 1))
