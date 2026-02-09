@@ -16,7 +16,12 @@ class WriteOutputStep(PipelineStep):
 
 
 def write_final_file(input, output_file, progress_handler=None):
-    with open(output_file, "w", encoding="utf-8", newline="") as outfile:
+    p = output_file
+
+    with (
+        open(p, "w", encoding="utf-8", newline="") as outfile,
+        open(p.with_name(p.stem + ".dropped" + p.suffix), "w", encoding="utf-8", newline="") as dropfile
+    ):
         sorted_items = sorted(
             input.items(),
             key=lambda item: item[1].score,  # sort by score
@@ -25,10 +30,13 @@ def write_final_file(input, output_file, progress_handler=None):
 
         sorted_words_by_score = dict(sorted_items)
 
-        writer = csv.writer(outfile)
+        normal_writer = csv.writer(outfile)
+        drop_writer = csv.writer(dropfile)
 
         for word in sorted_words_by_score:
             word_data = sorted_words_by_score[word]
+
+            writer = drop_writer if word_data.invalid else normal_writer
 
             writer.writerow([
                 word_data.score,

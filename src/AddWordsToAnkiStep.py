@@ -23,7 +23,6 @@ class AddWordsToAnkiStep(PipelineStep):
         return artifact
 
 
-
 def anki_invoke(action: str, params: dict[str, Any] | None = None) -> Any:
     payload = {
         "action": action,
@@ -102,7 +101,11 @@ def export_words_to_anki(
     # --------------------------------------------------
     # 2.5 DELETE OBSOLETE NOTES
     # --------------------------------------------------
-    desired_words = set(words.keys())
+    desired_words = desired_words = {
+        w for w, stats in words.items()
+        if not stats.invalid
+    }
+
     existing_set = set(existing_words.keys())
 
     obsolete_words = existing_set - desired_words
@@ -124,6 +127,9 @@ def export_words_to_anki(
     total_notes_to_update = 0
 
     for i, (word, stats) in enumerate(words.items(), start=1):
+        if word not in desired_words:
+            continue
+            
         new_tags = set(stats.tags)
 
         if word in existing_words:
@@ -430,6 +436,11 @@ a {
 
 #pronunciation {
   font-size: 0.75em;
+}
+
+.sentence-tag {
+    font-size: 0.75em;
+    opacity: .8;
 }
 
 #tags {

@@ -23,6 +23,7 @@ PRI_WEIGHTS = {
     # "nfXX" tags handled dynamically
 }
 
+
 KANA_RE = re.compile(r"[ぁ-んァ-ンー]+")
 NO_DEFINITION = object()
 
@@ -71,6 +72,7 @@ class AddDefinitionsStep(PipelineStep):
 def add_and_filter_for_definitions(input: dict, progress_handler):
     total = len(input)
     kept = {}
+    total_invalid = 0
 
     progress_handler(ProcessingStep.DEFINITIONS, 0, total)
 
@@ -79,23 +81,45 @@ def add_and_filter_for_definitions(input: dict, progress_handler):
         definition = get_cached_definition(word_norm)
 
         if definition is None:
-            definition = get_most_common_definition(word_norm) or ""
+            pos1, pos2, *_ = input[word].pos
+            definition = get_most_common_definition(word_norm, (pos1, pos2)) or ""
+
+            if not definition:
+                definition = get_most_common_definition(word_norm, (pos1,)) or ""
+
+            if not definition:
+                definition = get_most_common_definition(word_norm) or ""
+
+            if not definition:
+                # try with reading
+                reading = input[word].reading
+                definition = get_most_common_definition(reading, (pos1,)) or ""
+
+                if not definition:
+                    definition = get_most_common_definition(reading) or ""
+
             cache_definition(word_norm, definition)
 
-        if definition:
-            stats = input[word]
-            stats.definition = definition
-            kept[word] = stats
+        stats = input[word]
+        stats.definition = definition
+        stats.invalid = not definition
+        kept[word] = stats
+
+        if stats.invalid:
+            total_invalid += 1
 
         progress_handler(ProcessingStep.DEFINITIONS, i, total)
 
-    progress_handler(ProcessingStep.DEFINITIONS, 1, 1, f'{len(kept)} words kept')
+    progress_handler(ProcessingStep.DEFINITIONS, 1, 1, f'{len(kept) - total_invalid} words kept')
 
     return kept
 
 
-def get_most_common_definition(word: str) -> str:
-    result = get_jamdict().lookup(word)
+def get_most_common_definition(word: str, pos=None) -> str:
+    result = get_jamdict().lookup(word, pos=pos)
+
+    if not result:
+        result = get_jamdict().lookup(word)
 
     if not result.entries:
         return ""

@@ -23,13 +23,14 @@ class Sentence:
             count=1
         )
 
-        return f"{text}<br><span class='tag'>{self.tag}</span>"
+        return f"{text}<br><span class='tag sentence-tag'>{self.tag}</span>"
 
 @dataclass(frozen=False)
 class WordStats:
     __slots__ = (
         "index", "frequency", "score", "reading",
-        "definition", "tags", "sentences", "lemma", "pos"
+        "definition", "tags", "sentences", "lemma",
+        "pos", "invalid"
     )
     index: int
     frequency: int
@@ -39,4 +40,5 @@ class WordStats:
     tags: set[str]
     sentences: list[Sentence]
     lemma: str
-    pos: list[str]
+    pos: tuple[str, ...]
+    invalid: bool

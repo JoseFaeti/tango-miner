@@ -1,9 +1,9 @@
 from collections import Counter
-from fugashi import Tagger
 from pathlib import Path
 import re
-import unidic
 import csv
+
+from sudachipy import dictionary, tokenizer as sudachi_tokenizer
 
 from .Artifact import Artifact
 from .PipelineStep import PipelineStep
@@ -15,29 +15,35 @@ from .WordStats import WordStats, Sentence
 RE_ALL_KATAKANA = re.compile(r"^[ァ-ンー]+$")
 RE_SMALL_KANA_END = re.compile(r"[っゃゅょァィゥェォッャュョー]+$")
 
-# POS categories to skip — if any level of POS matches one of these, skip it
-SKIP_POS = {
-    "助詞",       # particle
-    # "助動詞",     # auxiliary verb
-    "記号",       # symbol/punctuation
-    "感動詞",     # interjection
-    # "接続詞",     # conjunction
-    # "連体詞",     # prenominal adjective
-    "フィラー",      # filler like "えーと"
-    "その他",      # other
-    "名詞-固有名詞", # proper noun
-    "代名詞",     # pronoun
-    "接頭辞",     # prefix
-    "接尾辞",     # suffix
+SKIP_POS1 = {
+    "助詞",        # particles
+    "記号",        # symbols (UniDic-style leftovers)
+    "補助記号",    # Sudachi punctuation
+    "感動詞",      # interjections
+    "接頭辞",      # prefixes
+    "接尾辞",      # suffixes
+    "代名詞",      # pronouns
 }
-SKIP_POS_PREFIXES = tuple(SKIP_POS)
 
-TOKENIZER_FINGERPRINT = "unidic-2.1.2+postproc-v1.2026/01/16"
+SKIP_POS1_POS2 = {
+    ("名詞", "固有名詞"), # proper nouns
+    ("名詞", "代名詞"),   # pronouns (Sudachi also emits this)
+    ("感動詞", "フィラー"),  # えーと, あの
+}
+
+TOKENIZER_FINGERPRINT = "sudachidict_full+mode.C+postproc-v1.2026/02/26.9:29"
+MAX_SUDACHI_BYTES = 48000  # leave margin
+
 SENT_BOUNDARY = "🐍"  # any char that will never appear naturally
 
 MAX_SENTENCES = 3
 MIN_SENTENCE_LENGTH = 7
 MAX_SENTENCE_LENGTH = 30
+
+
+tokenizer = dictionary.Dictionary(dict_type="full").create()
+TOKENIZER_MODE = sudachi_tokenizer.Tokenizer.SplitMode.C
+
 
 class TokenizeStep(PipelineStep):
     def process(self, artifact: Artifact) -> Artifact:
@@ -78,8 +84,35 @@ def tokenize(input_path, word_data=None, cache_dir=None, progress_handler=None):
         text = text.replace("\r\n", "\n").replace("\r", "\n")
         text = text.replace("\n", SENT_BOUNDARY)
 
-        tagger = Tagger(f'-d "{Path(unidic.DICDIR)}"')
-        tokens = [unidic_node_to_dict(n) for n in tagger(text)]
+        tokens = []
+
+        current = []
+        current_bytes = 0
+
+        for part in text.split(SENT_BOUNDARY):
+            # Re-add the boundary we split on
+            part_with_sep = part + SENT_BOUNDARY
+            part_bytes = len(part_with_sep.encode("utf-8"))
+
+            if current_bytes + part_bytes > MAX_SUDACHI_BYTES:
+                chunk = "".join(current)
+                tokens.extend(
+                    sudachi_node_to_dict(m)
+                    for m in tokenizer.tokenize(chunk, TOKENIZER_MODE)
+                )
+                current = []
+                current_bytes = 0
+
+            current.append(part_with_sep)
+            current_bytes += part_bytes
+
+        # Flush remainder
+        if current:
+            chunk = "".join(current)
+            tokens.extend(
+                sudachi_node_to_dict(m)
+                for m in tokenizer.tokenize(chunk, TOKENIZER_MODE)
+            )
 
         cache.put(text, tokens)
         cache.put_by_mtime(input_path, file_mtime, text, tokens)
@@ -98,7 +131,7 @@ def tokenize(input_path, word_data=None, cache_dir=None, progress_handler=None):
     word_data_get = word_data.get
 
     SENT = SENT_BOUNDARY
-    sentence_endings = {"。", "！", "？", "・", SENT}
+    sentence_endings = {"。", "！", "？", SENT}
 
     current_sentence_tokens = []
     current_sentence_lemmas = []
@@ -122,24 +155,25 @@ def tokenize(input_path, word_data=None, cache_dir=None, progress_handler=None):
                 current_sentence_tokens = []
                 current_sentence_lemmas = []
                 current_sentence_surfaces = {}
-                current_sentence_length = 0
                 continue
 
             if char != SENT:
                 if len(current_sentence_tokens) > 0:
-                    current_sentence_tokens.append(char)
-                    current_sentence_length += 1
+                    if char not in sentence_endings:
+                        current_sentence_tokens.append(char)
+                    elif char in "。！？ー）)』”%￥$〜】'\"":
+                        current_sentence_tokens.append(char)
                 else:
                     # First character of each sentence should not be punctuation or whitespace
-                    if not (char.isspace() or char in NOT_ALLOWED_AT_SENTENCE_START):
+                    if not char.isspace() and char not in NOT_ALLOWED_AT_SENTENCE_START:
                         current_sentence_tokens.append(char)
-                        current_sentence_length += 1
 
             if char not in sentence_endings:
                 continue
 
             sentence = "".join(current_sentence_tokens)
-            sentence_length = current_sentence_length
+            sentence = re.sub(r"\s{2,}", " ", sentence) # collapse whitespace
+            sentence_length = len(current_sentence_tokens)
 
             if sentence_length < MIN_SENTENCE_LENGTH:
                 continue
@@ -186,7 +220,6 @@ def tokenize(input_path, word_data=None, cache_dir=None, progress_handler=None):
             current_sentence_tokens = []
             current_sentence_lemmas = []
             current_sentence_surfaces = {}
-            current_sentence_length = 0
 
         lemma = token["base_form"] or token["lemma"]
         if not lemma:
@@ -216,6 +249,7 @@ def tokenize(input_path, word_data=None, cache_dir=None, progress_handler=None):
                 [],
                 lemma,
                 token["pos"],
+                invalid=False
             )
             word_data[lemma] = ws
 
@@ -231,28 +265,31 @@ def sentence_exists(ws, sentence_text: str, tag: str) -> bool:
     return any(s.text == sentence_text and s.tag == tag for s in ws.sentences)
 
 
-def unidic_node_to_dict(node) -> dict:
-    f = node.feature  # UniDic feature object
+_lemma_reading_cache = {}
 
-    # Pick the lemma we will use everywhere
-    lemma = (
-        getattr(f, "orthBase", None)
-        or getattr(f, "lemma", None)
-        or node.surface
-    )
+def get_lemma_reading(lemma: str) -> str:
+    if lemma in _lemma_reading_cache:
+        return _lemma_reading_cache[lemma]
 
-    # Pick the matching reading for THAT lemma
-    reading = (
-        getattr(f, "kanaBase", None)   # reading of the base form
-        or getattr(f, "kana", None)    # surface reading fallback
-    )
+    # tokenize lemma once
+    m = tokenizer.tokenize(lemma, TOKENIZER_MODE)[0]
+    reading = kata_to_hira(m.reading_form())
+    _lemma_reading_cache[lemma] = reading
+    return reading
+
+
+def sudachi_node_to_dict(m) -> dict:
+    surface = m.surface()
+    lemma = m.dictionary_form() or surface
+
+    reading = get_lemma_reading(lemma)
 
     return {
-        "surface": node.surface,
+        "surface": surface,
         "lemma": lemma,
-        "base_form": lemma,   # keep compatibility with existing code
+        "base_form": lemma,
         "reading": kata_to_hira(reading),
-        "pos": f"{f.pos1}-{f.pos2}",
+        "pos": m.part_of_speech(),
     }
 
 
@@ -272,7 +309,6 @@ def kata_to_hira(text: str) -> str:
 
 def is_useless(token: dict) -> bool:
     lemma = token["base_form"] or token["lemma"]
-    pos_list = token["pos"]
 
     # Local bindings (faster lookups)
     re_small_kana_end = RE_SMALL_KANA_END
@@ -282,8 +318,13 @@ def is_useless(token: dict) -> bool:
     if last in ("っ", "ッ", "ー"):
         return True
 
-    # POS filtering (flattened)
-    if token["pos"].startswith(SKIP_POS_PREFIXES):
+    # POS filtering
+    pos1, pos2, *_ = token["pos"]
+
+    if pos1 in SKIP_POS1:
+        return True
+
+    if (pos1, pos2) in SKIP_POS1_POS2:
         return True
 
     # Truncated stems like 言っ, しょっ
@@ -353,11 +394,11 @@ def is_japanese_char(c: str) -> bool:
         or "A" <= c <= "Z"
         or "a" <= c <= "z"
         # Common punctuation & symbols
-        or c in "「（(【『…‥〜〜“<"
+        or c in "（(【『…‥〜〜“<"
         # Spaces
         # or c in " \u3000"
         or c.isspace()
         or c in NOT_ALLOWED_AT_SENTENCE_START
     )
 
-NOT_ALLOWED_AT_SENTENCE_START = "。、！？ー・・」）)』”>#%&+=*/:;@￥$^―_〜|\\-】'\""
+NOT_ALLOWED_AT_SENTENCE_START = "。、！？ー・・「」）)』”>#%&+=*/:;@￥$^―_〜|\\-】'\""

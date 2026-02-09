@@ -88,9 +88,14 @@ class TokenCache:
 
     def get_hash_by_mtime(self, path: Path, mtime_ns: int):
         entry = self._mtime_index.get(str(path.resolve()))
-        if entry and entry["mtime"] == mtime_ns:
+        if (
+            entry
+            and entry["mtime"] == mtime_ns
+            and entry.get("fingerprint") == self.fingerprint
+        ):
             return entry["hash"]
         return None
+
 
     def put_by_mtime(self, path: Path, mtime_ns: int, text: str, tokens):
         normalized = self._normalize_text(text)
@@ -101,5 +106,7 @@ class TokenCache:
         self._mtime_index[str(path.resolve())] = {
             "mtime": mtime_ns,
             "hash": content_hash,
+            "fingerprint": self.fingerprint,
         }
+
         self._mtime_dirty = True
