@@ -129,7 +129,7 @@ def export_words_to_anki(
     for i, (word, stats) in enumerate(words.items(), start=1):
         if word not in desired_words:
             continue
-            
+
         new_tags = set(stats.tags)
 
         if word in existing_words:
@@ -150,17 +150,33 @@ def export_words_to_anki(
                 })
 
             old_tags = set(note["tags"])
-            merged = new_tags - old_tags
-            if merged:
+            new_tags = set(stats.tags)
+
+            to_add = new_tags - old_tags
+            to_remove = {
+                t for t in old_tags
+                if t not in new_tags
+            }
+
+            if to_add:
                 update_actions.append({
                     "action": "addTags",
                     "params": {
                         "notes": [note_id],
-                        "tags": " ".join(merged),
+                        "tags": " ".join(to_add),
                     }
                 })
 
-            if dirty or merged:
+            if to_remove:
+                update_actions.append({
+                    "action": "removeTags",
+                    "params": {
+                        "notes": [note_id],
+                        "tags": " ".join(to_remove),
+                    }
+                })
+
+            if dirty or to_add or to_remove:
                 total_notes_to_update += 1
         else:
             dup_ids = anki_invoke("findNotes", {

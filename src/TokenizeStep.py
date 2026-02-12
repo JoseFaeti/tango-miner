@@ -2,6 +2,7 @@ from collections import Counter
 from pathlib import Path
 import re
 import csv
+import unicodedata
 
 from sudachipy import dictionary, tokenizer as sudachi_tokenizer
 
@@ -131,7 +132,7 @@ def tokenize(input_path, word_data=None, cache_dir=None, progress_handler=None):
     word_data_get = word_data.get
 
     SENT = SENT_BOUNDARY
-    sentence_endings = {"。", "！", "？", SENT}
+    sentence_endings = {"。", "。" "！", "？", SENT}
 
     current_sentence_tokens = []
     current_sentence_lemmas = []
@@ -151,85 +152,62 @@ def tokenize(input_path, word_data=None, cache_dir=None, progress_handler=None):
         surface = token["surface"]
 
         for char in surface:
-            if not is_jp_char(char):
+            char = unicodedata.normalize("NFKC", char)
+
+            # Always append character to sentence buffer
+            if char != SENT and is_japanese_char(char):
+                if len(current_sentence_tokens) > 0 or (not char.isspace() and char not in NOT_ALLOWED_AT_SENTENCE_START):
+                    current_sentence_tokens.append(char)
+
+            # Sentence termination
+            if char in sentence_endings:
+                sentence = "".join(current_sentence_tokens)
+                sentence = re.sub(r"\s+", "　", sentence)
+                sentence_length = len(sentence)
+
+                if sentence_length >= MIN_SENTENCE_LENGTH:
+                    lemmas_in_sentence = set(current_sentence_lemmas)
+
+                    for lemma in lemmas_in_sentence:
+                        ws = word_data_get(lemma)
+                        if not ws or sentence_exists_local(ws, sentence, tag):
+                            continue
+
+                        sentences = ws.sentences
+                        surface_hl = current_sentence_surfaces.get(lemma, "")
+
+                        if len(sentences) < MAX_SENTENCES:
+                            sentences.append(Sentence_local(sentence, tag, input_path, surface_hl))
+                        elif sentence_length < MAX_SENTENCE_LENGTH:
+                            worst = None
+                            worst_text_length = 9999
+
+                            if tag:
+                                for s in sentences:
+                                    if s.tag == tag and len(s.text) < worst_text_length:
+                                        worst = s
+                                        worst_text_length = len(worst.text)
+
+                            if worst is None:
+                                for s in sentences:
+                                    if len(s.text) < worst_text_length:
+                                        worst = s
+                                        worst_text_length = len(worst.text)
+
+                            if worst and sentence_length > worst_text_length:
+                                sentences.remove(worst)
+                                sentences.append(
+                                    Sentence_local(sentence, tag, input_path, surface_hl)
+                                )
+
                 current_sentence_tokens = []
                 current_sentence_lemmas = []
                 current_sentence_surfaces = {}
-                continue
-
-            if char != SENT:
-                if len(current_sentence_tokens) > 0:
-                    if char not in sentence_endings:
-                        current_sentence_tokens.append(char)
-                    elif char in "。！？ー）)』”%￥$〜】'\"":
-                        current_sentence_tokens.append(char)
-                else:
-                    # First character of each sentence should not be punctuation or whitespace
-                    if not char.isspace() and char not in NOT_ALLOWED_AT_SENTENCE_START:
-                        current_sentence_tokens.append(char)
-
-            if char not in sentence_endings:
-                continue
-
-            sentence = "".join(current_sentence_tokens)
-            sentence = re.sub(r"\s{2,}", " ", sentence) # collapse whitespace
-            sentence_length = len(current_sentence_tokens)
-
-            if sentence_length < MIN_SENTENCE_LENGTH:
-                continue
-
-            lemmas_in_sentence = set(current_sentence_lemmas)
-
-            for lemma in lemmas_in_sentence:
-                ws = word_data_get(lemma)
-                if not ws:
-                    continue
-
-                if sentence_exists_local(ws, sentence, tag):
-                    continue
-
-                sentences = ws.sentences
-                surface_hl = current_sentence_surfaces.get(lemma, "")
-
-                if len(sentences) < MAX_SENTENCES:
-                    sentences.append(
-                        Sentence_local(sentence, tag, input_path, surface_hl)
-                    )
-                elif sentence_length < MAX_SENTENCE_LENGTH:
-                    worst = None
-                    worst_text_length = 0
-
-                    if tag:
-                        for s in sentences:
-                            if s.tag == tag and (worst is None or len(s.text) < worst_text_length):
-                                worst = s
-                                worst_text_length = len(worst.text)
-
-                    if worst is None:
-                        for s in sentences:
-                            if worst is None or len(s.text) < worst_text_length:
-                                worst = s
-                                worst_text_length = len(worst.text)
-
-                    if worst and sentence_length > worst_text_length:
-                        sentences.remove(worst)
-                        sentences.append(
-                            Sentence_local(sentence, tag, input_path, surface_hl)
-                        )
-
-            current_sentence_tokens = []
-            current_sentence_lemmas = []
-            current_sentence_surfaces = {}
 
         lemma = token["base_form"] or token["lemma"]
-        if not lemma:
-            continue
-
         reading = token["reading"]
-        if not reading:
-            continue
 
-        if is_useless_local(token):
+        if not lemma or not reading or is_useless_local(token):
             continue
 
         current_sentence_lemmas.append(lemma)
@@ -262,7 +240,7 @@ def tokenize(input_path, word_data=None, cache_dir=None, progress_handler=None):
 
 
 def sentence_exists(ws, sentence_text: str, tag: str) -> bool:
-    return any(s.text == sentence_text and s.tag == tag for s in ws.sentences)
+    return any(s.text == sentence_text for s in ws.sentences)
 
 
 _lemma_reading_cache = {}

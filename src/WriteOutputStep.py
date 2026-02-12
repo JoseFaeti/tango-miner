@@ -18,18 +18,18 @@ class WriteOutputStep(PipelineStep):
 def write_final_file(input, output_file, progress_handler=None):
     p = output_file
 
+    sorted_items = sorted(
+        input.items(),
+        key=lambda item: item[1].score,  # sort by score
+        reverse=True                  # highest score first
+    )
+
+    sorted_words_by_score = dict(sorted_items)
+
     with (
         open(p, "w", encoding="utf-8", newline="") as outfile,
         open(p.with_name(p.stem + ".dropped" + p.suffix), "w", encoding="utf-8", newline="") as dropfile
     ):
-        sorted_items = sorted(
-            input.items(),
-            key=lambda item: item[1].score,  # sort by score
-            reverse=True                  # highest score first
-        )
-
-        sorted_words_by_score = dict(sorted_items)
-
         normal_writer = csv.writer(outfile)
         drop_writer = csv.writer(dropfile)
 
@@ -53,20 +53,13 @@ def write_final_file(input, output_file, progress_handler=None):
 
     p = output_file
     with open(p.with_name(p.stem + ".sentence" + p.suffix), 'w', encoding='utf-8', newline="") as sentence_file:
-        sorted_items = sorted(
-            input.items(),
-            key=lambda item: item[1].score,  # sort by score
-            reverse=True                  # highest score first
-        )
-
-        sorted_words_by_score = dict(sorted_items)
-
         for word, word_data in sorted_words_by_score.items():
             if not word_data.sentences:
                 continue
 
             sentence_file.write(
                 "\n".join(str(s) for s in word_data.sentences)
+                + "\n"
             )
 
     if progress_handler:
