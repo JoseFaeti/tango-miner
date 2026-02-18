@@ -1,5 +1,6 @@
 from collections import Counter
 from pathlib import Path
+import os
 import re
 import csv
 import unicodedata
@@ -32,7 +33,7 @@ SKIP_POS1_POS2 = {
     ("感動詞", "フィラー"),  # えーと, あの
 }
 
-TOKENIZER_FINGERPRINT = "sudachidict_full+mode.C+postproc-v1.2026/02/26.9:29"
+TOKENIZER_FINGERPRINT = "sudachidict_full+user_dict.C+postproc-v1.2026/02/18"
 MAX_SUDACHI_BYTES = 48000  # leave margin
 
 SENT_BOUNDARY = "🐍"  # any char that will never appear naturally
@@ -42,7 +43,7 @@ MIN_SENTENCE_LENGTH = 7
 MAX_SENTENCE_LENGTH = 30
 
 
-tokenizer = dictionary.Dictionary(dict_type="full").create()
+tokenizer = None
 TOKENIZER_MODE = sudachi_tokenizer.Tokenizer.SplitMode.C
 
 
@@ -69,6 +70,13 @@ def tokenize(input_path, word_data=None, cache_dir=None, progress_handler=None):
         cache_dir=cache_dir,
         tokenizer_fingerprint=TOKENIZER_FINGERPRINT,
     )
+
+    global tokenizer
+
+    tokenizer = dictionary.Dictionary(config_path="resources/sudachi.json", dict="full").create()
+
+    # for m in tokenizer.tokenize("今もなお"):
+    #     print(m.surface(), m.dictionary_id())
 
     # ------------------------------
     # Cache fast path

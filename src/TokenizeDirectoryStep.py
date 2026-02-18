@@ -40,7 +40,11 @@ class TokenizeDirectoryStep(PipelineStep):
               f'{len(combined_tokens)} tokens ({self.current_file.name})'
           )
 
-          combined_tokens = tokenize(file_path, combined_tokens, cache_dir=cache_dir, progress_handler=self.tokenizer_progress)
+          combined_tokens = tokenize(
+            file_path,
+            combined_tokens,
+            cache_dir=cache_dir,
+            progress_handler=self.tokenizer_progress)
           self.index += 1
           self.total_tokens = len(combined_tokens)
           

@@ -80,6 +80,7 @@ def process_script():
     parser.add_argument("--minFrequency", "-f", type=int, required=False, help="Min amount of times a word needs to appear in the text to be included")
     parser.add_argument("--debug", "-d", action='store_true')
     parser.add_argument("--recursive", "-r", required=False, action='store_true')
+    parser.add_argument("--user-dict", required=False)
 
     # Parse arguments
     args = parser.parse_args()
