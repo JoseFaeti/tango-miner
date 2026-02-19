@@ -68,7 +68,9 @@ class JMDict:
 
     def lookup_word(self, word: str) -> List[Dict]:
         """Return all entries for this word (raw structured JMdict data)."""
-        return self.index.get(word, [])
+        result = self.index.get(word, [])
+
+        return result if isinstance(result, list) else [result]
 
     def get_best_entry(self, word: str) -> Dict:
         """

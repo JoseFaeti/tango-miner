@@ -13,7 +13,6 @@ from .ProcessingStep import ProcessingStep
 from .TokenCache import TokenCache
 from .WordStats import WordStats, Sentence
 
-# Regex for detecting Katakana-only and small kana endings
 RE_ALL_KATAKANA = re.compile(r"^[ァ-ンー]+$")
 RE_SMALL_KANA_END = re.compile(r"[っゃゅょァィゥェォッャュョー]+$")
 
@@ -33,7 +32,7 @@ SKIP_POS1_POS2 = {
     ("感動詞", "フィラー"),  # えーと, あの
 }
 
-TOKENIZER_FINGERPRINT = "sudachidict_full+user_dict.C+postproc-v1.2026/02/18"
+TOKENIZER_FINGERPRINT = "sudachidict_full+user_dict.C+postproc-v1.2026/02/19_8"
 MAX_SUDACHI_BYTES = 48000  # leave margin
 
 SENT_BOUNDARY = "🐍"  # any char that will never appear naturally
