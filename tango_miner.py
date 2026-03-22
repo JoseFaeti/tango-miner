@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+
 import argparse
 from pathlib import Path
 import sys
@@ -19,7 +20,7 @@ from src.FilterFrequencyStep import FilterFrequencyStep
 from src.WriteOutputStep import WriteOutputStep
 
 
-MIN_FREQUENCY_DEFAULT = 3
+MIN_FREQUENCY_DEFAULT = 4
 
 
 print_debug = lambda *a: None

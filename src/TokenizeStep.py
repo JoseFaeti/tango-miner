@@ -32,7 +32,7 @@ SKIP_POS1_POS2 = {
     ("感動詞", "フィラー"),  # えーと, あの
 }
 
-TOKENIZER_FINGERPRINT = "sudachidict_full+user_dict.C+postproc-v1.2026/02/19_8"
+TOKENIZER_FINGERPRINT = "sudachidict_full+user_dict.C+postproc-v1.2026/03/20.10"
 MAX_SUDACHI_BYTES = 48000  # leave margin
 
 SENT_BOUNDARY = "🐍"  # any char that will never appear naturally
@@ -80,7 +80,7 @@ def tokenize(input_path, word_data=None, cache_dir=None, progress_handler=None):
     # ------------------------------
     # Cache fast path
     # ------------------------------
-    hash_ = cache.get_hash_by_mtime(input_path, file_mtime)
+    hash_ = None #cache.get_hash_by_mtime(input_path, file_mtime)
 
     if hash_:
         payload = cache.load_by_hash(hash_)

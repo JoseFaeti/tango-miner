@@ -153,27 +153,27 @@ def main():
             word_length = len(word)
 
             # only keep kana words if they are expressions, to prevent garbage entries
-            if is_all_hiragana and not is_expr and word_length < 3:
+            if is_all_hiragana and is_exclusively_a_verb_or_noun(entry): # and word_length < 3:
                 invalid += 1
                 return
 
-            if is_exclusively_a_noun(entry) and is_all_hiragana:
-                invalid += 1
-                return
+            # if is_exclusively_a_noun(entry) and is_all_hiragana:
+            #     invalid += 1
+            #     return
 
             cost = 0
             
             if is_expr:
-                cost -= 10000 
+                cost -= 1250 - 500 * word_length
 
-            if is_all_hiragana:
-                if word_length < 3:
-                    cost += 1000
-                else:
-                    # probably a fragment disguised as noun or similar
-                    cost += 500
+                if is_all_hiragana:
+                    if word_length < 3:
+                        cost += 1000
+                    else:
+                        # probably a fragment disguised as noun or similar
+                        cost += 500
             else:
-                cost -= 500 * word_length
+                cost = 1750 * word_length # 1500
 
             row = [
                 word,          # 0 見出し (TRIE用)
@@ -213,6 +213,15 @@ def is_exclusively_a_noun(jmdict_entry):
 
     for p in pos_set:
         if not p.startswith("noun"):
+            return False
+
+    return True
+
+def is_exclusively_a_verb_or_noun(jmdict_entry):
+    pos_set = collect_all_pos(jmdict_entry)
+
+    for p in pos_set:
+        if not p.startswith("noun") and not "verb" in p:
             return False
 
     return True
