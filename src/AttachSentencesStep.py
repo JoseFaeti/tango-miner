@@ -4,22 +4,46 @@ from .ProcessingStep import ProcessingStep
 from .SegmentedSentence import SegmentedSentence
 from .WordStats import Sentence, WordStats
 
+from collections import defaultdict
+from heapq import heappush, heappushpop
+from itertools import count
+
+# ---------------------------------------------------------------------------
+# Config
+# ---------------------------------------------------------------------------
+
 MAX_SENTENCES = 3
 
-# Words whose scores are unknown (not yet in word_data) are treated as having
-# this difficulty.  Set to 0 so unknown words make a sentence look harder,
-# which is the conservative choice.
-UNKNOWN_WORD_SCORE = 0.0
+GLOBAL_AVERAGE_SCORE = 3000
+SMOOTHING_WEIGHT = 5
 
+IDEAL_LENGTH = 25
+LENGTH_DIVISOR = 100
+
+UNKNOWN_WORD_PENALTY = 0.2
+HARDER_WORD_PENALTY = 0.1
+SHORT_SENTENCE_PENALTY = 0.3
+
+MIN_WORD_COUNT = 4
+VARIANCE_DIVISOR = 100000
+
+
+# ---------------------------------------------------------------------------
+# Pipeline step
+# ---------------------------------------------------------------------------
 
 class AttachSentencesStep(PipelineStep):
     def process(self, artifact: Artifact) -> Artifact:
-        attach_sentences(artifact.data, artifact.sentences, self.progress)
+        attach_sentences(
+            artifact.data,
+            artifact.sentences,
+            self.progress,
+        )
         return artifact
 
 
 # ---------------------------------------------------------------------------
-# Public function (also importable for testing)
+# Main function
 # ---------------------------------------------------------------------------
 
 def attach_sentences(
@@ -28,121 +52,148 @@ def attach_sentences(
     progress_handler=None,
 ):
     """
-    For every SegmentedSentence, try to attach it to each word it contains.
-    Each word ends up with at most MAX_SENTENCES sentences, chosen to be as
-    close as possible in difficulty to the word itself.
-
-    Difficulty of a sentence is defined as the mean score of all the scored
-    words it contains. A sentence is a better fit for a word the smaller the
-    absolute difference between the sentence difficulty and the word's own score.
+    Build a ranked candidate pool per lemma using a heap.
+    No greedy attachment is performed anymore.
     """
+
     total = len(segmented_sentences)
 
-    # print(f'Total segmented sentences: {total}')
+    # lemma -> min-heap of (-fitness, Sentence, tag)
+    candidates = defaultdict(list)
+    counter = count()
 
     for i, seg in enumerate(segmented_sentences):
         if progress_handler:
             progress_handler(ProcessingStep.SENTENCES, i, total)
 
-        sentence_difficulty = _sentence_difficulty(seg, word_data)
+        scores, unknown_count, mean_score, variance = _compute_sentence_stats(
+            seg,
+            word_data,
+        )
+
+        sentence_difficulty = _sentence_difficulty_from_stats(
+            scores,
+        )
 
         for lemma, surface in seg.lemma_surfaces.items():
             ws = word_data.get(lemma)
             if ws is None:
                 continue
 
-            candidate = Sentence(
+            penalty = _sentence_penalty(
+                ws,
+                seg,
+                scores,
+                unknown_count,
+                variance,
+            )
+
+            fitness = abs(ws.score - sentence_difficulty) + penalty
+
+            sentence = Sentence(
                 text=seg.text,
                 tag=seg.tag,
                 origin=seg.origin,
                 surface_form=surface,
             )
 
-            _try_attach(ws, candidate, sentence_difficulty)
+            heap = candidates[lemma]
+
+            item = (-fitness, next(counter), sentence)
+
+            if len(heap) < MAX_SENTENCES:
+                heappush(heap, item)
+            else:
+                heappushpop(heap, item)
 
     if progress_handler:
         progress_handler(ProcessingStep.SENTENCES, total, total)
 
+    # finalize: assign best sentences per word
+    for lemma, heap in candidates.items():
+        ws = word_data.get(lemma)
+        if not ws:
+            continue
+
+        ws.sentences = [
+            item[2]
+            for item in sorted(heap, reverse=True)
+        ]
+
 
 # ---------------------------------------------------------------------------
-# Helpers
+# Sentence statistics (computed once per sentence)
 # ---------------------------------------------------------------------------
 
-def _sentence_difficulty(seg: SegmentedSentence, word_data: dict) -> float:
-    """
-    Mean score of the known words in this sentence.
-    Words not present in word_data are treated as UNKNOWN_WORD_SCORE.
-    """
+def _compute_sentence_stats(seg, word_data):
     scores = []
+    unknown = 0
+
     for lemma in seg.lemma_surfaces:
         ws = word_data.get(lemma)
-        score = ws.score if ws is not None else UNKNOWN_WORD_SCORE
-        scores.append(score)
+        if ws is None:
+            unknown += 1
+        else:
+            scores.append(ws.score)
 
+    if scores:
+        mean = sum(scores) / len(scores)
+        variance = (
+            sum((x - mean) ** 2 for x in scores)
+            / len(scores)
+        )
+    else:
+        mean = GLOBAL_AVERAGE_SCORE
+        variance = 0
+
+    return scores, unknown, mean, variance
+
+
+def _sentence_difficulty_from_stats(scores):
+    """
+    Smoothed sentence difficulty (prevents short sentence bias)
+    """
     if not scores:
-        return UNKNOWN_WORD_SCORE
+        return GLOBAL_AVERAGE_SCORE
 
-    return sum(scores) / len(scores)
-
-
-def _difficulty_delta(word_score: float, sentence_difficulty: float) -> float:
-    """How far the sentence difficulty is from the target word's score."""
-    return abs(word_score - sentence_difficulty)
-
-
-def _sentence_fitness(ws: WordStats, candidate: Sentence, sentence_difficulty: float) -> float:
-    """
-    A lower value means a better fit.
-    We use the absolute difficulty delta as the primary criterion, and
-    sentence length as a tiebreaker (shorter is better).
-    """
-    delta = _difficulty_delta(ws.score, sentence_difficulty)
-    length_penalty = len(candidate.text) / 1000
-    return delta + length_penalty
+    return (
+        sum(scores) + GLOBAL_AVERAGE_SCORE * SMOOTHING_WEIGHT
+    ) / (
+        len(scores) + SMOOTHING_WEIGHT
+    )
 
 
-def _already_attached(ws: WordStats, text: str) -> bool:
-    return any(s.text == text for s in ws.sentences)
+# ---------------------------------------------------------------------------
+# Penalty model
+# ---------------------------------------------------------------------------
 
+def _sentence_penalty(
+    ws: WordStats,
+    seg: SegmentedSentence,
+    scores,
+    unknown_count,
+    variance,
+):
+    penalty = 0.0
 
-def _try_attach(ws: WordStats, candidate: Sentence, sentence_difficulty: float):
-    """
-    Attach candidate to ws if it fits better than what is already there.
+    # variance penalty (diversity of word difficulty)
+    penalty += variance / VARIANCE_DIVISOR
 
-    - If there are fewer than MAX_SENTENCES, always attach.
-    - Otherwise replace the worst-fitting existing sentence if the candidate
-      is a better fit.
-    """
-    if _already_attached(ws, candidate.text):
-        return
+    # unknown words penalty
+    penalty += unknown_count * UNKNOWN_WORD_PENALTY
 
-    if len(ws.sentences) < MAX_SENTENCES:
-        ws.sentences.append(candidate)
-        return
+    # sentence length penalty (prefer medium length)
+    penalty += abs(len(seg.text) - IDEAL_LENGTH) / LENGTH_DIVISOR
 
-    # Find the currently worst-fitting sentence
-    worst_sentence = None
-    worst_fitness = -1.0
+    # too few known words penalty
+    if len(scores) < MIN_WORD_COUNT:
+        penalty += (MIN_WORD_COUNT - len(scores)) * SHORT_SENTENCE_PENALTY
 
-    for existing in ws.sentences:
-        existing_difficulty = _sentence_difficulty_from_sentence(existing, ws)
-        fitness = _sentence_fitness(ws, existing, existing_difficulty)
-        if fitness > worst_fitness:
-            worst_fitness = fitness
-            worst_sentence = existing
+    # words significantly harder than target
+    penalty += sum(
+        1
+        for s in scores
+        if s > ws.score * 1.2
+    ) * HARDER_WORD_PENALTY
 
-    candidate_fitness = _sentence_fitness(ws, candidate, sentence_difficulty)
-
-    if candidate_fitness < worst_fitness:
-        ws.sentences.remove(worst_sentence)
-        ws.sentences.append(candidate)
-
-
-def _sentence_difficulty_from_sentence(sentence: Sentence, ws: WordStats) -> float:
-    """
-    Approximate difficulty of an already-attached Sentence.
-    Since we no longer have the full lemma_surfaces mapping for attached
-    sentences, we use the word's own score as a proxy.  This is reasonable
-    because the sentence was attached because it was a good fit for the word.
-    """
-    return ws.score
+    return penalty
