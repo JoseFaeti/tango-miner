@@ -16,7 +16,7 @@ class FilterFrequencyStep(PipelineStep):
 
     def process(self, artifact: Artifact) -> Artifact:
         data = filter_useful_words(artifact.data, min_frequency=self.min_frequency, progress_handler=self.progress)
-        return Artifact(data)
+        return Artifact(data, sentences=artifact.sentences)
 
 
 def filter_useful_words(input: OrderedDict, min_frequency: int, keep_percent: int = 98, progress_handler=None) -> OrderedDict:

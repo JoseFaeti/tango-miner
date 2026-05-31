@@ -9,6 +9,7 @@ from os import path
 from src.AddDefinitionsStep import AddDefinitionsStep
 from src.AddWordsToAnkiStep import AddWordsToAnkiStep
 from src.Artifact import Artifact
+from src.AttachSentencesStep import AttachSentencesStep
 from src.Column import Column
 from src.Pipeline import Pipeline
 from src.PipelineStep import DebugStep, NoOpStep, PipelineStep
@@ -44,6 +45,7 @@ def print_step_progress(step, amount, total, additional_text=""):
         step.READINGS: "Adding readings",
         step.DEFINITIONS: "Adding definitions",
         step.SCORING: "Calculating scores",
+        step.SENTENCES: "Adding sentences",
         step.ANKI_EXPORT: "Sending words to Anki"
     }
 
@@ -142,6 +144,7 @@ def process_script():
                 FilterFrequencyStep(min_frequency),
                 AddDefinitionsStep(),
                 ScoreWordStep(),
+                AttachSentencesStep(),
                 WriteOutputStep(output_path),
                 AddWordsToAnkiStep()
             ]

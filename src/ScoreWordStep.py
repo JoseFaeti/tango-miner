@@ -8,7 +8,7 @@ from .ProcessingStep import ProcessingStep
 class ScoreWordStep(PipelineStep):
     def process(self, artifact: Artifact) -> Artifact:
         data = score_words(artifact.data, self.progress)
-        return Artifact(data)
+        return Artifact(data, sentences=artifact.sentences)
 
 
 def score_words(input: dict, progress_handler=None) -> dict:

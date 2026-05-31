@@ -8,7 +8,7 @@ class Pipeline:
         self.steps: List[PipelineStep] = list(steps)
         self.on_progress = on_progress
 
-        for step in steps:
+        for step in self.steps:
             step._progress_handler = self._handle_progress
 
 

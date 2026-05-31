@@ -12,7 +12,7 @@ class AddDefinitionsStep(PipelineStep):
 
     def process(self, artifact: Artifact) -> Artifact:
         data = add_and_filter_for_definitions(artifact.data, self.progress, self.on_definition_processed)
-        return Artifact(data)
+        return Artifact(data, sentences=artifact.sentences)
 
 
 def add_and_filter_for_definitions(input: dict, progress_handler, on_definition_processed):

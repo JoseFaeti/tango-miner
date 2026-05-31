@@ -1,8 +1,5 @@
-from collections import Counter
 from pathlib import Path
-import os
 import re
-import csv
 import unicodedata
 
 from sudachipy import dictionary, tokenizer as sudachi_tokenizer
@@ -10,10 +7,10 @@ from sudachipy import dictionary, tokenizer as sudachi_tokenizer
 from .Artifact import Artifact
 from .PipelineStep import PipelineStep
 from .ProcessingStep import ProcessingStep
+from .SegmentedSentence import SegmentedSentence
 from .TokenCache import TokenCache
-from .WordStats import WordStats, Sentence
+from .WordStats import WordStats
 
-RE_ALL_KATAKANA = re.compile(r"^[ァ-ンー]+$")
 RE_SMALL_KANA_END = re.compile(r"[っゃゅょァィゥェォッャュョー]+$")
 
 SKIP_POS1 = {
@@ -27,20 +24,18 @@ SKIP_POS1 = {
 }
 
 SKIP_POS1_POS2 = {
-    ("名詞", "固有名詞"), # proper nouns
-    ("名詞", "代名詞"),   # pronouns (Sudachi also emits this)
+    ("名詞", "固有名詞"),    # proper nouns
+    ("名詞", "代名詞"),      # pronouns (Sudachi also emits this)
     ("感動詞", "フィラー"),  # えーと, あの
 }
 
-TOKENIZER_FINGERPRINT = "sudachidict_full+user_dict.C+postproc-v1.2026/05/31"
+TOKENIZER_FINGERPRINT = "sudachidict_full+user_dict.C+postproc-v1.2026/05/31.2"
 MAX_SUDACHI_BYTES = 48000  # leave margin
 
 SENT_BOUNDARY = "🐍"  # any char that will never appear naturally
 
-MAX_SENTENCES = 3
 MIN_SENTENCE_LENGTH = 7
 MAX_SENTENCE_LENGTH = 30
-
 
 tokenizer = None
 TOKENIZER_MODE = sudachi_tokenizer.Tokenizer.SplitMode.C
@@ -48,22 +43,30 @@ TOKENIZER_MODE = sudachi_tokenizer.Tokenizer.SplitMode.C
 
 class TokenizeStep(PipelineStep):
     def process(self, artifact: Artifact) -> Artifact:
-        word_data = tokenize(artifact.data, progress_handler=self.progress)
-        return Artifact(word_data, is_path=True)
+        word_data, sentences = tokenize(artifact.data, progress_handler=self.progress)
+        return Artifact(word_data, sentences=sentences, is_path=True)
 
 
-def tokenize(input_path, word_data=None, cache_dir=None, progress_handler=None):
+def tokenize(input_path, word_data=None, segmented_sentences=None, cache_dir=None, progress_handler=None):
+    """
+    Tokenize a single file.
+
+    Returns (word_data, segmented_sentences) where:
+      - word_data is a dict of lemma -> WordStats (frequencies, readings, etc.)
+      - segmented_sentences is a list of SegmentedSentence objects found in this file
+    """
     input_path = Path(input_path)
-    path_str = str(input_path)
 
-    match = re.search(r"\[(.+?)\]", path_str)
+    match = re.search(r"\[(.+?)\]", str(input_path))
     tag = match.group(1) if match else None
 
     if word_data is None:
         word_data = {}
 
-    stat = input_path.stat()
-    file_mtime = stat.st_mtime_ns
+    if segmented_sentences is None:
+        segmented_sentences = []
+
+    file_mtime = input_path.stat().st_mtime_ns
 
     cache = TokenCache(
         cache_dir=cache_dir,
@@ -71,11 +74,7 @@ def tokenize(input_path, word_data=None, cache_dir=None, progress_handler=None):
     )
 
     global tokenizer
-
     tokenizer = dictionary.Dictionary(config_path="resources/sudachi.json", dict="full").create()
-
-    # for m in tokenizer.tokenize("今もなお"):
-    #     print(m.surface(), m.dictionary_id())
 
     # ------------------------------
     # Cache fast path
@@ -93,34 +92,25 @@ def tokenize(input_path, word_data=None, cache_dir=None, progress_handler=None):
         text = text.replace("\n", SENT_BOUNDARY)
 
         tokens = []
-
         current = []
         current_bytes = 0
 
         for part in text.split(SENT_BOUNDARY):
-            # Re-add the boundary we split on
             part_with_sep = part + SENT_BOUNDARY
             part_bytes = len(part_with_sep.encode("utf-8"))
 
             if current_bytes + part_bytes > MAX_SUDACHI_BYTES:
                 chunk = "".join(current)
-                tokens.extend(
-                    sudachi_node_to_dict(m)
-                    for m in tokenizer.tokenize(chunk, TOKENIZER_MODE)
-                )
+                tokens.extend(sudachi_node_to_dict(m) for m in tokenizer.tokenize(chunk, TOKENIZER_MODE))
                 current = []
                 current_bytes = 0
 
             current.append(part_with_sep)
             current_bytes += part_bytes
 
-        # Flush remainder
         if current:
             chunk = "".join(current)
-            tokens.extend(
-                sudachi_node_to_dict(m)
-                for m in tokenizer.tokenize(chunk, TOKENIZER_MODE)
-            )
+            tokens.extend(sudachi_node_to_dict(m) for m in tokenizer.tokenize(chunk, TOKENIZER_MODE))
 
         cache.put(text, tokens)
         cache.put_by_mtime(input_path, file_mtime, text, tokens)
@@ -128,29 +118,16 @@ def tokenize(input_path, word_data=None, cache_dir=None, progress_handler=None):
     total_tokens = len(tokens)
 
     # ------------------------------
-    # Local bindings (HOT PATH)
+    # Sentence and word accumulation
     # ------------------------------
-    is_jp_char = is_japanese_char
-    is_useless_local = is_useless
-    sentence_exists_local = sentence_exists
-    kata_to_hira_local = kata_to_hira
-    WordStats_local = WordStats
-    Sentence_local = Sentence
-    word_data_get = word_data.get
+    sentence_endings = {"。", "！", "？", SENT_BOUNDARY}
 
-    SENT = SENT_BOUNDARY
-    sentence_endings = {"。", "！", "？", SENT}
-
-    current_sentence_tokens = []
-    current_sentence_lemmas = []
-    current_sentence_surfaces = {}
-    current_sentence_length = 0
+    current_sentence_chars = []
+    current_sentence_lemmas = []    # ordered, may contain duplicates
+    current_sentence_surfaces = {}  # lemma -> last surface form seen in this sentence
 
     token_index = 0
 
-    # ------------------------------
-    # Main loop
-    # ------------------------------
     for i, token in enumerate(tokens):
         if progress_handler and (i % 10000 == 0):
             progress_handler(ProcessingStep.TOKENIZING, i, total_tokens)
@@ -161,81 +138,53 @@ def tokenize(input_path, word_data=None, cache_dir=None, progress_handler=None):
         for char in surface:
             char = unicodedata.normalize("NFKC", char)
 
-            # Always append character to sentence buffer
-            if char != SENT and is_japanese_char(char):
-                if len(current_sentence_tokens) > 0 or (not char.isspace() and char not in NOT_ALLOWED_AT_SENTENCE_START):
-                    current_sentence_tokens.append(char)
+            # Build the sentence character buffer
+            if char != SENT_BOUNDARY and is_japanese_char(char):
+                if current_sentence_chars or (not char.isspace() and char not in NOT_ALLOWED_AT_SENTENCE_START):
+                    current_sentence_chars.append(char)
 
-            # Sentence termination
+            # On a sentence boundary, emit a SegmentedSentence if long enough
             if char in sentence_endings:
-                sentence = "".join(current_sentence_tokens)
-                sentence = re.sub(r"\s+", "　", sentence)
-                sentence_length = len(sentence)
+                sentence_text = "".join(current_sentence_chars)
+                sentence_text = re.sub(r"\s+", "　", sentence_text)
 
-                if sentence_length >= MIN_SENTENCE_LENGTH:
-                    lemmas_in_sentence = set(current_sentence_lemmas)
+                if MIN_SENTENCE_LENGTH <= len(sentence_text) <= MAX_SENTENCE_LENGTH:
+                    segmented_sentences.append(SegmentedSentence(
+                        text=sentence_text,
+                        tag=tag,
+                        origin=input_path,
+                        lemma_surfaces=dict(current_sentence_surfaces),
+                    ))
 
-                    for lemma in lemmas_in_sentence:
-                        ws = word_data_get(lemma)
-                        if not ws or sentence_exists_local(ws, sentence, tag):
-                            continue
-
-                        sentences = ws.sentences
-                        surface_hl = current_sentence_surfaces.get(lemma, "")
-
-                        if len(sentences) < MAX_SENTENCES:
-                            if sentence_length <= MAX_SENTENCE_LENGTH:
-                                sentences.append(Sentence_local(sentence, tag, input_path, surface_hl))
-                        elif sentence_length < MAX_SENTENCE_LENGTH:
-                            worst = None
-                            worst_text_length = 9999
-
-                            if tag:
-                                for s in sentences:
-                                    if s.tag == tag and len(s.text) < worst_text_length:
-                                        worst = s
-                                        worst_text_length = len(worst.text)
-
-                            if worst is None:
-                                for s in sentences:
-                                    if len(s.text) < worst_text_length:
-                                        worst = s
-                                        worst_text_length = len(worst.text)
-
-                            if worst and sentence_length > worst_text_length:
-                                sentences.remove(worst)
-                                sentences.append(
-                                    Sentence_local(sentence, tag, input_path, surface_hl)
-                                )
-
-                current_sentence_tokens = []
+                current_sentence_chars = []
                 current_sentence_lemmas = []
                 current_sentence_surfaces = {}
 
+        # Accumulate word stats
         lemma = token["base_form"] or token["lemma"]
         reading = token["reading"]
 
-        if not lemma or not reading or is_useless_local(token):
+        if not lemma or not reading or is_useless(token):
             continue
 
         current_sentence_lemmas.append(lemma)
         current_sentence_surfaces[lemma] = surface
 
-        ws = word_data_get(lemma)
+        ws = word_data.get(lemma)
         if ws:
             ws.frequency += 1
         else:
-            ws = WordStats_local(
+            ws = WordStats(
                 token_index,
                 1,
                 0.0,
-                kata_to_hira_local(reading),
+                kata_to_hira(reading),
                 "",
                 set(),
                 [],
                 lemma,
                 token["pos"],
-                invalid=False
+                invalid=False,
             )
             word_data[lemma] = ws
 
@@ -244,20 +193,19 @@ def tokenize(input_path, word_data=None, cache_dir=None, progress_handler=None):
 
     cache.flush_mtime_index()
 
-    return word_data
+    return word_data, segmented_sentences
 
 
-def sentence_exists(ws, sentence_text: str, tag: str) -> bool:
-    return any(s.text == sentence_text for s in ws.sentences)
-
+# ---------------------------------------------------------------------------
+# Pure helpers
+# ---------------------------------------------------------------------------
 
 _lemma_reading_cache = {}
+
 
 def get_lemma_reading(lemma: str) -> str:
     if lemma in _lemma_reading_cache:
         return _lemma_reading_cache[lemma]
-
-    # tokenize lemma once
     m = tokenizer.tokenize(lemma, TOKENIZER_MODE)[0]
     reading = kata_to_hira(m.reading_form())
     _lemma_reading_cache[lemma] = reading
@@ -267,9 +215,7 @@ def get_lemma_reading(lemma: str) -> str:
 def sudachi_node_to_dict(m) -> dict:
     surface = m.surface()
     lemma = m.dictionary_form() or surface
-
     reading = get_lemma_reading(lemma)
-
     return {
         "surface": surface,
         "lemma": lemma,
@@ -281,13 +227,11 @@ def sudachi_node_to_dict(m) -> dict:
 
 def kata_to_hira(text: str) -> str:
     if not text:
-        return
-
-    """Convert katakana to hiragana."""
+        return None
     result = []
     for ch in text:
         code = ord(ch)
-        if 0x30A1 <= code <= 0x30F3:  # Katakana range
+        if 0x30A1 <= code <= 0x30F3:  # Katakana range (ァ–ン)
             ch = chr(code - 0x60)
         result.append(ch)
     return "".join(result)
@@ -296,15 +240,10 @@ def kata_to_hira(text: str) -> str:
 def is_useless(token: dict) -> bool:
     lemma = token["base_form"] or token["lemma"]
 
-    # Local bindings (faster lookups)
-    re_small_kana_end = RE_SMALL_KANA_END
-
     # Skip words ending with small tsu or elongation mark
-    last = lemma[-1]
-    if last in ("っ", "ッ", "ー"):
+    if lemma[-1] in ("っ", "ッ", "ー"):
         return True
 
-    # POS filtering
     pos1, pos2, *_ = token["pos"]
 
     if pos1 in SKIP_POS1:
@@ -314,7 +253,7 @@ def is_useless(token: dict) -> bool:
         return True
 
     # Truncated stems like 言っ, しょっ
-    if re_small_kana_end.search(lemma):
+    if RE_SMALL_KANA_END.search(lemma):
         return True
 
     # Single kana noise
@@ -326,7 +265,7 @@ def is_useless(token: dict) -> bool:
     has_japanese = False
     kana_only = True
     all_katakana = True
-    freq = {}
+    char_freq = {}
     max_count = 0
 
     for c in lemma:
@@ -342,8 +281,8 @@ def is_useless(token: dict) -> bool:
             kana_only = False
 
         if kana_only:
-            count = freq.get(c, 0) + 1
-            freq[c] = count
+            count = char_freq.get(c, 0) + 1
+            char_freq[c] = count
             if count > max_count:
                 max_count = count
 
@@ -359,32 +298,21 @@ def is_useless(token: dict) -> bool:
 def is_japanese_char(c: str) -> bool:
     return (
         c == SENT_BOUNDARY
-        # Hiragana
-        or "\u3040" <= c <= "\u309F"
-        # Katakana
-        or "\u30A0" <= c <= "\u30FF"
-        # Half-width Katakana
-        or "\uFF65" <= c <= "\uFF9F"
-        # Kanji
-        or "\u4E00" <= c <= "\u9FFF"
-        # Iteration / repetition marks (kanji & kana)
-        or c in "々〻ゝゞヽヾ"
-        # Full-width numbers
-        or "０" <= c <= "９"
-        # ASCII numbers
-        or "0" <= c <= "9"
-        # Full-width Latin letters
-        or "Ａ" <= c <= "Ｚ"
-        or "ａ" <= c <= "ｚ"
-        # ASCII Latin letters
-        or "A" <= c <= "Z"
-        or "a" <= c <= "z"
-        # Common punctuation & symbols
-        or c in "（(【『…‥〜〜“<"
-        # Spaces
-        # or c in " \u3000"
+        or "\u3040" <= c <= "\u309F"   # Hiragana
+        or "\u30A0" <= c <= "\u30FF"   # Katakana
+        or "\uFF65" <= c <= "\uFF9F"   # Half-width Katakana
+        or "\u4E00" <= c <= "\u9FFF"   # Kanji
+        or c in "々〻ゝゞヽヾ"           # Iteration / repetition marks
+        or "０" <= c <= "９"            # Full-width numbers
+        or "0" <= c <= "9"             # ASCII numbers
+        or "Ａ" <= c <= "Ｚ"            # Full-width Latin upper
+        or "ａ" <= c <= "ｚ"            # Full-width Latin lower
+        or "A" <= c <= "Z"             # ASCII Latin upper
+        or "a" <= c <= "z"             # ASCII Latin lower
+        or c in "（(【『…‥〜〜\u201C<"  # Common punctuation
         or c.isspace()
         or c in NOT_ALLOWED_AT_SENTENCE_START
     )
 
-NOT_ALLOWED_AT_SENTENCE_START = "。、！？ー・・「」）)』”>#%&+=*/:;@￥$^―_〜|\\-】'\""
+
+NOT_ALLOWED_AT_SENTENCE_START = "。、！？ー・・「」）)』\u201D>#%&+=*/:;@￥$^―_〜|\\-】'\""

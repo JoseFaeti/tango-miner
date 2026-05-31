@@ -6,4 +6,5 @@ class ProcessingStep(IntEnum):
     READINGS = 2
     DEFINITIONS = 3
     SCORING = 4
-    ANKI_EXPORT = 5
+    SENTENCES = 5
+    ANKI_EXPORT = 6
