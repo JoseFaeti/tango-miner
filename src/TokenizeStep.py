@@ -32,7 +32,7 @@ SKIP_POS1_POS2 = {
     ("感動詞", "フィラー"),  # えーと, あの
 }
 
-TOKENIZER_FINGERPRINT = "sudachidict_full+user_dict.C+postproc-v1.2026/03/20.10"
+TOKENIZER_FINGERPRINT = "sudachidict_full+user_dict.C+postproc-v1.2026/05/31"
 MAX_SUDACHI_BYTES = 48000  # leave margin
 
 SENT_BOUNDARY = "🐍"  # any char that will never appear naturally
@@ -80,7 +80,7 @@ def tokenize(input_path, word_data=None, cache_dir=None, progress_handler=None):
     # ------------------------------
     # Cache fast path
     # ------------------------------
-    hash_ = None #cache.get_hash_by_mtime(input_path, file_mtime)
+    hash_ = cache.get_hash_by_mtime(input_path, file_mtime)
 
     if hash_:
         payload = cache.load_by_hash(hash_)
@@ -139,7 +139,7 @@ def tokenize(input_path, word_data=None, cache_dir=None, progress_handler=None):
     word_data_get = word_data.get
 
     SENT = SENT_BOUNDARY
-    sentence_endings = {"。", "。" "！", "？", SENT}
+    sentence_endings = {"。", "！", "？", SENT}
 
     current_sentence_tokens = []
     current_sentence_lemmas = []
@@ -184,7 +184,8 @@ def tokenize(input_path, word_data=None, cache_dir=None, progress_handler=None):
                         surface_hl = current_sentence_surfaces.get(lemma, "")
 
                         if len(sentences) < MAX_SENTENCES:
-                            sentences.append(Sentence_local(sentence, tag, input_path, surface_hl))
+                            if sentence_length <= MAX_SENTENCE_LENGTH:
+                                sentences.append(Sentence_local(sentence, tag, input_path, surface_hl))
                         elif sentence_length < MAX_SENTENCE_LENGTH:
                             worst = None
                             worst_text_length = 9999

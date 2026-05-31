@@ -164,7 +164,7 @@ def main():
             cost = 0
             
             if is_expr:
-                cost -= 1250 - 500 * word_length
+                cost -= 1000 - 500 * word_length
 
                 if is_all_hiragana:
                     if word_length < 3:

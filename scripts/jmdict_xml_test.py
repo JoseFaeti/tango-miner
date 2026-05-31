@@ -9,7 +9,8 @@ def main():
 
     # Test a list of words
     words_to_test = [
-        "どう言う",
+        "くれぐれも",
+        # "どう言う",
         # "もうじき",
         # "こと",
         # "ます",
