@@ -17,11 +17,11 @@ MAX_SENTENCES = 3
 GLOBAL_AVERAGE_SCORE = 3000
 SMOOTHING_WEIGHT = 5
 
-IDEAL_LENGTH = 25
+IDEAL_LENGTH = 50
 LENGTH_DIVISOR = 100
 
 UNKNOWN_WORD_PENALTY = 0.2
-HARDER_WORD_PENALTY = 0.1
+TOO_HARD_WORD_PENALTY = 0.5
 SHORT_SENTENCE_PENALTY = 0.3
 
 MIN_WORD_COUNT = 4
@@ -43,7 +43,7 @@ class AttachSentencesStep(PipelineStep):
 
 
 # ---------------------------------------------------------------------------
-# Main function
+# Main
 # ---------------------------------------------------------------------------
 
 def attach_sentences(
@@ -51,14 +51,8 @@ def attach_sentences(
     segmented_sentences: list[SegmentedSentence],
     progress_handler=None,
 ):
-    """
-    Build a ranked candidate pool per lemma using a heap.
-    No greedy attachment is performed anymore.
-    """
-
     total = len(segmented_sentences)
 
-    # lemma -> min-heap of (-fitness, Sentence, tag)
     candidates = defaultdict(list)
     counter = count()
 
@@ -71,9 +65,11 @@ def attach_sentences(
             word_data,
         )
 
-        sentence_difficulty = _sentence_difficulty_from_stats(
-            scores,
-        )
+        if not scores:
+            sentence_difficulty = GLOBAL_AVERAGE_SCORE
+        else:
+            # percentile-based difficulty (prevents hard-word masking)
+            sentence_difficulty = _percentile(scores, 0.9)
 
         for lemma, surface in seg.lemma_surfaces.items():
             ws = word_data.get(lemma)
@@ -88,7 +84,18 @@ def attach_sentences(
                 variance,
             )
 
-            fitness = abs(ws.score - sentence_difficulty) + penalty
+            over_penalty = _over_level_penalty(scores, ws.score)
+            penalty += (_over_level_penalty(scores, ws.score) / len(scores)) * 1.5
+
+            # ----------------------------------------------------------------
+            # ASYMMETRIC FITNESS
+            # ----------------------------------------------------------------
+            over_difficulty = max(
+                0.0,
+                sentence_difficulty - ws.score,
+            )
+
+            fitness = over_difficulty + penalty
 
             sentence = Sentence(
                 text=seg.text,
@@ -109,7 +116,7 @@ def attach_sentences(
     if progress_handler:
         progress_handler(ProcessingStep.SENTENCES, total, total)
 
-    # finalize: assign best sentences per word
+    # finalize
     for lemma, heap in candidates.items():
         ws = word_data.get(lemma)
         if not ws:
@@ -121,8 +128,17 @@ def attach_sentences(
         ]
 
 
+def _over_level_penalty(scores, target):
+    penalty = 0.0
+    for s in scores:
+        if s > target:
+            diff = s - target
+            penalty += diff * diff  # quadratic penalty
+    return penalty
+
+
 # ---------------------------------------------------------------------------
-# Sentence statistics (computed once per sentence)
+# Sentence stats
 # ---------------------------------------------------------------------------
 
 def _compute_sentence_stats(seg, word_data):
@@ -149,22 +165,17 @@ def _compute_sentence_stats(seg, word_data):
     return scores, unknown, mean, variance
 
 
-def _sentence_difficulty_from_stats(scores):
-    """
-    Smoothed sentence difficulty (prevents short sentence bias)
-    """
-    if not scores:
+def _percentile(values, p=0.9):
+    s = sorted(values)
+    if not s:
         return GLOBAL_AVERAGE_SCORE
-
-    return (
-        sum(scores) + GLOBAL_AVERAGE_SCORE * SMOOTHING_WEIGHT
-    ) / (
-        len(scores) + SMOOTHING_WEIGHT
-    )
+    idx = int(len(s) * p)
+    idx = min(idx, len(s) - 1)
+    return s[idx]
 
 
 # ---------------------------------------------------------------------------
-# Penalty model
+# Penalty model (non-core now, mostly stability)
 # ---------------------------------------------------------------------------
 
 def _sentence_penalty(
@@ -175,25 +186,27 @@ def _sentence_penalty(
     variance,
 ):
     penalty = 0.0
+    total_tokens = len(scores) + unknown_count
 
-    # variance penalty (diversity of word difficulty)
+    # variance (reduces mixed-level sentences)
     penalty += variance / VARIANCE_DIVISOR
 
-    # unknown words penalty
-    penalty += unknown_count * UNKNOWN_WORD_PENALTY
+    # unknown words
+    penalty += (unknown_count / total_tokens) * UNKNOWN_WORD_PENALTY
 
-    # sentence length penalty (prefer medium length)
+    # sentence length
     penalty += abs(len(seg.text) - IDEAL_LENGTH) / LENGTH_DIVISOR
 
-    # too few known words penalty
+    # too few known words
     if len(scores) < MIN_WORD_COUNT:
         penalty += (MIN_WORD_COUNT - len(scores)) * SHORT_SENTENCE_PENALTY
 
-    # words significantly harder than target
-    penalty += sum(
-        1
-        for s in scores
-        if s > ws.score * 1.2
-    ) * HARDER_WORD_PENALTY
+    # STRICT: words above target level are expensive
+    too_hard = sum(
+        1 for s in scores
+        if s > ws.score
+    )
+
+    penalty += (too_hard / total_tokens) * TOO_HARD_WORD_PENALTY
 
     return penalty

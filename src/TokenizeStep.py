@@ -29,13 +29,13 @@ SKIP_POS1_POS2 = {
     ("感動詞", "フィラー"),  # えーと, あの
 }
 
-TOKENIZER_FINGERPRINT = "sudachidict_full+user_dict.C+postproc-v1.2026/05/31.2"
+TOKENIZER_FINGERPRINT = "sudachidict_full+user_dict.C+postproc-v1.2026/06/01.1"
 MAX_SUDACHI_BYTES = 48000  # leave margin
 
 SENT_BOUNDARY = "🐍"  # any char that will never appear naturally
 
 MIN_SENTENCE_LENGTH = 7
-MAX_SENTENCE_LENGTH = 30
+MAX_SENTENCE_LENGTH = 50
 
 tokenizer = None
 TOKENIZER_MODE = sudachi_tokenizer.Tokenizer.SplitMode.C
