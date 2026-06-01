@@ -64,6 +64,81 @@ class TokenizeStepTests(unittest.TestCase):
         self.assertIn("言葉", word_data)
         self.assertEqual(word_data["言葉"].frequency, 1)
 
+    def test_tokenize_strips_script_prefix_when_creating_sentence(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            source = root / "input.txt"
+            source.write_text("unused", encoding="utf-8")
+
+            class FakeDictionary:
+                def __init__(self, *args, **kwargs):
+                    pass
+
+                def create(self):
+                    return self
+
+                def tokenize(self, text, mode):
+                    return [object() for _ in range(7)]
+
+            tokens = [
+                {
+                    "surface": "F4　AD　01　01　10　01　01　01>",
+                    "lemma": "meta",
+                    "base_form": "meta",
+                    "reading": "",
+                    "pos": ("記号", "*", "*", "*"),
+                },
+                {
+                    "surface": "美鶴",
+                    "lemma": "美鶴",
+                    "base_form": "美鶴",
+                    "reading": "みつる",
+                    "pos": ("名詞", "普通名詞", "一般", "*"),
+                },
+                {
+                    "surface": "は",
+                    "lemma": "は",
+                    "base_form": "は",
+                    "reading": "は",
+                    "pos": ("助詞", "係助詞", "*", "*"),
+                },
+                {
+                    "surface": "切なげ",
+                    "lemma": "切なげ",
+                    "base_form": "切なげ",
+                    "reading": "せつなげ",
+                    "pos": ("形状詞", "一般", "*", "*"),
+                },
+                {
+                    "surface": "に",
+                    "lemma": "に",
+                    "base_form": "に",
+                    "reading": "に",
+                    "pos": ("助詞", "格助詞", "*", "*"),
+                },
+                {
+                    "surface": "微笑んだ",
+                    "lemma": "微笑む",
+                    "base_form": "微笑む",
+                    "reading": "ほほえむ",
+                    "pos": ("動詞", "一般", "*", "*"),
+                },
+                {
+                    "surface": "。",
+                    "lemma": "。",
+                    "base_form": "。",
+                    "reading": "",
+                    "pos": ("補助記号", "句点", "*", "*"),
+                },
+            ]
+
+            with patch("src.TokenizeStep.dictionary.Dictionary", FakeDictionary):
+                with patch("src.TokenizeStep.sudachi_node_to_dict", side_effect=tokens):
+                    _word_data, sentences = tokenize(source, cache_dir=root / "cache")
+
+        self.assertEqual(len(sentences), 1)
+        self.assertEqual(sentences[0].text, "美鶴は切なげに微笑んだ。")
+
 
 if __name__ == "__main__":
     unittest.main()

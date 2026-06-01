@@ -137,6 +137,7 @@ def tokenize(input_path, word_data=None, segmented_sentences=None, cache_dir=Non
             if char in sentence_endings:
                 sentence_text = "".join(current_sentence_chars)
                 sentence_text = re.sub(r"\s+", "　", sentence_text)
+                sentence_text = clean_sentence_text(sentence_text)
 
                 if MIN_SENTENCE_LENGTH <= len(sentence_text) <= MAX_SENTENCE_LENGTH:
                     segmented_sentences.append(SegmentedSentence(
@@ -213,6 +214,29 @@ def sudachi_node_to_dict(m) -> dict:
         "reading": kata_to_hira(reading),
         "pos": m.part_of_speech(),
     }
+
+
+def clean_sentence_text(text: str) -> str:
+    text = re.sub(r"\s+", "　", text).strip()
+
+    if ">" not in text:
+        return text
+
+    prefix, body = text.split(">", 1)
+
+    if body and contains_japanese_script(body) and not contains_japanese_script(prefix):
+        return body.strip()
+
+    return text
+
+
+def contains_japanese_script(text: str) -> bool:
+    return any(
+        "\u3040" <= c <= "\u309F"
+        or "\u30A0" <= c <= "\u30FF"
+        or "\u4E00" <= c <= "\u9FFF"
+        for c in text
+    )
 
 
 def iter_sudachi_chunks(text: str, max_bytes: int = MAX_SUDACHI_BYTES):

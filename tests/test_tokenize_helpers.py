@@ -2,6 +2,8 @@ import unittest
 
 from src.TokenizeStep import (
     SENT_BOUNDARY,
+    clean_sentence_text,
+    contains_japanese_script,
     is_japanese_char,
     is_useless,
     iter_sudachi_chunks,
@@ -53,6 +55,22 @@ class TokenizeHelperTests(unittest.TestCase):
         self.assertEqual("".join(chunks), text + SENT_BOUNDARY)
         self.assertGreater(len(chunks), 1)
         self.assertTrue(all(len(chunk.encode("utf-8")) <= 12 for chunk in chunks))
+
+    def test_clean_sentence_text_strips_non_japanese_script_prefix(self):
+        self.assertEqual(
+            clean_sentence_text("F4　AD　01　01　10　01　01　01>美鶴は切なげに微笑んだ。"),
+            "美鶴は切なげに微笑んだ。",
+        )
+
+    def test_clean_sentence_text_preserves_japanese_prefix_before_gt(self):
+        self.assertEqual(
+            clean_sentence_text("美鶴>切なげに微笑んだ。"),
+            "美鶴>切なげに微笑んだ。",
+        )
+
+    def test_contains_japanese_script_ignores_ascii_metadata(self):
+        self.assertFalse(contains_japanese_script("F4 AD 01"))
+        self.assertTrue(contains_japanese_script("美鶴"))
 
 
 if __name__ == "__main__":

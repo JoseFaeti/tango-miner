@@ -6,6 +6,7 @@ from .WordStats import Sentence, WordStats
 
 from collections import defaultdict
 from itertools import count
+import re
 
 # ---------------------------------------------------------------------------
 # Config
@@ -104,10 +105,11 @@ def attach_sentences(
 
             candidates_by_text = candidates[lemma]
             item = (fitness, next(counter), sentence)
-            existing = candidates_by_text.get(sentence.text)
+            sentence_key = _sentence_dedupe_key(sentence.text)
+            existing = candidates_by_text.get(sentence_key)
 
             if existing is None or fitness < existing[0]:
-                candidates_by_text[sentence.text] = item
+                candidates_by_text[sentence_key] = item
 
     if progress_handler:
         progress_handler(ProcessingStep.SENTENCES, total, total)
@@ -131,6 +133,35 @@ def _over_level_penalty(scores, target):
             diff = s - target
             penalty += diff * diff  # quadratic penalty
     return penalty
+
+
+def _sentence_dedupe_key(text: str) -> str:
+    """
+    Return a stable key for deciding whether two attached sentences are the
+    same learning sentence. Some script dumps prefix the visible Japanese text
+    with cue metadata such as "F4 AD 01 ...>", which should not make a
+    duplicate sentence look unique.
+    """
+    normalized = re.sub(r"\s+", " ", text).strip()
+
+    if ">" not in normalized:
+        return normalized
+
+    prefix, body = normalized.split(">", 1)
+
+    if body and _contains_japanese(body) and not _contains_japanese(prefix):
+        return body.strip()
+
+    return normalized
+
+
+def _contains_japanese(text: str) -> bool:
+    return any(
+        "\u3040" <= c <= "\u309F"
+        or "\u30A0" <= c <= "\u30FF"
+        or "\u4E00" <= c <= "\u9FFF"
+        for c in text
+    )
 
 
 # ---------------------------------------------------------------------------

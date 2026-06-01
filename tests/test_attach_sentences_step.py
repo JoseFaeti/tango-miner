@@ -6,6 +6,7 @@ from src.AttachSentencesStep import (
     _compute_sentence_stats,
     _over_level_penalty,
     _percentile,
+    _sentence_dedupe_key,
     attach_sentences,
 )
 from src.SegmentedSentence import SegmentedSentence
@@ -88,6 +89,35 @@ class AttachSentencesStepTests(unittest.TestCase):
         self.assertEqual(len(texts), len(set(texts)))
         self.assertEqual(texts.count("目標と簡単の同じ例文"), 1)
         self.assertEqual(len(target.sentences), 2)
+
+    def test_sentence_dedupe_key_ignores_non_japanese_script_prefixes(self):
+        self.assertEqual(
+            _sentence_dedupe_key("F4　AD　01　01　10　01　01　01>美鶴は切なげに微笑んだ。"),
+            "美鶴は切なげに微笑んだ。",
+        )
+        self.assertEqual(
+            _sentence_dedupe_key("F4　AD　01　01　06　01　01　01>美鶴は切なげに微笑んだ。"),
+            "美鶴は切なげに微笑んだ。",
+        )
+
+    def test_attach_sentences_dedupes_script_prefix_variants_per_word(self):
+        target = make_stats(score=500, lemma="美鶴")
+        helper = make_stats(score=100, lemma="微笑む")
+        word_data = {
+            "美鶴": target,
+            "微笑む": helper,
+        }
+        sentences = [
+            seg("F4　AD　01　01　10　01　01　01>美鶴は切なげに微笑んだ。", {"美鶴": "美鶴", "微笑む": "微笑ん"}),
+            seg("F4　AD　01　01　06　01　01　01>美鶴は切なげに微笑んだ。", {"美鶴": "美鶴", "微笑む": "微笑ん"}),
+            seg("美鶴は静かにうなずいた。", {"美鶴": "美鶴"}),
+        ]
+
+        attach_sentences(word_data, sentences)
+
+        keys = [_sentence_dedupe_key(s.text) for s in target.sentences]
+        self.assertEqual(len(keys), len(set(keys)))
+        self.assertEqual(keys.count("美鶴は切なげに微笑んだ。"), 1)
 
 
 if __name__ == "__main__":
