@@ -180,7 +180,7 @@ def export_words_to_anki(
                 total_notes_to_update += 1
         else:
             dup_ids = anki_invoke("findNotes", {
-                "query": f'Japanese:\"{word}\"'
+                "query": f'deck:\"{deck_name}\" note:\"{model_name}\" Expression:\"{word}\"'
             })
             
             if dup_ids:

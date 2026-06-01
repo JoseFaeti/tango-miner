@@ -72,7 +72,7 @@ class AddWordsToAnkiStepTests(unittest.TestCase):
             calls.append((action, params or {}))
             if action == "modelNames":
                 return ["TangoMiner:Japanese"]
-            if action == "findNotes" and "deck:" in params["query"]:
+            if action == "findNotes" and "Expression:" not in params["query"]:
                 return [1, 2]
             if action == "notesInfo":
                 return [existing, obsolete]
@@ -95,6 +95,16 @@ class AddWordsToAnkiStepTests(unittest.TestCase):
         self.assertIn("updateNoteFields", actions)
         self.assertIn("addTags", actions)
         self.assertIn("removeTags", actions)
+
+        duplicate_queries = [
+            params["query"]
+            for action, params in calls
+            if action == "findNotes" and "Expression:" in params["query"]
+        ]
+        self.assertEqual(
+            duplicate_queries,
+            ['deck:"Deck" note:"TangoMiner:Japanese" Expression:"犬"'],
+        )
 
 
 if __name__ == "__main__":

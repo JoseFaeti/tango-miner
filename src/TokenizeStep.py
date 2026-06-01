@@ -29,7 +29,7 @@ SKIP_POS1_POS2 = {
     ("感動詞", "フィラー"),  # えーと, あの
 }
 
-TOKENIZER_FINGERPRINT = "sudachidict_full+user_dict.C+postproc-v1.2026/06/01.1"
+TOKENIZER_FINGERPRINT = "sudachidict_full+user_dict.C+postproc-v1.2026/06/01.2"
 MAX_SUDACHI_BYTES = 48000  # leave margin
 
 SENT_BOUNDARY = "🐍"  # any char that will never appear naturally
@@ -43,7 +43,12 @@ TOKENIZER_MODE = sudachi_tokenizer.Tokenizer.SplitMode.C
 
 class TokenizeStep(PipelineStep):
     def process(self, artifact: Artifact) -> Artifact:
-        word_data, sentences = tokenize(artifact.data, progress_handler=self.progress)
+        cache_dir = artifact.tmpdir / "token_cache" if artifact.tmpdir else None
+        word_data, sentences = tokenize(
+            artifact.data,
+            cache_dir=cache_dir,
+            progress_handler=self.progress,
+        )
         return Artifact(word_data, sentences=sentences, is_path=True)
 
 
@@ -81,8 +86,9 @@ def tokenize(input_path, word_data=None, segmented_sentences=None, cache_dir=Non
     # ------------------------------
     hash_ = cache.get_hash_by_mtime(input_path, file_mtime)
 
-    if hash_:
-        payload = cache.load_by_hash(hash_)
+    payload = cache.load_by_hash(hash_) if hash_ else None
+
+    if payload:
         tokens = payload["tokens"]
     else:
         with open(input_path, encoding="utf-8") as f:
@@ -92,24 +98,8 @@ def tokenize(input_path, word_data=None, segmented_sentences=None, cache_dir=Non
         text = text.replace("\n", SENT_BOUNDARY)
 
         tokens = []
-        current = []
-        current_bytes = 0
 
-        for part in text.split(SENT_BOUNDARY):
-            part_with_sep = part + SENT_BOUNDARY
-            part_bytes = len(part_with_sep.encode("utf-8"))
-
-            if current_bytes + part_bytes > MAX_SUDACHI_BYTES:
-                chunk = "".join(current)
-                tokens.extend(sudachi_node_to_dict(m) for m in tokenizer.tokenize(chunk, TOKENIZER_MODE))
-                current = []
-                current_bytes = 0
-
-            current.append(part_with_sep)
-            current_bytes += part_bytes
-
-        if current:
-            chunk = "".join(current)
+        for chunk in iter_sudachi_chunks(text):
             tokens.extend(sudachi_node_to_dict(m) for m in tokenizer.tokenize(chunk, TOKENIZER_MODE))
 
         cache.put(text, tokens)
@@ -223,6 +213,50 @@ def sudachi_node_to_dict(m) -> dict:
         "reading": kata_to_hira(reading),
         "pos": m.part_of_speech(),
     }
+
+
+def iter_sudachi_chunks(text: str, max_bytes: int = MAX_SUDACHI_BYTES):
+    if max_bytes <= 0:
+        raise ValueError("max_bytes must be positive")
+
+    current = []
+    current_bytes = 0
+
+    for part in text.split(SENT_BOUNDARY):
+        part_with_sep = part + SENT_BOUNDARY
+
+        for piece in split_text_by_utf8_bytes(part_with_sep, max_bytes):
+            piece_bytes = len(piece.encode("utf-8"))
+
+            if current and current_bytes + piece_bytes > max_bytes:
+                yield "".join(current)
+                current = []
+                current_bytes = 0
+
+            current.append(piece)
+            current_bytes += piece_bytes
+
+    if current:
+        yield "".join(current)
+
+
+def split_text_by_utf8_bytes(text: str, max_bytes: int):
+    current = []
+    current_bytes = 0
+
+    for char in text:
+        char_bytes = len(char.encode("utf-8"))
+
+        if current and current_bytes + char_bytes > max_bytes:
+            yield "".join(current)
+            current = []
+            current_bytes = 0
+
+        current.append(char)
+        current_bytes += char_bytes
+
+    if current:
+        yield "".join(current)
 
 
 def kata_to_hira(text: str) -> str:

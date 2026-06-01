@@ -69,6 +69,26 @@ class AttachSentencesStepTests(unittest.TestCase):
         self.assertNotIn("too-hard", {s.tag for s in target.sentences})
         self.assertTrue(all(isinstance(s, Sentence) for s in target.sentences))
 
+    def test_attach_sentences_keeps_sentence_text_unique_per_word(self):
+        target = make_stats(score=500, lemma="目標")
+        helper = make_stats(score=100, lemma="簡単")
+        word_data = {
+            "目標": target,
+            "簡単": helper,
+        }
+        sentences = [
+            seg("目標と簡単の同じ例文", {"目標": "目標", "簡単": "簡単"}, tag="first"),
+            seg("目標と簡単の同じ例文", {"目標": "目標", "簡単": "簡単"}, tag="duplicate"),
+            seg("目標だけの別例文", {"目標": "目標"}, tag="other"),
+        ]
+
+        attach_sentences(word_data, sentences)
+
+        texts = [s.text for s in target.sentences]
+        self.assertEqual(len(texts), len(set(texts)))
+        self.assertEqual(texts.count("目標と簡単の同じ例文"), 1)
+        self.assertEqual(len(target.sentences), 2)
+
 
 if __name__ == "__main__":
     unittest.main()

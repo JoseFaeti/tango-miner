@@ -1,6 +1,13 @@
 import unittest
 
-from src.TokenizeStep import is_japanese_char, is_useless, kata_to_hira
+from src.TokenizeStep import (
+    SENT_BOUNDARY,
+    is_japanese_char,
+    is_useless,
+    iter_sudachi_chunks,
+    kata_to_hira,
+    split_text_by_utf8_bytes,
+)
 
 
 def token(lemma, pos=("名詞", "普通名詞", "一般", "*"), reading="ヨミ"):
@@ -32,6 +39,20 @@ class TokenizeHelperTests(unittest.TestCase):
             self.assertTrue(is_japanese_char(ch), ch)
 
         self.assertFalse(is_japanese_char("😀"))
+
+    def test_split_text_by_utf8_bytes_keeps_chunks_under_limit(self):
+        chunks = list(split_text_by_utf8_bytes("言葉abc", max_bytes=7))
+
+        self.assertEqual("".join(chunks), "言葉abc")
+        self.assertTrue(all(len(chunk.encode("utf-8")) <= 7 for chunk in chunks))
+
+    def test_iter_sudachi_chunks_splits_oversized_sentence_parts(self):
+        text = "言葉" * 10
+        chunks = list(iter_sudachi_chunks(text, max_bytes=12))
+
+        self.assertEqual("".join(chunks), text + SENT_BOUNDARY)
+        self.assertGreater(len(chunks), 1)
+        self.assertTrue(all(len(chunk.encode("utf-8")) <= 12 for chunk in chunks))
 
 
 if __name__ == "__main__":

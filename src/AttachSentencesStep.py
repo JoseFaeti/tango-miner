@@ -5,7 +5,6 @@ from .SegmentedSentence import SegmentedSentence
 from .WordStats import Sentence, WordStats
 
 from collections import defaultdict
-from heapq import heappush, heappushpop
 from itertools import count
 
 # ---------------------------------------------------------------------------
@@ -53,7 +52,7 @@ def attach_sentences(
 ):
     total = len(segmented_sentences)
 
-    candidates = defaultdict(list)
+    candidates = defaultdict(dict)
     counter = count()
 
     for i, seg in enumerate(segmented_sentences):
@@ -84,7 +83,6 @@ def attach_sentences(
                 variance,
             )
 
-            over_penalty = _over_level_penalty(scores, ws.score)
             penalty += (_over_level_penalty(scores, ws.score) / len(scores)) * 1.5
 
             # ----------------------------------------------------------------
@@ -104,27 +102,25 @@ def attach_sentences(
                 surface_form=surface,
             )
 
-            heap = candidates[lemma]
+            candidates_by_text = candidates[lemma]
+            item = (fitness, next(counter), sentence)
+            existing = candidates_by_text.get(sentence.text)
 
-            item = (-fitness, next(counter), sentence)
-
-            if len(heap) < MAX_SENTENCES:
-                heappush(heap, item)
-            else:
-                heappushpop(heap, item)
+            if existing is None or fitness < existing[0]:
+                candidates_by_text[sentence.text] = item
 
     if progress_handler:
         progress_handler(ProcessingStep.SENTENCES, total, total)
 
     # finalize
-    for lemma, heap in candidates.items():
+    for lemma, candidates_by_text in candidates.items():
         ws = word_data.get(lemma)
         if not ws:
             continue
 
         ws.sentences = [
             item[2]
-            for item in sorted(heap, reverse=True)
+            for item in sorted(candidates_by_text.values())[:MAX_SENTENCES]
         ]
 
 

@@ -60,7 +60,7 @@ class TokenizeDirectoryStep(PipelineStep):
             )
 
             file_index += 1
-            total_tokens = len(combined_tokens)
+            total_tokens = count_token_occurrences(combined_tokens)
 
         self.progress(
             ProcessingStep.TOKENIZING,
@@ -85,3 +85,7 @@ def iter_input_files(directory: Path, include_subdirectories: bool):
 
 def count_files(directory: Path, include_subdirectories: bool) -> int:
     return sum(1 for _ in iter_input_files(directory, include_subdirectories))
+
+
+def count_token_occurrences(word_data: dict) -> int:
+    return sum(stats.frequency for stats in word_data.values())

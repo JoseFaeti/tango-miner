@@ -113,31 +113,9 @@ def process_script():
         elif input_path_obj.is_dir():
             print(f'Mining all relevant files from directory {input_path_obj.resolve()}...')
 
-            output_path = Path(args.output)
+            final_path = resolve_directory_output_path(input_path_obj, args.output)
 
-            single_file_mode = False
-
-            # create output path and intermetiade directories if necessary
-            if output_path.exists():
-                if output_path.is_dir():
-                    final_path = output_path
-                else:
-                    final_path = output_path
-                    single_file_mode = True
-            else:
-                if output_path.suffix:
-                    final_path = output_path
-                    # create missing directories if necessary
-                    output_path.parent.mkdir(parents=True, exist_ok=True)
-                    single_file_mode = True
-                else:
-                    final_path = output_path
-                    output_path.mkdir(parents=True, exist_ok=True)
-
-            print_debug(f'output_path: {output_path.resolve()}')
-            print_debug(f'output_path exists = {output_path.exists()}')
             print(f'output path: {final_path.resolve()}')
-            print_debug(f'single file mode = {single_file_mode}')
 
             steps = [
                 TokenizeDirectoryStep(input_path_obj, include_subdirectories=recursive),
@@ -145,7 +123,7 @@ def process_script():
                 AddDefinitionsStep(),
                 ScoreWordStep(),
                 AttachSentencesStep(),
-                WriteOutputStep(output_path),
+                WriteOutputStep(final_path),
                 AddWordsToAnkiStep()
             ]
 
@@ -154,12 +132,34 @@ def process_script():
 
     print('All tasks completed.')
 
+
+def resolve_directory_output_path(input_path: Path, output_arg: str | None) -> Path:
+    input_path = Path(input_path)
+
+    if output_arg is None:
+        return input_path / f"{input_path.name}.csv"
+
+    output_path = Path(output_arg)
+
+    if output_path.exists() and output_path.is_dir():
+        return output_path / f"{input_path.name}.csv"
+
+    if output_path.suffix:
+        output_path.parent.mkdir(parents=True, exist_ok=True)
+        return output_path
+
+    output_path.mkdir(parents=True, exist_ok=True)
+    return output_path / f"{input_path.name}.csv"
+
 def build_mining_pipeline(output_path, min_frequency, tags=None):
+    output_path = Path(output_path)
+
     steps = [
         TokenizeStep(),
         FilterFrequencyStep(min_frequency),
-        AddReadingsStep(),
         AddDefinitionsStep(),
+        ScoreWordStep(),
+        AttachSentencesStep(),
     ]
 
     steps.append(WriteOutputStep(output_path))
