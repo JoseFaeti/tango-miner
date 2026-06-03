@@ -34,7 +34,7 @@ MAX_SUDACHI_BYTES = 48000  # leave margin
 
 SENT_BOUNDARY = "🐍"  # any char that will never appear naturally
 
-MIN_SENTENCE_LENGTH = 7
+MIN_SENTENCE_LENGTH = 15
 MAX_SENTENCE_LENGTH = 50
 
 tokenizer = None
@@ -137,15 +137,18 @@ def tokenize(input_path, word_data=None, segmented_sentences=None, cache_dir=Non
             if char in sentence_endings:
                 sentence_text = "".join(current_sentence_chars)
                 sentence_text = re.sub(r"\s+", "　", sentence_text)
-                sentence_text = clean_sentence_text(sentence_text)
 
-                if MIN_SENTENCE_LENGTH <= len(sentence_text) <= MAX_SENTENCE_LENGTH:
-                    segmented_sentences.append(SegmentedSentence(
-                        text=sentence_text,
-                        tag=tag,
-                        origin=input_path,
-                        lemma_surfaces=dict(current_sentence_surfaces),
-                    ))
+                for candidate_text in build_sentence_candidates(sentence_text):
+                    if (
+                        MIN_SENTENCE_LENGTH <= len(candidate_text) <= MAX_SENTENCE_LENGTH
+                        and is_good_sentence_candidate(candidate_text)
+                    ):
+                        segmented_sentences.append(SegmentedSentence(
+                            text=candidate_text,
+                            tag=tag,
+                            origin=input_path,
+                            lemma_surfaces=dict(current_sentence_surfaces),
+                        ))
 
                 current_sentence_chars = []
                 current_sentence_lemmas = []
@@ -218,6 +221,9 @@ def sudachi_node_to_dict(m) -> dict:
 
 def clean_sentence_text(text: str) -> str:
     text = re.sub(r"\s+", "　", text).strip()
+    text = replace_markup_with_placeholder(text)
+    text = strip_control_code_runs(text)
+    text = re.sub(r"\s+", "　", text).strip()
 
     if ">" not in text:
         return text
@@ -227,6 +233,79 @@ def clean_sentence_text(text: str) -> str:
     if body and contains_japanese_script(body) and not contains_japanese_script(prefix):
         return body.strip()
 
+    return text
+
+
+def build_sentence_candidates(text: str) -> list[str]:
+    text = clean_sentence_text(text)
+    return [
+        part
+        for part in split_glued_dialogue_turns(text)
+        if part and is_good_sentence_candidate(part)
+    ]
+
+
+def split_glued_dialogue_turns(text: str) -> list[str]:
+    parts = re.split(r"(?<=[。！？])(?=[ぁ-んァ-ン一-龯]{1,12}「)", text)
+    return [part.strip("　 ") for part in parts if part.strip("　 ")]
+
+
+def is_good_sentence_candidate(text: str) -> bool:
+    if not contains_japanese_script(text):
+        return False
+
+    if looks_like_guide_header(text):
+        return False
+
+    if text.count("[...]") > 2:
+        return False
+
+    japanese_chars = sum(1 for c in text if is_japanese_char(c) and not c.isspace())
+    visible_chars = sum(1 for c in text if not c.isspace())
+    if visible_chars and japanese_chars / visible_chars < 0.55:
+        return False
+
+    return True
+
+
+def looks_like_guide_header(text: str) -> bool:
+    guide_terms = (
+        "行き方",
+        "マップ",
+        "攻略",
+        "入手方法",
+        "チャート",
+        "戦闘開始時",
+        "場合は",
+    )
+
+    if any(term in text for term in guide_terms):
+        return True
+
+    if re.search(r"^[ぁ-んァ-ン一-龯]+[　\s]+[A-ZＭＳLR]([　\s]|$)", text):
+        return True
+
+    return False
+
+
+def replace_markup_with_placeholder(text: str, placeholder="[...]") -> str:
+    text = re.sub(r"<[^>]+>", placeholder, text)
+    text = re.sub(r"(?:\s*" + re.escape(placeholder) + r"\s*){2,}", placeholder, text)
+    return text
+
+
+def strip_control_code_runs(text: str) -> str:
+    text = re.sub(r"#w\(\d+\)", "", text)
+    text = re.sub(
+        r"(?:^|(?<=[　\s\"'「『]))F[0-9A-F](?:[　\s]+[0-9A-F]{2})+(?=$|[　\s\"'」』ぁ-んァ-ン一-龯])",
+        "",
+        text,
+    )
+    text = re.sub(
+        r"(?:^|(?<=[　\s\"'「『]))[0-9A-F]{2}(?:[　\s]+[0-9A-F]{2}){2,}(?=$|[　\s\"'」』ぁ-んァ-ン一-龯])",
+        "",
+        text,
+    )
     return text
 
 

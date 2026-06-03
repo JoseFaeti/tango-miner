@@ -14,17 +14,17 @@ import re
 
 MAX_SENTENCES = 3
 
-GLOBAL_AVERAGE_SCORE = 3000
-SMOOTHING_WEIGHT = 5
+GLOBAL_AVERAGE_SCORE = 400
+SMOOTHING_WEIGHT = 2
 
 IDEAL_LENGTH = 50
-LENGTH_DIVISOR = 100
+LENGTH_DIVISOR = 20
 
 UNKNOWN_WORD_PENALTY = 0.2
-TOO_HARD_WORD_PENALTY = 0.5
-SHORT_SENTENCE_PENALTY = 0.3
+TOO_HARD_WORD_PENALTY = 0.4
+SHORT_SENTENCE_PENALTY = 1.0
 
-MIN_WORD_COUNT = 4
+MIN_WORD_COUNT = 10
 VARIANCE_DIVISOR = 100000
 
 
@@ -83,6 +83,7 @@ def attach_sentences(
                 unknown_count,
                 variance,
             )
+            penalty += sentence_quality_penalty(seg.text)
 
             penalty += (_over_level_penalty(scores, ws.score) / len(scores)) * 1.5
 
@@ -162,6 +163,27 @@ def _contains_japanese(text: str) -> bool:
         or "\u4E00" <= c <= "\u9FFF"
         for c in text
     )
+
+
+def sentence_quality_penalty(text: str) -> float:
+    penalty = 0.0
+
+    penalty += text.count("[...]") * 0.25
+    penalty += text.count("「") * 0.05
+
+    if text.count("。") + text.count("！") + text.count("？") > 1:
+        penalty += 0.5
+
+    visible_chars = sum(1 for c in text if not c.isspace())
+    if visible_chars:
+        japanese_chars = sum(1 for c in text if _contains_japanese(c))
+        non_japanese_ratio = 1 - (japanese_chars / visible_chars)
+        penalty += non_japanese_ratio
+
+    if not text.endswith(("。", "！", "？")):
+        penalty += 0.15
+
+    return penalty
 
 
 # ---------------------------------------------------------------------------

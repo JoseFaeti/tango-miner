@@ -8,6 +8,7 @@ from src.AttachSentencesStep import (
     _percentile,
     _sentence_dedupe_key,
     attach_sentences,
+    sentence_quality_penalty,
 )
 from src.SegmentedSentence import SegmentedSentence
 from src.WordStats import Sentence
@@ -118,6 +119,14 @@ class AttachSentencesStepTests(unittest.TestCase):
         keys = [_sentence_dedupe_key(s.text) for s in target.sentences]
         self.assertEqual(len(keys), len(set(keys)))
         self.assertEqual(keys.count("美鶴は切なげに微笑んだ。"), 1)
+
+    def test_sentence_quality_penalty_prefers_clean_complete_sentences(self):
+        clean = sentence_quality_penalty("美鶴は切なげに微笑んだ。")
+        edited = sentence_quality_penalty("美鶴は[...]に微笑んだ。")
+        incomplete = sentence_quality_penalty("美鶴は切なげに微笑んだ")
+
+        self.assertLess(clean, edited)
+        self.assertLess(clean, incomplete)
 
 
 if __name__ == "__main__":

@@ -27,13 +27,18 @@ class WriteOutputStepTests(unittest.TestCase):
                 rows = list(csv.reader(f))
             with (Path(tmp) / "out.dropped.csv").open(encoding="utf-8", newline="") as f:
                 dropped = list(csv.reader(f))
-            sentence_text = (Path(tmp) / "out.sentence.csv").read_text(encoding="utf-8")
+            with (Path(tmp) / "out.sentence.csv").open(encoding="utf-8", newline="") as f:
+                sentence_rows = list(csv.reader(f))
 
         self.assertEqual([row[1] for row in rows], ["high", "low"])
         self.assertEqual(dropped[0][1], "drop")
         self.assertEqual(rows[0][6], "a b")
         self.assertIn("<span class='highlight'>猫</span>", rows[0][7])
-        self.assertIn("猫がいる", sentence_text)
+        self.assertEqual(
+            sentence_rows[0],
+            ["status", "word", "score", "sentence", "tag", "origin", "surface_form"],
+        )
+        self.assertEqual(sentence_rows[1][:4], ["kept", "high", "100", "猫がいる"])
         self.assertEqual(events[-1][0], None)
 
 

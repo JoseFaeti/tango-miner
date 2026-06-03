@@ -53,14 +53,25 @@ def write_final_file(input, output_file, progress_handler=None):
 
     p = output_file
     with open(p.with_name(p.stem + ".sentence" + p.suffix), 'w', encoding='utf-8', newline="") as sentence_file:
+        sentence_writer = csv.writer(sentence_file)
+        sentence_writer.writerow(["status", "word", "score", "sentence", "tag", "origin", "surface_form"])
+
         for word, word_data in sorted_words_by_score.items():
             if not word_data.sentences:
                 continue
 
-            sentence_file.write(
-                "\n".join(str(s) for s in word_data.sentences)
-                + "\n"
-            )
+            status = "dropped" if word_data.invalid else "kept"
+
+            for sentence in word_data.sentences:
+                sentence_writer.writerow([
+                    status,
+                    word,
+                    word_data.score,
+                    sentence.text,
+                    sentence.tag,
+                    sentence.origin,
+                    sentence.surface_form,
+                ])
 
     if progress_handler:
         progress_handler(None, 1, 1, f'Output written to {Path(output_file).resolve()}.')
