@@ -136,7 +136,31 @@ def tokenize(input_path, word_data=None, segmented_sentences=None, cache_dir=Non
             # On a sentence boundary, emit a SegmentedSentence if long enough
             if char in sentence_endings:
                 sentence_text = "".join(current_sentence_chars)
+
+                # Remove unnecessary whitespace around punctuation
                 sentence_text = re.sub(r"\s+", "　", sentence_text)
+                sentence_text = re.sub(r"\s*、\s*", "、", sentence_text)
+                sentence_text = re.sub(r"\s*『\s*", "『", sentence_text)
+                sentence_text = re.sub(r"\s*「\s*", "「", sentence_text)
+                sentence_text = re.sub(r"\s*』\s*", "』", sentence_text)
+                sentence_text = re.sub(r"\s*」\s*", "」", sentence_text)
+
+                # Fix mismatched brackets
+                if sentence_text.startswith("「") and not "」" in sentence_text:
+                    sentence_text = sentence_text[1:]
+
+                if sentence_text.startswith("『") and not "』" in sentence_text:
+                    sentence_text = sentence_text[1:]
+
+                if sentence_text.endswith("」") and not "「" in sentence_text:
+                    sentence_text = sentence_text[:-1]
+
+                if sentence_text.endswith("』") and not "『" in sentence_text:
+                    sentence_text = sentence_text[:-1]
+
+                # Limit very long sequences of dots or dashes
+                sentence_text = re.sub(r"・{3,}", "・・・", sentence_text)
+                sentence_text = re.sub(r"ー{3,}", "ーーー", sentence_text)
 
                 for candidate_text in build_sentence_candidates(sentence_text):
                     if (

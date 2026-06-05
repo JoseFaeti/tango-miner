@@ -13,19 +13,55 @@ import re
 # ---------------------------------------------------------------------------
 
 MAX_SENTENCES = 3
+# Max number of example sentences stored per word
 
-GLOBAL_AVERAGE_SCORE = 400
-SMOOTHING_WEIGHT = 2
+GLOBAL_AVERAGE_SCORE = 3000
+# Fallback difficulty score when no known words exist in a sentence
+# Range: ~100–1000 depending on your word scoring system
+# Higher → treats unknown sentences as harder
+# Lower → treats unknown sentences as easier (more likely to be selected)
 
-IDEAL_LENGTH = 50
-LENGTH_DIVISOR = 20
+IDEAL_LENGTH = 25
+# Target sentence length in characters
+# Range: 10–60 depending on corpus style
+# Higher → prefers longer sentences
+# Lower → prefers shorter, more compact sentences
+
+LENGTH_DIVISOR = 15
+# Controls how strongly length deviation is penalized
+# Range: 5–50
+# Lower → very strong preference for IDEAL_LENGTH (sharp penalty)
+# Higher → more tolerant of length variation (weaker penalty)
 
 UNKNOWN_WORD_PENALTY = 0.2
-TOO_HARD_WORD_PENALTY = 0.4
-SHORT_SENTENCE_PENALTY = 1.0
+# Penalty weight for unknown words in sentence
+# Range: 0.0–1.0
+# Higher → strongly discourages sentences with unknown vocabulary
+# Lower → allows more natural / noisy sentences
 
-MIN_WORD_COUNT = 10
+TOO_HARD_WORD_PENALTY = 0.4
+# Penalty for words above target difficulty level
+# Range: 0.0–1.0
+# Higher → strongly avoids sentences that exceed user level
+# Lower → allows more challenging sentences
+
+SHORT_SENTENCE_PENALTY = 0.5
+# Penalty multiplier for sentences with too few known words
+# Range: 0.0–2.0
+# Higher → strongly discourages short / low-information sentences
+# Lower → allows short sentences to compete more often
+
+MIN_WORD_COUNT = 6
+# Minimum number of known words required before short-sentence penalty stops applying
+# Range: 3–15
+# Higher → forces richer sentences (bias toward longer sentences)
+# Lower → allows shorter sentences to pass more easily
+
 VARIANCE_DIVISOR = 100000
+# Scales down penalty for variance in word difficulty within a sentence
+# Range: 10,000–1,000,000
+# Lower → variance matters more (mixed difficulty sentences penalized harder)
+# Higher → variance mostly ignored
 
 
 # ---------------------------------------------------------------------------
@@ -57,8 +93,8 @@ def attach_sentences(
     counter = count()
 
     for i, seg in enumerate(segmented_sentences):
-        if progress_handler:
-            progress_handler(ProcessingStep.SENTENCES, i, total)
+        if progress_handler and (i % 1000 == 0):
+            progress_handler(ProcessingStep.SENTENCES, i, total, f"{i}/{total} sentences")
 
         scores, unknown_count, mean_score, variance = _compute_sentence_stats(
             seg,
