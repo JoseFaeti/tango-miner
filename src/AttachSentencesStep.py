@@ -6,6 +6,7 @@ from .WordStats import Sentence, WordStats
 
 from collections import defaultdict
 from itertools import count
+import heapq
 import re
 
 # ---------------------------------------------------------------------------
@@ -79,59 +80,106 @@ class AttachSentencesStep(PipelineStep):
 
 
 # ---------------------------------------------------------------------------
-# Main
+# Fast helpers
 # ---------------------------------------------------------------------------
 
-def attach_sentences(
-    word_data: dict,
-    segmented_sentences: list[SegmentedSentence],
-    progress_handler=None,
-):
+def _is_japanese_char(c: str) -> bool:
+    o = ord(c)
+    return (
+        0x3040 <= o <= 0x309F or
+        0x30A0 <= o <= 0x30FF or
+        0x4E00 <= o <= 0x9FFF
+    )
+
+
+def _percentile(values, p=0.9):
+    s = sorted(values)
+    if not s:
+        return GLOBAL_AVERAGE_SCORE
+    return s[min(int(len(s) * p), len(s) - 1)]
+
+
+# ---------------------------------------------------------------------------
+# Core pipeline
+# ---------------------------------------------------------------------------
+
+def attach_sentences(word_data, segmented_sentences, progress_handler=None):
     total = len(segmented_sentences)
 
     candidates = defaultdict(dict)
     counter = count()
 
+    word_get = word_data.get  # local binding (important)
+
     for i, seg in enumerate(segmented_sentences):
         if progress_handler and (i % 1000 == 0):
             progress_handler(ProcessingStep.SENTENCES, i, total, f"{i}/{total} sentences")
 
-        scores, unknown_count, mean_score, variance = _compute_sentence_stats(
-            seg,
-            word_data,
+        lemma_surfaces = seg.lemma_surfaces
+
+        # ------------------------------------------------------------
+        # PHASE 1: sentence stats (single pass)
+        # ------------------------------------------------------------
+        scores = []
+        unknown_count = 0
+
+        for lemma in lemma_surfaces:
+            ws = word_get(lemma)
+            if ws is None:
+                unknown_count += 1
+            else:
+                scores.append(ws.score)
+
+        if scores:
+            mean = sum(scores) / len(scores)
+            variance = sum((x - mean) ** 2 for x in scores) / len(scores)
+            sentence_difficulty = _percentile(scores, 0.9)
+        else:
+            variance = 0
+            sentence_difficulty = GLOBAL_AVERAGE_SCORE
+
+        # ------------------------------------------------------------
+        # PHASE 2: compute sentence-level penalties once
+        # ------------------------------------------------------------
+        text = seg.text
+        text_len = len(text)
+
+        penalty = _sentence_penalty_fast(
+            text,
+            scores,
+            unknown_count,
+            variance,
         )
 
-        if not scores:
-            sentence_difficulty = GLOBAL_AVERAGE_SCORE
-        else:
-            # percentile-based difficulty (prevents hard-word masking)
-            sentence_difficulty = _percentile(scores, 0.9)
+        sentence_quality = _sentence_quality_penalty_fast(text)
+        base_penalty = penalty + sentence_quality
 
-        for lemma, surface in seg.lemma_surfaces.items():
-            ws = word_data.get(lemma)
+        # avoid repeated len calls
+        score_len = len(scores)
+        total_tokens = score_len + unknown_count
+        if total_tokens == 0:
+            continue
+
+        # ------------------------------------------------------------
+        # PHASE 3: per-lemma scoring (tight loop)
+        # ------------------------------------------------------------
+        for lemma, surface in lemma_surfaces.items():
+            ws = word_get(lemma)
             if ws is None:
                 continue
 
-            penalty = _sentence_penalty(
-                ws,
-                seg,
-                scores,
-                unknown_count,
-                variance,
+            over_difficulty = max(0.0, sentence_difficulty - ws.score)
+
+            too_hard = 0
+            for s in scores:
+                if s > ws.score:
+                    too_hard += 1
+
+            fitness = (
+                over_difficulty
+                + base_penalty
+                + (too_hard / total_tokens) * TOO_HARD_WORD_PENALTY
             )
-            penalty += sentence_quality_penalty(seg.text)
-
-            penalty += (_over_level_penalty(scores, ws.score) / len(scores)) * 1.5
-
-            # ----------------------------------------------------------------
-            # ASYMMETRIC FITNESS
-            # ----------------------------------------------------------------
-            over_difficulty = max(
-                0.0,
-                sentence_difficulty - ws.score,
-            )
-
-            fitness = over_difficulty + penalty
 
             sentence = Sentence(
                 text=seg.text,
@@ -140,68 +188,51 @@ def attach_sentences(
                 surface_form=surface,
             )
 
-            candidates_by_text = candidates[lemma]
+            key = _sentence_dedupe_key_fast(text)
+            bucket = candidates[lemma]
+
+            existing = bucket.get(key)
             item = (fitness, next(counter), sentence)
-            sentence_key = _sentence_dedupe_key(sentence.text)
-            existing = candidates_by_text.get(sentence_key)
 
             if existing is None or fitness < existing[0]:
-                candidates_by_text[sentence_key] = item
+                bucket[key] = item
 
-    if progress_handler:
-        progress_handler(ProcessingStep.SENTENCES, total, total)
-
-    # finalize
-    for lemma, candidates_by_text in candidates.items():
-        ws = word_data.get(lemma)
+    # ------------------------------------------------------------
+    # FINALIZE (heap instead of sort)
+    # ------------------------------------------------------------
+    for lemma, bucket in candidates.items():
+        ws = word_get(lemma)
         if not ws:
             continue
 
-        ws.sentences = [
-            item[2]
-            for item in sorted(candidates_by_text.values())[:MAX_SENTENCES]
-        ]
+        best = heapq.nsmallest(MAX_SENTENCES, bucket.values(), key=lambda x: x[0])
+        ws.sentences = [b[2] for b in best]
+
+    progress_handler(ProcessingStep.SENTENCES, 1, 1)
 
 
-def _over_level_penalty(scores, target):
+# ---------------------------------------------------------------------------
+# Fast penalty functions
+# ---------------------------------------------------------------------------
+
+def _sentence_penalty_fast(text, scores, unknown_count, variance):
     penalty = 0.0
-    for s in scores:
-        if s > target:
-            diff = s - target
-            penalty += diff * diff  # quadratic penalty
+
+    total_tokens = len(scores) + unknown_count
+    if total_tokens == 0:
+        return 0.0
+
+    penalty += variance / VARIANCE_DIVISOR
+    penalty += (unknown_count / total_tokens) * UNKNOWN_WORD_PENALTY
+    penalty += abs(len(text) - IDEAL_LENGTH) / LENGTH_DIVISOR
+
+    if len(scores) < MIN_WORD_COUNT:
+        penalty += (MIN_WORD_COUNT - len(scores)) * SHORT_SENTENCE_PENALTY
+
     return penalty
 
 
-def _sentence_dedupe_key(text: str) -> str:
-    """
-    Return a stable key for deciding whether two attached sentences are the
-    same learning sentence. Some script dumps prefix the visible Japanese text
-    with cue metadata such as "F4 AD 01 ...>", which should not make a
-    duplicate sentence look unique.
-    """
-    normalized = re.sub(r"\s+", " ", text).strip()
-
-    if ">" not in normalized:
-        return normalized
-
-    prefix, body = normalized.split(">", 1)
-
-    if body and _contains_japanese(body) and not _contains_japanese(prefix):
-        return body.strip()
-
-    return normalized
-
-
-def _contains_japanese(text: str) -> bool:
-    return any(
-        "\u3040" <= c <= "\u309F"
-        or "\u30A0" <= c <= "\u30FF"
-        or "\u4E00" <= c <= "\u9FFF"
-        for c in text
-    )
-
-
-def sentence_quality_penalty(text: str) -> float:
+def _sentence_quality_penalty_fast(text):
     penalty = 0.0
 
     penalty += text.count("[...]") * 0.25
@@ -210,11 +241,18 @@ def sentence_quality_penalty(text: str) -> float:
     if text.count("。") + text.count("！") + text.count("？") > 1:
         penalty += 0.5
 
-    visible_chars = sum(1 for c in text if not c.isspace())
-    if visible_chars:
-        japanese_chars = sum(1 for c in text if _contains_japanese(c))
-        non_japanese_ratio = 1 - (japanese_chars / visible_chars)
-        penalty += non_japanese_ratio
+    visible = 0
+    jp = 0
+
+    for c in text:
+        if c.isspace():
+            continue
+        visible += 1
+        if _is_japanese_char(c):
+            jp += 1
+
+    if visible:
+        penalty += 1 - (jp / visible)
 
     if not text.endswith(("。", "！", "？")):
         penalty += 0.15
@@ -222,76 +260,20 @@ def sentence_quality_penalty(text: str) -> float:
     return penalty
 
 
-# ---------------------------------------------------------------------------
-# Sentence stats
-# ---------------------------------------------------------------------------
+def _sentence_dedupe_key_fast(text: str) -> str:
+    normalized = re.sub(r"\s+", " ", text).strip()
 
-def _compute_sentence_stats(seg, word_data):
-    scores = []
-    unknown = 0
+    if ">" not in normalized:
+        return normalized
 
-    for lemma in seg.lemma_surfaces:
-        ws = word_data.get(lemma)
-        if ws is None:
-            unknown += 1
-        else:
-            scores.append(ws.score)
+    prefix, body = normalized.split(">", 1)
 
-    if scores:
-        mean = sum(scores) / len(scores)
-        variance = (
-            sum((x - mean) ** 2 for x in scores)
-            / len(scores)
-        )
-    else:
-        mean = GLOBAL_AVERAGE_SCORE
-        variance = 0
+    if body and any("\u4e00" <= c <= "\u9fff" for c in body):
+        return body.strip()
 
-    return scores, unknown, mean, variance
+    return normalized
 
 
-def _percentile(values, p=0.9):
-    s = sorted(values)
-    if not s:
-        return GLOBAL_AVERAGE_SCORE
-    idx = int(len(s) * p)
-    idx = min(idx, len(s) - 1)
-    return s[idx]
-
-
-# ---------------------------------------------------------------------------
-# Penalty model (non-core now, mostly stability)
-# ---------------------------------------------------------------------------
-
-def _sentence_penalty(
-    ws: WordStats,
-    seg: SegmentedSentence,
-    scores,
-    unknown_count,
-    variance,
-):
-    penalty = 0.0
-    total_tokens = len(scores) + unknown_count
-
-    # variance (reduces mixed-level sentences)
-    penalty += variance / VARIANCE_DIVISOR
-
-    # unknown words
-    penalty += (unknown_count / total_tokens) * UNKNOWN_WORD_PENALTY
-
-    # sentence length
-    penalty += abs(len(seg.text) - IDEAL_LENGTH) / LENGTH_DIVISOR
-
-    # too few known words
-    if len(scores) < MIN_WORD_COUNT:
-        penalty += (MIN_WORD_COUNT - len(scores)) * SHORT_SENTENCE_PENALTY
-
-    # STRICT: words above target level are expensive
-    too_hard = sum(
-        1 for s in scores
-        if s > ws.score
-    )
-
-    penalty += (too_hard / total_tokens) * TOO_HARD_WORD_PENALTY
-
-    return penalty
+# kept for compatibility if needed elsewhere
+def _sentence_dedupe_key(text: str) -> str:
+    return _sentence_dedupe_key_fast(text)

@@ -37,8 +37,18 @@ SENT_BOUNDARY = "🐍"  # any char that will never appear naturally
 MIN_SENTENCE_LENGTH = 15
 MAX_SENTENCE_LENGTH = 50
 
-tokenizer = None
 TOKENIZER_MODE = sudachi_tokenizer.Tokenizer.SplitMode.C
+
+_tokenizer = None
+
+def get_tokenizer():
+    global _tokenizer
+    if _tokenizer is None:
+        _tokenizer = dictionary.Dictionary(
+            config_path="resources/sudachi.json",
+            dict="full"
+        ).create()
+    return _tokenizer
 
 
 class TokenizeStep(PipelineStep):
@@ -52,7 +62,7 @@ class TokenizeStep(PipelineStep):
         return Artifact(word_data, sentences=sentences, is_path=True)
 
 
-def tokenize(input_path, word_data=None, segmented_sentences=None, cache_dir=None, progress_handler=None):
+def tokenize(input_path, word_data={}, segmented_sentences=[], cache_dir=None, progress_handler=None):
     """
     Tokenize a single file.
 
@@ -65,12 +75,6 @@ def tokenize(input_path, word_data=None, segmented_sentences=None, cache_dir=Non
     match = re.search(r"\[(.+?)\]", str(input_path))
     tag = match.group(1) if match else None
 
-    if word_data is None:
-        word_data = {}
-
-    if segmented_sentences is None:
-        segmented_sentences = []
-
     file_mtime = input_path.stat().st_mtime_ns
 
     cache = TokenCache(
@@ -78,8 +82,7 @@ def tokenize(input_path, word_data=None, segmented_sentences=None, cache_dir=Non
         tokenizer_fingerprint=TOKENIZER_FINGERPRINT,
     )
 
-    global tokenizer
-    tokenizer = dictionary.Dictionary(config_path="resources/sudachi.json", dict="full").create()
+    tokenizer = get_tokenizer()
 
     # ------------------------------
     # Cache fast path
@@ -123,11 +126,10 @@ def tokenize(input_path, word_data=None, segmented_sentences=None, cache_dir=Non
             progress_handler(ProcessingStep.TOKENIZING, i, total_tokens)
 
         token_index += 1
-        surface = token["surface"]
+
+        surface = unicodedata.normalize("NFKC", token["surface"])
 
         for char in surface:
-            char = unicodedata.normalize("NFKC", char)
-
             # Build the sentence character buffer
             if char != SENT_BOUNDARY and is_japanese_char(char):
                 if current_sentence_chars or (not char.isspace() and char not in NOT_ALLOWED_AT_SENTENCE_START):
@@ -137,13 +139,13 @@ def tokenize(input_path, word_data=None, segmented_sentences=None, cache_dir=Non
             if char in sentence_endings:
                 sentence_text = "".join(current_sentence_chars)
 
-                # Remove unnecessary whitespace around punctuation
-                sentence_text = re.sub(r"\s+", "　", sentence_text)
-                sentence_text = re.sub(r"\s*、\s*", "、", sentence_text)
-                sentence_text = re.sub(r"\s*『\s*", "『", sentence_text)
-                sentence_text = re.sub(r"\s*「\s*", "「", sentence_text)
-                sentence_text = re.sub(r"\s*』\s*", "』", sentence_text)
-                sentence_text = re.sub(r"\s*」\s*", "」", sentence_text)
+                # normalize all whitespace to a simple space first
+                sentence_text = re.sub(r"[ \t\u3000]+", " ", sentence_text)
+                sentence_text = re.sub(r"\s+", " ", sentence_text)
+                sentence_text = sentence_text.strip()
+
+                # remove spaces around Japanese punctuation
+                sentence_text = re.sub(r"\s*([、。『』「」])\s*", r"\1", sentence_text)
 
                 # Fix mismatched brackets
                 if sentence_text.startswith("「") and not "」" in sentence_text:
