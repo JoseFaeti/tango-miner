@@ -8,6 +8,7 @@ from collections import defaultdict
 from itertools import count
 import heapq
 import re
+from bisect import bisect_right
 
 # ---------------------------------------------------------------------------
 # Config
@@ -80,7 +81,7 @@ class AttachSentencesStep(PipelineStep):
 
 
 # ---------------------------------------------------------------------------
-# Fast helpers
+# Helpers
 # ---------------------------------------------------------------------------
 
 def _is_japanese_char(c: str) -> bool:
@@ -109,11 +110,11 @@ def attach_sentences(word_data, segmented_sentences, progress_handler=None):
     candidates = defaultdict(dict)
     counter = count()
 
-    word_get = word_data.get  # local binding (important)
+    word_get = word_data.get
 
     for i, seg in enumerate(segmented_sentences):
-        if progress_handler and (i % 1000 == 0):
-            progress_handler(ProcessingStep.SENTENCES, i, total, f"{i}/{total} sentences")
+        if progress_handler and (i % 10000 == 0):
+            progress_handler(ProcessingStep.SENTENCES, i, total) #, f"{i}/{total} sentences")
 
         lemma_surfaces = seg.lemma_surfaces
 
@@ -130,16 +131,17 @@ def attach_sentences(word_data, segmented_sentences, progress_handler=None):
             else:
                 scores.append(ws.score)
 
-        if scores:
-            mean = sum(scores) / len(scores)
-            variance = sum((x - mean) ** 2 for x in scores) / len(scores)
-            sentence_difficulty = _percentile(scores, 0.9)
-        else:
-            variance = 0
-            sentence_difficulty = GLOBAL_AVERAGE_SCORE
+        if not scores:
+            continue
+
+        mean = sum(scores) / len(scores)
+        variance = sum((x - mean) ** 2 for x in scores) / len(scores)
+
+        sentence_difficulty = _percentile(scores, 0.9)
+        sorted_scores = sorted(scores)
 
         # ------------------------------------------------------------
-        # PHASE 2: compute sentence-level penalties once
+        # PHASE 2: sentence-level penalties (once per sentence)
         # ------------------------------------------------------------
         text = seg.text
         text_len = len(text)
@@ -154,30 +156,26 @@ def attach_sentences(word_data, segmented_sentences, progress_handler=None):
         sentence_quality = _sentence_quality_penalty_fast(text)
         base_penalty = penalty + sentence_quality
 
-        # avoid repeated len calls
-        score_len = len(scores)
-        total_tokens = score_len + unknown_count
+        total_tokens = len(scores) + unknown_count
         if total_tokens == 0:
             continue
 
         # ------------------------------------------------------------
-        # PHASE 3: per-lemma scoring (tight loop)
+        # PHASE 3: per-lemma scoring (optimized)
         # ------------------------------------------------------------
         for lemma, surface in lemma_surfaces.items():
             ws = word_get(lemma)
             if ws is None:
                 continue
 
-            over_difficulty = max(0.0, sentence_difficulty - ws.score)
+            # fast O(log n) replacement for too_hard loop
+            too_hard = len(sorted_scores) - bisect_right(sorted_scores, ws.score)
 
-            too_hard = 0
-            for s in scores:
-                if s > ws.score:
-                    too_hard += 1
+            lemma_adjustment = max(0.0, sentence_difficulty - ws.score)
 
             fitness = (
-                over_difficulty
-                + base_penalty
+                base_penalty
+                + lemma_adjustment
                 + (too_hard / total_tokens) * TOO_HARD_WORD_PENALTY
             )
 
@@ -198,7 +196,7 @@ def attach_sentences(word_data, segmented_sentences, progress_handler=None):
                 bucket[key] = item
 
     # ------------------------------------------------------------
-    # FINALIZE (heap instead of sort)
+    # FINALIZE
     # ------------------------------------------------------------
     for lemma, bucket in candidates.items():
         ws = word_get(lemma)
@@ -212,7 +210,7 @@ def attach_sentences(word_data, segmented_sentences, progress_handler=None):
 
 
 # ---------------------------------------------------------------------------
-# Fast penalty functions
+# Penalties
 # ---------------------------------------------------------------------------
 
 def _sentence_penalty_fast(text, scores, unknown_count, variance):
@@ -255,10 +253,14 @@ def _sentence_quality_penalty_fast(text):
         penalty += 1 - (jp / visible)
 
     if not text.endswith(("。", "！", "？")):
-        penalty += 0.15
+        penalty += 0.5
 
     return penalty
 
+
+# ---------------------------------------------------------------------------
+# Dedup key
+# ---------------------------------------------------------------------------
 
 def _sentence_dedupe_key_fast(text: str) -> str:
     normalized = re.sub(r"\s+", " ", text).strip()
@@ -272,8 +274,3 @@ def _sentence_dedupe_key_fast(text: str) -> str:
         return body.strip()
 
     return normalized
-
-
-# kept for compatibility if needed elsewhere
-def _sentence_dedupe_key(text: str) -> str:
-    return _sentence_dedupe_key_fast(text)

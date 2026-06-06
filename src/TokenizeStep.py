@@ -122,7 +122,7 @@ def tokenize(input_path, word_data={}, segmented_sentences=[], cache_dir=None, p
     token_index = 0
 
     for i, token in enumerate(tokens):
-        if progress_handler and (i % 10000 == 0):
+        if progress_handler and (i % 100 == 0):
             progress_handler(ProcessingStep.TOKENIZING, i, total_tokens)
 
         token_index += 1
