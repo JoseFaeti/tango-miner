@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import re
 import statistics
+from pathlib import Path
 from typing import List
 
 from .Artifact import Artifact
@@ -32,12 +33,14 @@ class NormalizeSentenceBoundariesStep(PipelineStep):
         self.min_lines = min_lines
 
     def process(self, artifact: Artifact) -> Artifact:
-        sentences, mode = normalize_sentence_boundaries(artifact.text, self.min_lines)
+        files: list[tuple[Path, str]] = artifact.data
+        results: list[tuple[Path, list[str]]] = []
 
-        artifact.meta["newline_mode"] = mode
-        artifact.sentences = sentences
+        for path, text in files:
+            sentences, _ = normalize_sentence_boundaries(text, self.min_lines)
+            results.append((path, sentences))
 
-        return artifact
+        return Artifact(results)
 
 
 def normalize_sentence_boundaries(text: str, min_lines: int = 5):

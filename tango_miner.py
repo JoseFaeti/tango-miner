@@ -11,9 +11,12 @@ from src.AddWordsToAnkiStep import AddWordsToAnkiStep
 from src.Artifact import Artifact
 from src.AttachSentencesStep import AttachSentencesStep
 from src.Column import Column
+from src.GatherInputFilesStep import GatherInputFilesStep
+from src.NormalizeSentenceBoundariesStep import NormalizeSentenceBoundariesStep
 from src.Pipeline import Pipeline
 from src.PipelineStep import DebugStep, NoOpStep, PipelineStep
 from src.ProcessingStep import ProcessingStep
+from src.ReadFilesStep import ReadFilesStep
 from src.ScoreWordStep import ScoreWordStep
 from src.TokenizeDirectoryStep import TokenizeDirectoryStep
 from src.TokenizeStep import TokenizeStep
@@ -118,7 +121,10 @@ def process_script():
             print(f'output path: {final_path.resolve()}')
 
             steps = [
-                TokenizeDirectoryStep(input_path_obj, include_subdirectories=recursive),
+                GatherInputFilesStep(input_path_obj, include_subdirectories=recursive),
+                ReadFilesStep(),
+                NormalizeSentenceBoundariesStep(),
+                TokenizeStep(),
                 FilterFrequencyStep(min_frequency),
                 AddDefinitionsStep(),
                 ScoreWordStep(),

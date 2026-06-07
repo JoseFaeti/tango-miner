@@ -4,6 +4,8 @@ import unicodedata
 
 from sudachipy import dictionary, tokenizer as sudachi_tokenizer
 
+RE_TAG = re.compile(r"\[(.+?)\]")
+
 from .Artifact import Artifact
 from .PipelineStep import PipelineStep
 from .ProcessingStep import ProcessingStep
@@ -61,17 +63,51 @@ def get_tokenizer():
 
 class TokenizeStep(PipelineStep):
     def process(self, artifact: Artifact) -> Artifact:
+        files: list[tuple[Path, list[str]]] = artifact.data
         cache_dir = artifact.tmpdir / "token_cache" if artifact.tmpdir else None
 
-        word_data, sentences = tokenize(
-            artifact.data,
-            word_data={},
-            segmented_sentences=artifact.sentences or [],
-            cache_dir=cache_dir,
-            progress_handler=self.progress,
+        self.combined_tokens = {}
+        combined_sentences = []
+
+        self.total_tokens = 0
+        self.current_file = None
+        self.sentence_offset = 0
+        self.total_sentences = sum(len(sentences) for _, sentences in files)
+
+        for path, sentences in files:
+            self.current_file = path
+            tag = RE_TAG.search(path.name)
+            tag = tag.group(1) if tag else None
+
+            self.combined_tokens, combined_sentences = tokenize(
+                sentences,
+                word_data=self.combined_tokens,
+                segmented_sentences=combined_sentences,
+                tag=tag,
+                cache_dir=cache_dir,
+                progress_handler=self._file_progress,
+            )
+
+            self.sentence_offset += len(sentences)
+            self.total_tokens = len(self.combined_tokens)
+
+        self.progress(
+            ProcessingStep.TOKENIZING,
+            1,
+            1,
+            f'{self.total_tokens} tokens from {len(files)} files',
         )
 
-        return Artifact(word_data, sentences=sentences, is_path=True)
+        return Artifact(self.combined_tokens, sentences=combined_sentences)
+
+
+    def _file_progress(self, step, current, total, message=""):
+        self.progress(
+            step,
+            self.sentence_offset + current,
+            self.total_sentences,
+            f'{len(self.combined_tokens)} tokens ({self.current_file.name})',
+        )
 
 
 # -------------------------------------------------------------------
