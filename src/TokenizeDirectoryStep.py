@@ -1,10 +1,11 @@
 import appdirs
-
+import re
 from pathlib import Path
 
 from .Artifact import Artifact
 from .PipelineStep import PipelineStep
 from .ProcessingStep import ProcessingStep
+from .SentenceBoundaryNormalizer import normalize_sentence_boundaries
 from .TokenizeStep import tokenize
 
 ALLOWED_FILE_EXTENSIONS = {
@@ -51,16 +52,31 @@ class TokenizeDirectoryStep(PipelineStep):
                     f"{total_tokens} tokens ({current_file.name})",
                 )
 
+            # extract tag from filename e.g. "something [tagname].txt"
+            match = re.search(r"\[(.+?)\]", current_file.name)
+            tag = match.group(1) if match else None
+
+            sentences = []
+
+            # Normalize sentence boundaries
+            with open(file_path, encoding="utf-8") as f:
+                text = f.read()
+                sentences, mode = normalize_sentence_boundaries(text)
+
+            # print(f"sentences: {sentences}")
+
+            # Tokenize
             combined_tokens, combined_sentences = tokenize(
-                file_path,
+                sentences,
                 combined_tokens,
                 combined_sentences,
+                tag=tag,
                 cache_dir=cache_dir,
                 progress_handler=file_progress,
             )
 
             file_index += 1
-            total_tokens = count_token_occurrences(combined_tokens)
+            total_tokens = len(combined_tokens)
 
         self.progress(
             ProcessingStep.TOKENIZING,
@@ -69,7 +85,10 @@ class TokenizeDirectoryStep(PipelineStep):
             f"{total_tokens} tokens, {len(combined_sentences)} sentences from {file_index} files",
         )
 
-        return Artifact(combined_tokens, sentences=combined_sentences)
+        return Artifact(
+            combined_tokens,
+            sentences=combined_sentences
+        )
 
 
 def iter_input_files(directory: Path, include_subdirectories: bool):

@@ -7,8 +7,8 @@ from .ProcessingStep import ProcessingStep
 
 class ScoreWordStep(PipelineStep):
     def process(self, artifact: Artifact) -> Artifact:
-        data = score_words(artifact.data, self.progress)
-        return Artifact(data, sentences=artifact.sentences)
+        artifact.data = score_words(artifact.data, self.progress)
+        return artifact
 
 
 def score_words(input: dict, progress_handler=None) -> dict:
@@ -30,10 +30,16 @@ def score_words(input: dict, progress_handler=None) -> dict:
 
         score *= tag_diversity_factor(len(stats.tags))
 
-        stats.score = round(score * 1000, 2)
+        stats.score = score
 
         if progress_handler:
-            progress_handler(ProcessingStep.SCORING, i, total_words)
+            progress_handler(ProcessingStep.SCORING, i, total_words) #, f"{score}: [index={stats.index}/{max_index}; freq={stats.frequency}/{max_frequency}]\n")
+
+    # Normalize so the top word always scores 1000
+    max_score = max(stats.score for stats in input.values())
+    if max_score > 0:
+        for stats in input.values():
+            stats.score = round(stats.score / max_score * 1000, 2)
 
     return input
 
@@ -74,8 +80,6 @@ def tag_diversity_factor(tag_count: int, min_tags=3, saturation_tags=10) -> floa
     """
     if tag_count >= saturation_tags:
         return 1.0
-    else:
-        # Continuous ramp from 1 → saturation_tags
-        # Set minimal factor for 1 tag
-        min_factor = 0.1
-        return min_factor + (1 - min_factor) * ((tag_count - 1) / (saturation_tags - 1))
+    effective_count = max(tag_count, 1)
+    min_factor = 0.1
+    return min_factor + (1 - min_factor) * ((effective_count - 1) / (saturation_tags - 1))
