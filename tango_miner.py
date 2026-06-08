@@ -38,7 +38,7 @@ def enable_debug_logging():
 
 _LAST_LEN = 0
 
-def print_step_progress(step, amount, total, additional_text=""):
+def print_step_progress(step, amount, total, duration=None, additional_text=""):
     if step is None:
         print(additional_text)
         return
@@ -58,7 +58,10 @@ def print_step_progress(step, amount, total, additional_text=""):
     text = step_text[step] if step in step_text else "???"
 
     if amount >= total:
-        _print_progress_line(f"{text}... done. {additional_text}", newline=True)
+        if duration is not None:
+            _print_progress_line(f"{text}... done in {duration:.2f} seconds. {additional_text}", newline=True)
+        else:
+            _print_progress_line(f"{text}... done. {additional_text}", newline=True)
     else:
         percent = f"{amount / total:.1%}"
         _print_progress_line(f"{text}... {percent} {additional_text}", newline=False)
@@ -136,10 +139,10 @@ def process_script():
             AddWordsToAnkiStep()
         ]
 
-        directory_pipeline = Pipeline(steps=steps, on_progress=print_step_progress)
-        directory_pipeline.run(Artifact(input_path, tmpdir=tmpdir))
+        pipeline = Pipeline(steps=steps, on_progress=print_step_progress)
+        pipeline.run(Artifact(input_path, tmpdir=tmpdir))
 
-    print('All tasks completed.')
+    print(f'All tasks completed in {pipeline.duration:.2f} seconds.')
 
 
 def resolve_directory_output_path(input_path: Path, output_arg: str | None) -> Path:

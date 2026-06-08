@@ -36,7 +36,7 @@ SKIP_POS1_POS2 = {
     ("感動詞", "フィラー"),
 }
 
-TOKENIZER_FINGERPRINT = "sudachidict_full+user_dict.C+postproc-v1.2026/06/08.5"
+TOKENIZER_FINGERPRINT = "sudachidict_full+user_dict.C+postproc-v1.2026/06/08.6"
 TOKENIZER_MODE = sudachi_tokenizer.Tokenizer.SplitMode.C
 
 MAX_SUDACHI_BYTES = 48000

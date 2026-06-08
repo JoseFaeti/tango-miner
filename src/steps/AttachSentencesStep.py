@@ -35,13 +35,13 @@ LENGTH_DIVISOR = 15
 # Lower → very strong preference for IDEAL_LENGTH (sharp penalty)
 # Higher → more tolerant of length variation (weaker penalty)
 
-UNKNOWN_WORD_PENALTY = 0.2
+UNKNOWN_WORD_PENALTY = 0.8
 # Penalty weight for unknown words in sentence
 # Range: 0.0–1.0
 # Higher → strongly discourages sentences with unknown vocabulary
 # Lower → allows more natural / noisy sentences
 
-TOO_HARD_WORD_PENALTY = 0.5
+TOO_HARD_WORD_PENALTY = 0.8
 # Penalty for words above target difficulty level
 # Range: 0.0–1.0
 # Higher → strongly avoids sentences that exceed user level
