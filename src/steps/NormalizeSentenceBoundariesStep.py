@@ -7,6 +7,7 @@ from typing import List
 
 from src.Artifact import Artifact
 from src.PipelineStep import PipelineStep
+from .ProcessingStep import ProcessingStep
 
 
 # -------------------------------------------------------------------
@@ -29,7 +30,7 @@ JP_CONTINUATIONS = (
 # -------------------------------------------------------------------
 
 class NormalizeSentenceBoundariesStep(PipelineStep):
-    def __init__(self, min_lines: int = 5):
+    def __init__(self, min_lines: int = 5, debug = False):
         self.min_lines = min_lines
 
     def process(self, artifact: Artifact) -> Artifact:
@@ -37,8 +38,15 @@ class NormalizeSentenceBoundariesStep(PipelineStep):
         results: list[tuple[Path, list[str]]] = []
 
         for path, text in files:
-            sentences, _ = normalize_sentence_boundaries(text, self.min_lines)
+            self.progress(ProcessingStep.SENTENCE_EXTRACTION, len(results), len(files))
+
+            sentences, _ = normalize_sentence_boundaries(
+                text,
+                self.min_lines)
+
             results.append((path, sentences))
+
+        self.progress(ProcessingStep.SENTENCE_EXTRACTION, 1, 1)
 
         return Artifact(results)
 

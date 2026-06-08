@@ -48,14 +48,17 @@ def print_step_progress(step, amount, total, additional_text=""):
         step.DEFINITIONS: "Adding definitions",
         step.SCORING: "Calculating scores",
         step.SENTENCES: "Adding sentences",
-        step.ANKI_EXPORT: "Sending words to Anki"
+        step.ANKI_EXPORT: "Sending words to Anki",
+        step.SENTENCE_EXTRACTION: "Extracting sentences"
     }
 
+    text = step_text[step] if step in step_text else "???"
+
     if amount >= total:
-        _print_progress_line(f"{step_text[step]}... done. {additional_text}", newline=True)
+        _print_progress_line(f"{text}... done. {additional_text}", newline=True)
     else:
         percent = f"{amount / total:.1%}"
-        _print_progress_line(f"{step_text[step]}... {percent} {additional_text}", newline=False)
+        _print_progress_line(f"{text}... {percent} {additional_text}", newline=False)
 
 
 def _print_progress_line(text: str, newline: bool):
@@ -117,14 +120,14 @@ def process_script():
         steps = [
             GatherInputFilesStep(input_path_obj, include_subdirectories=recursive),
             ReadFilesStep(),
-            NormalizeSentenceBoundariesStep(),
+            NormalizeSentenceBoundariesStep(debug=debug),
             TokenizeStep(),
             FilterFrequencyStep(min_frequency),
             AddDefinitionsStep(),
             ScoreWordStep(),
             AttachSentencesStep(),
             WriteOutputStep(final_path),
-            # AddWordsToAnkiStep()
+            AddWordsToAnkiStep()
         ]
 
         directory_pipeline = Pipeline(steps=steps, on_progress=print_step_progress)
