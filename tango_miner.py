@@ -18,7 +18,6 @@ from src.PipelineStep import DebugStep, NoOpStep, PipelineStep
 from src.ProcessingStep import ProcessingStep
 from src.ReadFilesStep import ReadFilesStep
 from src.ScoreWordStep import ScoreWordStep
-from src.TokenizeDirectoryStep import TokenizeDirectoryStep
 from src.TokenizeStep import TokenizeStep
 from src.FilterFrequencyStep import FilterFrequencyStep
 from src.WriteOutputStep import WriteOutputStep
@@ -109,32 +108,27 @@ def process_script():
         tmpdir = Path(tmpdir_str)
         input_path_obj = Path(input_path)
 
-        if input_path_obj.is_file():
-            print_debug(f'Created temp dir: {tmpdir}')
-            output_path = args.output or args.input + '.csv'
-            mine_file(input_path, output_path, tmpdir, min_frequency, tags)
-        elif input_path_obj.is_dir():
-            print(f'Mining all relevant files from directory {input_path_obj.resolve()}...')
+        print(f'Mining all relevant files from directory {input_path_obj.resolve()}...')
 
-            final_path = resolve_directory_output_path(input_path_obj, args.output)
+        final_path = resolve_directory_output_path(input_path_obj, args.output)
 
-            print(f'output path: {final_path.resolve()}')
+        print(f'output path: {final_path.resolve()}')
 
-            steps = [
-                GatherInputFilesStep(input_path_obj, include_subdirectories=recursive),
-                ReadFilesStep(),
-                NormalizeSentenceBoundariesStep(),
-                TokenizeStep(),
-                FilterFrequencyStep(min_frequency),
-                AddDefinitionsStep(),
-                ScoreWordStep(),
-                AttachSentencesStep(),
-                WriteOutputStep(final_path),
-                AddWordsToAnkiStep()
-            ]
+        steps = [
+            GatherInputFilesStep(input_path_obj, include_subdirectories=recursive),
+            ReadFilesStep(),
+            NormalizeSentenceBoundariesStep(),
+            TokenizeStep(),
+            FilterFrequencyStep(min_frequency),
+            AddDefinitionsStep(),
+            ScoreWordStep(),
+            AttachSentencesStep(),
+            WriteOutputStep(final_path),
+            AddWordsToAnkiStep()
+        ]
 
-            directory_pipeline = Pipeline(steps=steps, on_progress=print_step_progress)
-            directory_pipeline.run(Artifact(input_path, tmpdir=tmpdir))
+        directory_pipeline = Pipeline(steps=steps, on_progress=print_step_progress)
+        directory_pipeline.run(Artifact(input_path, tmpdir=tmpdir))
 
     print('All tasks completed.')
 
@@ -156,41 +150,6 @@ def resolve_directory_output_path(input_path: Path, output_arg: str | None) -> P
 
     output_path.mkdir(parents=True, exist_ok=True)
     return output_path / f"{input_path.name}.csv"
-
-def build_mining_pipeline(output_path, min_frequency, tags=None):
-    output_path = Path(output_path)
-
-    steps = [
-        TokenizeStep(),
-        FilterFrequencyStep(min_frequency),
-        AddDefinitionsStep(),
-        ScoreWordStep(),
-        AttachSentencesStep(),
-    ]
-
-    steps.append(WriteOutputStep(output_path))
-
-    return Pipeline(
-        steps = steps,
-        on_progress = print_step_progress)
-
-
-def mine_file(input_path, output_path, tmpdir, min_frequency=MIN_FREQUENCY_DEFAULT, tags=False, skip_tokenize=False):
-    print(f'Mining vocabulary from {Path(input_path).resolve()}...')
-    print_debug(f'mining from {input_path} to {output_path}')
-    input_file = input_path
-    
-    initial_artifact = Artifact(input_path, tmpdir=tmpdir, is_path=True)
-
-    pipeline = build_mining_pipeline(
-        output_path=output_path,
-        min_frequency=min_frequency,
-        tags=tags,
-    )
-
-    pipeline.run(initial_artifact)
-
-    print(f'{Path(output_path).resolve()} generated successfully')
 
 
 if __name__ == '__main__':

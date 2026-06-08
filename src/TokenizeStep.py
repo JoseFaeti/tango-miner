@@ -413,7 +413,7 @@ def normalize_sentence(text: str) -> str:
         return ""
 
     # normalize whitespace (including full-width spaces)
-    text = re.sub(r"[ \t\u3000]+", " ", text)
+    text = re.sub(r"[ \t\u3000]+", "　", text)
 
     # collapse repeated whitespace
     text = re.sub(r"\s+", " ", text).strip()
