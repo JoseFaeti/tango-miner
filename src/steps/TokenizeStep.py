@@ -48,11 +48,13 @@ _tokenizer = None
 
 def get_tokenizer():
     global _tokenizer
+
     if _tokenizer is None:
         _tokenizer = dictionary.Dictionary(
             config_path="resources/sudachi.json",
             dict="full"
         ).create()
+    
     return _tokenizer
 
 
@@ -61,6 +63,10 @@ def get_tokenizer():
 # -------------------------------------------------------------------
 
 class TokenizeStep(PipelineStep):
+    def __init__(self):
+        self._processing_step = ProcessingStep.TOKENIZING
+
+
     def process(self, artifact: Artifact) -> Artifact:
         files: list[tuple[Path, list[str]]] = artifact.data
 
@@ -98,10 +104,7 @@ class TokenizeStep(PipelineStep):
         if cache:
             cache.flush_mtime_index()
 
-        self.progress(
-            ProcessingStep.TOKENIZING,
-            1,
-            1,
+        self.done(
             f'{self.total_tokens} tokens and {len(combined_sentences)} sentences from {len(files)} files',
         )
 
@@ -110,7 +113,6 @@ class TokenizeStep(PipelineStep):
 
     def _file_progress(self, current, total, message=""):
         self.progress(
-            ProcessingStep.TOKENIZING,
             self.sentence_offset + current,
             self.total_sentences,
             f'{len(self.combined_tokens)} tokens ({self.current_file.name})',

@@ -41,7 +41,7 @@ UNKNOWN_WORD_PENALTY = 0.2
 # Higher → strongly discourages sentences with unknown vocabulary
 # Lower → allows more natural / noisy sentences
 
-TOO_HARD_WORD_PENALTY = 0.4
+TOO_HARD_WORD_PENALTY = 0.5
 # Penalty for words above target difficulty level
 # Range: 0.0–1.0
 # Higher → strongly avoids sentences that exceed user level
@@ -71,12 +71,19 @@ VARIANCE_DIVISOR = 100000
 # ---------------------------------------------------------------------------
 
 class AttachSentencesStep(PipelineStep):
+    def __init__(self):
+        self._processing_step = ProcessingStep.SENTENCES
+
+
     def process(self, artifact: Artifact) -> Artifact:
         attach_sentences(
             artifact.data,
             artifact.sentences,
             self.progress,
         )
+
+        self.done()
+
         return artifact
 
 
@@ -114,7 +121,7 @@ def attach_sentences(word_data, segmented_sentences, progress_handler=None):
 
     for i, seg in enumerate(segmented_sentences):
         if progress_handler and (i % 1000 == 0):
-            progress_handler(ProcessingStep.SENTENCES, i, total) #, f"{i}/{total} sentences")
+            progress_handler(i, total) #, f"{i}/{total} sentences")
 
         lemma_surfaces = seg.lemma_surfaces
 
@@ -205,8 +212,6 @@ def attach_sentences(word_data, segmented_sentences, progress_handler=None):
 
         best = heapq.nsmallest(MAX_SENTENCES, bucket.values(), key=lambda x: x[0])
         ws.sentences = [b[2] for b in best]
-
-    progress_handler(ProcessingStep.SENTENCES, 1, 1)
 
 
 # ---------------------------------------------------------------------------

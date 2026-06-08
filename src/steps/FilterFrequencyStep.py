@@ -12,6 +12,7 @@ from src.steps.ProcessingStep import ProcessingStep
 
 class FilterFrequencyStep(PipelineStep):
     def __init__(self, min_frequency: int):
+        self._processing_step = ProcessingStep.FILTERING
         self.min_frequency = min_frequency
 
     def process(self, artifact: Artifact) -> Artifact:
@@ -36,15 +37,13 @@ def filter_useful_words(input: OrderedDict, min_frequency: int, keep_percent: in
 
     # Local bindings (hot path)
     kept_set = kept.__setitem__
-    handler = progress_handler
 
     for i, (word, stats) in enumerate(input.items(), 1):
         if stats.frequency >= threshold:
             kept_set(word, stats)
 
-        if handler:
-            handler(
-                ProcessingStep.FILTERING,
+        if progress_handler:
+            progress_handler(
                 i,
                 total,
                 f"{len(kept)} tokens filtered",

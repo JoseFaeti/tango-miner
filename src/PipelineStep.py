@@ -7,6 +7,7 @@ from src.steps.ProcessingStep import ProcessingStep
 class PipelineStep(ABC):
     def __init__(self):
         self._progress_handler = None
+        self._processing_step = None
 
 
     @abstractmethod
@@ -18,9 +19,14 @@ class PipelineStep(ABC):
         pass
 
 
-    def progress(self, step, current, total, message=""):
+    def progress(self, current, total, message=""):
         if self._progress_handler:
-            self._progress_handler(ProgressEvent(step, current, total, message))
+            self._progress_handler(ProgressEvent(self._processing_step, current, total, message))
+
+
+    def done(self, message=""):
+        if self._progress_handler:
+            self._progress_handler(ProgressEvent(self._processing_step, 1, 1, message))
 
 
 @dataclass

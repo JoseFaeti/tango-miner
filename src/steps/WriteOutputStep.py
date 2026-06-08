@@ -8,6 +8,7 @@ from src.PipelineStep import PipelineStep
 
 class WriteOutputStep(PipelineStep):
     def __init__(self, output_path: Path):
+        self._processing_step = None
         self.output_path = output_path
 
     def process(self, artifact: Artifact) -> Artifact:
@@ -74,4 +75,4 @@ def write_final_file(input, output_file, progress_handler=None):
                 ])
 
     if progress_handler:
-        progress_handler(None, 1, 1, f'Output written to {Path(output_file).resolve()}.')
+        progress_handler(1, 1, f'Output written to {Path(output_file).resolve()}.')

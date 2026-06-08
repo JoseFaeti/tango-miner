@@ -6,6 +6,10 @@ from src.steps.ProcessingStep import ProcessingStep
 
 
 class ScoreWordStep(PipelineStep):
+    def __init__(self):
+        self._processing_step = ProcessingStep.SCORING
+
+
     def process(self, artifact: Artifact) -> Artifact:
         artifact.data = score_words(artifact.data, self.progress)
         return artifact
@@ -33,7 +37,7 @@ def score_words(input: dict, progress_handler=None) -> dict:
         stats.score = score
 
         if progress_handler:
-            progress_handler(ProcessingStep.SCORING, i, total_words) #, f"{score}: [index={stats.index}/{max_index}; freq={stats.frequency}/{max_frequency}]\n")
+            progress_handler(i, total_words) #, f"{score}: [index={stats.index}/{max_index}; freq={stats.frequency}/{max_frequency}]\n")
 
     # Normalize so the top word always scores 1000
     max_score = max(stats.score for stats in input.values())

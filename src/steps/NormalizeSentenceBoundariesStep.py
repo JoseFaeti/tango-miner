@@ -32,13 +32,15 @@ JP_CONTINUATIONS = (
 class NormalizeSentenceBoundariesStep(PipelineStep):
     def __init__(self, min_lines: int = 5, debug = False):
         self.min_lines = min_lines
+        self._processing_step = ProcessingStep.SENTENCE_EXTRACTION
+
 
     def process(self, artifact: Artifact) -> Artifact:
         files: list[tuple[Path, str]] = artifact.data
         results: list[tuple[Path, list[str]]] = []
 
         for path, text in files:
-            self.progress(ProcessingStep.SENTENCE_EXTRACTION, len(results), len(files))
+            self.progress(len(results), len(files))
 
             sentences, _ = normalize_sentence_boundaries(
                 text,
@@ -46,7 +48,7 @@ class NormalizeSentenceBoundariesStep(PipelineStep):
 
             results.append((path, sentences))
 
-        self.progress(ProcessingStep.SENTENCE_EXTRACTION, 1, 1)
+        self.done()
 
         return Artifact(results)
 

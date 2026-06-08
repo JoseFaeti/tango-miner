@@ -49,7 +49,8 @@ def print_step_progress(step, amount, total, additional_text=""):
         step.SCORING: "Calculating scores",
         step.SENTENCES: "Adding sentences",
         step.ANKI_EXPORT: "Sending words to Anki",
-        step.SENTENCE_EXTRACTION: "Extracting sentences"
+        step.SENTENCE_EXTRACTION: "Extracting sentences",
+        step.READ_FILES: "Reading files"
     }
 
     text = step_text[step] if step in step_text else "???"
