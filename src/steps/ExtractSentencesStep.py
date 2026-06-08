@@ -29,7 +29,7 @@ JP_CONTINUATIONS = (
 # Pipeline step
 # -------------------------------------------------------------------
 
-class NormalizeSentenceBoundariesStep(PipelineStep):
+class ExtractSentencesStep(PipelineStep):
     def __init__(self, min_lines: int = 5, debug = False):
         self.min_lines = min_lines
         self._processing_step = ProcessingStep.SENTENCE_EXTRACTION

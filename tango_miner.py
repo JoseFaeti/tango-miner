@@ -14,13 +14,15 @@ from src.steps.AddDefinitionsStep import AddDefinitionsStep
 from src.steps.AddWordsToAnkiStep import AddWordsToAnkiStep
 from src.steps.AttachSentencesStep import AttachSentencesStep
 from src.steps.GatherInputFilesStep import GatherInputFilesStep
-from src.steps.NormalizeSentenceBoundariesStep import NormalizeSentenceBoundariesStep
+from src.steps.ExtractSentencesStep import ExtractSentencesStep
 from src.steps.ProcessingStep import ProcessingStep
 from src.steps.ReadFilesStep import ReadFilesStep
 from src.steps.ScoreWordStep import ScoreWordStep
 from src.steps.TokenizeStep import TokenizeStep
 from src.steps.FilterFrequencyStep import FilterFrequencyStep
 from src.steps.WriteOutputStep import WriteOutputStep
+
+from src.steps.debug.DumpSentences import DumpSentences
 
 
 MIN_FREQUENCY_DEFAULT = 4
@@ -112,6 +114,8 @@ def process_script():
         tmpdir = Path(tmpdir_str)
         input_path_obj = Path(input_path)
 
+        print_debug(f"tmp dir: {tmpdir}")
+
         print(f'Mining all relevant files from directory {input_path_obj.resolve()}...')
 
         final_path = resolve_directory_output_path(input_path_obj, args.output)
@@ -121,7 +125,8 @@ def process_script():
         steps = [
             GatherInputFilesStep(input_path_obj, include_subdirectories=recursive),
             ReadFilesStep(),
-            NormalizeSentenceBoundariesStep(debug=debug),
+            ExtractSentencesStep(debug=debug),
+            DumpSentences() if debug else None,
             TokenizeStep(),
             FilterFrequencyStep(min_frequency),
             AddDefinitionsStep(),

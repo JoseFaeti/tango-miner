@@ -43,7 +43,7 @@ def write_final_file(input, output_file, progress_handler=None):
                 word_data.score,
                 word,
                 word_data.reading,
-                word_data.index,
+                f"{word_data.index:.2f}",
                 word_data.frequency,
                 word_data.definition,
                 " ".join(sorted(word_data.tags)),

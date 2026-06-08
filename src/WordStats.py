@@ -28,11 +28,12 @@ class Sentence:
 @dataclass(frozen=False)
 class WordStats:
     __slots__ = (
-        "index", "frequency", "score", "reading",
+        "index", "index_count", "frequency", "score", "reading",
         "definition", "tags", "sentences", "lemma",
         "pos", "invalid"
     )
-    index: int
+    index: float       # running mean of normalized position (0=start, 1=end)
+    index_count: int   # number of files that have contributed to index
     frequency: int
     score: float
     reading: str

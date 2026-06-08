@@ -22,12 +22,10 @@ def score_words(input: dict, progress_handler=None) -> dict:
         return input
 
     max_frequency = max(stats.frequency for stats in input.values())
-    max_index = max(stats.index for stats in input.values())
 
     for i, stats in enumerate(input.values(), 1):
         score = calculate_score(
             stats.index,
-            max_index,
             stats.frequency,
             max_frequency
         )
@@ -49,24 +47,22 @@ def score_words(input: dict, progress_handler=None) -> dict:
 
 
 def calculate_score(
-    index: int,
-    max_index: int,
+    index: float,
     frequency: int,
     max_frequency: int,
     w_freq: float = 0.7,
     w_index: float = 0.3
 ) -> float:
     """
-    index: position of the word (0 = first)
-    max_index: max index in corpus
+    index: mean normalized position across files (0.0 = start, 1.0 = end)
     frequency: raw frequency of the word
     max_frequency: max frequency in corpus
     w_freq: weight for frequency
     w_index: weight for position
     """
 
-    # Normalize index between 0 (start) and 1 (end)
-    index_score = 1 - (index / max_index) ** 1.5 if max_index > 0 else 1.0
+    # index is already 0–1; invert so early words score higher
+    index_score = (1 - index) ** 1.5
 
     # Log-scale frequency to spread out scores for common words
     frequency_score = math.log1p(frequency) / math.log1p(max_frequency) if max_frequency > 0 else 0

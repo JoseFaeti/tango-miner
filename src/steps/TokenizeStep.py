@@ -1,4 +1,5 @@
 from pathlib import Path
+import appdirs
 import re
 import unicodedata
 
@@ -35,7 +36,7 @@ SKIP_POS1_POS2 = {
     ("感動詞", "フィラー"),
 }
 
-TOKENIZER_FINGERPRINT = "sudachidict_full+user_dict.C+postproc-v1.2026/06/08.3"
+TOKENIZER_FINGERPRINT = "sudachidict_full+user_dict.C+postproc-v1.2026/06/08.5"
 TOKENIZER_MODE = sudachi_tokenizer.Tokenizer.SplitMode.C
 
 MAX_SUDACHI_BYTES = 48000
@@ -71,7 +72,7 @@ class TokenizeStep(PipelineStep):
         files: list[tuple[Path, list[str]]] = artifact.data
 
         cache = TokenCache(
-            cache_dir=artifact.tmpdir / "token_cache",
+            cache_dir = Path(appdirs.user_cache_dir("tango_miner")),
             tokenizer_fingerprint=TOKENIZER_FINGERPRINT,
         ) if artifact.tmpdir else None
 
@@ -164,13 +165,18 @@ def tokenize(
                 source_path,
                 mtime_ns,
                 "\n".join(sentences_text),
-                {"tokens": all_sentence_tokens},
+                all_sentence_tokens,
             )
 
     # ── Merge tokens into word_data + segmented_out ───────────────
     current_sentence_chars = []
     current_sentence_surfaces = {}
-    lemma_first_seen_index = {}
+
+    # For normalized-position index: track the token position at which
+    # each lemma is first seen in this file.
+    # { lemma: first_token_pos }
+    lemma_first_pos_in_file: dict[str, int] = {}
+
     token_index = 0
     sentence_endings = {"。", "！", "？"}
 
@@ -218,11 +224,9 @@ def tokenize(
             if not lemma or not reading or is_useless(token):
                 continue
 
-            # stable index (first occurrence only)
-            if lemma not in lemma_first_seen_index:
-                lemma_first_seen_index[lemma] = token_index
-                token_index += 1
-
+            token_index += 1
+            if lemma not in lemma_first_pos_in_file:
+                lemma_first_pos_in_file[lemma] = token_index
             current_sentence_surfaces[lemma] = surface
 
             # --------------------------------------------------------
@@ -235,9 +239,10 @@ def tokenize(
                 ws.frequency += 1
             else:
                 ws = WordStats(
-                    lemma_first_seen_index[lemma],
-                    1,
-                    0.0,
+                    0.0,          # index: will be set after file is done
+                    0,            # index_count: no files contributed yet
+                    1,            # frequency
+                    0.0,          # score
                     kata_to_hira(reading),
                     "",
                     set(),
@@ -266,6 +271,17 @@ def tokenize(
                     )
             current_sentence_chars.clear()
             current_sentence_surfaces.clear()
+
+    # ── Update index: merge this file's first-seen positions ─────────
+    # Each lemma's first-seen position is normalized by the total token
+    # count of this file (0 = first token, 1 = last token), then folded
+    # into a running mean across all files processed so far.
+    if token_index > 0:
+        for lemma, first_pos in lemma_first_pos_in_file.items():
+            ws = word_data[lemma]
+            file_norm_pos = first_pos / token_index
+            ws.index = (ws.index * ws.index_count + file_norm_pos) / (ws.index_count + 1)
+            ws.index_count += 1
 
     return word_data, segmented_out
 
