@@ -1,8 +1,8 @@
 import math
 
-from .Artifact import Artifact
-from .PipelineStep import PipelineStep
-from .ProcessingStep import ProcessingStep
+from src.Artifact import Artifact
+from src.PipelineStep import PipelineStep
+from src.steps.ProcessingStep import ProcessingStep
 
 
 class ScoreWordStep(PipelineStep):

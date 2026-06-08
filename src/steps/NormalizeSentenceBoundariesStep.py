@@ -5,8 +5,8 @@ import statistics
 from pathlib import Path
 from typing import List
 
-from .Artifact import Artifact
-from .PipelineStep import PipelineStep
+from src.Artifact import Artifact
+from src.PipelineStep import PipelineStep
 
 
 # -------------------------------------------------------------------

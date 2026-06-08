@@ -4,20 +4,19 @@ import unicodedata
 
 from sudachipy import dictionary, tokenizer as sudachi_tokenizer
 
-RE_TAG = re.compile(r"\[(.+?)\]")
-
-from .Artifact import Artifact
-from .PipelineStep import PipelineStep
-from .ProcessingStep import ProcessingStep
-from .SegmentedSentence import SegmentedSentence
-from .TokenCache import TokenCache
-from .WordStats import WordStats
+from src.Artifact import Artifact
+from src.PipelineStep import PipelineStep
+from src.steps.ProcessingStep import ProcessingStep
+from src.SegmentedSentence import SegmentedSentence
+from src.TokenCache import TokenCache
+from src.WordStats import WordStats
 
 
 # -------------------------------------------------------------------
 # CONFIG
 # -------------------------------------------------------------------
 
+RE_TAG = re.compile(r"\[(.+?)\]")
 RE_SMALL_KANA_END = re.compile(r"[っゃゅょァィゥェォッャュョー]+$")
 
 SKIP_POS1 = {
@@ -36,7 +35,7 @@ SKIP_POS1_POS2 = {
     ("感動詞", "フィラー"),
 }
 
-TOKENIZER_FINGERPRINT = "sudachidict_full+user_dict.C+postproc-v1.2026/06/01.2"
+TOKENIZER_FINGERPRINT = "sudachidict_full+user_dict.C+postproc-v1.2026/06/08.3"
 TOKENIZER_MODE = sudachi_tokenizer.Tokenizer.SplitMode.C
 
 MAX_SUDACHI_BYTES = 48000
@@ -64,7 +63,11 @@ def get_tokenizer():
 class TokenizeStep(PipelineStep):
     def process(self, artifact: Artifact) -> Artifact:
         files: list[tuple[Path, list[str]]] = artifact.data
-        cache_dir = artifact.tmpdir / "token_cache" if artifact.tmpdir else None
+
+        cache = TokenCache(
+            cache_dir=artifact.tmpdir / "token_cache",
+            tokenizer_fingerprint=TOKENIZER_FINGERPRINT,
+        ) if artifact.tmpdir else None
 
         self.combined_tokens = {}
         combined_sentences = []
@@ -84,26 +87,30 @@ class TokenizeStep(PipelineStep):
                 word_data=self.combined_tokens,
                 segmented_sentences=combined_sentences,
                 tag=tag,
-                cache_dir=cache_dir,
+                cache=cache,
+                source_path=path,
                 progress_handler=self._file_progress,
             )
 
             self.sentence_offset += len(sentences)
             self.total_tokens = len(self.combined_tokens)
 
+        if cache:
+            cache.flush_mtime_index()
+
         self.progress(
             ProcessingStep.TOKENIZING,
             1,
             1,
-            f'{self.total_tokens} tokens from {len(files)} files',
+            f'{self.total_tokens} tokens and {len(combined_sentences)} sentences from {len(files)} files',
         )
 
         return Artifact(self.combined_tokens, sentences=combined_sentences)
 
 
-    def _file_progress(self, step, current, total, message=""):
+    def _file_progress(self, current, total, message=""):
         self.progress(
-            step,
+            ProcessingStep.TOKENIZING,
             self.sentence_offset + current,
             self.total_sentences,
             f'{len(self.combined_tokens)} tokens ({self.current_file.name})',
@@ -119,61 +126,62 @@ def tokenize(
     word_data=None,
     segmented_sentences=None,
     tag=None,
-    cache_dir=None,
+    cache=None,
+    source_path=None,
     progress_handler=None
 ):
-    """
-    NOTE:
-    - input_path is now ALWAYS: list[str] (sentences)
-    - file mode removed completely
-    - no chunking, no fallback, no dual behavior
-    """
-
     if not isinstance(input_path, list):
         raise ValueError("tokenize() now only accepts list[str] sentences")
 
     sentences_text = input_path
 
-    cache = TokenCache(
-        cache_dir=cache_dir,
-        tokenizer_fingerprint=TOKENIZER_FINGERPRINT,
-    )
-
-    tokenizer = get_tokenizer()
+    tokenizer_obj = get_tokenizer()
 
     word_data = word_data or {}
     segmented_out = list(segmented_sentences) if segmented_sentences else []
 
-    current_sentence_chars = []
-    current_sentence_surfaces = {}
+    # ── Cache fast path ───────────────────────────────────────────
+    all_sentence_tokens = None  # list[list[dict]], one per sentence
 
-    lemma_first_seen_index = {}
-    token_index = 0
+    if cache and source_path:
+        mtime_ns = source_path.stat().st_mtime_ns
+        hash_ = cache.get_hash_by_mtime(source_path, mtime_ns)
+        if hash_:
+            payload = cache.load_by_hash(hash_)
+            if payload:
+                all_sentence_tokens = payload["tokens"]  # cheap dicts only
 
-    sentence_endings = {"。", "！", "？"}
-
-    # ------------------------------------------------------------
-    # TOKENIZATION (SIMPLE + CORRECT)
-    # ------------------------------------------------------------
-
-    for i, sentence in enumerate(sentences_text):
-        if progress_handler:
-            progress_handler(
-                ProcessingStep.TOKENIZING,
-                i,
-                len(sentences_text),
+    # ── Tokenize (only if cache missed) ──────────────────────────
+    if all_sentence_tokens is None:
+        all_sentence_tokens = [
+            [sudachi_node_to_dict(m) for m in tokenizer_obj.tokenize(s, TOKENIZER_MODE)]
+            for s in sentences_text
+        ]
+        if cache and source_path:
+            cache.put_by_mtime(
+                source_path,
+                mtime_ns,
+                "\n".join(sentences_text),
+                {"tokens": all_sentence_tokens},
             )
 
-        # tokenize FULL sentence (NO chunking)
-        sudachi_tokens = tokenizer.tokenize(sentence, TOKENIZER_MODE)
+    # ── Merge tokens into word_data + segmented_out ───────────────
+    current_sentence_chars = []
+    current_sentence_surfaces = {}
+    lemma_first_seen_index = {}
+    token_index = 0
+    sentence_endings = {"。", "！", "？"}
 
-        for m in sudachi_tokens:
-            token = sudachi_node_to_dict(m)
+    for i, token_list in enumerate(all_sentence_tokens):
+        if progress_handler and i % 200 == 0:
+            progress_handler(i, len(all_sentence_tokens))
 
+        for m_dict in token_list:
+            token = m_dict
             surface = unicodedata.normalize("NFKC", token["surface"])
 
             # --------------------------------------------------------
-            # sentence reconstruction (unchanged logic)
+            # sentence reconstruction
             # --------------------------------------------------------
 
             for char in surface:
@@ -199,7 +207,7 @@ def tokenize(
                     current_sentence_chars.append(char)
 
             # --------------------------------------------------------
-            # lemma processing (FIXED)
+            # lemma processing
             # --------------------------------------------------------
 
             lemma = token["base_form"] or token["lemma"]
@@ -216,7 +224,7 @@ def tokenize(
             current_sentence_surfaces[lemma] = surface
 
             # --------------------------------------------------------
-            # frequency accumulation (CORRECT NOW)
+            # frequency accumulation
             # --------------------------------------------------------
 
             ws = word_data.get(lemma)
@@ -261,7 +269,7 @@ def tokenize(
 
 
 # -------------------------------------------------------------------
-# CHUNKING (CLEAN REPLACEMENT)
+# CHUNKING
 # -------------------------------------------------------------------
 
 def iter_sudachi_chunks(text: str, max_bytes: int = MAX_SUDACHI_BYTES):
@@ -416,7 +424,7 @@ def normalize_sentence(text: str) -> str:
     text = re.sub(r"[ \t\u3000]+", "　", text)
 
     # collapse repeated whitespace
-    text = re.sub(r"\s+", " ", text).strip()
+    text = re.sub(r"\s+", "　", text).strip()
 
     # remove spaces around Japanese punctuation
     text = re.sub(r"\s*([、。！？「」『』])\s*", r"\1", text)
@@ -482,8 +490,6 @@ def contains_japanese_script(text: str) -> bool:
         for c in text
     )
 
-
-import re
 
 def looks_like_guide_header(text: str) -> bool:
     guide_terms = (

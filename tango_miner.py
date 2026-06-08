@@ -6,21 +6,21 @@ import sys
 from tempfile import TemporaryDirectory
 from os import path
 
-from src.AddDefinitionsStep import AddDefinitionsStep
-from src.AddWordsToAnkiStep import AddWordsToAnkiStep
 from src.Artifact import Artifact
-from src.AttachSentencesStep import AttachSentencesStep
 from src.Column import Column
-from src.GatherInputFilesStep import GatherInputFilesStep
-from src.NormalizeSentenceBoundariesStep import NormalizeSentenceBoundariesStep
 from src.Pipeline import Pipeline
-from src.PipelineStep import DebugStep, NoOpStep, PipelineStep
-from src.ProcessingStep import ProcessingStep
-from src.ReadFilesStep import ReadFilesStep
-from src.ScoreWordStep import ScoreWordStep
-from src.TokenizeStep import TokenizeStep
-from src.FilterFrequencyStep import FilterFrequencyStep
-from src.WriteOutputStep import WriteOutputStep
+
+from src.steps.AddDefinitionsStep import AddDefinitionsStep
+from src.steps.AddWordsToAnkiStep import AddWordsToAnkiStep
+from src.steps.AttachSentencesStep import AttachSentencesStep
+from src.steps.GatherInputFilesStep import GatherInputFilesStep
+from src.steps.NormalizeSentenceBoundariesStep import NormalizeSentenceBoundariesStep
+from src.steps.ProcessingStep import ProcessingStep
+from src.steps.ReadFilesStep import ReadFilesStep
+from src.steps.ScoreWordStep import ScoreWordStep
+from src.steps.TokenizeStep import TokenizeStep
+from src.steps.FilterFrequencyStep import FilterFrequencyStep
+from src.steps.WriteOutputStep import WriteOutputStep
 
 
 MIN_FREQUENCY_DEFAULT = 4
@@ -124,7 +124,7 @@ def process_script():
             ScoreWordStep(),
             AttachSentencesStep(),
             WriteOutputStep(final_path),
-            AddWordsToAnkiStep()
+            # AddWordsToAnkiStep()
         ]
 
         directory_pipeline = Pipeline(steps=steps, on_progress=print_step_progress)

@@ -4,10 +4,10 @@ import csv
 import math
 import re
 
-from .Artifact import Artifact
-from .Column import Column
-from .PipelineStep import PipelineStep
-from .ProcessingStep import ProcessingStep
+from src.Artifact import Artifact
+from src.Column import Column
+from src.PipelineStep import PipelineStep
+from src.steps.ProcessingStep import ProcessingStep
 
 
 class FilterFrequencyStep(PipelineStep):

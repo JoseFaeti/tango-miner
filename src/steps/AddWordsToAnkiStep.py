@@ -3,9 +3,9 @@ import urllib.request
 from collections import OrderedDict
 from typing import Any
 
-from .Artifact import Artifact
-from .PipelineStep import PipelineStep
-from .ProcessingStep import ProcessingStep
+from src.Artifact import Artifact
+from src.PipelineStep import PipelineStep
+from src.steps.ProcessingStep import ProcessingStep
 
 ANKI_CONNECT_URL = "http://127.0.0.1:8765"
 

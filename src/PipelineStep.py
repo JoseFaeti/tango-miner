@@ -2,7 +2,7 @@ from abc import ABC, abstractmethod
 from dataclasses import dataclass
 from typing import Any
 
-from .ProcessingStep import ProcessingStep
+from src.steps.ProcessingStep import ProcessingStep
 
 class PipelineStep(ABC):
     def __init__(self):

@@ -1,8 +1,8 @@
-from .Artifact import Artifact
-from .PipelineStep import PipelineStep
-from .ProcessingStep import ProcessingStep
-from .SegmentedSentence import SegmentedSentence
-from .WordStats import Sentence, WordStats
+from src.Artifact import Artifact
+from src.PipelineStep import PipelineStep
+from src.steps.ProcessingStep import ProcessingStep
+from src.SegmentedSentence import SegmentedSentence
+from src.WordStats import Sentence, WordStats
 
 from collections import defaultdict
 from itertools import count
@@ -113,7 +113,7 @@ def attach_sentences(word_data, segmented_sentences, progress_handler=None):
     word_get = word_data.get
 
     for i, seg in enumerate(segmented_sentences):
-        if progress_handler and (i % 10000 == 0):
+        if progress_handler and (i % 1000 == 0):
             progress_handler(ProcessingStep.SENTENCES, i, total) #, f"{i}/{total} sentences")
 
         lemma_surfaces = seg.lemma_surfaces

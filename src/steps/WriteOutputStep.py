@@ -2,8 +2,8 @@ import csv
 
 from pathlib import Path
 
-from .Artifact import Artifact
-from .PipelineStep import PipelineStep
+from src.Artifact import Artifact
+from src.PipelineStep import PipelineStep
 
 
 class WriteOutputStep(PipelineStep):

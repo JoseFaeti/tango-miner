@@ -1,6 +1,6 @@
 from typing import Iterable, Any, List
 
-from .PipelineStep import PipelineStep, ProgressEvent
+from src.PipelineStep import PipelineStep, ProgressEvent
 
 
 class Pipeline:
