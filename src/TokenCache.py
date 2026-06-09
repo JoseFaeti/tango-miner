@@ -27,10 +27,6 @@ class TokenCache:
 
     # ---------------- helpers ----------------
 
-    def _normalize_text(self, text: str) -> str:
-        text = unicodedata.normalize("NFKC", text)
-        return text.replace("\r\n", "\n").replace("\r", "\n")
-
     def _compute_key(self, normalized_text: str) -> str:
         h = hashlib.sha256()
         h.update(normalized_text.encode("utf-8"))
@@ -67,8 +63,7 @@ class TokenCache:
             return None
 
     def put(self, text: str, tokens):
-        normalized = self._normalize_text(text)
-        key = self._compute_key(normalized)
+        key = self._compute_key(text)
         path = self._cache_path(key)
 
         payload = {
@@ -98,8 +93,7 @@ class TokenCache:
 
 
     def put_by_mtime(self, path: Path, mtime_ns: int, text: str, tokens):
-        normalized = self._normalize_text(text)
-        content_hash = self._compute_key(normalized)
+        content_hash = self._compute_key(text)
 
         self.put(text, tokens)
 

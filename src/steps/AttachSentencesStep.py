@@ -35,13 +35,13 @@ LENGTH_DIVISOR = 15
 # Lower → very strong preference for IDEAL_LENGTH (sharp penalty)
 # Higher → more tolerant of length variation (weaker penalty)
 
-UNKNOWN_WORD_PENALTY = 0.8
+UNKNOWN_WORD_PENALTY = 0.9
 # Penalty weight for unknown words in sentence
 # Range: 0.0–1.0
 # Higher → strongly discourages sentences with unknown vocabulary
 # Lower → allows more natural / noisy sentences
 
-TOO_HARD_WORD_PENALTY = 0.8
+TOO_HARD_WORD_PENALTY = 0.9
 # Penalty for words above target difficulty level
 # Range: 0.0–1.0
 # Higher → strongly avoids sentences that exceed user level
@@ -138,14 +138,19 @@ def attach_sentences(word_data, segmented_sentences, progress_handler=None):
             else:
                 scores.append(ws.score)
 
-        if not scores:
-            continue
-
-        mean = sum(scores) / len(scores)
-        variance = sum((x - mean) ** 2 for x in scores) / len(scores)
-
-        sentence_difficulty = _percentile(scores, 0.9)
-        sorted_scores = sorted(scores)
+        # Don't skip sentences with no scored tokens — they still contain
+        # the target word and may be the only available sentence for it.
+        # Use worst-case defaults so they rank below quality sentences.
+        if scores:
+            mean = sum(scores) / len(scores)
+            variance = sum((x - mean) ** 2 for x in scores) / len(scores)
+            sentence_difficulty = _percentile(scores, 0.9)
+            sorted_scores = sorted(scores)
+        else:
+            mean = 0.0
+            variance = 0.0
+            sentence_difficulty = 0.0
+            sorted_scores = []
 
         # ------------------------------------------------------------
         # PHASE 2: sentence-level penalties (once per sentence)
@@ -203,7 +208,7 @@ def attach_sentences(word_data, segmented_sentences, progress_handler=None):
                 bucket[key] = item
 
     # ------------------------------------------------------------
-    # FINALIZE
+    # FINALIZE — primary pass
     # ------------------------------------------------------------
     for lemma, bucket in candidates.items():
         ws = word_get(lemma)
@@ -212,6 +217,65 @@ def attach_sentences(word_data, segmented_sentences, progress_handler=None):
 
         best = heapq.nsmallest(MAX_SENTENCES, bucket.values(), key=lambda x: x[0])
         ws.sentences = [b[2] for b in best]
+
+    # ------------------------------------------------------------
+    # FALLBACK — guarantee at least MAX_SENTENCES per word
+    #
+    # For words that came out of the primary pass with fewer
+    # sentences than MAX_SENTENCES (including zero), do a second
+    # sweep over all segmented sentences and attach whatever is
+    # available, ignoring all quality filters.  Worst-case the
+    # learner gets a mediocre sentence; best-case they get
+    # something useful they would otherwise have missed.
+    # ------------------------------------------------------------
+    words_needing_fallback = {
+        lemma
+        for lemma, ws in word_data.items()
+        if len(ws.sentences) < MAX_SENTENCES
+    }
+
+    if words_needing_fallback:
+        # Build an index: lemma → list[Sentence] not yet attached
+        fallback_pool = defaultdict(list)
+
+        for seg in segmented_sentences:
+            for lemma, surface in seg.lemma_surfaces.items():
+                if lemma not in words_needing_fallback:
+                    continue
+
+                ws = word_get(lemma)
+                if ws is None:
+                    continue
+
+                sentence = Sentence(
+                    text=seg.text,
+                    tag=seg.tag,
+                    origin=seg.origin,
+                    surface_form=surface,
+                )
+
+                # skip exact duplicates already attached
+                already = {s.text for s in ws.sentences}
+                if sentence.text not in already:
+                    fallback_pool[lemma].append(sentence)
+
+        for lemma, pool in fallback_pool.items():
+            ws = word_get(lemma)
+            if ws is None:
+                continue
+
+            needed = MAX_SENTENCES - len(ws.sentences)
+            if needed <= 0:
+                continue
+
+            already = {s.text for s in ws.sentences}
+            for sentence in pool:
+                if needed <= 0:
+                    break
+                if sentence.text not in already:
+                    ws.sentences.append(sentence)
+                    already.add(sentence.text)
+                    needed -= 1
 
 
 # ---------------------------------------------------------------------------
@@ -241,9 +305,6 @@ def _sentence_quality_penalty_fast(text):
     penalty += text.count("[...]") * 0.25
     penalty += text.count("「") * 0.05
 
-    if text.count("。") + text.count("！") + text.count("？") > 1:
-        penalty += 0.5
-
     visible = 0
     jp = 0
 
@@ -268,14 +329,12 @@ def _sentence_quality_penalty_fast(text):
 # ---------------------------------------------------------------------------
 
 def _sentence_dedupe_key_fast(text: str) -> str:
-    normalized = re.sub(r"\s+", " ", text).strip()
+    if ">" not in text:
+        return text
 
-    if ">" not in normalized:
-        return normalized
-
-    prefix, body = normalized.split(">", 1)
+    prefix, body = text.split(">", 1)
 
     if body and any("\u4e00" <= c <= "\u9fff" for c in body):
         return body.strip()
 
-    return normalized
+    return text

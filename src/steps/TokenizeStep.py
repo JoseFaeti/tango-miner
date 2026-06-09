@@ -1,7 +1,6 @@
 from pathlib import Path
 import appdirs
 import re
-import unicodedata
 
 from sudachipy import dictionary, tokenizer as sudachi_tokenizer
 
@@ -36,12 +35,10 @@ SKIP_POS1_POS2 = {
     ("感動詞", "フィラー"),
 }
 
-TOKENIZER_FINGERPRINT = "sudachidict_full+user_dict.C+postproc-v1.2026/06/08.6"
+TOKENIZER_FINGERPRINT = "sudachidict_full+user_dict.C+postproc-v1.2026/06/09.3"
 TOKENIZER_MODE = sudachi_tokenizer.Tokenizer.SplitMode.C
 
-MAX_SUDACHI_BYTES = 48000
-
-MIN_SENTENCE_LENGTH = 15
+MIN_SENTENCE_LENGTH = 10
 MAX_SENTENCE_LENGTH = 50
 
 _tokenizer = None
@@ -86,8 +83,8 @@ class TokenizeStep(PipelineStep):
 
         for path, sentences in files:
             self.current_file = path
-            tag = RE_TAG.search(path.name)
-            tag = tag.group(1) if tag else None
+            tag = RE_TAG.search(str(path))
+            tag = tag.group(1) if tag else "[no tag]"
 
             self.combined_tokens, combined_sentences = tokenize(
                 sentences,
@@ -169,55 +166,16 @@ def tokenize(
             )
 
     # ── Merge tokens into word_data + segmented_out ───────────────
-    current_sentence_chars = []
-    current_sentence_surfaces = {}
-
-    # For normalized-position index: track the token position at which
-    # each lemma is first seen in this file.
-    # { lemma: first_token_pos }
     lemma_first_pos_in_file: dict[str, int] = {}
-
     token_index = 0
-    sentence_endings = {"。", "！", "？"}
 
-    for i, token_list in enumerate(all_sentence_tokens):
+    for i, (sentence, token_list) in enumerate(zip(sentences_text, all_sentence_tokens)):
         if progress_handler and i % 200 == 0:
             progress_handler(i, len(all_sentence_tokens))
 
-        for m_dict in token_list:
-            token = m_dict
-            surface = unicodedata.normalize("NFKC", token["surface"])
+        sentence_surfaces = {}
 
-            # --------------------------------------------------------
-            # sentence reconstruction
-            # --------------------------------------------------------
-
-            for char in surface:
-                if char in sentence_endings:
-                    sentence_text = normalize_sentence("".join(current_sentence_chars))
-
-                    for candidate in build_sentence_candidates(sentence_text):
-                        if is_valid_sentence(candidate):
-                            segmented_out.append(
-                                SegmentedSentence(
-                                    text=candidate,
-                                    tag=tag,
-                                    origin=None,
-                                    lemma_surfaces=dict(current_sentence_surfaces),
-                                )
-                            )
-
-                    current_sentence_chars.clear()
-                    current_sentence_surfaces.clear()
-                    continue
-
-                if is_japanese_char(char):
-                    current_sentence_chars.append(char)
-
-            # --------------------------------------------------------
-            # lemma processing
-            # --------------------------------------------------------
-
+        for token in token_list:
             lemma = token["base_form"] or token["lemma"]
             reading = token["reading"]
 
@@ -227,11 +185,8 @@ def tokenize(
             token_index += 1
             if lemma not in lemma_first_pos_in_file:
                 lemma_first_pos_in_file[lemma] = token_index
-            current_sentence_surfaces[lemma] = surface
 
-            # --------------------------------------------------------
-            # frequency accumulation
-            # --------------------------------------------------------
+            sentence_surfaces[lemma] = token["surface"]
 
             ws = word_data.get(lemma)
 
@@ -256,21 +211,15 @@ def tokenize(
             if tag:
                 ws.tags.add(tag)
 
-        # Flush at end of each input sentence
-        if current_sentence_chars:
-            sentence_text = normalize_sentence("".join(current_sentence_chars))
-            for candidate in build_sentence_candidates(sentence_text):
-                if is_valid_sentence(candidate):
-                    segmented_out.append(
-                        SegmentedSentence(
-                            text=candidate,
-                            tag=tag,
-                            origin=None,
-                            lemma_surfaces=dict(current_sentence_surfaces),
-                        )
-                    )
-            current_sentence_chars.clear()
-            current_sentence_surfaces.clear()
+        if is_valid_sentence(sentence):
+            segmented_out.append(
+                SegmentedSentence(
+                    text=sentence,
+                    tag=tag,
+                    origin=None,
+                    lemma_surfaces=sentence_surfaces,
+                )
+            )
 
     # ── Update index: merge this file's first-seen positions ─────────
     # Each lemma's first-seen position is normalized by the total token
@@ -284,51 +233,6 @@ def tokenize(
             ws.index_count += 1
 
     return word_data, segmented_out
-
-
-# -------------------------------------------------------------------
-# CHUNKING
-# -------------------------------------------------------------------
-
-def iter_sudachi_chunks(text: str, max_bytes: int = MAX_SUDACHI_BYTES):
-    if max_bytes <= 0:
-        raise ValueError("max_bytes must be positive")
-
-    current = []
-    current_bytes = 0
-
-    for piece in split_text_by_utf8_bytes(text, max_bytes):
-        piece_bytes = len(piece.encode("utf-8"))
-
-        if current and current_bytes + piece_bytes > max_bytes:
-            yield "".join(current)
-            current = []
-            current_bytes = 0
-
-        current.append(piece)
-        current_bytes += piece_bytes
-
-    if current:
-        yield "".join(current)
-
-
-def split_text_by_utf8_bytes(text: str, max_bytes: int):
-    current = []
-    current_bytes = 0
-
-    for char in text:
-        char_bytes = len(char.encode("utf-8"))
-
-        if current and current_bytes + char_bytes > max_bytes:
-            yield "".join(current)
-            current = []
-            current_bytes = 0
-
-        current.append(char)
-        current_bytes += char_bytes
-
-    if current:
-        yield "".join(current)
 
 
 _lemma_reading_cache = {}
@@ -372,20 +276,6 @@ def kata_to_hira(text: str) -> str:
         result.append(ch)
 
     return "".join(result)
-
-
-def is_japanese_char(c: str) -> bool:
-    return (
-        "\u3040" <= c <= "\u309F"   # Hiragana
-        or "\u30A0" <= c <= "\u30FF"  # Katakana
-        or "\u4E00" <= c <= "\u9FFF"   # Kanji
-        or "\uFF65" <= c <= "\uFF9F"   # Half-width Katakana
-        or c in "々〻ゝゞヽヾ"
-        or c.isspace()
-        or c.isdigit()
-        or c.isalpha()
-        or c in "（()【】「」『』…‥〜ー・"
-    )
 
 
 def is_useless(token: dict) -> bool:
@@ -432,45 +322,18 @@ def is_useless(token: dict) -> bool:
     return False
 
 
-import re
-
-def normalize_sentence(text: str) -> str:
-    if not text:
-        return ""
-
-    # normalize whitespace (including full-width spaces)
-    text = re.sub(r"[ \t\u3000]+", "　", text)
-
-    # collapse repeated whitespace
-    text = re.sub(r"\s+", "　", text).strip()
-
-    # remove spaces around Japanese punctuation
-    text = re.sub(r"\s*([、。！？「」『』])\s*", r"\1", text)
-
-    # fix broken bracket cases
-    if text.startswith("「") and "」" not in text:
-        text = text[1:]
-    if text.startswith("『") and "』" not in text:
-        text = text[1:]
-    if text.endswith("」") and "「" not in text:
-        text = text[:-1]
-    if text.endswith("』") and "『" not in text:
-        text = text[:-1]
-
-    # compress long punctuation runs
-    text = re.sub(r"・{3,}", "・・・", text)
-    text = re.sub(r"ー{3,}", "ーーー", text)
-
-    return text
-
-
-def build_sentence_candidates(text: str) -> list[str]:
-    text = normalize_sentence(text)
-    return [
-        part
-        for part in split_glued_dialogue_turns(text)
-        if part and is_valid_sentence(part)
-    ]
+def is_japanese_char(c: str) -> bool:
+    return (
+        "\u3040" <= c <= "\u309F"   # Hiragana
+        or "\u30A0" <= c <= "\u30FF"  # Katakana
+        or "\u4E00" <= c <= "\u9FFF"   # Kanji
+        or "\uFF65" <= c <= "\uFF9F"   # Half-width Katakana
+        or c in "々〻ゝゞヽヾ"
+        or c.isspace()
+        or c.isdigit()
+        or c.isalpha()
+        or c in "（()【】「」『』…‥〜ー・"
+    )
 
 
 def is_valid_sentence(text: str) -> bool:
@@ -492,14 +355,6 @@ def is_valid_sentence(text: str) -> bool:
     return MIN_SENTENCE_LENGTH <= len(text) <= MAX_SENTENCE_LENGTH
 
 
-def split_glued_dialogue_turns(text: str) -> list[str]:
-    parts = re.split(
-        r"(?<=[。！？])(?=[ぁ-んァ-ン一-龯]{1,12}「)",
-        text
-    )
-    return [p.strip("　 ") for p in parts if p.strip("　 ")]
-
-
 def contains_japanese_script(text: str) -> bool:
     return any(
         "\u3040" <= c <= "\u309F"  # Hiragana
@@ -510,21 +365,14 @@ def contains_japanese_script(text: str) -> bool:
 
 
 def looks_like_guide_header(text: str) -> bool:
-    guide_terms = (
-        "行き方",
-        "マップ",
-        "攻略",
-        "入手方法",
-        "チャート",
-        "戦闘開始時",
-        "場合は",
-    )
-
-    if any(term in text for term in guide_terms):
+    # structural header pattern: Japanese + control letter fragment
+    if re.search(r"^[ぁ-んァ-ン一-龯]+[　\s]+[A-ZＭＳLR]([　\s]|$)", text):
         return True
 
-    # pattern: Japanese text + control letter header-like fragments
-    if re.search(r"^[ぁ-んァ-ン一-龯]+[　\s]+[A-ZＭＳLR]([　\s]|$)", text):
+    # only flag guide terms when they appear to be the whole sentence
+    # (no verb, very short, looks like a label)
+    guide_labels = ("行き方", "入手方法", "戦闘開始時")
+    if any(term in text for term in guide_labels) and len(text) < 20:
         return True
 
     return False

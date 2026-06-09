@@ -47,6 +47,7 @@ def write_final_file(input, output_file, progress_handler=None):
                 word_data.frequency,
                 word_data.definition,
                 " ".join(sorted(word_data.tags)),
+                f"sentences: {len(word_data.sentences)}",
                 "<br><br>".join(
                     s.to_html() for s in word_data.sentences
                 ) if word_data.sentences else "no sentences :("

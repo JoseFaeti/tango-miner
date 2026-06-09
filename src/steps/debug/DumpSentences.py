@@ -5,11 +5,15 @@ from src.Artifact import Artifact
 from src.PipelineStep import PipelineStep
 
 class DumpSentences(PipelineStep):
+	def __init__(self, filename: str = "sentences.txt"):
+		self.filename = filename
+
+
 	def process(self, artifact: Artifact) -> Artifact:
 		base_dir = Path(appdirs.user_cache_dir("tango_miner")) / 'debug'
 		base_dir.mkdir(parents=True, exist_ok=True)
 
-		output_path = base_dir / 'sentences.txt'
+		output_path = base_dir / self.filename
 
 		with output_path.open("w", encoding="utf-8") as f:
 		    for path, sentences in artifact.data:

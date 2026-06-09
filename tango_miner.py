@@ -15,6 +15,7 @@ from src.steps.AddWordsToAnkiStep import AddWordsToAnkiStep
 from src.steps.AttachSentencesStep import AttachSentencesStep
 from src.steps.GatherInputFilesStep import GatherInputFilesStep
 from src.steps.ExtractSentencesStep import ExtractSentencesStep
+from src.steps.NormalizeSentences import NormalizeSentences
 from src.steps.ProcessingStep import ProcessingStep
 from src.steps.ReadFilesStep import ReadFilesStep
 from src.steps.ScoreWordStep import ScoreWordStep
@@ -52,6 +53,7 @@ def print_step_progress(step, amount, total, duration=None, additional_text=""):
         step.SENTENCES: "Adding sentences",
         step.ANKI_EXPORT: "Sending words to Anki",
         step.SENTENCE_EXTRACTION: "Extracting sentences",
+        step.SENTENCE_NORMALIZATION: "Normalizing sentences",
         step.READ_FILES: "Reading files"
     }
 
@@ -59,7 +61,7 @@ def print_step_progress(step, amount, total, duration=None, additional_text=""):
 
     if amount >= total:
         if duration is not None:
-            _print_progress_line(f"{text}... done in {duration:.2f} seconds. {additional_text}", newline=True)
+            _print_progress_line(f"{text}... done in {duration:.1f} seconds. {additional_text}", newline=True)
         else:
             _print_progress_line(f"{text}... done. {additional_text}", newline=True)
     else:
@@ -128,8 +130,10 @@ def process_script():
         steps = [
             GatherInputFilesStep(input_path_obj, include_subdirectories=recursive),
             ReadFilesStep(),
-            ExtractSentencesStep(debug=debug),
-            DumpSentences() if debug else None,
+            ExtractSentencesStep(),
+            DumpSentences("sentences.txt") if debug else None,
+            NormalizeSentences(),
+            DumpSentences("sentences-normalized.txt") if debug else None,
             TokenizeStep(),
             FilterFrequencyStep(min_frequency),
             AddDefinitionsStep(),
@@ -142,7 +146,7 @@ def process_script():
         pipeline = Pipeline(steps=steps, on_progress=print_step_progress)
         pipeline.run(Artifact(input_path, tmpdir=tmpdir))
 
-    print(f'All tasks completed in {pipeline.duration:.2f} seconds.')
+    print(f'All tasks completed in {pipeline.duration:.1f} seconds.')
 
 
 def resolve_directory_output_path(input_path: Path, output_arg: str | None) -> Path:

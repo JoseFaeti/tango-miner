@@ -10,3 +10,4 @@ class ProcessingStep(IntEnum):
     ANKI_EXPORT = 6
     SENTENCE_EXTRACTION = 7
     READ_FILES = 8
+    SENTENCE_NORMALIZATION = 9
