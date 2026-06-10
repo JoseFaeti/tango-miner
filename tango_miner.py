@@ -136,7 +136,7 @@ def process_script():
             DumpSentences("sentences-normalized.txt") if debug else None,
             TokenizeStep(),
             FilterFrequencyStep(min_frequency),
-            AddDefinitionsStep(),
+            AddDefinitionsStep(debug=debug),
             ScoreWordStep(),
             AttachSentencesStep(),
             WriteOutputStep(final_path),

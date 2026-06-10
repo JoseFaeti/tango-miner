@@ -22,6 +22,16 @@ RE_SENT_SPLIT = re.compile(r"(?<=[。.!?])\s+")
 PUNCT_CHARS = r'[。．！？!?]'
 RE_SENTENCE_BOUNDARY = re.compile(rf'({PUNCT_CHARS}+)\s*(?=[^\s。．！？!?])')
 
+# Invisible Unicode formatting/control characters that appear in some source
+# files (e.g. U+202A LEFT-TO-RIGHT EMBEDDING from manga scans or ebook exports)
+# and produce phantom lemmas that are non-empty but unmatchable in any dictionary.
+RE_INVISIBLE_CHARS = re.compile(
+    r"[\u200b\u200c\u200d\u200e\u200f"   # zero-width variants
+    r"\u202a-\u202e"                       # directional embeddings/overrides
+    r"\u2060-\u2064"                       # word joiner and friends
+    r"\ufeff]"                             # BOM / zero-width no-break space
+)
+
 JP_CONTINUATIONS = (
     "そして", "しかし", "また", "それ", "これ", "だから", "そのため"
 )
@@ -44,6 +54,7 @@ class ExtractSentencesStep(PipelineStep):
         for path, text in files:
             self.progress(len(results), len(files))
 
+            text = RE_INVISIBLE_CHARS.sub("", text)
             sentences, _ = normalize_sentence_boundaries(
                 text,
                 self.min_lines)
