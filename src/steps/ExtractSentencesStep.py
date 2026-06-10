@@ -22,15 +22,24 @@ RE_SENT_SPLIT = re.compile(r"(?<=[。.!?])\s+")
 PUNCT_CHARS = r'[。．！？!?]'
 RE_SENTENCE_BOUNDARY = re.compile(rf'({PUNCT_CHARS}+)\s*(?=[^\s。．！？!?])')
 
-# Invisible Unicode formatting/control characters that appear in some source
-# files (e.g. U+202A LEFT-TO-RIGHT EMBEDDING from manga scans or ebook exports)
-# and produce phantom lemmas that are non-empty but unmatchable in any dictionary.
+# Invisible and formatting Unicode characters that produce phantom tokens.
+# Covers: zero-width spaces, directional embeddings (U+202A etc. seen in Nana
+# ebook exports), word joiners, BOM, and C0/C1 control chars except newline/tab.
 RE_INVISIBLE_CHARS = re.compile(
-    r"[\u200b\u200c\u200d\u200e\u200f"   # zero-width variants
-    r"\u202a-\u202e"                       # directional embeddings/overrides
-    r"\u2060-\u2064"                       # word joiner and friends
-    r"\ufeff]"                             # BOM / zero-width no-break space
+    r"[\u200b\u200c\u200d\u200e\u200f"        # zero-width variants
+    r"\u202a-\u202e"                           # directional embeddings/overrides
+    r"\u2060-\u2064"                           # word joiner and friends
+    r"\ufeff"                                  # BOM / zero-width no-break space
+    r"\u0000-\u0008\u000b\u000c\u000e-\u001f" # C0 controls (keep \t \n)
+    r"\u007f-\u009f"                           # DEL + C1 controls
+    r"\u309a"                                  # combining dakuten as standalone char
+    r"]"
 )
+
+# Script-formatting characters used as dialogue/UI chrome in some game scripts
+# (Persona series uses ⋯ U+22EF as ellipsis, ‒ U+2012 as dash, {}> as markers).
+# Stripped wholesale since they carry no linguistic content.
+RE_SCRIPT_FORMATTING = re.compile(r"[{}>‒\u22ef]+")
 
 JP_CONTINUATIONS = (
     "そして", "しかし", "また", "それ", "これ", "だから", "そのため"
@@ -55,13 +64,14 @@ class ExtractSentencesStep(PipelineStep):
             self.progress(len(results), len(files))
 
             text = RE_INVISIBLE_CHARS.sub("", text)
+            text = RE_SCRIPT_FORMATTING.sub("", text)
             sentences, _ = normalize_sentence_boundaries(
                 text,
                 self.min_lines)
 
             results.append((path, sentences))
 
-        self.done(f"{sum(len(sentences) for _, sentences in results)} sentences found.")
+        self.done(f"{sum(len(sentences) for _, sentences in results)} sentences extracted.")
 
         return Artifact(results)
 

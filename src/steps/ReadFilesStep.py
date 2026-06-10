@@ -20,6 +20,6 @@ class ReadFilesStep(PipelineStep):
             text = path.read_text(encoding=self.encoding)
             results.append((path, text))
 
-        self.done()
+        self.done(f"{len(results)} files found.")
 
         return Artifact(results)

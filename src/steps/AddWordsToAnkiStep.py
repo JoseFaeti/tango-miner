@@ -26,7 +26,7 @@ class AddWordsToAnkiStep(PipelineStep):
         added, updated, deleted = export_words_to_anki(deck_name=DECK_NAME, words=artifact.data, model_name=MODEL_NAME, progress_handler=self.progress)
         
         self.done(
-            f"{added} added, {updated} updated, {deleted} deleted.",
+            f"{added} added, {updated} updated, {deleted} deleted."
         )
 
         return artifact
@@ -63,13 +63,8 @@ def export_words_to_anki(
     deck_name: str,
     words: dict,
     model_name: str,
-    progress_handler=None,
+    progress_handler=lambda *a: None
 ):
-    def update_progress(current, total, message: str):
-        nonlocal progress_handler
-        if progress_handler:
-            progress_handler(current, total, message)
-
     batch_size = 50
     note_fetching_batch_size = 1000
     existing_words = {}
@@ -84,8 +79,6 @@ def export_words_to_anki(
     # --------------------------------------------------
     # 1. Fetch ALL existing note IDs for this model/deck
     # --------------------------------------------------
-    # update_progress(0, 100, "Fetching existing notes from Anki...")
-
     all_note_ids = anki_invoke("findNotes", {
         "query": f'deck:\"{deck_name}\" note:\"{model_name}\"'
     })
@@ -105,7 +98,7 @@ def export_words_to_anki(
             existing_words[jp_field] = note
 
         progress = (i + note_fetching_batch_size) / max(len(all_note_ids), 1) * 25
-        update_progress(progress, 100, "Fetching existing notes from Anki...")
+        progress_handler(progress, 100, "Fetching existing notes from Anki...")
 
     # --------------------------------------------------
     # 2.5 DELETE OBSOLETE NOTES
@@ -204,10 +197,10 @@ def export_words_to_anki(
                 "tags": list(new_tags),
             })
 
-        update_progress(
+        progress_handler(
             25 + (i / len(words) * 25),
             100,
-            "Preparing actions...",
+            "Preparing actions..."
         )
 
     total = len(update_actions) + len(notes_to_add)
@@ -221,10 +214,10 @@ def export_words_to_anki(
             "actions": update_actions[i:i + batch_size]
         })
 
-        update_progress(
+        progress_handler(
             50 + (i / max(total, 1) * 50),
             100,
-            f"Updating {total_notes_to_update} notes...",
+            f"Updating {total_notes_to_update} notes..."
         )
 
     processed = len(update_actions)
@@ -241,10 +234,10 @@ def export_words_to_anki(
             "notes": notes_to_add[i:i + batch_size]
         })
 
-        update_progress(
+        progress_handler(
             50 + ((processed + i) / max(total, 1) * 50),
             100,
-            f"Adding {total_notes_to_add} new notes...",
+            f"Adding {total_notes_to_add} new notes..."
         )
 
     return total_notes_to_add, total_notes_to_update, total_notes_to_delete

@@ -47,7 +47,7 @@ TOO_HARD_WORD_PENALTY = 0.9
 # Higher → strongly avoids sentences that exceed user level
 # Lower → allows more challenging sentences
 
-DIFFICULTY_WEIGHT = 0.9
+DIFFICULTY_WEIGHT = 1.5
 # Scales how strongly sentence difficulty relative to the target word affects fitness
 # lemma_adjustment is normalized to [0, 1] before this weight is applied
 # Range: 0.0–3.0
@@ -89,7 +89,7 @@ class AttachSentencesStep(PipelineStep):
             self.progress,
         )
 
-        self.done()
+        self.done(f"{sum(len(sentences) for word in artifact.data for sentences in word)} sentences added.")
 
         return artifact
 

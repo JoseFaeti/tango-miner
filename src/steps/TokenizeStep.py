@@ -18,6 +18,8 @@ from src.WordStats import WordStats
 
 RE_TAG = re.compile(r"\[(.+?)\]")
 RE_SMALL_KANA_END = re.compile(r"[っゃゅょァィゥェォッャュョー]+$")
+RE_ALL_DIGITS = re.compile(r"^\d+$")
+RE_ALL_LATIN = re.compile(r"^[a-zA-ZÀ-ÿ\-']+$")
 
 SKIP_POS1 = {
     "助詞",
@@ -35,7 +37,7 @@ SKIP_POS1_POS2 = {
     ("感動詞", "フィラー"),
 }
 
-TOKENIZER_FINGERPRINT = "sudachidict_full+user_dict.C+postproc-v1.2026/06/09.3"
+TOKENIZER_FINGERPRINT = "sudachidict_full+user_dict.C+postproc-v1.2026/06/10.27"
 TOKENIZER_MODE = sudachi_tokenizer.Tokenizer.SplitMode.C
 
 MIN_SENTENCE_LENGTH = 10
@@ -103,7 +105,7 @@ class TokenizeStep(PipelineStep):
             cache.flush_mtime_index()
 
         self.done(
-            f'{self.total_tokens} tokens and {len(combined_sentences)} sentences from {len(files)} files',
+            f'{self.total_tokens} tokens and {len(combined_sentences)} sentences collected.'
         )
 
         return Artifact(self.combined_tokens, sentences=combined_sentences)
@@ -283,6 +285,18 @@ def is_useless(token: dict) -> bool:
 
     # skip very short kana noise
     if not lemma:
+        return True
+
+    # bare numbers (digits only, including Arabic numerals in Japanese text)
+    if RE_ALL_DIGITS.match(lemma):
+        return True
+
+    # pure Latin words — these are not Japanese vocabulary
+    if RE_ALL_LATIN.match(lemma):
+        return True
+
+    # no Japanese script at all — symbols, punctuation clusters, emoticons, etc.
+    if not contains_japanese_script(lemma):
         return True
 
     if lemma[-1] in ("っ", "ッ", "ー"):

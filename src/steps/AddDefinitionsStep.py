@@ -17,10 +17,10 @@ class AddDefinitionsStep(PipelineStep):
     def process(self, artifact: Artifact, debug=False) -> Artifact:
         data, total_valid, total_invalid = add_and_filter_for_definitions(artifact.data, self.progress, self.on_definition_processed)
 
+        self.done(f'{total_valid} tokens kept.')
+
         if self._debug:
             dump_invalid_words(data)
-
-        self.done(f'{total_valid} definitions found')
 
         return Artifact(data, sentences=artifact.sentences)
 
