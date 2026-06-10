@@ -47,6 +47,13 @@ TOO_HARD_WORD_PENALTY = 0.9
 # Higher → strongly avoids sentences that exceed user level
 # Lower → allows more challenging sentences
 
+DIFFICULTY_WEIGHT = 0.9
+# Scales how strongly sentence difficulty relative to the target word affects fitness
+# lemma_adjustment is normalized to [0, 1] before this weight is applied
+# Range: 0.0–3.0
+# Higher → strongly prefers sentences close to or easier than the target word's level
+# Lower → difficulty mismatch is tolerated more freely
+
 SHORT_SENTENCE_PENALTY = 0.5
 # Penalty multiplier for sentences with too few known words
 # Range: 0.0–2.0
@@ -114,6 +121,11 @@ def _percentile(values, p=0.9):
 def attach_sentences(word_data, segmented_sentences, progress_handler=None):
     total = len(segmented_sentences)
 
+    if not word_data or not segmented_sentences:
+        return
+
+    max_score = max(ws.score for ws in word_data.values())
+
     candidates = defaultdict(dict)
     counter = count()
 
@@ -180,14 +192,15 @@ def attach_sentences(word_data, segmented_sentences, progress_handler=None):
             if ws is None:
                 continue
 
-            # fast O(log n) replacement for too_hard loop
+            # Fraction of sentence words that score harder than this word [0, 1]
             too_hard = len(sorted_scores) - bisect_right(sorted_scores, ws.score)
 
-            lemma_adjustment = max(0.0, sentence_difficulty - ws.score)
+            # How much harder the sentence is than this word, normalized to [0, 1]
+            lemma_adjustment = max(0.0, sentence_difficulty - ws.score) / max_score
 
             fitness = (
                 base_penalty
-                + lemma_adjustment
+                + lemma_adjustment * DIFFICULTY_WEIGHT
                 + (too_hard / total_tokens) * TOO_HARD_WORD_PENALTY
             )
 
