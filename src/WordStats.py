@@ -8,6 +8,7 @@ class Sentence:
     tag: str
     origin: str
     surface_form: str
+    score: float
 
     def __str__(self) -> str:
         return f'{self.text}'#' [{self.tag}][{self.origin}][{self.surface_form}]'
@@ -23,7 +24,7 @@ class Sentence:
             count=1
         )
 
-        return f"{text}<br><span class='tag sentence-tag'>{self.tag}</span>"
+        return f"{text}<br><span class='tag sentence-tag'>{self.tag} - {self.score}</span>"
 
 @dataclass(frozen=False)
 class WordStats:

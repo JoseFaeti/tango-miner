@@ -195,8 +195,8 @@ def attach_sentences(word_data, segmented_sentences, progress_handler=None):
             # Fraction of sentence words that score harder than this word [0, 1]
             too_hard = len(sorted_scores) - bisect_right(sorted_scores, ws.score)
 
-            # How much harder the sentence is than this word, normalized to [0, 1]
-            lemma_adjustment = max(0.0, sentence_difficulty - ws.score) / max_score
+            # Symmetric distance: penalize sentences both harder AND easier than the word
+            lemma_adjustment = abs(mean - ws.score) / max_score
 
             fitness = (
                 base_penalty
@@ -205,10 +205,11 @@ def attach_sentences(word_data, segmented_sentences, progress_handler=None):
             )
 
             sentence = Sentence(
-                text=seg.text,
-                tag=seg.tag,
-                origin=seg.origin,
-                surface_form=surface,
+                text = seg.text,
+                tag = seg.tag,
+                origin = seg.origin,
+                surface_form = surface,
+                score = round(mean, 2)
             )
 
             key = _sentence_dedupe_key_fast(text)
@@ -261,10 +262,11 @@ def attach_sentences(word_data, segmented_sentences, progress_handler=None):
                     continue
 
                 sentence = Sentence(
-                    text=seg.text,
-                    tag=seg.tag,
-                    origin=seg.origin,
-                    surface_form=surface,
+                    text = seg.text,
+                    tag = seg.tag,
+                    origin = seg.origin,
+                    surface_form = surface,
+                    score = ws.score * -1
                 )
 
                 # skip exact duplicates already attached

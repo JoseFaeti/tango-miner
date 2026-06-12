@@ -5,9 +5,8 @@ from src.Artifact import Artifact
 from src.PipelineStep import PipelineStep
 from src.steps.ProcessingStep import ProcessingStep
 
-_RE_SPACES = re.compile(r"[ \t\u3000]+")
 _RE_WHITESPACE = re.compile(r"\s+")
-_RE_JP_PUNCT_SPACES = re.compile(r"\s*([、。！？「」『』（）])\s*")
+# _RE_JP_PUNCT_SPACES = re.compile(r"\s*([、。！？「」『』（）])\s*")
 
 class NormalizeSentences(PipelineStep):
 	def process(self, artifact: Artifact) -> Artifact:
@@ -35,11 +34,9 @@ class NormalizeSentences(PipelineStep):
 
 
 def normalize_sentence(text: str) -> str:
-	text = text.strip()
+	text = _RE_WHITESPACE.sub("", text)
 	text = unicodedata.normalize("NFC", text)
-	text = _RE_SPACES.sub("　", text)
-	text = _RE_WHITESPACE.sub("　", text)
-	text = _RE_JP_PUNCT_SPACES.sub(r"\1", text)
+	# text = _RE_JP_PUNCT_SPACES.sub(r"\1", text)
 
 	# unwanted characters
 	text = re.sub(r"→+", "", text)
@@ -47,7 +44,7 @@ def normalize_sentence(text: str) -> str:
 	# remove script control HEX characters
 	text = re.sub(r"[A-F0-9]{2}\s", "", text)
 
-	unwanted_prefix_chars = {">", ")", "）", "∠", "*", "、", "＊", "▶", "・", "∨"}
+	unwanted_prefix_chars = {"×", ">", ")", "）", "∠", "*", "、", "＊", "▶", "・", "∨", "◎"}
 
 	while text and text[0] in unwanted_prefix_chars:
 			text = text[1:]
@@ -63,12 +60,14 @@ def normalize_sentence(text: str) -> str:
 	text = re.sub(r"(.)\1{3,}", r"\1\1\1", text)
 	text = re.sub(r"⋯+", "…", text)
 	text = re.sub(r"…+", "…", text)
+	text = re.sub(r"‥+", "…", text)
 
 	# normalize punctuation
 	text = re.sub(r"・・・", "…", text)
 	text = re.sub(r"～～～", "～", text)
+	text = re.sub(r"…。", "…", text)
 
-	return text.strip()
+	return text
 
 
 BRACKET_PAIRS = [
