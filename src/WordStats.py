@@ -1,5 +1,6 @@
 import re
 from dataclasses import dataclass
+from html import escape
 
 
 @dataclass(frozen=True)
@@ -14,9 +15,9 @@ class Sentence:
         return f'{self.text}'#' [{self.tag}][{self.origin}][{self.surface_form}]'
 
     def to_html(self) -> str:
-        text = self.text
+        text = escape(self.text)
 
-        pattern = re.escape(self.surface_form)
+        pattern = re.escape(escape(self.surface_form))
         text = re.sub(
             pattern,
             rf"<span class='highlight'>{self.surface_form}</span>",
@@ -24,7 +25,7 @@ class Sentence:
             count=1
         )
 
-        return f"{text}<br><span class='tag sentence-tag'>{self.tag} - {self.score}</span>"
+        return f"{text}<br><span class='tag sentence-tag'>{escape(self.tag)} - {self.score}</span>"
 
 @dataclass(frozen=False)
 class WordStats:

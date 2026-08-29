@@ -38,8 +38,12 @@ def filter_useful_words(input: OrderedDict, min_frequency: int, keep_percent: in
     # Local bindings (hot path)
     kept_set = kept.__setitem__
 
+    min_frequency_per_source = 1.1 # How often the word needs to appear for each individual tag (frequency/tags)
+
     for i, (word, stats) in enumerate(input.items(), 1):
-        if stats.frequency >= threshold:
+        frequency_per_source = stats.frequency / len(stats.tags)
+
+        if stats.frequency >= threshold and frequency_per_source >= min_frequency_per_source:
             kept_set(word, stats)
 
         if progress_handler:
