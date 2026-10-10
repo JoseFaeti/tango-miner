@@ -19,6 +19,41 @@ PRI_BONUS = {
 
 KANA_RE = re.compile(r"[ぁ-んァ-ンー]+")
 
+# JMdict POS tags that represent nouns.
+NOUN_POS = {
+    "n",
+    "n-adv",
+    "n-pr",
+    "n-pref",
+    "n-suf",
+    "n-t",
+}
+
+
+def is_noun_sense(sense: Dict) -> bool:
+    """Return True if all POS tags of a sense are noun types."""
+    return bool(sense["pos"]) and all(
+        pos.startswith("noun")
+        for pos in sense["pos"]
+    )
+
+
+def should_skip_short_kana_noun(word: str, entry: Dict) -> bool:
+    """
+    Skip 1-2 character kana-only words when every sense is a noun.
+    """
+    if len(word) >= 3:
+        return False
+
+    if KANA_RE.fullmatch(word) is None:
+        return False
+
+    return bool(entry["senses"]) and all(
+        is_noun_sense(sense)
+        for sense in entry["senses"]
+    )
+
+
 
 class JMDict:
     def __init__(self, xml_path: str):
@@ -73,13 +108,17 @@ class JMDict:
         return result if isinstance(result, list) else [result]
 
     def get_best_entry(self, word: str) -> Dict:
-        """
-        Return a single best entry for this word, but keep the full structure.
-        """
         entries = self.lookup_word(word)
+
         if not entries:
             return None
+
         best_entry = self._best_entries(entries, word, tie_break="defs")[0]
+
+        if should_skip_short_kana_noun(word, best_entry):
+            # print("SKIPPING:", word)
+            return None
+
         return best_entry
 
     def get_most_common_definition(self, word):

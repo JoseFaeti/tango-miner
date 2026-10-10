@@ -50,8 +50,8 @@ def calculate_score(
     index: float,
     frequency: int,
     max_frequency: int,
-    w_freq: float = 0.7,
-    w_index: float = 0.3
+    w_freq: float = 0.75,
+    w_index: float = 0.25
 ) -> float:
     """
     index: mean normalized position across files (0.0 = start, 1.0 = end)

@@ -3,6 +3,7 @@ import appdirs
 import re
 
 from sudachipy import dictionary, tokenizer as sudachi_tokenizer
+from src.JMDict import JMDict
 
 from src.Artifact import Artifact
 from src.PipelineStep import PipelineStep
@@ -37,25 +38,33 @@ SKIP_POS1_POS2 = {
     ("感動詞", "フィラー"),
 }
 
-TOKENIZER_FINGERPRINT = "sudachidict_full+user_dict.C+postproc-v1.2026/08/29"
+# The fingerprint now only represents the *raw* Sudachi output.
+TOKENIZER_FINGERPRINT = "sudachidict_full+user_dict.C-v1.2026/10/05"
 TOKENIZER_MODE = sudachi_tokenizer.Tokenizer.SplitMode.C
 
 MIN_SENTENCE_LENGTH = 10
 MAX_SENTENCE_LENGTH = 50
 
 _tokenizer = None
+_jmdict = None
 
 
 def get_tokenizer():
     global _tokenizer
-
     if _tokenizer is None:
         _tokenizer = dictionary.Dictionary(
             config_path="resources/sudachi.json",
             dict="full"
         ).create()
-    
     return _tokenizer
+
+
+def get_jmdict() -> JMDict:
+    """Singleton loader to ensure JMDict is only parsed into memory once."""
+    global _jmdict
+    if _jmdict is None:
+        _jmdict = JMDict(Path.home() / "JMdict_e.xml")
+    return _jmdict
 
 
 # -------------------------------------------------------------------
@@ -71,7 +80,7 @@ class TokenizeStep(PipelineStep):
         files: list[tuple[Path, list[str]]] = artifact.data
 
         cache = TokenCache(
-            cache_dir = Path(appdirs.user_cache_dir("tango_miner")),
+            cache_dir=Path(appdirs.user_cache_dir("tango_miner")),
             tokenizer_fingerprint=TOKENIZER_FINGERPRINT,
         ) if artifact.tmpdir else None
 
@@ -136,14 +145,13 @@ def tokenize(
         raise ValueError("tokenize() now only accepts list[str] sentences")
 
     sentences_text = input_path
-
     tokenizer_obj = get_tokenizer()
 
     word_data = word_data or {}
     segmented_out = list(segmented_sentences) if segmented_sentences else []
 
-    # ── Cache fast path ───────────────────────────────────────────
-    all_sentence_tokens = None  # list[list[dict]], one per sentence
+    # ── 1. Cache fast path (Raw Tokens) ───────────────────────────
+    all_sentence_tokens = None  
 
     if cache and source_path:
         mtime_ns = source_path.stat().st_mtime_ns
@@ -151,9 +159,9 @@ def tokenize(
         if hash_:
             payload = cache.load_by_hash(hash_)
             if payload:
-                all_sentence_tokens = payload["tokens"]  # cheap dicts only
+                all_sentence_tokens = payload["tokens"]  
 
-    # ── Tokenize (only if cache missed) ──────────────────────────
+    # ── 2. Tokenize (only if cache missed) ────────────────────────
     if all_sentence_tokens is None:
         all_sentence_tokens = [
             [sudachi_node_to_dict(m) for m in tokenizer_obj.tokenize(s, TOKENIZER_MODE)]
@@ -164,10 +172,18 @@ def tokenize(
                 source_path,
                 mtime_ns,
                 "\n".join(sentences_text),
-                all_sentence_tokens,
+                all_sentence_tokens,  # We cache the RAW tokens
             )
 
-    # ── Merge tokens into word_data + segmented_out ───────────────
+    # ── 3. Post-Processing: JMDict Compound Merger ────────────────
+    # This runs every time (fast memory operation), keeping cache flexible
+    jmdict = get_jmdict()
+    all_sentence_tokens = [
+        combine_tokens_jmdict(tokens, jmdict)
+        for tokens in all_sentence_tokens
+    ]
+
+    # ── 4. Merge tokens into word_data + segmented_out ────────────
     lemma_first_pos_in_file: dict[str, int] = {}
     token_index = 0
 
@@ -196,10 +212,10 @@ def tokenize(
                 ws.frequency += 1
             else:
                 ws = WordStats(
-                    0.0,          # index: will be set after file is done
-                    0,            # index_count: no files contributed yet
-                    1,            # frequency
-                    0.0,          # score
+                    0.0,          
+                    0,            
+                    1,            
+                    0.0,          
                     kata_to_hira(reading),
                     "",
                     set(),
@@ -223,10 +239,7 @@ def tokenize(
                 )
             )
 
-    # ── Update index: merge this file's first-seen positions ─────────
-    # Each lemma's first-seen position is normalized by the total token
-    # count of this file (0 = first token, 1 = last token), then folded
-    # into a running mean across all files processed so far.
+    # ── 5. Update index ──────────────────────────────────────────
     if token_index > 0:
         for lemma, first_pos in lemma_first_pos_in_file.items():
             ws = word_data[lemma]
@@ -237,8 +250,72 @@ def tokenize(
     return word_data, segmented_out
 
 
-_lemma_reading_cache = {}
+# -------------------------------------------------------------------
+# TOKEN MERGER
+# -------------------------------------------------------------------
 
+def combine_tokens_jmdict(token_list: list[dict], jmdict: JMDict, max_lookahead: int = 6) -> list[dict]:
+    """
+    Greedy longest-match sliding window to combine adjacent tokens into JMDict compounds/expressions.
+    """
+    merged_tokens = []
+    n = len(token_list)
+    i = 0
+
+    while i < n:
+        match_found = False
+        
+        for j in range(min(n, i + max_lookahead), i + 1, -1):
+            combined_lemma = "".join(t["lemma"] for t in token_list[i:j])
+            combined_surface = "".join(t["surface"] for t in token_list[i:j])
+            
+            match_word = jmdict.get_best_entry(combined_lemma)
+            
+            if not match_word:
+                match_word = jmdict.get_best_entry(combined_surface)
+
+            if match_word:
+                combined_reading = "".join(t["reading"] for t in token_list[i:j])
+                
+                # Fetch POS dynamically, falling back to "exp" (expression)
+                jmdict_pos = "exp"
+                if hasattr(jmdict, "get_pos"):
+                    jmdict_pos = jmdict.get_pos(match_word)
+                elif hasattr(match_word, "pos"):
+                    jmdict_pos = match_word.pos
+                
+                if isinstance(jmdict_pos, str):
+                    new_pos = [jmdict_pos, "*", "*", "*", "*", "*"]
+                elif isinstance(jmdict_pos, list):
+                    new_pos = jmdict_pos + ["*"] * max(0, 6 - len(jmdict_pos))
+                else:
+                    new_pos = list(token_list[j - 1]["pos"])
+                
+                lemma_str = match_word if isinstance(match_word, str) else combined_lemma
+                
+                merged_tokens.append({
+                    "surface": combined_surface,
+                    "lemma": lemma_str,
+                    "base_form": lemma_str,
+                    "reading": combined_reading,
+                    "pos": new_pos,
+                })
+                i = j
+                match_found = True
+                break
+        
+        if not match_found:
+            merged_tokens.append(token_list[i])
+            i += 1
+
+    return merged_tokens
+
+
+# -------------------------------------------------------------------
+# UTILITIES
+# -------------------------------------------------------------------
+
+_lemma_reading_cache = {}
 
 def get_lemma_reading(lemma: str) -> str:
     if lemma in _lemma_reading_cache:
@@ -272,7 +349,6 @@ def kata_to_hira(text: str) -> str:
     result = []
     for ch in text:
         code = ord(ch)
-        # Katakana range → Hiragana
         if 0x30A1 <= code <= 0x30F6:
             ch = chr(code - 0x60)
         result.append(ch)
@@ -283,19 +359,15 @@ def kata_to_hira(text: str) -> str:
 def is_useless(token: dict) -> bool:
     lemma = token["base_form"] or token["lemma"]
 
-    # skip very short kana noise
     if not lemma:
         return True
 
-    # bare numbers (digits only, including Arabic numerals in Japanese text)
     if RE_ALL_DIGITS.match(lemma):
         return True
 
-    # pure Latin words — these are not Japanese vocabulary
     if RE_ALL_LATIN.match(lemma):
         return True
 
-    # no Japanese script at all — symbols, punctuation clusters, emoticons, etc.
     if not contains_japanese_script(lemma):
         return True
 
@@ -310,17 +382,14 @@ def is_useless(token: dict) -> bool:
     if (pos1, pos2) in SKIP_POS1_POS2:
         return True
 
-    # small kana endings (truncated forms)
     if RE_SMALL_KANA_END.search(lemma):
         return True
 
-    # single kana noise
     if len(lemma) == 1:
         c = lemma[0]
         if "ぁ" <= c <= "ん" or "ァ" <= c <= "ン":
             return True
 
-    # katakana-heavy noise detection
     all_katakana = True
     has_kanji = False
 
@@ -338,10 +407,10 @@ def is_useless(token: dict) -> bool:
 
 def is_japanese_char(c: str) -> bool:
     return (
-        "\u3040" <= c <= "\u309F"   # Hiragana
-        or "\u30A0" <= c <= "\u30FF"  # Katakana
-        or "\u4E00" <= c <= "\u9FFF"   # Kanji
-        or "\uFF65" <= c <= "\uFF9F"   # Half-width Katakana
+        "\u3040" <= c <= "\u309F"   
+        or "\u30A0" <= c <= "\u30FF"  
+        or "\u4E00" <= c <= "\u9FFF"   
+        or "\uFF65" <= c <= "\uFF9F"   
         or c in "々〻ゝゞヽヾ"
         or c.isspace()
         or c.isdigit()
@@ -371,20 +440,17 @@ def is_valid_sentence(text: str) -> bool:
 
 def contains_japanese_script(text: str) -> bool:
     return any(
-        "\u3040" <= c <= "\u309F"  # Hiragana
-        or "\u30A0" <= c <= "\u30FF"  # Katakana
-        or "\u4E00" <= c <= "\u9FFF"  # Kanji
+        "\u3040" <= c <= "\u309F"  
+        or "\u30A0" <= c <= "\u30FF"  
+        or "\u4E00" <= c <= "\u9FFF"  
         for c in text
     )
 
 
 def looks_like_guide_header(text: str) -> bool:
-    # structural header pattern: Japanese + control letter fragment
-    if re.search(r"^[ぁ-んァ-ン一-龯]+[　\s]+[A-ZＭＳLR]([　\s]|$)", text):
+    if re.search(r"^[ぁ-んァ-ン一-龯]+[ \s]+[A-ZＭＳLR]([ \s]|$)", text):
         return True
 
-    # only flag guide terms when they appear to be the whole sentence
-    # (no verb, very short, looks like a label)
     guide_labels = ("行き方", "入手方法", "戦闘開始時")
     if any(term in text for term in guide_labels) and len(text) < 20:
         return True
