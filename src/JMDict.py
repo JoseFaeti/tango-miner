@@ -54,7 +54,6 @@ def should_skip_short_kana_noun(word: str, entry: Dict) -> bool:
     )
 
 
-
 class JMDict:
     def __init__(self, xml_path: str):
         self.xml_path = Path(xml_path)
@@ -105,6 +104,8 @@ class JMDict:
         """Return all entries for this word (raw structured JMdict data)."""
         result = self.index.get(word, [])
 
+        # print(result)
+
         return result if isinstance(result, list) else [result]
 
     def get_best_entry(self, word: str) -> Dict:
@@ -136,6 +137,25 @@ class JMDict:
             english_defs.append(f"{index}{'; '.join(glosses)}")
 
         return "<br>".join(english_defs)
+
+
+    def has_non_noun_sense(self, definitions: list[dict]) -> bool:
+        """Return True if any sense has a POS other than noun-only."""
+        for definition in definitions:
+            for sense in definition.get("senses", []):
+                pos_tags = sense.get("pos", [])
+
+                if not pos_tags:
+                    continue
+
+                if any(
+                    not tag.startswith("noun")
+                    for tag in pos_tags
+                ):
+                    return True
+
+        return False
+
 
     def _best_entries(self, entries, search_word, tie_break="all"):
         if not entries:

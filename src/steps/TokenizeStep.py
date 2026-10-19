@@ -21,6 +21,7 @@ RE_TAG = re.compile(r"\[(.+?)\]")
 RE_SMALL_KANA_END = re.compile(r"[っゃゅょァィゥェォッャュョー]+$")
 RE_ALL_DIGITS = re.compile(r"^\d+$")
 RE_ALL_LATIN = re.compile(r"^[a-zA-ZÀ-ÿ\-']+$")
+_KANA_RE = re.compile(r"^[\u3040-\u309F\u30A0-\u30FF]+$")
 
 SKIP_POS1 = {
     "助詞",
@@ -38,8 +39,19 @@ SKIP_POS1_POS2 = {
     ("感動詞", "フィラー"),
 }
 
+# List of JMDict POS categories to allow for kana-only words when matched in the token-merge phase.
+# Skip things like nouns, verbs and adjectives to avoid the many false positives that would otherwise appear.
+USEFUL_KANA_ONLY_POS = [
+    "expression",
+    "adverb (fukushi)",
+    "conjunction",
+    "interjection",
+    "pronoun",
+    "pre-noun adjectival",
+]
+
 # The fingerprint now only represents the *raw* Sudachi output.
-TOKENIZER_FINGERPRINT = "sudachidict_full+user_dict.C-v1.2026/10/05"
+TOKENIZER_FINGERPRINT = "2026/10/18"
 TOKENIZER_MODE = sudachi_tokenizer.Tokenizer.SplitMode.C
 
 MIN_SENTENCE_LENGTH = 10
@@ -253,26 +265,63 @@ def tokenize(
 # -------------------------------------------------------------------
 # TOKEN MERGER
 # -------------------------------------------------------------------
+def _get_field(obj, field: str, default=None):
+    if isinstance(obj, dict):
+        return obj.get(field, default)
+    return getattr(obj, field, default)
 
-def combine_tokens_jmdict(token_list: list[dict], jmdict: JMDict, max_lookahead: int = 6) -> list[dict]:
-    """
-    Greedy longest-match sliding window to combine adjacent tokens into JMDict compounds/expressions.
-    """
+
+def _has_useful_kana_only_sense(definitions: list) -> bool:
+    """Return True if any sense has a useful POS for kana-only matching."""
+    for definition in definitions:
+        for sense in _get_field(definition, "senses", []):
+            pos = _get_field(sense, "pos", [])
+            if isinstance(pos, str):
+                pos = [pos]
+
+            if any(
+                target in p.lower()
+                for p in pos
+                for target in USEFUL_KANA_ONLY_POS
+            ):
+                return True
+
+    return False
+
+
+def combine_tokens_jmdict(
+    token_list: list[dict],
+    jmdict: JMDict,
+    max_lookahead: int = 10,
+) -> list[dict]:
+    """Greedily merge adjacent lexical compounds recognized by JMdict."""
     merged_tokens = []
     n = len(token_list)
     i = 0
 
     while i < n:
         match_found = False
-        
+
         for j in range(min(n, i + max_lookahead), i + 1, -1):
             combined_lemma = "".join(t["lemma"] for t in token_list[i:j])
             combined_surface = "".join(t["surface"] for t in token_list[i:j])
             
-            match_word = jmdict.get_best_entry(combined_lemma)
+            token_string = combined_lemma
+            definitions = jmdict.lookup_word(token_string)
             
-            if not match_word:
-                match_word = jmdict.get_best_entry(combined_surface)
+            if not definitions:
+                token_string = combined_surface
+                definitions = jmdict.lookup_word(token_string)
+
+            if not definitions:
+                # no definition found
+                continue
+
+            if not has_kanji(token_string) and not _has_useful_kana_only_sense(definitions):
+                # only allow a kana-only word if it has at least a useful sense, to reduce the number of false positives.
+                continue
+
+            match_word = jmdict.get_best_entry(token_string)
 
             if match_word:
                 combined_reading = "".join(t["reading"] for t in token_list[i:j])
@@ -309,7 +358,6 @@ def combine_tokens_jmdict(token_list: list[dict], jmdict: JMDict, max_lookahead:
             i += 1
 
     return merged_tokens
-
 
 # -------------------------------------------------------------------
 # UTILITIES
@@ -389,17 +437,14 @@ def is_useless(token: dict) -> bool:
         c = lemma[0]
         if "ぁ" <= c <= "ん" or "ァ" <= c <= "ン":
             return True
-
+    
     all_katakana = True
-    has_kanji = False
 
     for c in lemma:
-        if "一" <= c <= "龯":
-            has_kanji = True
         if not ("ァ" <= c <= "ン" or c == "ー"):
             all_katakana = False
 
-    if all_katakana and not has_kanji:
+    if all_katakana and not has_kanji(lemma):
         return True
 
     return False
@@ -417,6 +462,14 @@ def is_japanese_char(c: str) -> bool:
         or c.isalpha()
         or c in "（()【】「」『』…‥〜ー・"
     )
+
+
+def has_kanji(text: str) -> bool:
+    for c in text:
+        if "一" <= c <= "龯":
+            return True
+
+    return False
 
 
 def is_valid_sentence(text: str) -> bool:
