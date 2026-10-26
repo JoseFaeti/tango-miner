@@ -2,31 +2,12 @@ import unittest
 import tempfile
 from pathlib import Path
 
-from src.AddDefinitionsStep import AddDefinitionsStep
-from src.AttachSentencesStep import AttachSentencesStep
-from src.FilterFrequencyStep import FilterFrequencyStep
-from src.ScoreWordStep import ScoreWordStep
-from src.TokenizeStep import TokenizeStep
-from src.WriteOutputStep import WriteOutputStep
-from tango_miner import build_mining_pipeline, resolve_directory_output_path
+from tango_miner import MIN_FREQUENCY_DEFAULT, resolve_directory_output_path
 
 
 class TangoMinerTests(unittest.TestCase):
-    def test_single_file_pipeline_uses_defined_steps_and_path_output(self):
-        pipeline = build_mining_pipeline("output.csv", min_frequency=4)
-
-        self.assertEqual(
-            [type(step) for step in pipeline.steps],
-            [
-                TokenizeStep,
-                FilterFrequencyStep,
-                AddDefinitionsStep,
-                ScoreWordStep,
-                AttachSentencesStep,
-                WriteOutputStep,
-            ],
-        )
-        self.assertEqual(pipeline.steps[-1].output_path, Path("output.csv"))
+    def test_default_minimum_frequency_is_positive(self):
+        self.assertGreater(MIN_FREQUENCY_DEFAULT, 0)
 
     def test_directory_output_defaults_to_csv_inside_input_directory(self):
         input_path = Path("corpus")

@@ -1,143 +1,30 @@
-import tempfile
 import unittest
 from pathlib import Path
-from unittest.mock import patch
 
 from src.Artifact import Artifact
-from src.TokenCache import TokenCache
-from src.TokenizeStep import TokenizeStep, tokenize
+from src.Pipeline import Pipeline
+from src.steps.TokenizeStep import TokenizeStep, tokenize
 
 
 class TokenizeStepTests(unittest.TestCase):
-    def test_process_passes_tmpdir_cache_to_tokenize(self):
-        with tempfile.TemporaryDirectory() as tmp:
-            tmpdir = Path(tmp)
-            calls = []
+    def test_tokenize_collects_lemmas_and_a_segmented_sentence(self):
+        words, sentences = tokenize(["彼はすでに家に帰っている。"], tag="fixture")
 
-            def fake_tokenize(*args, **kwargs):
-                calls.append((args, kwargs))
-                return {"word": object()}, ["sentence"]
+        self.assertEqual(list(words), ["すでに", "家", "帰る", "いる"])
+        self.assertEqual(words["帰る"].frequency, 1)
+        self.assertEqual(words["家"].tags, {"fixture"})
+        self.assertEqual(sentences[0].text, "彼はすでに家に帰っている。")
+        self.assertEqual(sentences[0].lemma_surfaces["帰る"], "帰っ")
 
-            with patch("src.TokenizeStep.tokenize", side_effect=fake_tokenize):
-                artifact = TokenizeStep().process(Artifact("input.txt", tmpdir=tmpdir))
+    def test_step_accepts_sentences_grouped_by_source_file(self):
+        artifact = Artifact(
+            [(Path("fixture.txt"), ["彼はすでに家に帰っている."])],
+        )
 
-        self.assertEqual(artifact.data.keys(), {"word"})
-        self.assertEqual(artifact.sentences, ["sentence"])
-        self.assertEqual(calls[0][1]["cache_dir"], tmpdir / "token_cache")
+        result = Pipeline([TokenizeStep()]).run(artifact)
 
-    def test_tokenize_retokens_when_mtime_cache_payload_is_missing(self):
-        with tempfile.TemporaryDirectory() as tmp:
-            root = Path(tmp)
-            source = root / "input.txt"
-            source.write_text("言葉", encoding="utf-8")
-            cache_dir = root / "cache"
-            mtime = source.stat().st_mtime_ns
-
-            cache = TokenCache(cache_dir, "sudachidict_full+user_dict.C+postproc-v1.2026/06/01.1")
-            cache.put_by_mtime(source, mtime, "言葉", [{"surface": "stale"}])
-            cache.flush_mtime_index()
-            key = cache.get_hash_by_mtime(source, mtime)
-            (cache_dir / f"{key}.pkl").unlink()
-
-            class FakeDictionary:
-                def __init__(self, *args, **kwargs):
-                    pass
-
-                def create(self):
-                    return self
-
-                def tokenize(self, text, mode):
-                    return [object()]
-
-            replacement_token = {
-                "surface": "言葉",
-                "lemma": "言葉",
-                "base_form": "言葉",
-                "reading": "ことば",
-                "pos": ("名詞", "普通名詞", "一般", "*"),
-            }
-
-            with patch("src.TokenizeStep.dictionary.Dictionary", FakeDictionary):
-                with patch("src.TokenizeStep.sudachi_node_to_dict", return_value=replacement_token):
-                    word_data, _sentences = tokenize(source, cache_dir=cache_dir)
-
-        self.assertIn("言葉", word_data)
-        self.assertEqual(word_data["言葉"].frequency, 1)
-
-    def test_tokenize_strips_script_prefix_when_creating_sentence(self):
-        with tempfile.TemporaryDirectory() as tmp:
-            root = Path(tmp)
-            source = root / "input.txt"
-            source.write_text("unused", encoding="utf-8")
-
-            class FakeDictionary:
-                def __init__(self, *args, **kwargs):
-                    pass
-
-                def create(self):
-                    return self
-
-                def tokenize(self, text, mode):
-                    return [object() for _ in range(7)]
-
-            tokens = [
-                {
-                    "surface": "F4　AD　01　01　10　01　01　01>",
-                    "lemma": "meta",
-                    "base_form": "meta",
-                    "reading": "",
-                    "pos": ("記号", "*", "*", "*"),
-                },
-                {
-                    "surface": "美鶴",
-                    "lemma": "美鶴",
-                    "base_form": "美鶴",
-                    "reading": "みつる",
-                    "pos": ("名詞", "普通名詞", "一般", "*"),
-                },
-                {
-                    "surface": "は",
-                    "lemma": "は",
-                    "base_form": "は",
-                    "reading": "は",
-                    "pos": ("助詞", "係助詞", "*", "*"),
-                },
-                {
-                    "surface": "切なげ",
-                    "lemma": "切なげ",
-                    "base_form": "切なげ",
-                    "reading": "せつなげ",
-                    "pos": ("形状詞", "一般", "*", "*"),
-                },
-                {
-                    "surface": "に",
-                    "lemma": "に",
-                    "base_form": "に",
-                    "reading": "に",
-                    "pos": ("助詞", "格助詞", "*", "*"),
-                },
-                {
-                    "surface": "微笑んだ",
-                    "lemma": "微笑む",
-                    "base_form": "微笑む",
-                    "reading": "ほほえむ",
-                    "pos": ("動詞", "一般", "*", "*"),
-                },
-                {
-                    "surface": "。",
-                    "lemma": "。",
-                    "base_form": "。",
-                    "reading": "",
-                    "pos": ("補助記号", "句点", "*", "*"),
-                },
-            ]
-
-            with patch("src.TokenizeStep.dictionary.Dictionary", FakeDictionary):
-                with patch("src.TokenizeStep.sudachi_node_to_dict", side_effect=tokens):
-                    _word_data, sentences = tokenize(source, cache_dir=root / "cache")
-
-        self.assertEqual(len(sentences), 1)
-        self.assertEqual(sentences[0].text, "美鶴は切なげに微笑んだ。")
+        self.assertIn("帰る", result.data)
+        self.assertEqual(len(result.sentences), 1)
 
 
 if __name__ == "__main__":

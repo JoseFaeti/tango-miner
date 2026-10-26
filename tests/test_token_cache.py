@@ -17,14 +17,14 @@ class TokenCacheTests(unittest.TestCase):
             self.assertEqual(payload["tokenizer_fingerprint"], "fingerprint")
             self.assertEqual(payload["tokens"], tokens)
 
-    def test_content_hash_normalizes_line_endings_and_nfkc(self):
+    def test_content_hash_preserves_the_exact_raw_input(self):
         with tempfile.TemporaryDirectory() as tmp:
             cache = TokenCache(Path(tmp), "fingerprint")
 
             key_a = cache.put("１\r\n２", [])
             key_b = cache.put("1\n2", [])
 
-            self.assertEqual(key_a, key_b)
+            self.assertNotEqual(key_a, key_b)
 
     def test_mtime_index_round_trips_after_flush(self):
         with tempfile.TemporaryDirectory() as tmp:

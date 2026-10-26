@@ -6,6 +6,7 @@ from src.WordStats import WordStats
 def make_stats(
     *,
     index=1,
+    index_count=0,
     frequency=1,
     score=0.0,
     reading="よみ",
@@ -18,11 +19,12 @@ def make_stats(
 ):
     return WordStats(
         index=index,
+        index_count=index_count,
         frequency=frequency,
         score=score,
         reading=reading,
         definition=definition,
-        tags=set(tags or []),
+        tags=set(tags or {"source"}),
         sentences=list(sentences or []),
         lemma=lemma,
         pos=pos,

@@ -34,7 +34,6 @@ class NormalizeSentences(PipelineStep):
 
 
 def normalize_sentence(text: str) -> str:
-	text = _RE_WHITESPACE.sub("", text)
 	text = unicodedata.normalize("NFC", text)
 	# text = _RE_JP_PUNCT_SPACES.sub(r"\1", text)
 
@@ -43,6 +42,9 @@ def normalize_sentence(text: str) -> str:
 
 	# remove script control HEX characters
 	text = re.sub(r"[A-F0-9]{2}\s", "", text)
+	
+	# remove all whitespace
+	text = _RE_WHITESPACE.sub("", text)
 
 	unwanted_prefix_chars = {"×", ">", ")", "）", "∠", "*", "、", "＊", "▶", "・", "∨", "◎"}
 
@@ -93,25 +95,41 @@ BRACKET_PAIRS = [
 
 
 def fix_broken_brackets(text: str) -> str:
-		for opening, closing in BRACKET_PAIRS:
-				# Opening bracket at start without matching closing
-				if text.startswith(opening) and closing not in text:
-						text = text[len(opening):]
+    for opening, closing in BRACKET_PAIRS:
+        if opening == closing:
+            if (
+                text.startswith(opening)
+                and text.endswith(closing)
+                and text.count(opening) == 2
+            ):
+                text = text[1:-1]
 
-				# Closing bracket at end without matching opening
-				if text.endswith(closing) and opening not in text:
-						text = text[:-len(closing)]
+            elif text.startswith(opening) and text.count(opening) == 1:
+                text = text[1:]
 
-				# Sentence fully wrapped by exactly one pair
-				if (
-						text.startswith(opening)
-						and text.endswith(closing)
-						and text.count(opening) == 1
-						and text.count(closing) == 1
-				):
-						text = text[len(opening):-len(closing)]
+            elif text.endswith(closing) and text.count(closing) == 1:
+                text = text[:-1]
 
-		return text
+            continue
+
+        # Opening bracket at start without matching closing
+        if text.startswith(opening) and closing not in text:
+            text = text[len(opening):]
+
+        # Closing bracket at end without matching opening
+        if text.endswith(closing) and opening not in text:
+            text = text[:-len(closing)]
+
+        # Sentence fully wrapped by exactly one pair
+        if (
+            text.startswith(opening)
+            and text.endswith(closing)
+            and text.count(opening) == 1
+            and text.count(closing) == 1
+        ):
+            text = text[len(opening):-len(closing)]
+
+    return text
 
 
 def contains_japanese_script(text: str) -> bool:

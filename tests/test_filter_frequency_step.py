@@ -2,8 +2,9 @@ from collections import OrderedDict
 import unittest
 
 from src.Artifact import Artifact
-from src.FilterFrequencyStep import FilterFrequencyStep, filter_useful_words
-from src.ProcessingStep import ProcessingStep
+from src.Pipeline import Pipeline
+from src.steps.FilterFrequencyStep import FilterFrequencyStep, filter_useful_words
+from src.steps.ProcessingStep import ProcessingStep
 
 from tests.helpers import make_stats
 
@@ -49,13 +50,13 @@ class FilterFrequencyStepTests(unittest.TestCase):
         sentences = ["sentence"]
         step = FilterFrequencyStep(min_frequency=4)
         events = []
-        step._progress_handler = lambda event: events.append(event)
-
-        artifact = step.process(Artifact(words, sentences=sentences))
+        artifact = Pipeline([step], on_progress=lambda *args, **kwargs: events.append((args, kwargs))).run(
+            Artifact(words, sentences=sentences),
+        )
 
         self.assertEqual(list(artifact.data.keys()), ["keep"])
         self.assertEqual(artifact.sentences, sentences)
-        self.assertEqual(events[-1].step, ProcessingStep.FILTERING)
+        self.assertEqual(events[-1][0][0], ProcessingStep.FILTERING)
 
 
 if __name__ == "__main__":

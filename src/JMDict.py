@@ -138,6 +138,19 @@ class JMDict:
 
         return "<br>".join(english_defs)
 
+    def get_reading(self, entry: Dict, word: str = None) -> str:
+        """Return the most appropriate reading for a JMdict entry."""
+        readings = entry["reading"]
+
+        if not readings:
+            return ""
+
+        if word:
+            for reading in readings:
+                if reading["form"] == word:
+                    return reading["form"]
+
+        return readings[0]["form"]
 
     def has_non_noun_sense(self, definitions: list[dict]) -> bool:
         """Return True if any sense has a POS other than noun-only."""

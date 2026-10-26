@@ -51,7 +51,7 @@ USEFUL_KANA_ONLY_POS = [
 ]
 
 # The fingerprint now only represents the *raw* Sudachi output.
-TOKENIZER_FINGERPRINT = "2026/10/18"
+TOKENIZER_FINGERPRINT = "2026/10/26-2"
 TOKENIZER_MODE = sudachi_tokenizer.Tokenizer.SplitMode.C
 
 MIN_SENTENCE_LENGTH = 10
@@ -324,10 +324,9 @@ def combine_tokens_jmdict(
             match_word = jmdict.get_best_entry(token_string)
 
             if match_word:
-                combined_reading = "".join(t["reading"] for t in token_list[i:j])
-                
                 # Fetch POS dynamically, falling back to "exp" (expression)
                 jmdict_pos = "exp"
+
                 if hasattr(jmdict, "get_pos"):
                     jmdict_pos = jmdict.get_pos(match_word)
                 elif hasattr(match_word, "pos"):
@@ -341,12 +340,13 @@ def combine_tokens_jmdict(
                     new_pos = list(token_list[j - 1]["pos"])
                 
                 lemma_str = match_word if isinstance(match_word, str) else combined_lemma
+                reading = jmdict.get_reading(match_word, token_string)
                 
                 merged_tokens.append({
                     "surface": combined_surface,
                     "lemma": lemma_str,
                     "base_form": lemma_str,
-                    "reading": combined_reading,
+                    "reading": reading,
                     "pos": new_pos,
                 })
                 i = j

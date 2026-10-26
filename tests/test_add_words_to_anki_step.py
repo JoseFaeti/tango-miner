@@ -1,7 +1,7 @@
 import unittest
 from unittest.mock import patch
 
-from src.AddWordsToAnkiStep import (
+from src.steps.AddWordsToAnkiStep import (
     anki_fields_differ_from_stats,
     export_words_to_anki,
     word_to_anki_fields,
@@ -31,7 +31,7 @@ def note(note_id, expression, tags=None, fields=None):
 
 class AddWordsToAnkiStepTests(unittest.TestCase):
     def test_word_to_anki_fields_serializes_stats_and_sentences(self):
-        sentence = Sentence("猫がいる", "tag", "origin.txt", "猫")
+        sentence = Sentence("猫がいる", "tag", "origin.txt", "猫", 100)
         stats = make_stats(
             index=1,
             frequency=2,
@@ -82,7 +82,7 @@ class AddWordsToAnkiStepTests(unittest.TestCase):
                 return None
             raise AssertionError(f"unexpected action {action}")
 
-        with patch("src.AddWordsToAnkiStep.anki_invoke", side_effect=fake_invoke):
+        with patch("src.steps.AddWordsToAnkiStep.anki_invoke", side_effect=fake_invoke):
             export_words_to_anki("Deck", words, "TangoMiner:Japanese")
 
         delete_calls = [params for action, params in calls if action == "deleteNotes"]
