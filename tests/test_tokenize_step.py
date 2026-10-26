@@ -26,6 +26,34 @@ class TokenizeStepTests(unittest.TestCase):
         self.assertIn("帰る", result.data)
         self.assertEqual(len(result.sentences), 1)
 
+    def test_keeps_kana_only_candidates_from_suspended_examples(self):
+        """Ambiguous kana remains available for recall-first mining."""
+        words, _ = tokenize([
+            "何をしようが豪快にプチ・ブレスを吐いて勝利となります。",
+            "さあ、さいだんのマナの種子に聖剣をかかげてみなさい。",
+        ])
+
+        self.assertIn("しよう", words)
+        self.assertIn("さい", words)
+
+    def test_keeps_kana_only_auxiliary_from_suspended_example(self):
+        """Grammar forms remain available for recall-first mining."""
+        words, _ = tokenize(["お前の後についてくから適当にがんばってくれ。"])
+
+        self.assertIn("てく", words)
+
+    def test_keeps_lexical_kana_adverb_from_suspended_examples(self):
+        """The gate must not discard useful kana-only lexical vocabulary."""
+        words, _ = tokenize(["長年探し続けて、ようやく見つけることができたわい。"])
+
+        self.assertIn("ようやく", words)
+
+    def test_keeps_long_kana_nouns(self):
+        """Kana-only source text can contain legitimate lexical nouns."""
+        words, _ = tokenize(["楽しいおもいでができた。"])
+
+        self.assertIn("おもいで", words)
+
 
 if __name__ == "__main__":
     unittest.main()

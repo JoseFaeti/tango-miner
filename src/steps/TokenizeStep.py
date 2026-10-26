@@ -28,7 +28,7 @@ SKIP_POS1_POS2 = {
 
 # This fingerprint represents the raw Sudachi output only. Merge-rule changes
 # deliberately do not invalidate the raw-token cache.
-TOKENIZER_FINGERPRINT = "2026/10/26-2"
+TOKENIZER_FINGERPRINT = "2026/10/26-5"
 TOKENIZER_MODE = sudachi_tokenizer.Tokenizer.SplitMode.C
 
 MIN_SENTENCE_LENGTH = 10

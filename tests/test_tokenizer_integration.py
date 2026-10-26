@@ -96,6 +96,20 @@ class TokenizerIntegrationTests(unittest.TestCase):
             ],
         )
 
+    def test_preserves_the_source_surface_when_merging_inflected_tokens(self):
+        raw_tokens = tokenize_sentence("おまちください。")
+        merged_tokens = combine_tokens_jmdict(raw_tokens, self.jmdict)
+
+        self.assertEqual(merged_tokens[0]["surface"], "おまち")
+        self.assertEqual(merged_tokens[0]["lemma"], "おまち")
+        self.assertNotIn("おまつ", [token["lemma"] for token in merged_tokens])
+
+    def test_does_not_turn_negative_grammar_into_the_unrelated_word_nushi(self):
+        raw_tokens = tokenize_sentence("少なくとも歓迎できる事態ではありませんし。")
+        merged_tokens = combine_tokens_jmdict(raw_tokens, self.jmdict)
+
+        self.assertNotIn("ぬし", [token["lemma"] for token in merged_tokens])
+
 
 if __name__ == "__main__":
     unittest.main()

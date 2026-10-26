@@ -109,13 +109,16 @@ def combine_tokens_jmdict(
     while i < n:
         match_found = False
         for j in range(min(n, i + max_lookahead), i + 1, -1):
-            combined_lemma = "".join(token["lemma"] for token in token_list[i:j])
             combined_surface = "".join(token["surface"] for token in token_list[i:j])
-            token_string = combined_lemma
+            # A merged card must be grounded in the text the learner will see.
+            # Matching a concatenation of dictionary lemmas can invent an
+            # unrelated word from inflected or grammatical tokens: for example,
+            # おまち (polite stem of 待つ) used to become おまつ (black pine).
+            # Surface matching still permits genuine compounds such as
+            # おまもり, while leaving non-exact sequences as their original
+            # tokens for high-recall mining.
+            token_string = combined_surface
             definitions = jmdict.lookup_word(token_string)
-            if not definitions:
-                token_string = combined_surface
-                definitions = jmdict.lookup_word(token_string)
             if not definitions:
                 continue
 
@@ -143,7 +146,7 @@ def combine_tokens_jmdict(
             else:
                 new_pos = list(token_list[j - 1]["pos"])
 
-            lemma_str = match_word if isinstance(match_word, str) else combined_lemma
+            lemma_str = match_word if isinstance(match_word, str) else token_string
             merged_tokens.append({
                 "surface": combined_surface,
                 "lemma": lemma_str,

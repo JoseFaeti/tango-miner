@@ -26,6 +26,11 @@ class TokenizeHelperTests(unittest.TestCase):
         self.assertTrue(is_useless(token("は", pos=("助詞", "係助詞", "*", "*"))))
         self.assertTrue(is_useless(token("スーパー")))
         self.assertTrue(is_useless(token("言っ")))
+        self.assertFalse(is_useless(token("しよう")))
+        self.assertFalse(is_useless(token("てく", pos=("助動詞", "*", "*", "*"))))
+        self.assertFalse(is_useless(token("いる", pos=("動詞", "非自立可能", "*", "*"))))
+        self.assertFalse(is_useless(token("ようやく", pos=("副詞", "*", "*", "*"))))
+        self.assertFalse(is_useless(token("おもいで")))
         self.assertFalse(is_useless(token("言葉")))
 
     def test_japanese_script_helpers_distinguish_supported_characters(self):
