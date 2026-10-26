@@ -289,6 +289,28 @@ def _has_useful_kana_only_sense(definitions: list) -> bool:
     return False
 
 
+def _is_prefixed_kana_noun(token_list: list[dict], definitions: list) -> bool:
+    """Return True for a lexical kana noun split after a Sudachi prefix.
+
+    Kana-only noun matches are normally too permissive: adjacent grammar tokens
+    can accidentally spell a JMdict noun.  A leading ``接頭辞`` is a stronger
+    morphological signal that the whole sequence is one lexical item, such as
+    ``お`` + ``まもり`` -> ``おまもり``.
+    """
+    if len(token_list) < 2 or token_list[0]["pos"][0] != "接頭辞":
+        return False
+
+    for definition in definitions:
+        for sense in _get_field(definition, "senses", []):
+            pos = _get_field(sense, "pos", [])
+            if isinstance(pos, str):
+                pos = [pos]
+            if any(p.lower().startswith("noun") for p in pos):
+                return True
+
+    return False
+
+
 def combine_tokens_jmdict(
     token_list: list[dict],
     jmdict: JMDict,
@@ -317,8 +339,16 @@ def combine_tokens_jmdict(
                 # no definition found
                 continue
 
-            if not has_kanji(token_string) and not _has_useful_kana_only_sense(definitions):
-                # only allow a kana-only word if it has at least a useful sense, to reduce the number of false positives.
+            is_prefixed_kana_noun = _is_prefixed_kana_noun(
+                token_list[i:j], definitions
+            )
+            if (
+                not has_kanji(token_string)
+                and not _has_useful_kana_only_sense(definitions)
+                and not is_prefixed_kana_noun
+            ):
+                # Most kana-only nouns are too ambiguous to merge. A noun split
+                # after a Sudachi prefix is a high-confidence lexical exception.
                 continue
 
             match_word = jmdict.get_best_entry(token_string)

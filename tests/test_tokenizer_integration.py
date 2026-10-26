@@ -65,6 +65,22 @@ class TokenizerIntegrationTests(unittest.TestCase):
             ],
         )
 
+    def test_merges_a_kana_only_noun_after_a_prefix(self):
+        """Keep lexical kana nouns such as おまもり, not just まもり."""
+        raw_tokens = tokenize_sentence("おまもりをください。")
+        merged_tokens = combine_tokens_jmdict(raw_tokens, self.jmdict)
+
+        self.assertEqual(
+            [token["surface"] for token in raw_tokens],
+            ["お", "まもり", "を", "ください", "。"],
+        )
+        self.assertEqual(
+            [token["surface"] for token in merged_tokens],
+            ["おまもり", "を", "ください", "。"],
+        )
+        self.assertEqual(merged_tokens[0]["lemma"], "おまもり")
+        self.assertEqual(merged_tokens[0]["reading"], "おまもり")
+
     def test_merges_a_mixed_script_compound_without_touching_grammar(self):
         raw_tokens = tokenize_sentence("機械じかけの扉。")
         merged_tokens = combine_tokens_jmdict(raw_tokens, self.jmdict)
