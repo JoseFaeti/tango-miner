@@ -19,7 +19,9 @@ from src.steps.NormalizeSentences import NormalizeSentences
 from src.steps.ProcessingStep import ProcessingStep
 from src.steps.ReadFilesStep import ReadFilesStep
 from src.steps.ScoreWordStep import ScoreWordStep
-from src.steps.TokenizeStep import TokenizeStep
+from src.steps.TokenizeStep import RawTokenizeStep
+from src.steps.MergeTokensStep import MergeTokensStep
+from src.steps.BuildWordStatsStep import BuildWordStatsStep
 from src.steps.FilterFrequencyStep import FilterFrequencyStep
 from src.steps.WriteOutputStep import WriteOutputStep
 
@@ -46,6 +48,8 @@ def print_step_progress(step, amount, total, duration=None, additional_text=""):
 
     step_text = {
         step.TOKENIZING: "Tokenizing",
+        step.TOKEN_MERGING: "Merging token compounds",
+        step.WORD_COLLECTION: "Collecting tokens",
         step.FILTERING: "Filtering useful vocab",
         step.READINGS: "Adding readings",
         step.DEFINITIONS: "Adding definitions",
@@ -134,13 +138,15 @@ def process_script():
             DumpSentences("sentences.txt") if debug else None,
             NormalizeSentences(),
             DumpSentences("sentences-normalized.txt") if debug else None,
-            TokenizeStep(),
+            RawTokenizeStep(),
+            MergeTokensStep(),
+            BuildWordStatsStep(),
             FilterFrequencyStep(min_frequency),
             AddDefinitionsStep(debug=debug),
             ScoreWordStep(),
             AttachSentencesStep(),
             WriteOutputStep(final_path),
-            AddWordsToAnkiStep()
+            # AddWordsToAnkiStep()
         ]
 
         pipeline = Pipeline(steps=steps, on_progress=print_step_progress)
