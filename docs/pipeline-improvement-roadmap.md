@@ -70,7 +70,9 @@ copy of the fully resolved configuration into each diagnostic run.  Include a
 
 ### 2. Make side effects explicit and safe
 
-The pipeline runs `AddWordsToAnkiStep` after CSV output only when
+The Anki step now previews counts and requires confirmation before changes;
+`[anki] output_only = true` prevents changes altogether. The pipeline runs
+`AddWordsToAnkiStep` after CSV output only when
 `[anki] enabled = true` in the configuration. That step also removes notes
 that are no longer in the current result.  A partial
 input selection, altered filter setting, or failed earlier run can therefore

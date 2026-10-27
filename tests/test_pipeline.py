@@ -19,6 +19,17 @@ class AppendStep(PipelineStep):
 
 
 class PipelineTests(unittest.TestCase):
+    def test_failed_stage_retains_error_and_elapsed_time(self):
+        class FailingStep(PipelineStep):
+            def process(self, artifact):
+                raise ValueError("broken input")
+        pipeline = Pipeline([AppendStep("b"), FailingStep()])
+        with self.assertRaisesRegex(ValueError, "broken input"):
+            pipeline.run(Artifact("a"))
+        self.assertEqual([record["status"] for record in pipeline.stage_records], ["completed", "failed"])
+        self.assertIn("broken input", pipeline.stage_records[-1]["error"])
+        self.assertGreaterEqual(pipeline.duration, 0)
+
     def test_run_passes_data_through_steps_and_preserves_tmpdir(self):
         tmpdir = Path("tmp")
         events = []

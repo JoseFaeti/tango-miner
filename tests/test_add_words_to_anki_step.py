@@ -46,6 +46,33 @@ class AddWordsToAnkiStepTests(unittest.TestCase):
         self.assertEqual((args["batch_size"], args["note_fetching_batch_size"]), (3, 7))
         self.assertEqual(args["invoke"].keywords, {"endpoint": config.endpoint, "timeout": 2})
 
+    def test_output_only_reports_plan_after_progress_without_mutations(self):
+        from io import StringIO
+        from tango_miner import print_step_progress
+
+        calls = []
+        def fake(action, params=None, **kwargs):
+            calls.append(action)
+            if action == "modelNames": return ["Custom"]
+            if action == "findNotes": return [] if "Expression:" in params["query"] else [1, 2]
+            if action == "notesInfo": return [note(1, "猫", fields={"Meaning": "old"}), note(2, "古い")]
+            raise AssertionError(f"unexpected mutation: {action}")
+
+        words = {"猫": make_stats(index=1, frequency=2, score=123.45), "犬": make_stats()}
+        config = AnkiConfig(enabled=True, model="Custom", output_only=True)
+        output = StringIO()
+        with patch("src.steps.AddWordsToAnkiStep.anki_invoke", side_effect=fake), \
+             patch("sys.stdout", output), patch("builtins.input") as prompt:
+            Pipeline([AddWordsToAnkiStep(config)], on_progress=print_step_progress).run(Artifact(words))
+        prompt.assert_not_called()
+        rendered = output.getvalue()
+        self.assertIn("Changes: 1 to add, 1 to modify, 1 to delete.", rendered)
+        self.assertIn("Anki output-only mode: no changes applied.", rendered)
+        self.assertLess(rendered.index("Changes:"), rendered.index("Anki output-only mode:"))
+        self.assertNotIn("Anki plan:", rendered)
+        self.assertNotIn("0 added, 0 updated, 0 deleted", rendered)
+        self.assertFalse(set(calls) & {"deleteNotes", "multi", "addNotes", "createModel"})
+
     def test_request_uses_configured_endpoint_and_timeout(self):
         response = Mock()
         response.read.return_value = json.dumps({"error": None, "result": 42}).encode()
@@ -65,12 +92,75 @@ class AddWordsToAnkiStepTests(unittest.TestCase):
             if action == "notesInfo": return [note(i, str(i)) for i in params["notes"]]
             if action == "deleteNotes": return None
             raise AssertionError(action)
-        result = export_words_to_anki("Deck", {}, "Custom", invoke=fake, batch_size=2, note_fetching_batch_size=2)
+        with patch("builtins.input", return_value="y"):
+            result = export_words_to_anki("Deck", {}, "Custom", invoke=fake, batch_size=2, note_fetching_batch_size=2)
         self.assertEqual(result, (0, 0, 3))
         self.assertEqual([p["notes"] for action, p in calls if action == "notesInfo"], [[1, 2], [3]])
         self.assertEqual([len(p["notes"]) for action, p in calls if action == "deleteNotes"], [2, 1])
         self.assertIn('note:"Custom"', next(p["query"] for action, p in calls if action == "findNotes"))
         self.assertFalse(any(action == "createModel" for action, _ in calls))
+
+    def test_preview_and_confirmation_gate_all_mutations(self):
+        words = {"犬": make_stats(index=1, frequency=2, score=123.45)}
+        for output_only, answer in [(True, "y"), (False, "n"), (False, None), (False, "y")]:
+            with self.subTest(output_only=output_only, answer=answer):
+                calls = []
+                def fake(action, params=None):
+                    calls.append(action)
+                    if action == "modelNames": return []
+                    if action == "findNotes": return []
+                    if action in {"createModel", "addNotes"}: return None
+                    raise AssertionError(action)
+                with patch("builtins.input", side_effect=EOFError if answer is None else None, return_value=answer) as prompt, patch("builtins.print") as output:
+                    result = export_words_to_anki("Deck", words, "Missing", invoke=fake, output_only=output_only)
+                self.assertIn("Anki plan: 1 to add, 0 to modify, 0 to delete.", [c.args[0] for c in output.call_args_list])
+                if output_only:
+                    prompt.assert_not_called()
+                if not output_only and answer == "y":
+                    self.assertEqual(result, (1, 0, 0))
+                    self.assertIn("createModel", calls)
+                    self.assertIn("addNotes", calls)
+                else:
+                    self.assertEqual(result, (0, 0, 0))
+                    self.assertNotIn("createModel", calls)
+                    self.assertNotIn("addNotes", calls)
+
+    def test_anki_plan_status_records_preview_cancel_and_failure(self):
+        words = {"犬": make_stats()}
+        for mode, answer, fail, expected in [(True, None, False, "preview_only"),
+                                             (False, "n", False, "cancelled"),
+                                             (False, "y", True, "applying")]:
+            with self.subTest(mode=mode, answer=answer):
+                def fake(action, params=None):
+                    if action == "modelNames": return ["Custom"]
+                    if action == "findNotes": return []
+                    if action == "addNotes" and fail: raise RuntimeError("network failure")
+                    raise AssertionError(action)
+                plan, statuses = [], []
+                with patch("builtins.input", return_value=answer), patch("builtins.print"):
+                    if fail:
+                        with self.assertRaises(RuntimeError):
+                            export_words_to_anki("Deck", words, "Custom", invoke=fake, output_only=mode,
+                                                 preview_handler=plan.append, status_handler=statuses.append)
+                    else:
+                        export_words_to_anki("Deck", words, "Custom", invoke=fake, output_only=mode,
+                                             preview_handler=plan.append, status_handler=statuses.append)
+                self.assertEqual(plan, [(1, 0, 0, False)])
+                self.assertEqual(statuses[-1], expected)
+
+    def test_declining_mixed_plan_never_writes(self):
+        calls = []
+        def fake(action, params=None):
+            calls.append(action)
+            if action == "modelNames": return ["Custom"]
+            if action == "findNotes": return [] if "Expression:" in params["query"] else [1, 2]
+            if action == "notesInfo": return [note(1, "猫", fields={"Meaning": "old"}), note(2, "古い")]
+            raise AssertionError(f"unexpected mutation: {action}")
+        words = {"猫": make_stats(index=1, frequency=2, score=123.45), "犬": make_stats()}
+        with patch("builtins.input", return_value="n"), patch("builtins.print") as output:
+            self.assertEqual(export_words_to_anki("Deck", words, "Custom", invoke=fake), (0, 0, 0))
+        output.assert_any_call("Anki plan: 1 to add, 1 to modify, 1 to delete.")
+        self.assertFalse(set(calls) & {"deleteNotes", "multi", "addNotes", "createModel"})
 
     def test_word_to_anki_fields_serializes_stats_and_sentences(self):
         sentence = Sentence("猫がいる", "tag", "origin.txt", "猫", 100)
@@ -124,7 +214,7 @@ class AddWordsToAnkiStepTests(unittest.TestCase):
                 return None
             raise AssertionError(f"unexpected action {action}")
 
-        with patch("src.steps.AddWordsToAnkiStep.anki_invoke", side_effect=fake_invoke):
+        with patch("src.steps.AddWordsToAnkiStep.anki_invoke", side_effect=fake_invoke), patch("builtins.input", return_value="y"):
             export_words_to_anki("Deck", words, "TangoMiner:Japanese")
 
         delete_calls = [params for action, params in calls if action == "deleteNotes"]

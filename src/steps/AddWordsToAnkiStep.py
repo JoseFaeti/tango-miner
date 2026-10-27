@@ -22,19 +22,34 @@ class AddWordsToAnkiStep(PipelineStep):
     def __init__(self, config: AnkiConfig | None = None):
         self.config = config if config is not None else AnkiConfig()
         self._processing_step = ProcessingStep.ANKI_EXPORT
+        self.outcome = {"status": "not_started", "plan": None}
 
 
     def process(self, artifact: Artifact) -> Artifact:
         invoke = partial(anki_invoke, endpoint=self.config.endpoint, timeout=self.config.timeout_seconds)
+        preview = []
+        self.outcome = {"status": "preparing", "plan": None}
+        def record_plan(plan):
+            preview.append(plan)
+            add, modify, delete, model = plan
+            self.outcome["plan"] = {"add": add, "modify": modify, "delete": delete, "create_model": model}
+        def record_status(status):
+            self.outcome["status"] = status
         added, updated, deleted = export_words_to_anki(
             deck_name=self.config.deck, words=artifact.data, model_name=self.config.model,
             progress_handler=self.progress, invoke=invoke, batch_size=self.config.batch_size,
-            note_fetching_batch_size=self.config.note_fetch_batch_size,
+            note_fetching_batch_size=self.config.note_fetch_batch_size, output_only=self.config.output_only,
+            preview_handler=record_plan, status_handler=record_status,
         )
         
-        self.done(
-            f"{added} added, {updated} updated, {deleted} deleted."
-        )
+        if self.config.output_only and preview:
+            to_add, to_modify, to_delete, create_model = preview[0]
+            self.done(f"Changes: {to_add} to add, {to_modify} to modify, {to_delete} to delete.")
+            if create_model:
+                print(f"The note model {self.config.model!r} will also be created.")
+            print("Anki output-only mode: no changes applied.")
+        else:
+            self.done(f"{added} added, {updated} updated, {deleted} deleted.")
 
         return artifact
 
@@ -74,16 +89,14 @@ def export_words_to_anki(
     invoke=None,
     batch_size=50,
     note_fetching_batch_size=1000,
+    output_only=False,
+    preview_handler=None,
+    status_handler=None,
 ):
     invoke = anki_invoke if invoke is None else invoke
     existing_words = {}
 
-    created = ensure_model_exists(model_name, invoke=invoke)
-
-    # if created:
-    #     print("Model created")
-    # else:
-    #     print("Model already exists")
+    model_exists = model_name in invoke("modelNames")
 
     # --------------------------------------------------
     # 1. Fetch ALL existing note IDs for this model/deck
@@ -126,11 +139,6 @@ def export_words_to_anki(
     ]
 
     total_notes_to_delete = len(obsolete_note_ids)
-
-    for i in range(0, total_notes_to_delete, batch_size):
-        invoke("deleteNotes", {
-            "notes": obsolete_note_ids[i:i + batch_size]
-        })
 
     # --------------------------------------------------
     # 3. Prepare add + update batches
@@ -212,6 +220,36 @@ def export_words_to_anki(
             "Preparing actions..."
         )
 
+    total_notes_to_add = len(notes_to_add)
+    if preview_handler is not None:
+        preview_handler((total_notes_to_add, total_notes_to_update, total_notes_to_delete,
+                         not model_exists and bool(total_notes_to_add)))
+    if output_only and preview_handler is not None:
+        if status_handler: status_handler("preview_only")
+        return 0, 0, 0
+    print(f"Anki plan: {total_notes_to_add} to add, {total_notes_to_update} to modify, {total_notes_to_delete} to delete.")
+    if not model_exists and total_notes_to_add:
+        print(f"The note model {model_name!r} will also be created.")
+    if output_only:
+        print("Anki output-only mode: no changes applied.")
+        return 0, 0, 0
+    if not (total_notes_to_add or total_notes_to_update or total_notes_to_delete):
+        if status_handler: status_handler("no_changes")
+        return 0, 0, 0
+    try:
+        approved = input("Apply these Anki changes? [y/N] ").strip().lower() == "y"
+    except EOFError:
+        approved = False
+    if not approved:
+        print("Anki changes cancelled.")
+        if status_handler: status_handler("cancelled")
+        return 0, 0, 0
+    if status_handler: status_handler("applying")
+    if not model_exists and total_notes_to_add:
+        ensure_model_exists(model_name, invoke=invoke)
+    for i in range(0, total_notes_to_delete, batch_size):
+        invoke("deleteNotes", {"notes": obsolete_note_ids[i:i + batch_size]})
+
     total = len(update_actions) + len(notes_to_add)
     processed = 0
 
@@ -249,6 +287,7 @@ def export_words_to_anki(
             f"Adding {total_notes_to_add} new notes..."
         )
 
+    if status_handler: status_handler("applied")
     return total_notes_to_add, total_notes_to_update, total_notes_to_delete
 
 

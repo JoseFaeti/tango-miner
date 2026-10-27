@@ -10,6 +10,7 @@ from src.Artifact import Artifact
 from src.Column import Column
 from src.Pipeline import Pipeline
 from src.RunConfig import resolve_config
+from src.RunArchive import create_run_archive, collect_dependencies, write_run_summary
 
 from src.steps.AddDefinitionsStep import AddDefinitionsStep
 from src.steps.AddWordsToAnkiStep import AddWordsToAnkiStep
@@ -95,7 +96,7 @@ def process_script(argv=None):
     parser = argparse.ArgumentParser(description="Process a Japanese text and extract word frequencies.")
 
     parser.add_argument("--input", "-i", required=False, help="Path to input text file")
-    parser.add_argument("--output", "-o", required=False, help="Path to output CSV file")
+    parser.add_argument("--output", "-o", required=False, help="CSV filename or output directory; runs are saved in its runs subdirectory")
 
     parser.add_argument("--tags", "-t", required=False, help="Tags to add to every word")
     parser.add_argument("--min-frequency", "--minFrequency", "-f", dest="min_frequency", type=int, required=False, help="Min amount of times a word needs to appear in the text to be included")
@@ -148,12 +149,15 @@ def process_script(argv=None):
 
         print(f'Mining all relevant files from directory {input_path_obj.resolve()}...')
 
-        final_path = resolve_directory_output_path(input_path_obj, config.output.path)
+        output_path = resolve_directory_output_path(input_path_obj, config.output.path)
+        final_path = create_run_archive(output_path, config)
 
         print(f'output path: {final_path.resolve()}')
 
         steps = [
-            GatherInputFilesStep(input_path_obj, include_subdirectories=recursive, extensions=config.input.extensions),
+            GatherInputFilesStep(input_path_obj, include_subdirectories=recursive, extensions=config.input.extensions,
+                                 excluded_directory=final_path.parent.parent,
+                                 manifest_path=final_path.parent / "input-manifest.json"),
             ReadFilesStep(encoding=config.input.encoding),
             ExtractSentencesStep(),
             DumpSentences("sentences.txt") if debug else None,
@@ -171,8 +175,28 @@ def process_script(argv=None):
             AddWordsToAnkiStep(config.anki) if config.anki.enabled else None,
         ]
 
+        summary = {"status": "running", "dependencies": collect_dependencies(config),
+                   "retokenize_requested": args.retokenize, "stages": [],
+                   "anki": {"status": "not_started" if config.anki.enabled else "disabled"}}
+        write_run_summary(final_path.parent, summary)
         pipeline = Pipeline(steps=[step for step in steps if step is not None], on_progress=print_step_progress)
-        pipeline.run(Artifact(input_path, tmpdir=tmpdir))
+        try:
+            pipeline.run(Artifact(input_path, tmpdir=tmpdir))
+            summary["status"] = "completed"
+        except BaseException as exc:
+            summary["status"] = "failed"
+            summary["error"] = f"{type(exc).__name__}: {exc}"
+            raise
+        finally:
+            records = getattr(pipeline, "stage_records", [])
+            summary["stages"] = records if isinstance(records, list) else []
+            for record in summary["stages"]:
+                if "anki" in record:
+                    summary["anki"] = record["anki"]
+            duration = getattr(pipeline, "duration", None)
+            if isinstance(duration, (int, float)):
+                summary["duration_seconds"] = duration
+            write_run_summary(final_path.parent, summary)
 
     print(f'All tasks completed in {pipeline.duration:.1f} seconds.')
 

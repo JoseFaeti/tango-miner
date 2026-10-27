@@ -25,7 +25,7 @@ class RunConfigTests(unittest.TestCase):
         self.assertEqual(RunConfig().output, config.output)
 
     def test_invalid_config_rejected(self):
-        for contents in ('config_version = 2', '[filter]\nmin_frequency = 0', '[input]\nrecursiv = true', '[filter]\nmin_frequency = true', '[anki]\nenabled = 1', '[filter]\nkeep_percent = 0', '[filter]\nmin_frequency_per_source = -1', '[input]\nextensions = [1]', '[scoring]\ntag_saturation = 1', '[scoring]\nfrequency_weight = 0\nposition_weight = 0', '[scoring]\nmax_score = inf', '[scoring]\nminimum_tag_factor = 1.1', '[sentences]\nmax_sentences = 0', '[sentences]\nlength_divisor = 0', '[sentences]\nunknown_word_penalty = -1', '[sentences]\nvariance_divisor = inf', '[sentences]\nmin_word_count = true', '[merge]\nmax_lookahead = 1', '[merge]\nmax_lookahead = true', '[dictionary]\njmdict_path = ""', '[anki]\nendpoint = "nope"', '[anki]\ntimeout_seconds = 0', '[anki]\nbatch_size = 0', '[anki]\nnote_fetch_batch_size = true', '[anki]\ndeck = " "', '[tokenizer]\nconfig_path = ""', '[tokenizer]\ndictionary = true'):
+        for contents in ('config_version = 2', '[filter]\nmin_frequency = 0', '[input]\nrecursiv = true', '[filter]\nmin_frequency = true', '[anki]\nenabled = 1', '[anki]\noutput_only = 1', '[filter]\nkeep_percent = 0', '[filter]\nmin_frequency_per_source = -1', '[input]\nextensions = [1]', '[scoring]\ntag_saturation = 1', '[scoring]\nfrequency_weight = 0\nposition_weight = 0', '[scoring]\nmax_score = inf', '[scoring]\nminimum_tag_factor = 1.1', '[sentences]\nmax_sentences = 0', '[sentences]\nlength_divisor = 0', '[sentences]\nunknown_word_penalty = -1', '[sentences]\nvariance_divisor = inf', '[sentences]\nmin_word_count = true', '[merge]\nmax_lookahead = 1', '[merge]\nmax_lookahead = true', '[dictionary]\njmdict_path = ""', '[anki]\nendpoint = "nope"', '[anki]\ntimeout_seconds = 0', '[anki]\nbatch_size = 0', '[anki]\nnote_fetch_batch_size = true', '[anki]\ndeck = " "', '[tokenizer]\nconfig_path = ""', '[tokenizer]\ndictionary = true'):
             with self.subTest(contents=contents), tempfile.TemporaryDirectory() as directory:
                 path = Path(directory) / 'config.toml'
                 path.write_text(contents, encoding='utf-8')
@@ -92,6 +92,7 @@ class RunConfigTests(unittest.TestCase):
 
     def test_anki_is_disabled_by_default_and_can_be_enabled(self):
         self.assertFalse(resolve_config().anki.enabled)
+        self.assertTrue(resolve_config().anki.output_only)
         with tempfile.TemporaryDirectory() as directory:
             path = Path(directory) / 'config.toml'
             path.write_text('[anki]\nenabled = true\n', encoding='utf-8')

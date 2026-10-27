@@ -1,5 +1,6 @@
 import unittest
 import tempfile
+import json
 from pathlib import Path
 from unittest.mock import patch
 
@@ -16,6 +17,29 @@ from src.steps.MergeTokensStep import MergeTokensStep
 
 
 class TangoMinerTests(unittest.TestCase):
+    def setUp(self):
+        dependency_patch = patch("tango_miner.collect_dependencies", return_value={})
+        dependency_patch.start()
+        self.addCleanup(dependency_patch.stop)
+
+    def test_failed_pipeline_writes_error_and_stage_summary(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            config = Path(tmp) / "config.toml"
+            config.write_text("", encoding="utf-8")
+            with patch("tango_miner.Pipeline") as factory:
+                pipeline = factory.return_value
+                pipeline.run.side_effect = RuntimeError("example failure")
+                pipeline.stage_records = [{"name": "ReadFilesStep", "status": "failed"}]
+                pipeline.duration = 0.1
+                with self.assertRaisesRegex(RuntimeError, "example failure"):
+                    process_script(["--config", str(config), "--input", tmp])
+            summary_path, = (Path(tmp) / "runs").glob("*/summary.json")
+            summary = json.loads(summary_path.read_text(encoding="utf-8"))
+            self.assertEqual(summary["status"], "failed")
+            self.assertIn("example failure", summary["error"])
+            self.assertEqual(summary["stages"][0]["name"], "ReadFilesStep")
+            self.assertEqual(summary["anki"]["status"], "disabled")
+
     def test_pipeline_receives_discovery_and_filter_policies(self):
         with tempfile.TemporaryDirectory() as tmp:
             config = Path(tmp) / "config.toml"

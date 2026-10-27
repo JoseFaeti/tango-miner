@@ -10,6 +10,13 @@ encoding = "utf-8"
 # File types discovered in input directories.
 extensions = [".tsv", ".txt", ".csv", ".pdf", ".xml", ".html", ".srt"]
 
+[output]
+# Optional CSV filename or directory; output is archived in a runs subdirectory.
+path = "."
+
+[debug]
+enabled = true
+
 [tokenizer]
 # Sudachi JSON configuration and installed system dictionary name or path.
 # Relative paths are resolved from the current working directory.
@@ -63,17 +70,12 @@ min_word_count = 6
 # Larger values reduce the penalty for variance in word difficulty.
 variance_divisor = 100000.0
 
-[output]
-# Optional CSV path or directory; defaults to a CSV inside the input directory.
-# path = "output.csv"
-
-[debug]
-enabled = true
-
 [anki]
 # Enables AnkiConnect export after CSV output. This adds and updates notes,
 # changes their tags, and deletes matching deck notes absent from this run.
-enabled = false
+enabled = true
+# Preview the Anki changes without applying them. Set false to allow confirmation.
+output_only = true
 # AnkiConnect endpoint and request timeout in seconds.
 endpoint = "http://127.0.0.1:8765"
 timeout_seconds = 10.0

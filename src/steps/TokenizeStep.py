@@ -77,9 +77,11 @@ class RawTokenizeStep(PipelineStep):
         self.config = config if config is not None else TokenizerConfig()
         self._processing_step = ProcessingStep.TOKENIZING
         self.force_retokenize = force_retokenize
+        self.cache_stats = {"forced": force_retokenize, "hits": 0, "misses": 0, "disabled": 0}
 
     def process(self, artifact: Artifact) -> Artifact:
         files: list[tuple[Path, list[str]]] = artifact.data
+        self.cache_stats.update(hits=0, misses=0, disabled=0)
         cache = TokenCache(
             cache_dir=Path(appdirs.user_cache_dir("tango_miner")),
             tokenizer_fingerprint=tokenizer_fingerprint(self.config),
@@ -95,7 +97,7 @@ class RawTokenizeStep(PipelineStep):
             tokenized_sentences.extend(
                 tokenize_raw_sentences(
                     sentences, tag=tag, source_path=path, cache=cache,
-                    force_retokenize=self.force_retokenize, tokenizer_config=self.config,
+                    force_retokenize=self.force_retokenize, tokenizer_config=self.config, cache_stats=self.cache_stats,
                 )
             )
             completed_sentences += len(sentences)
@@ -133,6 +135,7 @@ class TokenizeStep(PipelineStep):
 def tokenize_raw_sentences(
     sentences_text: list[str], *, tag: str | None, source_path: Path, cache=None,
     force_retokenize: bool = False, tokenizer_config: TokenizerConfig | None = None,
+    cache_stats: dict | None = None,
 ) -> list[TokenizedSentence]:
     """Tokenize one source file, loading/storing only raw Sudachi output."""
     all_sentence_tokens = None
@@ -144,6 +147,10 @@ def tokenize_raw_sentences(
             payload = cache.load_by_hash(hash_)
             if payload:
                 all_sentence_tokens = payload["tokens"]
+
+    if cache_stats is not None:
+        key = "disabled" if not cache else "hits" if all_sentence_tokens is not None else "misses"
+        cache_stats[key] += 1
 
     if all_sentence_tokens is None:
         tokenizer_obj = get_tokenizer(tokenizer_config) if tokenizer_config is not None else get_tokenizer()

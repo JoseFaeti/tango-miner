@@ -71,14 +71,16 @@ class TokenizerPipelineTests(unittest.TestCase):
             cache.flush_mtime_index()
             tokenizer = Mock()
             tokenizer.tokenize.return_value = [object()]
+            cache_stats = {"hits": 0, "misses": 0, "disabled": 0}
             with patch("src.steps.TokenizeStep.get_tokenizer", return_value=tokenizer), \
                  patch("src.steps.TokenizeStep.sudachi_node_to_dict", return_value={"surface": "new"}):
-                cached = tokenize_raw_sentences(["猫"], tag="tag", source_path=source, cache=cache)
+                cached = tokenize_raw_sentences(["猫"], tag="tag", source_path=source, cache=cache, cache_stats=cache_stats)
                 self.assertEqual(cached[0].tokens, [{"surface": "old"}])
                 tokenizer.tokenize.assert_not_called()
-                refreshed = tokenize_raw_sentences(["猫"], tag="tag", source_path=source, cache=cache, force_retokenize=True)
+                refreshed = tokenize_raw_sentences(["猫"], tag="tag", source_path=source, cache=cache, force_retokenize=True, cache_stats=cache_stats)
                 self.assertEqual(refreshed[0].tokens, [{"surface": "new"}])
                 tokenizer.tokenize.assert_called_once()
+                self.assertEqual(cache_stats, {"hits": 1, "misses": 1, "disabled": 0})
             cache.flush_mtime_index()
             reloaded = TokenCache(cache_dir, "version")
             with patch("src.steps.TokenizeStep.get_tokenizer") as get_tokenizer:

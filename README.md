@@ -28,13 +28,32 @@ configured in `config.toml`, as are the Sudachi config and dictionary; some
 resources are local and ignored by Git. A reproducible dependency and setup
 specification is still needed. Check the current configuration before a run.
 
-The output writer creates the requested CSV plus `.dropped.csv` and
-`.sentence.csv` companions, overwriting existing files at those paths. The
+Each run writes the requested CSV and its `.dropped.csv` and `.sentence.csv`
+companions under `runs/<local-date>_<time>_<git-revision>/` beside the
+requested output path. Repeated runs in the same minute receive a numbered
+suffix rather than overwriting earlier files. The run also saves the resolved
+`config.json`, `notes.txt`, and an `input-manifest.json` with SHA-256 hashes
+of discovered input files. `summary.json` records run status, per-stage counts
+and durations, file-level tokenizer cache hits and misses, the retokenization
+option, dependency versions and dictionary hashes, and the Anki plan and
+outcome. It remains `running` if the process is terminated before cleanup;
+an interrupted Anki apply can have made partial changes. Hashing large
+dictionaries adds startup time. Git changes, including untracked files, are saved
+in `changes.patch` when the checkout is dirty. Ignored files (including local
+dictionaries) are not included, so their versions should be recorded in notes
+when needed. If Git is unavailable, the folder uses `unknown` and notes the
+error. Recognized run archives are excluded from recursive input discovery even if
+the output location changes; other input folders named `runs` remain eligible.
+
+The
 Anki export is disabled by default. Setting `[anki] enabled = true` in
-`config.toml` enables the existing AnkiConnect export after CSV output. It adds
-and updates notes, changes tags, and deletes notes in the configured deck and
-model that are absent from the current results. A partial corpus can therefore
-delete existing notes; review the input and settings before enabling it.
+`config.toml` enables the AnkiConnect step after CSV output. It reads the deck
+and reports how many notes would be added, modified (including tag changes),
+and deleted. `[anki] output_only = true` (the default) stops after this preview.
+Set it to `false` to allow changes; the step then asks for explicit confirmation
+before creating a model or changing notes. Declining or unavailable input leaves
+Anki unchanged. Notes in the configured deck and model that are absent from the
+current results are deleted when approved, so a partial corpus can remove notes.
 
 ## Run configuration
 
