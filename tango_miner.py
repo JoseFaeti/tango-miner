@@ -9,6 +9,7 @@ from os import path
 from src.Artifact import Artifact
 from src.Column import Column
 from src.Pipeline import Pipeline
+from src.RunConfig import resolve_config
 
 from src.steps.AddDefinitionsStep import AddDefinitionsStep
 from src.steps.AddWordsToAnkiStep import AddWordsToAnkiStep
@@ -89,28 +90,48 @@ def _print_progress_line(text: str, newline: bool):
     sys.stdout.flush()
 
 
-def process_script():
+def process_script(argv=None):
     # Define command-line arguments
     parser = argparse.ArgumentParser(description="Process a Japanese text and extract word frequencies.")
 
-    parser.add_argument("--input", "-i", required=True, help="Path to input text file")
+    parser.add_argument("--input", "-i", required=False, help="Path to input text file")
     parser.add_argument("--output", "-o", required=False, help="Path to output CSV file")
 
     parser.add_argument("--tags", "-t", required=False, help="Tags to add to every word")
-    parser.add_argument("--minFrequency", "-f", type=int, required=False, help="Min amount of times a word needs to appear in the text to be included")
-    parser.add_argument("--debug", "-d", action='store_true')
-    parser.add_argument("--recursive", "-r", required=False, action='store_true')
+    parser.add_argument("--min-frequency", "--minFrequency", "-f", dest="min_frequency", type=int, required=False, help="Min amount of times a word needs to appear in the text to be included")
+    parser.add_argument("--debug", "-d", action='store_true', default=None)
+    parser.add_argument("--recursive", "-r", required=False, action='store_true', default=None)
     parser.add_argument("--user-dict", required=False)
 
-    # Parse arguments
-    args = parser.parse_args()
-    input_path = args.input
+    parser.add_argument("--config", default=Path(__file__).resolve().parent / "config.toml",
+                        help="Load settings from a TOML file (default: config.toml)")
+    parser.add_argument("--show-config", action="store_true", help="Print resolved configuration and exit")
+    parser.add_argument("--encoding", help="Input text encoding")
+    parser.add_argument("--retokenize", action="store_true",
+                        help="Regenerate tokens for this run and refresh the tokenizer cache")
 
-    tags = args.tags
-    min_frequency = args.minFrequency or MIN_FREQUENCY_DEFAULT
-
-    debug = args.debug
-    recursive = args.recursive
+    args = parser.parse_args(argv)
+    overrides = {}
+    for section, key, value in (
+        ("input", "path", args.input), ("input", "recursive", args.recursive),
+        ("input", "encoding", args.encoding), ("output", "path", args.output),
+        ("filter", "min_frequency", args.min_frequency), ("debug", "enabled", args.debug),
+    ):
+        if value is not None:
+            overrides.setdefault(section, {})[key] = value
+    try:
+        config = resolve_config(args.config, overrides)
+    except (OSError, ValueError) as exc:
+        parser.error(str(exc))
+    if args.show_config:
+        print(config.to_json())
+        return
+    input_path = config.input.path
+    if input_path is None:
+        parser.error("an input path is required (--input or [input] path)")
+    min_frequency = config.filter.min_frequency
+    debug = config.debug.enabled
+    recursive = config.input.recursive
 
     if debug:
         enable_debug_logging()
@@ -127,29 +148,30 @@ def process_script():
 
         print(f'Mining all relevant files from directory {input_path_obj.resolve()}...')
 
-        final_path = resolve_directory_output_path(input_path_obj, args.output)
+        final_path = resolve_directory_output_path(input_path_obj, config.output.path)
 
         print(f'output path: {final_path.resolve()}')
 
         steps = [
-            GatherInputFilesStep(input_path_obj, include_subdirectories=recursive),
-            ReadFilesStep(),
+            GatherInputFilesStep(input_path_obj, include_subdirectories=recursive, extensions=config.input.extensions),
+            ReadFilesStep(encoding=config.input.encoding),
             ExtractSentencesStep(),
             DumpSentences("sentences.txt") if debug else None,
             NormalizeSentences(),
             DumpSentences("sentences-normalized.txt") if debug else None,
-            RawTokenizeStep(),
-            MergeTokensStep(),
+            RawTokenizeStep(force_retokenize=args.retokenize, config=config.tokenizer),
+            MergeTokensStep(max_lookahead=config.merge.max_lookahead, dictionary_path=config.dictionary.jmdict_path),
             BuildWordStatsStep(),
-            FilterFrequencyStep(min_frequency),
-            AddDefinitionsStep(debug=debug),
-            ScoreWordStep(),
-            AttachSentencesStep(),
+            FilterFrequencyStep(min_frequency, keep_percent=config.filter.keep_percent,
+                                min_frequency_per_source=config.filter.min_frequency_per_source),
+            AddDefinitionsStep(debug=debug, dictionary_path=config.dictionary.jmdict_path),
+            ScoreWordStep(config.scoring),
+            AttachSentencesStep(config.sentences),
             WriteOutputStep(final_path),
-            # AddWordsToAnkiStep()
+            AddWordsToAnkiStep(config.anki) if config.anki.enabled else None,
         ]
 
-        pipeline = Pipeline(steps=steps, on_progress=print_step_progress)
+        pipeline = Pipeline(steps=[step for step in steps if step is not None], on_progress=print_step_progress)
         pipeline.run(Artifact(input_path, tmpdir=tmpdir))
 
     print(f'All tasks completed in {pipeline.duration:.1f} seconds.')

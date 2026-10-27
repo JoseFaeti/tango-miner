@@ -1,5 +1,9 @@
 import unittest
 
+from src.RunConfig import ScoringConfig
+from src.Artifact import Artifact
+from src.Pipeline import Pipeline
+from src.steps.ScoreWordStep import ScoreWordStep
 from src.steps.ProcessingStep import ProcessingStep
 from src.steps.ScoreWordStep import calculate_score, score_words, tag_diversity_factor
 
@@ -7,6 +11,26 @@ from tests.helpers import make_stats
 
 
 class ScoreWordStepTests(unittest.TestCase):
+    def test_configured_weights_and_normalization_change_ranking(self):
+        def words():
+            return {
+                "early": make_stats(index=0.0, frequency=2, tags={"a"}),
+                "frequent": make_stats(index=0.9, frequency=100, tags={"a"}),
+            }
+        freq_words = words()
+        position_words = words()
+        Pipeline([ScoreWordStep(ScoringConfig(frequency_weight=1, position_weight=0, max_score=100))]).run(Artifact(freq_words))
+        Pipeline([ScoreWordStep(ScoringConfig(frequency_weight=0, position_weight=1, max_score=100))]).run(Artifact(position_words))
+        self.assertGreater(freq_words["frequent"].score, freq_words["early"].score)
+        self.assertGreater(position_words["early"].score, position_words["frequent"].score)
+        self.assertEqual(max(word.score for word in freq_words.values()), 100)
+        self.assertEqual(max(word.score for word in position_words.values()), 100)
+
+    def test_configured_tag_diversity_factors(self):
+        self.assertEqual(tag_diversity_factor(1, saturation_tags=4, min_factor=0.4), 0.4)
+        self.assertEqual(tag_diversity_factor(4, saturation_tags=4, min_factor=0.4), 1.0)
+        self.assertAlmostEqual(calculate_score(0.5, 1, 1, w_freq=0, w_index=1, position_exponent=2), 0.25)
+
     def test_calculate_score_prefers_early_frequent_words(self):
         early_frequent = calculate_score(index=0.0, frequency=50, max_frequency=50)
         late_rare = calculate_score(index=1.0, frequency=1, max_frequency=50)

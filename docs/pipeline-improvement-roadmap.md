@@ -20,6 +20,17 @@ source-specific vocabulary.
 
 ### 1. Introduce a versioned run configuration
 
+**Status (2026-10-27): partial.** Version 1 resolves input path, recursion,
+encoding, file extensions, Sudachi and JMdict settings, compound lookahead,
+frequency thresholds, scoring,
+example ranking, output
+path, debug mode, and Anki
+enablement, connection, destination, and batch settings from defaults, TOML,
+and explicit CLI options. The editable `config.toml` is loaded by
+default, and `--show-config` prints the resolved settings. The
+remaining stage-specific settings, generated defaults, and diagnostic-run copy
+are future work; they are not represented as configurable until wired in.
+
 Runtime policy is presently distributed across module constants and CLI code:
 minimum frequency in `tango_miner.py`, file extensions in
 `GatherInputFilesStep`, tokenizer settings in `TokenizeStep`, sentence limits
@@ -53,15 +64,15 @@ Suggested top-level sections:
 | `anki` | enabled state, endpoint, deck, model, sync/deletion policy |
 | `debug` | artifact directory, selected stages, verbosity, retained temporary files |
 
-Ship `resources/config.example.toml` with every setting documented, and write a
+Document every setting in `config.toml`, and write a
 copy of the fully resolved configuration into each diagnostic run.  Include a
 `config_version` so future semantic changes can be migrated deliberately.
 
 ### 2. Make side effects explicit and safe
 
-The current working-tree pipeline has `AddWordsToAnkiStep` commented out after
-CSV output. If enabled, that step also removes notes that are no longer in the
-current result.  A partial
+The pipeline runs `AddWordsToAnkiStep` after CSV output only when
+`[anki] enabled = true` in the configuration. That step also removes notes
+that are no longer in the current result.  A partial
 input selection, altered filter setting, or failed earlier run can therefore
 affect an existing deck much more broadly than the user expects.
 
@@ -243,7 +254,7 @@ single `--verbose` should never be interpreted as permission to modify Anki.
 Implement in small vertical slices, keeping existing behavior as the default
 until a deliberate compatibility change is released.
 
-1. Add `RunConfig`, default/example TOML, config precedence tests, and a
+1. Add `RunConfig`, an editable default TOML, config precedence tests, and a
    `--show-config` smoke test.
 2. Introduce `PipelineContext`, structured logging, manifest, stage timing, and
    deterministic input ordering.  Add unit tests that assert counts and paths.

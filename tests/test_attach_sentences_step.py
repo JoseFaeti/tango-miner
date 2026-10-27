@@ -2,6 +2,7 @@ import unittest
 from pathlib import Path
 
 from src.SegmentedSentence import SegmentedSentence
+from src.RunConfig import SentencesConfig
 from src.steps.AttachSentencesStep import (
     MAX_SENTENCES,
     _percentile,
@@ -24,6 +25,25 @@ def seg(text, lemma_surfaces, tag="tag"):
 
 
 class AttachSentencesStepTests(unittest.TestCase):
+    def test_configured_example_limit_and_length_affect_selection(self):
+        short = "目標です。"
+        long = "目標について皆で詳しく話しました。"
+        examples = [seg(short, {"目標": "目標"}), seg(long, {"目標": "目標"})]
+        def selected(ideal):
+            target = make_stats(score=500, lemma="目標")
+            attach_sentences({"目標": target}, examples,
+                             config=SentencesConfig(max_sentences=1, ideal_length=ideal))
+            self.assertEqual(len(target.sentences), 1)
+            return target.sentences[0].text
+        self.assertEqual(selected(len(short)), short)
+        self.assertEqual(selected(len(long)), long)
+
+    def test_configured_penalties_change_score(self):
+        config = SentencesConfig(ideal_length=4, length_divisor=2,
+                                 unknown_word_penalty=2, min_word_count=0,
+                                 variance_divisor=10)
+        self.assertEqual(_sentence_penalty_fast("abcd", [10], 1, 20, config), 3.0)
+
     def test_percentile_uses_sorted_values_and_caps_index(self):
         self.assertEqual(_percentile([10, 30, 20], 0.9), 30)
         self.assertEqual(_percentile([10, 30, 20], 0.0), 10)

@@ -1,9 +1,12 @@
 import unittest
+from unittest.mock import patch
 from pathlib import Path
 
 from src.TokenizedSentence import TokenizedSentence
+from src.Artifact import Artifact
+from src.Pipeline import Pipeline
 from src.steps.BuildWordStatsStep import build_word_stats
-from src.steps.MergeTokensStep import combine_tokens_jmdict
+from src.steps.MergeTokensStep import combine_tokens_jmdict, MergeTokensStep, get_jmdict
 
 
 def token(surface, lemma, pos):
@@ -23,6 +26,35 @@ class Dictionary:
 
 
 class ProvenanceTests(unittest.TestCase):
+    def test_dictionary_cache_uses_requested_path(self):
+        with patch("src.steps.MergeTokensStep._jmdict", None), \
+             patch("src.steps.MergeTokensStep._jmdict_path", None), \
+             patch("src.steps.MergeTokensStep.JMDict") as dictionary:
+            first = get_jmdict("first.xml")
+            self.assertIs(first, get_jmdict("first.xml"))
+            get_jmdict("second.xml")
+            self.assertEqual(dictionary.call_count, 2)
+            self.assertEqual(dictionary.call_args_list[0].args[0], Path("first.xml").resolve())
+            self.assertEqual(dictionary.call_args_list[1].args[0], Path("second.xml").resolve())
+
+    def test_configured_lookahead_keeps_source_and_component_evidence(self):
+        class ThreeTokenDictionary(Dictionary):
+            def lookup_word(self, word):
+                if word in {"ないで", "ないでね"}:
+                    return [{"senses": [{"pos": ["expression"]}]}]
+                return []
+        raw = [token("ない", "ない", ["助動詞", "*"]),
+               token("で", "で", ["助詞", "*"]),
+               token("ね", "ね", ["助詞", "*"])]
+        sentence = TokenizedSentence("ないでね", "tag", Path("source"), raw)
+        with patch("src.steps.MergeTokensStep.get_jmdict", return_value=ThreeTokenDictionary()):
+            short = Pipeline([MergeTokensStep(max_lookahead=2)]).run(Artifact([sentence])).data[0].tokens
+            long = Pipeline([MergeTokensStep(max_lookahead=3)]).run(Artifact([sentence])).data[0].tokens
+        self.assertEqual([item["surface"] for item in short], ["ないで", "ね"])
+        self.assertEqual([item["surface"] for item in long], ["ないでね"])
+        self.assertEqual([item.surface for item in long[0]["components"]], ["ない", "で", "ね"])
+        self.assertEqual(long[0]["lemma"], "ないでね")
+
     def test_merge_retains_immutable_original_components(self):
         raw = [token('ない', 'ない', ['助動詞', '*']), token('で', 'で', ['助詞', '*'])]
         merged = combine_tokens_jmdict(raw, Dictionary())

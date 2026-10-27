@@ -1,0 +1,85 @@
+# Tango Miner run configuration (version 1). Edit these settings to customize runs.
+# Explicit command-line options override values here.
+config_version = 1
+
+[input]
+# Optional input path; the CLI --input takes precedence.
+# path = "corpus"
+recursive = false
+encoding = "utf-8"
+# File types discovered in input directories.
+extensions = [".tsv", ".txt", ".csv", ".pdf", ".xml", ".html", ".srt"]
+
+[tokenizer]
+# Sudachi JSON configuration and installed system dictionary name or path.
+# Relative paths are resolved from the current working directory.
+config_path = "sudachi.config.json"
+dictionary = "full"
+
+[dictionary]
+# JMdict XML used for both compound merging and definitions. ~ means home;
+# relative paths are resolved from the current working directory.
+jmdict_path = "~/JMdict_e.xml"
+
+[merge]
+# Maximum number of adjacent raw tokens considered for a dictionary compound.
+# Lower values can leave useful multi-token expressions unmerged.
+max_lookahead = 10
+
+[filter]
+min_frequency = 4
+# Retain words at or above this frequency percentile cutoff.
+keep_percent = 98
+# Minimum frequency divided by the number of source tags.
+min_frequency_per_source = 1.1
+
+[scoring]
+# Relative weights for frequency and position in the source.
+frequency_weight = 0.75
+position_weight = 0.25
+# Larger values favor words appearing earlier in the source more strongly.
+position_exponent = 1.5
+# Source-tag diversity reaches its maximum at this many tags.
+tag_saturation = 10
+# Score multiplier for a word found in one source tag.
+minimum_tag_factor = 0.1
+# Scores are normalized so the highest scoring word reaches this value.
+max_score = 1000.0
+
+[sentences]
+# Maximum examples per word, including fallback examples.
+max_sentences = 3
+# Preferred length in characters and strength of length deviations.
+ideal_length = 25
+length_divisor = 15.0
+# Penalties for unknown words and words harder than the target.
+unknown_word_penalty = 0.9
+too_hard_word_penalty = 0.9
+# Weight for difference between sentence difficulty and the target.
+difficulty_weight = 1.5
+# Penalty per missing known word below this count.
+short_sentence_penalty = 0.5
+min_word_count = 6
+# Larger values reduce the penalty for variance in word difficulty.
+variance_divisor = 100000.0
+
+[output]
+# Optional CSV path or directory; defaults to a CSV inside the input directory.
+# path = "output.csv"
+
+[debug]
+enabled = true
+
+[anki]
+# Enables AnkiConnect export after CSV output. This adds and updates notes,
+# changes their tags, and deletes matching deck notes absent from this run.
+enabled = true
+# AnkiConnect endpoint and request timeout in seconds.
+endpoint = "http://127.0.0.1:8765"
+timeout_seconds = 10.0
+# Destination deck and note model. The exporter may create a missing model.
+deck = "日本語::3. 単語::Mined Vocab"
+model = "TangoMiner:Japanese"
+# Maximum notes/actions per write and notes per read request.
+batch_size = 50
+note_fetch_batch_size = 1000

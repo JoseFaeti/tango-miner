@@ -1,5 +1,6 @@
 from src.Artifact import Artifact
 from src.PipelineStep import PipelineStep
+from src.RunConfig import SentencesConfig
 from src.steps.ProcessingStep import ProcessingStep
 from src.SegmentedSentence import SegmentedSentence
 from src.WordStats import Sentence, WordStats
@@ -14,63 +15,9 @@ from bisect import bisect_right
 # Config
 # ---------------------------------------------------------------------------
 
-MAX_SENTENCES = 3
-# Max number of example sentences stored per word
-
-GLOBAL_AVERAGE_SCORE = 3000
-# Fallback difficulty score when no known words exist in a sentence
-# Range: ~100–1000 depending on your word scoring system
-# Higher → treats unknown sentences as harder
-# Lower → treats unknown sentences as easier (more likely to be selected)
-
-IDEAL_LENGTH = 25
-# Target sentence length in characters
-# Range: 10–60 depending on corpus style
-# Higher → prefers longer sentences
-# Lower → prefers shorter, more compact sentences
-
-LENGTH_DIVISOR = 15
-# Controls how strongly length deviation is penalized
-# Range: 5–50
-# Lower → very strong preference for IDEAL_LENGTH (sharp penalty)
-# Higher → more tolerant of length variation (weaker penalty)
-
-UNKNOWN_WORD_PENALTY = 0.9
-# Penalty weight for unknown words in sentence
-# Range: 0.0–1.0
-# Higher → strongly discourages sentences with unknown vocabulary
-# Lower → allows more natural / noisy sentences
-
-TOO_HARD_WORD_PENALTY = 0.9
-# Penalty for words above target difficulty level
-# Range: 0.0–1.0
-# Higher → strongly avoids sentences that exceed user level
-# Lower → allows more challenging sentences
-
-DIFFICULTY_WEIGHT = 1.5
-# Scales how strongly sentence difficulty relative to the target word affects fitness
-# lemma_adjustment is normalized to [0, 1] before this weight is applied
-# Range: 0.0–3.0
-# Higher → strongly prefers sentences close to or easier than the target word's level
-# Lower → difficulty mismatch is tolerated more freely
-
-SHORT_SENTENCE_PENALTY = 0.5
-# Penalty multiplier for sentences with too few known words
-# Range: 0.0–2.0
-# Higher → strongly discourages short / low-information sentences
-# Lower → allows short sentences to compete more often
-
-MIN_WORD_COUNT = 6
-# Minimum number of known words required before short-sentence penalty stops applying
-# Range: 3–15
-# Higher → forces richer sentences (bias toward longer sentences)
-# Lower → allows shorter sentences to pass more easily
-
-VARIANCE_DIVISOR = 100000
-# Scales down penalty for variance in word difficulty within a sentence
-# Range: 10,000–1,000,000
-# Lower → variance matters more (mixed difficulty sentences penalized harder)
-# Higher → variance mostly ignored
+# Backward-compatible defaults for direct callers of this module.
+MAX_SENTENCES = SentencesConfig().max_sentences
+GLOBAL_AVERAGE_SCORE = 3000  # Used only by the standalone percentile helper.
 
 
 # ---------------------------------------------------------------------------
@@ -78,7 +25,8 @@ VARIANCE_DIVISOR = 100000
 # ---------------------------------------------------------------------------
 
 class AttachSentencesStep(PipelineStep):
-    def __init__(self):
+    def __init__(self, config: SentencesConfig | None = None):
+        self.config = config if config is not None else SentencesConfig()
         self._processing_step = ProcessingStep.SENTENCES
 
 
@@ -87,6 +35,7 @@ class AttachSentencesStep(PipelineStep):
             artifact.data,
             artifact.sentences,
             self.progress,
+            config=self.config,
         )
 
         self.done(f"{sum(len(sentences) for word in artifact.data for sentences in word)} sentences added.")
@@ -118,7 +67,8 @@ def _percentile(values, p=0.9):
 # Core pipeline
 # ---------------------------------------------------------------------------
 
-def attach_sentences(word_data, segmented_sentences, progress_handler=None):
+def attach_sentences(word_data, segmented_sentences, progress_handler=None, config: SentencesConfig | None = None):
+    config = config if config is not None else SentencesConfig()
     total = len(segmented_sentences)
 
     if not word_data or not segmented_sentences:
@@ -175,6 +125,7 @@ def attach_sentences(word_data, segmented_sentences, progress_handler=None):
             scores,
             unknown_count,
             variance,
+            config=config,
         )
 
         sentence_quality = _sentence_quality_penalty_fast(text)
@@ -200,8 +151,8 @@ def attach_sentences(word_data, segmented_sentences, progress_handler=None):
 
             fitness = (
                 base_penalty
-                + lemma_adjustment * DIFFICULTY_WEIGHT
-                + (too_hard / total_tokens) * TOO_HARD_WORD_PENALTY
+                + lemma_adjustment * config.difficulty_weight
+                + (too_hard / total_tokens) * config.too_hard_word_penalty
             )
 
             sentence = Sentence(
@@ -229,14 +180,14 @@ def attach_sentences(word_data, segmented_sentences, progress_handler=None):
         if not ws:
             continue
 
-        best = heapq.nsmallest(MAX_SENTENCES, bucket.values(), key=lambda x: x[0])
+        best = heapq.nsmallest(config.max_sentences, bucket.values(), key=lambda x: x[0])
         ws.sentences = [b[2] for b in best]
 
     # ------------------------------------------------------------
-    # FALLBACK — guarantee at least MAX_SENTENCES per word
+    # FALLBACK — try to fill the configured number of sentences per word
     #
     # For words that came out of the primary pass with fewer
-    # sentences than MAX_SENTENCES (including zero), do a second
+    # sentences than the configured limit (including zero), do a second
     # sweep over all segmented sentences and attach whatever is
     # available, ignoring all quality filters.  Worst-case the
     # learner gets a mediocre sentence; best-case they get
@@ -245,7 +196,7 @@ def attach_sentences(word_data, segmented_sentences, progress_handler=None):
     words_needing_fallback = {
         lemma
         for lemma, ws in word_data.items()
-        if len(ws.sentences) < MAX_SENTENCES
+        if len(ws.sentences) < config.max_sentences
     }
 
     if words_needing_fallback:
@@ -279,7 +230,7 @@ def attach_sentences(word_data, segmented_sentences, progress_handler=None):
             if ws is None:
                 continue
 
-            needed = MAX_SENTENCES - len(ws.sentences)
+            needed = config.max_sentences - len(ws.sentences)
             if needed <= 0:
                 continue
 
@@ -297,19 +248,20 @@ def attach_sentences(word_data, segmented_sentences, progress_handler=None):
 # Penalties
 # ---------------------------------------------------------------------------
 
-def _sentence_penalty_fast(text, scores, unknown_count, variance):
+def _sentence_penalty_fast(text, scores, unknown_count, variance, config: SentencesConfig | None = None):
+    config = config if config is not None else SentencesConfig()
     penalty = 0.0
 
     total_tokens = len(scores) + unknown_count
     if total_tokens == 0:
         return 0.0
 
-    penalty += variance / VARIANCE_DIVISOR
-    penalty += (unknown_count / total_tokens) * UNKNOWN_WORD_PENALTY
-    penalty += abs(len(text) - IDEAL_LENGTH) / LENGTH_DIVISOR
+    penalty += variance / config.variance_divisor
+    penalty += (unknown_count / total_tokens) * config.unknown_word_penalty
+    penalty += abs(len(text) - config.ideal_length) / config.length_divisor
 
-    if len(scores) < MIN_WORD_COUNT:
-        penalty += (MIN_WORD_COUNT - len(scores)) * SHORT_SENTENCE_PENALTY
+    if len(scores) < config.min_word_count:
+        penalty += (config.min_word_count - len(scores)) * config.short_sentence_penalty
 
     return penalty
 

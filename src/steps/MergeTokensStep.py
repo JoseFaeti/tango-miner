@@ -20,25 +20,30 @@ USEFUL_KANA_ONLY_POS = [
 ]
 
 _jmdict = None
+_jmdict_path = None
 
 
-def get_jmdict() -> JMDict:
-    """Load JMdict once for the compound-merging phase."""
-    global _jmdict
-    if _jmdict is None:
-        _jmdict = JMDict(Path.home() / "JMdict_e.xml")
+def get_jmdict(path: str | Path | None = None) -> JMDict:
+    """Load the dictionary for the requested path, reusing the last instance."""
+    global _jmdict, _jmdict_path
+    resolved_path = (Path(path).expanduser() if path is not None else Path.home() / "JMdict_e.xml").resolve()
+    if _jmdict is None or _jmdict_path != resolved_path:
+        dictionary = JMDict(resolved_path)
+        _jmdict, _jmdict_path = dictionary, resolved_path
     return _jmdict
 
 
 class MergeTokensStep(PipelineStep):
     """Merge adjacent Sudachi tokens when their sequence is a JMdict entry."""
 
-    def __init__(self):
+    def __init__(self, max_lookahead: int = 10, dictionary_path: str | Path | None = None):
         self._processing_step = ProcessingStep.TOKEN_MERGING
+        self.max_lookahead = max_lookahead
+        self.dictionary_path = dictionary_path
 
     def process(self, artifact: Artifact) -> Artifact:
         tokenized_sentences: list[TokenizedSentence] = artifact.data
-        jmdict = get_jmdict()
+        jmdict = get_jmdict(self.dictionary_path)
         merged_sentences = []
 
         for index, sentence in enumerate(tokenized_sentences, 1):
@@ -47,7 +52,7 @@ class MergeTokensStep(PipelineStep):
                     text=sentence.text,
                     tag=sentence.tag,
                     origin=sentence.origin,
-                    tokens=combine_tokens_jmdict(sentence.tokens, jmdict),
+                    tokens=combine_tokens_jmdict(sentence.tokens, jmdict, max_lookahead=self.max_lookahead),
                 )
             )
             if index % PROGRESS_INTERVAL == 0 and index < len(tokenized_sentences):

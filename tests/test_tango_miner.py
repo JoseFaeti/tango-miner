@@ -1,11 +1,78 @@
 import unittest
 import tempfile
 from pathlib import Path
+from unittest.mock import patch
 
-from tango_miner import MIN_FREQUENCY_DEFAULT, resolve_directory_output_path
+from tango_miner import MIN_FREQUENCY_DEFAULT, process_script, resolve_directory_output_path
+from src.steps.AddWordsToAnkiStep import AddWordsToAnkiStep
+from src.steps.AddDefinitionsStep import AddDefinitionsStep
+from src.steps.WriteOutputStep import WriteOutputStep
+from src.steps.TokenizeStep import RawTokenizeStep
+from src.steps.GatherInputFilesStep import GatherInputFilesStep
+from src.steps.FilterFrequencyStep import FilterFrequencyStep
+from src.steps.ScoreWordStep import ScoreWordStep
+from src.steps.AttachSentencesStep import AttachSentencesStep
+from src.steps.MergeTokensStep import MergeTokensStep
 
 
 class TangoMinerTests(unittest.TestCase):
+    def test_pipeline_receives_discovery_and_filter_policies(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            config = Path(tmp) / "config.toml"
+            config.write_text('[input]\nextensions = [".txt"]\n[tokenizer]\nconfig_path = "custom.json"\ndictionary = "small"\n[dictionary]\njmdict_path = "other.xml"\n[merge]\nmax_lookahead = 4\n[filter]\nkeep_percent = 75\nmin_frequency_per_source = 2.0\n[scoring]\nfrequency_weight = 0.4\n[sentences]\nmax_sentences = 2\n', encoding="utf-8")
+            with patch("tango_miner.Pipeline") as pipeline:
+                pipeline.return_value.duration = 0
+                process_script(["--config", str(config), "--input", tmp])
+            steps = pipeline.call_args.kwargs["steps"]
+            gather = next(step for step in steps if isinstance(step, GatherInputFilesStep))
+            filter_step = next(step for step in steps if isinstance(step, FilterFrequencyStep))
+            self.assertEqual(gather.extensions, {".txt"})
+            tokenizer = next(step for step in steps if isinstance(step, RawTokenizeStep))
+            self.assertEqual((tokenizer.config.config_path, tokenizer.config.dictionary), ("custom.json", "small"))
+            merge = next(step for step in steps if isinstance(step, MergeTokensStep))
+            self.assertEqual(merge.max_lookahead, 4)
+            definitions = next(step for step in steps if isinstance(step, AddDefinitionsStep))
+            self.assertEqual(merge.dictionary_path, "other.xml")
+            self.assertEqual(definitions.dictionary_path, "other.xml")
+            self.assertEqual(filter_step.keep_percent, 75)
+            self.assertEqual(filter_step.min_frequency_per_source, 2.0)
+            scoring = next(step for step in steps if isinstance(step, ScoreWordStep))
+            self.assertEqual(scoring.config.frequency_weight, 0.4)
+            sentences = next(step for step in steps if isinstance(step, AttachSentencesStep))
+            self.assertEqual(sentences.config.max_sentences, 2)
+
+    def test_retokenize_flag_configures_pipeline_step(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            config = Path(tmp) / "config.toml"
+            config.write_text("", encoding="utf-8")
+            for flag in (False, True):
+                with self.subTest(flag=flag), patch("tango_miner.Pipeline") as pipeline:
+                    pipeline.return_value.duration = 0
+                    args = ["--config", str(config), "--input", tmp]
+                    if flag:
+                        args.append("--retokenize")
+                    process_script(args)
+                    steps = pipeline.call_args.kwargs["steps"]
+                    token_step = next(step for step in steps if isinstance(step, RawTokenizeStep))
+                    self.assertEqual(token_step.force_retokenize, flag)
+                    pipeline.return_value.run.assert_called_once()
+
+    def test_config_controls_anki_step_after_csv(self):
+        for enabled in (False, True):
+            with self.subTest(enabled=enabled), tempfile.TemporaryDirectory() as tmp:
+                config = Path(tmp) / "config.toml"
+                config.write_text(f'[anki]\nenabled = {str(enabled).lower()}\ndeck = "Test Deck"\n', encoding="utf-8")
+                with patch("tango_miner.Pipeline") as pipeline:
+                    pipeline.return_value.duration = 0
+                    process_script(["--config", str(config), "--input", tmp])
+                steps = pipeline.call_args.kwargs["steps"]
+                self.assertEqual(sum(isinstance(step, AddWordsToAnkiStep) for step in steps), int(enabled))
+                self.assertFalse(any(step is None for step in steps))
+                if enabled:
+                    self.assertIsInstance(steps[-2], WriteOutputStep)
+                    self.assertIsInstance(steps[-1], AddWordsToAnkiStep)
+                    self.assertEqual(steps[-1].config.deck, "Test Deck")
+
     def test_default_minimum_frequency_is_positive(self):
         self.assertGreater(MIN_FREQUENCY_DEFAULT, 0)
 

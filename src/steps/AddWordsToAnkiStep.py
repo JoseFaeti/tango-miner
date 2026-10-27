@@ -1,16 +1,17 @@
 import json
 import urllib.request
 from collections import OrderedDict
+from functools import partial
 from typing import Any
 
 from src.Artifact import Artifact
 from src.PipelineStep import PipelineStep
+from src.RunConfig import AnkiConfig
 from src.steps.ProcessingStep import ProcessingStep
 
-ANKI_CONNECT_URL = "http://127.0.0.1:8765"
-
-DECK_NAME = "日本語::3. 単語::Mined Vocab"
-MODEL_NAME = "TangoMiner:Japanese"
+ANKI_CONNECT_URL = AnkiConfig().endpoint
+DECK_NAME = AnkiConfig().deck
+MODEL_NAME = AnkiConfig().model
 
 
 class AnkiConnectError(RuntimeError):
@@ -18,12 +19,18 @@ class AnkiConnectError(RuntimeError):
 
 
 class AddWordsToAnkiStep(PipelineStep):
-    def __init__(self):
+    def __init__(self, config: AnkiConfig | None = None):
+        self.config = config if config is not None else AnkiConfig()
         self._processing_step = ProcessingStep.ANKI_EXPORT
 
 
     def process(self, artifact: Artifact) -> Artifact:
-        added, updated, deleted = export_words_to_anki(deck_name=DECK_NAME, words=artifact.data, model_name=MODEL_NAME, progress_handler=self.progress)
+        invoke = partial(anki_invoke, endpoint=self.config.endpoint, timeout=self.config.timeout_seconds)
+        added, updated, deleted = export_words_to_anki(
+            deck_name=self.config.deck, words=artifact.data, model_name=self.config.model,
+            progress_handler=self.progress, invoke=invoke, batch_size=self.config.batch_size,
+            note_fetching_batch_size=self.config.note_fetch_batch_size,
+        )
         
         self.done(
             f"{added} added, {updated} updated, {deleted} deleted."
@@ -32,7 +39,7 @@ class AddWordsToAnkiStep(PipelineStep):
         return artifact
 
 
-def anki_invoke(action: str, params: dict[str, Any] | None = None) -> Any:
+def anki_invoke(action: str, params: dict[str, Any] | None = None, *, endpoint: str = ANKI_CONNECT_URL, timeout: float = 10) -> Any:
     payload = {
         "action": action,
         "version": 6,
@@ -40,13 +47,13 @@ def anki_invoke(action: str, params: dict[str, Any] | None = None) -> Any:
     }
 
     req = urllib.request.Request(
-        ANKI_CONNECT_URL,
+        endpoint,
         data=json.dumps(payload).encode("utf-8"),
         headers={"Content-Type": "application/json"},
         method="POST",
     )
 
-    with urllib.request.urlopen(req, timeout=10) as resp:
+    with urllib.request.urlopen(req, timeout=timeout) as resp:
         result = json.loads(resp.read().decode("utf-8"))
 
     if result.get("error"):
@@ -63,13 +70,15 @@ def export_words_to_anki(
     deck_name: str,
     words: dict,
     model_name: str,
-    progress_handler=lambda *a: None
+    progress_handler=lambda *a: None,
+    invoke=None,
+    batch_size=50,
+    note_fetching_batch_size=1000,
 ):
-    batch_size = 50
-    note_fetching_batch_size = 1000
+    invoke = anki_invoke if invoke is None else invoke
     existing_words = {}
 
-    created = ensure_model_exists(MODEL_NAME)
+    created = ensure_model_exists(model_name, invoke=invoke)
 
     # if created:
     #     print("Model created")
@@ -79,7 +88,7 @@ def export_words_to_anki(
     # --------------------------------------------------
     # 1. Fetch ALL existing note IDs for this model/deck
     # --------------------------------------------------
-    all_note_ids = anki_invoke("findNotes", {
+    all_note_ids = invoke("findNotes", {
         "query": f'deck:\"{deck_name}\" note:\"{model_name}\"'
     })
 
@@ -89,7 +98,7 @@ def export_words_to_anki(
     for i in range(0, len(all_note_ids), note_fetching_batch_size):
         batch_ids = all_note_ids[i:i + note_fetching_batch_size]
 
-        notes = anki_invoke("notesInfo", {
+        notes = invoke("notesInfo", {
             "notes": batch_ids
         })
 
@@ -119,7 +128,7 @@ def export_words_to_anki(
     total_notes_to_delete = len(obsolete_note_ids)
 
     for i in range(0, total_notes_to_delete, batch_size):
-        anki_invoke("deleteNotes", {
+        invoke("deleteNotes", {
             "notes": obsolete_note_ids[i:i + batch_size]
         })
 
@@ -183,7 +192,7 @@ def export_words_to_anki(
             if dirty or to_add or to_remove:
                 total_notes_to_update += 1
         else:
-            dup_ids = anki_invoke("findNotes", {
+            dup_ids = invoke("findNotes", {
                 "query": f'deck:\"{deck_name}\" note:\"{model_name}\" Expression:\"{word}\"'
             })
             
@@ -210,7 +219,7 @@ def export_words_to_anki(
     # 4. Batch update existing notes
     # --------------------------------------------------
     for i in range(0, len(update_actions), batch_size):
-        anki_invoke("multi", {
+        invoke("multi", {
             "actions": update_actions[i:i + batch_size]
         })
 
@@ -230,7 +239,7 @@ def export_words_to_anki(
     for i in range(0, total_notes_to_add, batch_size):
         # print(json.dumps(notes_to_add[i:i + batch_size], ensure_ascii=False, indent=2))
 
-        anki_invoke("addNotes", {
+        invoke("addNotes", {
             "notes": notes_to_add[i:i + batch_size]
         })
 
@@ -290,8 +299,9 @@ def anki_fields_differ_from_stats(note, stats) -> bool:
     return False
 
 
-def ensure_model_exists(model_name: str):
-    existing_models = anki_invoke("modelNames")
+def ensure_model_exists(model_name: str, invoke=None):
+    invoke = anki_invoke if invoke is None else invoke
+    existing_models = invoke("modelNames")
 
     if model_name in existing_models:
         return False  # already exists
@@ -485,7 +495,7 @@ a {
 }
 """
 
-    anki_invoke(
+    invoke(
         "createModel",
         {
             "modelName": model_name,

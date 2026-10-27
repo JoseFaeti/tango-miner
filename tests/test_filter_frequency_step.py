@@ -34,6 +34,13 @@ class FilterFrequencyStepTests(unittest.TestCase):
         self.assertEqual(min(stats.frequency for stats in kept.values()), 51)
         self.assertEqual(len(kept), 50)
 
+    def test_step_uses_configured_per_source_threshold(self):
+        words = OrderedDict([("word", make_stats(frequency=2, tags={"a", "b"}))])
+        kept = Pipeline([FilterFrequencyStep(1, keep_percent=100, min_frequency_per_source=1.0)]).run(Artifact(words))
+        dropped = Pipeline([FilterFrequencyStep(1, keep_percent=100, min_frequency_per_source=1.1)]).run(Artifact(words))
+        self.assertIn("word", kept.data)
+        self.assertNotIn("word", dropped.data)
+
     def test_filter_empty_input_returns_empty_ordered_dict(self):
         kept = filter_useful_words(OrderedDict(), min_frequency=4)
 

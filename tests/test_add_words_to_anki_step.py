@@ -1,11 +1,18 @@
 import unittest
+import json
+from unittest.mock import Mock
 from unittest.mock import patch
 
 from src.steps.AddWordsToAnkiStep import (
+    AddWordsToAnkiStep,
+    anki_invoke,
     anki_fields_differ_from_stats,
     export_words_to_anki,
     word_to_anki_fields,
 )
+from src.RunConfig import AnkiConfig
+from src.Artifact import Artifact
+from src.Pipeline import Pipeline
 from src.WordStats import Sentence
 
 from tests.helpers import make_stats
@@ -30,6 +37,41 @@ def note(note_id, expression, tags=None, fields=None):
 
 
 class AddWordsToAnkiStepTests(unittest.TestCase):
+    def test_step_passes_configured_destination_and_batches(self):
+        config = AnkiConfig(enabled=True, endpoint="http://localhost:9999", deck="Deck", model="Custom", timeout_seconds=2, batch_size=3, note_fetch_batch_size=7)
+        with patch("src.steps.AddWordsToAnkiStep.export_words_to_anki", return_value=(0, 0, 0)) as export:
+            Pipeline([AddWordsToAnkiStep(config)]).run(Artifact({}))
+        args = export.call_args.kwargs
+        self.assertEqual((args["deck_name"], args["model_name"]), ("Deck", "Custom"))
+        self.assertEqual((args["batch_size"], args["note_fetching_batch_size"]), (3, 7))
+        self.assertEqual(args["invoke"].keywords, {"endpoint": config.endpoint, "timeout": 2})
+
+    def test_request_uses_configured_endpoint_and_timeout(self):
+        response = Mock()
+        response.read.return_value = json.dumps({"error": None, "result": 42}).encode()
+        response.__enter__ = Mock(return_value=response)
+        response.__exit__ = Mock(return_value=False)
+        with patch("src.steps.AddWordsToAnkiStep.urllib.request.urlopen", return_value=response) as open_url:
+            self.assertEqual(anki_invoke("version", endpoint="http://localhost:9999", timeout=3), 42)
+        self.assertEqual(open_url.call_args.args[0].full_url, "http://localhost:9999")
+        self.assertEqual(open_url.call_args.kwargs["timeout"], 3)
+
+    def test_export_uses_requested_model_and_fetch_batch_size(self):
+        calls = []
+        def fake(action, params=None):
+            calls.append((action, params or {}))
+            if action == "modelNames": return ["Custom"]
+            if action == "findNotes": return [1, 2, 3]
+            if action == "notesInfo": return [note(i, str(i)) for i in params["notes"]]
+            if action == "deleteNotes": return None
+            raise AssertionError(action)
+        result = export_words_to_anki("Deck", {}, "Custom", invoke=fake, batch_size=2, note_fetching_batch_size=2)
+        self.assertEqual(result, (0, 0, 3))
+        self.assertEqual([p["notes"] for action, p in calls if action == "notesInfo"], [[1, 2], [3]])
+        self.assertEqual([len(p["notes"]) for action, p in calls if action == "deleteNotes"], [2, 1])
+        self.assertIn('note:"Custom"', next(p["query"] for action, p in calls if action == "findNotes"))
+        self.assertFalse(any(action == "createModel" for action, _ in calls))
+
     def test_word_to_anki_fields_serializes_stats_and_sentences(self):
         sentence = Sentence("猫がいる", "tag", "origin.txt", "猫", 100)
         stats = make_stats(

@@ -1,7 +1,10 @@
 import unittest
+from pathlib import Path
 from unittest.mock import patch
 
-from src.steps.AddDefinitionsStep import add_and_filter_for_definitions
+from src.steps.AddDefinitionsStep import add_and_filter_for_definitions, AddDefinitionsStep
+from src.Artifact import Artifact
+from src.Pipeline import Pipeline
 from src.steps.ProcessingStep import ProcessingStep
 
 from tests.helpers import make_stats
@@ -16,6 +19,13 @@ class FakeJMDict:
 
 
 class AddDefinitionsStepTests(unittest.TestCase):
+    def test_definition_step_uses_configured_dictionary(self):
+        words = {"猫": make_stats()}
+        with patch("src.steps.AddDefinitionsStep.JMDict", wraps=FakeJMDict) as dictionary:
+            Pipeline([AddDefinitionsStep(dictionary_path="custom.xml")]).run(Artifact(words))
+        dictionary.assert_called_once_with(Path("custom.xml"))
+        self.assertEqual(words["猫"].definition, "cat")
+
     def test_adds_definitions_and_marks_missing_entries_invalid(self):
         words = {
             "猫": make_stats(definition="", invalid=False),

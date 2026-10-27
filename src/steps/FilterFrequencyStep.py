@@ -11,16 +11,18 @@ from src.steps.ProcessingStep import ProcessingStep
 
 
 class FilterFrequencyStep(PipelineStep):
-    def __init__(self, min_frequency: int):
+    def __init__(self, min_frequency: int, keep_percent: int = 98, min_frequency_per_source: float = 1.1):
         self._processing_step = ProcessingStep.FILTERING
         self.min_frequency = min_frequency
+        self.keep_percent = keep_percent
+        self.min_frequency_per_source = min_frequency_per_source
 
     def process(self, artifact: Artifact) -> Artifact:
-        data = filter_useful_words(artifact.data, min_frequency=self.min_frequency, progress_handler=self.progress)
+        data = filter_useful_words(artifact.data, min_frequency=self.min_frequency, keep_percent=self.keep_percent, progress_handler=self.progress, min_frequency_per_source=self.min_frequency_per_source)
         return Artifact(data, sentences=artifact.sentences)
 
 
-def filter_useful_words(input: OrderedDict, min_frequency: int, keep_percent: int = 98, progress_handler=None) -> OrderedDict:
+def filter_useful_words(input: OrderedDict, min_frequency: int, keep_percent: int = 98, progress_handler=None, min_frequency_per_source: float = 1.1) -> OrderedDict:
     total = len(input)
 
     if total == 0:
@@ -37,8 +39,6 @@ def filter_useful_words(input: OrderedDict, min_frequency: int, keep_percent: in
 
     # Local bindings (hot path)
     kept_set = kept.__setitem__
-
-    min_frequency_per_source = 1.1 # How often the word needs to appear for each individual tag (frequency/tags)
 
     for i, (word, stats) in enumerate(input.items(), 1):
         frequency_per_source = stats.frequency / len(stats.tags)
