@@ -67,7 +67,9 @@ def build_word_stats(
             surface = token["surface"]
             # Align in order, allowing whitespace gaps but never guessing after failure.
             start = tokenized_sentence.text.find(surface, cursor) if cursor is not None and surface else -1
-            if start >= 0 and not tokenized_sentence.text[cursor:start].strip():
+            if not surface:
+                span = (-1, -1)
+            elif start >= 0 and not tokenized_sentence.text[cursor:start].strip():
                 span = (start, start + len(surface))
                 cursor = span[1]
             else:

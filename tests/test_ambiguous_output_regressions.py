@@ -150,6 +150,72 @@ class AmbiguousOutputRegressionTests(unittest.TestCase):
         self.assertEqual(sentence[start:end], "わっ")
         self.assertEqual(start, sentence.rindex("わっ"))
 
+    def test_kigahen_does_not_steal_kanji_from_kawaru(self):
+        sentence = "じゃあ気が変わったらまた声をかけてちょうだいね。"
+        words, segments = tokenize([sentence])
+        self.assertIn("変わる", words)
+        self.assertIn("気", words)
+        self.assertNotIn("わる", words)
+        self.assertNotIn("気が変", words)
+        self.assertEqual(segments[0].lemma_surfaces["変わる"], "変わっ")
+        start, end = segments[0].lemma_spans["変わる"]
+        self.assertEqual(sentence[start:end], "変わっ")
+        components, = words["変わる"].component_counts
+        self.assertEqual([c.surface for c in components], ["気が変", "わっ"])
+        for text, expected in [("彼は気が変で困っている。", "気が変"),
+                               ("彼は石をわってから帰った。", "わる"),
+                               ("気が変わることもある。", "気が変わる")]:
+            with self.subTest(text=text):
+                retained, _ = tokenize([text])
+                self.assertIn(expected, retained)
+
+    def test_empty_sudachi_tokens_do_not_break_later_highlights(self):
+        sentence = "やめとくうか…気が変わったらいつでも来る。"
+        words, segments = tokenize([sentence])
+        self.assertIn("変わる", words)
+        start, end = segments[0].lemma_spans["変わる"]
+        self.assertEqual(sentence[start:end], "変わっ")
+
+    def test_kigakawatta_predicate_is_not_unusual_adjective(self):
+        for sentence in ["やはり気が変わったか！",
+                         "わ、わ、わ、わ、ねぇ気が変わったんでしょ。",
+                         "わしは考えたが、気が変わった。",
+                         "NAME:気が変わった…"]:
+            with self.subTest(sentence=sentence):
+                words, _ = tokenize([sentence])
+                self.assertIn("変わる", words)
+                self.assertNotIn("変わった", words)
+                self.assertNotIn("わる", words)
+        for sentence in ["変わった鉱物を材料に作れたら面白いんだがなぁ。",
+                         "金持ちってのは変わった鏡を持ってるもんなんでがすねえ。",
+                         "特に好きなのは、変わった習性を持つモンスター。"]:
+            with self.subTest(sentence=sentence):
+                words, _ = tokenize([sentence])
+                self.assertIn("変わった", words)
+
+    def test_prenominal_dictionary_entries_do_not_override_past_predicates(self):
+        for sentence, base, false_target in [
+            ("私はもう疲れた。", "疲れる", "疲れた"),
+            ("お仕事にはもう慣れた？", "慣れる", "慣れた"),
+            ("最終決戦の準備が整ったんだ。", "整う", "整った"),
+            ("お前は落ち着いた。", "落ち着く", "落ち着いた"),
+            ("彼女の性格が変わったんだ。", "変わる", "変わった"),
+        ]:
+            with self.subTest(sentence=sentence):
+                words, _ = tokenize([sentence])
+                self.assertIn(base, words)
+                self.assertNotIn(false_target, words)
+        for sentence, target in [
+            ("疲れた人がそこにいる。", "疲れた"),
+            ("慣れた手つきで作業する。", "慣れた"),
+            ("落ち着いた雰囲気が好きだ。", "落ち着いた"),
+            ("それも優れた、天才的な発想力が必要だ！", "優れた"),
+            ("まったく毎年ご苦労なこった。", "こった"),
+        ]:
+            with self.subTest(sentence=sentence):
+                words, _ = tokenize([sentence])
+                self.assertIn(target, words)
+
     def test_negative_adjective_and_auxiliary_do_not_merge_as_naishi(self):
         cases = [
             "このあたりは他に町もないしここで身体を休めていってね。",

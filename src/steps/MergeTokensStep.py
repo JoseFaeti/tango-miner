@@ -145,6 +145,42 @@ def _crosses_incompatible_grammar(tokens: list[dict], entry) -> bool:
     return False
 
 
+def _is_kigakawatta_predicate(tokens: list[dict], start: int, end: int) -> bool:
+    """Keep the past verb in a clearly delimited 気が変わった predicate."""
+    if start < 2 or end - start != 2:
+        return False
+    prefix = tokens[start - 2:start]
+    verb, auxiliary = tokens[start:end]
+    if ([(t['surface'], t['lemma']) for t in prefix] != [('気', '気'), ('が', 'が')]
+            or verb['surface'] != '変わっ' or verb['lemma'] != '変わる'
+            or verb['pos'][0] != '動詞' or auxiliary['surface'] != 'た'
+            or auxiliary['lemma'] != 'た' or auxiliary['pos'][0] != '助動詞'):
+        return False
+    if end == len(tokens):
+        return True
+    following = tokens[end]
+    return (following['pos'][0] in {'補助記号', '記号'}
+            or (following['surface'] in {'か', 'ん'} and following['pos'][0] == '助詞'))
+
+
+def _is_prenominal_entry_in_past_predicate(tokens: list[dict], start: int, end: int, entry) -> bool:
+    """Avoid mistaking a delimited past verb for a prenominal-only entry."""
+    if end - start != 2 or end >= len(tokens) or not isinstance(entry, dict):
+        return False
+    verb, past = tokens[start:end]
+    following = tokens[end]
+    tags = [tag.lower() for sense in entry.get('senses', []) for tag in sense.get('pos', [])]
+    if (not tags or any(tag != 'noun or verb acting prenominally' for tag in tags)
+            or verb['pos'][0] != '動詞' or not has_kanji(verb['lemma'])
+            or past['pos'][0] != '助動詞' or past['lemma'] != 'た' or past['surface'] != 'た'):
+        return False
+    # Commas can separate two modifiers (優れた、天才的な発想), and a
+    # clipped sentence may stop before the noun. Leave both ambiguous.
+    return (following['surface'] in {'。', '！', '？', '!', '?', '…'}
+            and following['pos'][0] in {'補助記号', '記号'}
+            or (following['surface'] in {'か', 'ん'} and following['pos'][0] == '助詞'))
+
+
 def _repair_kotoshi_boundaries(token_list: list[dict]) -> list[dict]:
     """Split ことし when the following token confirms する inflection."""
     result = []
@@ -162,6 +198,42 @@ def _repair_kotoshi_boundaries(token_list: list[dict]) -> list[dict]:
             ])
         else:
             result.append(token)
+    return result
+
+
+def _repair_kigahen_boundaries(token_list: list[dict], jmdict) -> list[dict]:
+    """Recover 変わる when the preceding token has swallowed its first kanji."""
+    result = []
+    i = 0
+    while i < len(token_list):
+        parts = token_list[i:i + 3]
+        if (len(parts) == 3 and parts[0]['surface'] == '気が変'
+                and parts[0]['lemma'] == '気が変' and parts[0]['pos'][0] == '形状詞'
+                and parts[1]['surface'] == 'わっ' and parts[1]['lemma'] == 'わる'
+                and parts[1]['pos'][0] == '動詞'
+                and ((parts[2]['lemma'] == 'た' and parts[2]['pos'][0] == '助動詞')
+                     or (parts[2]['surface'] == 'て' and parts[2]['pos'][0] == '助詞'))
+                and jmdict.lookup_word('変わる')):
+            from src.steps.TokenizeStep import get_tokenizer, TOKENIZER_MODE
+            nodes = get_tokenizer().tokenize('変わっ' + parts[2]['surface'], TOKENIZER_MODE)
+            if (nodes and nodes[0].surface() == '変わっ'
+                    and nodes[0].dictionary_form() == '変わる'
+                    and nodes[0].part_of_speech()[0] == '動詞'):
+                first, second = parts[:2]
+                evidence = token_components(first)
+                result.extend([
+                    {'surface': '気', 'lemma': '気', 'base_form': '気', 'reading': 'き',
+                     'pos': ('名詞', '普通名詞', '一般', '*', '*', '*'), 'components': evidence},
+                    {'surface': 'が', 'lemma': 'が', 'base_form': 'が', 'reading': 'が',
+                     'pos': ('助詞', '格助詞', '*', '*', '*', '*'), 'components': evidence},
+                    {'surface': '変わっ', 'lemma': '変わる', 'base_form': '変わる', 'reading': 'かわる',
+                     'pos': tuple(nodes[0].part_of_speech()),
+                     'components': evidence + token_components(second), 'reassigned_from': 'わる'},
+                ])
+                i += 2
+                continue
+        result.append(token_list[i])
+        i += 1
     return result
 
 
@@ -253,6 +325,7 @@ def combine_tokens_jmdict(
     max_lookahead: int = 10,
 ) -> list[dict]:
     """Greedily merge adjacent lexical compounds recognized by JMdict."""
+    token_list = _repair_kigahen_boundaries(token_list, jmdict)
     token_list = _repair_grammatical_constructions(_repair_kotoshi_boundaries(token_list))
     token_list = [_repair_imperative(token_list, i, jmdict) for i in range(len(token_list))]
     merged_tokens = []
@@ -285,6 +358,10 @@ def combine_tokens_jmdict(
 
             match_word = jmdict.get_best_entry(token_string)
             if not match_word:
+                continue
+            if _is_kigakawatta_predicate(token_list, i, j):
+                continue
+            if _is_prenominal_entry_in_past_predicate(token_list, i, j, match_word):
                 continue
             if _crosses_incompatible_grammar(token_list[i:j], match_word):
                 continue
