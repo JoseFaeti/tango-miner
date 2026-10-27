@@ -165,6 +165,51 @@ def _repair_kotoshi_boundaries(token_list: list[dict]) -> list[dict]:
     return result
 
 
+def _match_kamoshirenai(parts: list[dict]) -> int:
+    """Return the length of a verified negative construction, or zero."""
+    if (len(parts) < 4 or [t['surface'] for t in parts[:3]] != ['か', 'も', 'しれ']
+            or [t['pos'][0] for t in parts[:3]] != ['助詞', '助詞', '動詞']
+            or parts[2]['lemma'] != 'しれる'):
+        return 0
+    negative_index = 3
+    if (parts[3]['surface'] == 'ませ' and parts[3]['lemma'] == 'ます'
+            and len(parts[3]['pos']) > 4 and parts[3]['pos'][4] == '助動詞-マス'):
+        negative_index = 4
+    if len(parts) <= negative_index:
+        return 0
+    negative = parts[negative_index]
+    if (len(negative['pos']) > 4 and negative['pos'][0] == '助動詞'
+            and ((negative['surface'] in {'ねえ', 'ねぇ'} and negative['pos'][4] == '助動詞-ナイ' and negative_index == 3)
+                 or (negative['surface'] in ({'ぬ'} if negative_index == 4 else {'ぬ', 'ん'})
+                     and negative['pos'][4] == '助動詞-ヌ'))):
+        return negative_index + 1
+    return 0
+
+
+def _repair_grammatical_constructions(token_list: list[dict]) -> list[dict]:
+    """Recognize evidenced constructions before greedy dictionary merging."""
+    result = []
+    i = 0
+    while i < len(token_list):
+        length = _match_kamoshirenai(token_list[i:i + 5])
+        if (not length and token_list[i]['surface'] == 'かもしれん'
+                and token_list[i]['lemma'] == 'かもしれん'):
+            length = 1
+        if length:
+            parts = token_list[i:i + length]
+            result.append({
+                'surface': ''.join(t['surface'] for t in parts),
+                'lemma': 'かもしれない', 'base_form': 'かもしれない',
+                'reading': 'かもしれない', 'pos': ['exp', '*', '*', '*', '*', '*'],
+                'components': tuple(c for t in parts for c in token_components(t)),
+            })
+            i += length
+        else:
+            result.append(token_list[i])
+            i += 1
+    return result
+
+
 def _repair_imperative(token_list: list[dict], index: int, jmdict) -> dict:
     """Repair a potential-lemma analysis of a clearly delimited imperative."""
     token = token_list[index]
@@ -208,7 +253,7 @@ def combine_tokens_jmdict(
     max_lookahead: int = 10,
 ) -> list[dict]:
     """Greedily merge adjacent lexical compounds recognized by JMdict."""
-    token_list = _repair_kotoshi_boundaries(token_list)
+    token_list = _repair_grammatical_constructions(_repair_kotoshi_boundaries(token_list))
     token_list = [_repair_imperative(token_list, i, jmdict) for i in range(len(token_list))]
     merged_tokens = []
     n = len(token_list)

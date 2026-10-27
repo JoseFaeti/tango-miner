@@ -93,6 +93,8 @@ class JMDict:
             senses.append({
                 "gloss": glosses,
                 "pos": pos_list,
+                "stagk": [s.text for s in sense.findall("stagk")],
+                "stagr": [s.text for s in sense.findall("stagr")],
                 "misc": misc_list,
                 "field": field_list,
                 "dialect": dialect_list
@@ -217,15 +219,24 @@ class JMDict:
         if not best_entry:
             return None
 
+        # Only apply a restriction for the dimension actually known from the
+        # lookup. A kanji lookup alone does not establish which reading was
+        # intended, and a kana lookup does not establish a kanji spelling.
+        is_kanji_form = any(k["form"] == word for k in best_entry["kanji"])
+        is_reading_form = any(r["form"] == word for r in best_entry["reading"])
+        senses = [s for s in best_entry["senses"]
+                  if (not is_kanji_form or not s.get("stagk") or word in s["stagk"])
+                  and (not is_reading_form or not s.get("stagr") or word in s["stagr"])
+                  and s["gloss"]]
         english_defs = []
-        for i, s in enumerate(best_entry["senses"]):
+        for i, s in enumerate(senses):
             glosses = s["gloss"]
             if not glosses:
                 continue
-            index = f"{i+1}. " if len(best_entry["senses"]) > 1 else ""
+            index = f"{i+1}. " if len(senses) > 1 else ""
             english_defs.append(f"{index}{'; '.join(glosses)}")
 
-        return "<br>".join(english_defs)
+        return "<br>".join(english_defs) or None
 
     def get_reading(self, entry: Dict, word: str = None) -> str:
         """Return the most appropriate reading for a JMdict entry."""

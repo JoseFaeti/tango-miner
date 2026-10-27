@@ -44,6 +44,24 @@ XML = """<?xml version="1.0" encoding="UTF-8"?>
 
 
 class JMDictTests(unittest.TestCase):
+    def test_definitions_respect_known_spelling_and_reading_restrictions(self):
+        xml = """<JMdict><entry>
+        <k_ele><keb>表記</keb></k_ele><k_ele><keb>別記</keb></k_ele>
+        <r_ele><reb>ひょうき</reb></r_ele><r_ele><reb>べっき</reb></r_ele>
+        <sense><gloss>shared</gloss></sense>
+        <sense><stagk>別記</stagk><gloss>other spelling</gloss></sense>
+        <sense><stagr>べっき</stagr><gloss>other reading</gloss></sense>
+        </entry><entry><k_ele><keb>限定</keb></k_ele><k_ele><keb>他</keb></k_ele>
+        <sense><stagk>他</stagk><gloss>only other</gloss></sense></entry></JMdict>"""
+        with tempfile.TemporaryDirectory() as tmp:
+            path = Path(tmp) / "dict.xml"
+            path.write_text(xml, encoding="utf-8")
+            d = JMDict(path)
+            self.assertEqual(d.get_most_common_definition("表記"), "1. shared<br>2. other reading")
+            self.assertEqual(d.get_most_common_definition("ひょうき"), "1. shared<br>2. other spelling")
+            self.assertEqual(d.get_most_common_definition("別記"), "1. shared<br>2. other spelling<br>3. other reading")
+            self.assertIsNone(d.get_most_common_definition("限定"))
+
     def build_dict(self):
         tmp = tempfile.TemporaryDirectory()
         path = Path(tmp.name) / "JMdict_e.xml"

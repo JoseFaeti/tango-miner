@@ -61,7 +61,18 @@ def build_word_stats(
         current_origin = tokenized_sentence.origin
 
         sentence_surfaces = {}
+        sentence_spans = {}
+        cursor = 0
         for token in tokenized_sentence.tokens:
+            surface = token["surface"]
+            # Align in order, allowing whitespace gaps but never guessing after failure.
+            start = tokenized_sentence.text.find(surface, cursor) if cursor is not None and surface else -1
+            if start >= 0 and not tokenized_sentence.text[cursor:start].strip():
+                span = (start, start + len(surface))
+                cursor = span[1]
+            else:
+                span = (-1, -1)
+                cursor = None
             previous_lemma = token.get("reassigned_from")
             if previous_lemma:
                 count, tags = reassigned_occurrences.setdefault(previous_lemma, [0, set()])
@@ -76,6 +87,7 @@ def build_word_stats(
             token_index += 1
             lemma_first_pos_in_file.setdefault(lemma, token_index)
             sentence_surfaces[lemma] = token["surface"]
+            sentence_spans[lemma] = span
 
             ws = word_data.get(lemma)
             if ws:
@@ -98,8 +110,9 @@ def build_word_stats(
                 SegmentedSentence(
                     text=tokenized_sentence.text,
                     tag=tokenized_sentence.tag,
-                    origin=None,
+                    origin=tokenized_sentence.origin,
                     lemma_surfaces=sentence_surfaces,
+                    lemma_spans=sentence_spans,
                 )
             )
 

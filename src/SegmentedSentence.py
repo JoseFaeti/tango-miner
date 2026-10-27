@@ -18,3 +18,5 @@ class SegmentedSentence:
     tag: str | None
     origin: Path
     lemma_surfaces: dict[str, str]
+    lemma_spans: dict[str, tuple[int, int]] = field(default_factory=dict)
+    lemma_spans: dict[str, tuple[int, int]] = field(default_factory=dict)

@@ -231,6 +231,12 @@ matching base verb and reading when the full potential form occurs. Other
 inflections and ambiguous definitions
 remain for review.
 
+Definition output now respects JMdict sense restrictions for the spelling or
+reading being looked up. A restriction on the other dimension is retained
+because that dimension is not established by the lookup alone. If the chosen
+entry has no applicable gloss, the candidate remains available for review;
+selection does not yet search alternative entries using these restrictions.
+
 ## Grammatical occurrence corrections
 
 The conjunction merge guard covers `ない` tagged as an adjective followed by a
@@ -248,3 +254,15 @@ number of reassigned occurrences can preserve its filter eligibility. They are
 not included in the candidate's recorded frequency or example sentences,
 and no potential candidate is created without a real occurrence. Existing
 frequency and source-coverage thresholds otherwise remain in force.
+
+The completed 2026-10-27 run also included colloquial `かもしれねえ` examples
+under `しれる`. The merge stage now recognizes the four-token negative
+construction before greedy merging, assigning its source surface to
+`かもしれない` and retaining the original components. The matcher also handles
+the verified negative forms `かもしれぬ`, `かもしれん`, and `かもしれませぬ`,
+including a single-token `かもしれん`. It does not generalize arbitrary lemma
+concatenations or normalize `やもしれん`. This also prevents a
+preceding `じゃないか` merge from consuming its `か`. Ordinary `しれる` uses
+and genuine `じゃないか` remain eligible. Other suspected occurrences in
+that run, including `つかる` for `つかって`, need further contextual analysis;
+the presence of a genuine use prevents treating the entire entry as invalid.

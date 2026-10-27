@@ -10,6 +10,12 @@ from tests.helpers import make_stats
 
 
 class WriteOutputStepTests(unittest.TestCase):
+    def test_highlight_uses_exact_occurrence_and_escapes_html(self):
+        sentence = Sentence("変わったら わった & <", "tag", "origin", "わっ", 1, (6, 8))
+        self.assertIn("変わったら <span class='highlight'>わっ</span>た &amp; &lt;", sentence.to_html())
+        invalid = Sentence("変わったら", "tag", "origin", "わっ", 1, (-1, -1))
+        self.assertNotIn("highlight", invalid.to_html())
+
     def test_unresolved_candidate_is_written_for_review_with_examples(self):
         with tempfile.TemporaryDirectory() as tmp:
             path = Path(tmp) / "out.csv"

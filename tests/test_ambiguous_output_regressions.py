@@ -105,6 +105,51 @@ class AmbiguousOutputRegressionTests(unittest.TestCase):
                 words, _ = tokenize([sentence])
                 self.assertIn(expected, words)
 
+    def test_colloquial_kamoshirenai_is_not_split_into_shireru(self):
+        for sentence in ["もしかしたらホントに優勝も夢じゃないかもしれねえな。",
+                         "運のちからでラプソーンを楽に倒せるかもしれねえでげすぜ。",
+                         "明日にはそこへ行くかもしれねぇ。"]:
+            with self.subTest(sentence=sentence):
+                words, segments = tokenize([sentence])
+                self.assertIn("かもしれない", words)
+                self.assertNotIn("しれる", words)
+                self.assertNotIn("じゃないか", words)
+                self.assertIn(segments[0].lemma_surfaces["かもしれない"], sentence)
+                components, = words["かもしれない"].component_counts
+                self.assertEqual(''.join(c.surface for c in components), segments[0].lemma_surfaces["かもしれない"])
+        for sentence, expected in [("素性のしれない者を信じる。", "しれる"),
+                                   ("行くかもしれない。", "かもしれない"),
+                                   ("夢じゃないか。", "じゃないか")]:
+            with self.subTest(sentence=sentence):
+                words, _ = tokenize([sentence])
+                self.assertIn(expected, words)
+
+    def test_negative_kamoshirenai_variants_keep_the_source_and_components(self):
+        for sentence, surface in [
+            ("世界に平和をとりもどせるかもしれぬ。", "かもしれぬ"),
+            ("何か良い情報が聞けるかもしれませぬ。", "かもしれませぬ"),
+            ("明日にはそこへ行くかもしれん。", "かもしれん"),
+        ]:
+            with self.subTest(sentence=sentence):
+                words, segments = tokenize([sentence])
+                self.assertIn("かもしれない", words)
+                self.assertNotIn("しれる", words)
+                self.assertEqual(segments[0].lemma_surfaces["かもしれない"], surface)
+                components, = words["かもしれない"].component_counts
+                self.assertEqual(''.join(c.surface for c in components), surface)
+        for sentence in ["素性のしれぬ者を信じる。", "何かがしれんとは言えない。"]:
+            with self.subTest(sentence=sentence):
+                words, _ = tokenize([sentence])
+                self.assertIn("しれる", words)
+
+    def test_occurrence_span_tracks_the_token_not_an_earlier_substring(self):
+        sentence = "変わった後で、石をわったんだ。"
+        words, segments = tokenize([sentence])
+        self.assertIn("わる", words)
+        start, end = segments[0].lemma_spans["わる"]
+        self.assertEqual(sentence[start:end], "わっ")
+        self.assertEqual(start, sentence.rindex("わっ"))
+
     def test_negative_adjective_and_auxiliary_do_not_merge_as_naishi(self):
         cases = [
             "このあたりは他に町もないしここで身体を休めていってね。",

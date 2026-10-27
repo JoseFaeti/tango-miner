@@ -84,6 +84,19 @@ Run the test suite from the repository root:
 python -m unittest discover -s tests
 ```
 
+Compare the two most recent completed run archives without rerunning the
+pipeline or contacting Anki:
+
+```sh
+python -X utf8 scripts/compare_runs.py --word しれる --word かもしれない
+```
+
+Pass two run directories to compare particular runs, or use `--runs-dir` to
+select another archive root. The report shows candidate additions, removals,
+status and frequency changes, input/config equality, and recorded Anki outcomes.
+The dropped CSV combines invalid and unresolved candidates; a candidate
+removed from output does not by itself identify a deleted Anki note.
+
 Some integration tests require the installed Sudachi dictionary and local
 JMdict data. Candidate component provenance is retained in memory for eligible
 candidates and supports some definition and parsing corrections; it does not

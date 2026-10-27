@@ -160,7 +160,8 @@ def attach_sentences(word_data, segmented_sentences, progress_handler=None, conf
                 tag = seg.tag,
                 origin = seg.origin,
                 surface_form = surface,
-                score = round(mean, 2)
+                score = round(mean, 2),
+                span = seg.lemma_spans.get(lemma)
             )
 
             key = _sentence_dedupe_key_fast(text)
@@ -217,7 +218,8 @@ def attach_sentences(word_data, segmented_sentences, progress_handler=None, conf
                     tag = seg.tag,
                     origin = seg.origin,
                     surface_form = surface,
-                    score = ws.score * -1
+                    score = ws.score * -1,
+                    span = seg.lemma_spans.get(lemma)
                 )
 
                 # skip exact duplicates already attached

@@ -127,10 +127,9 @@ and ensure sensitive local paths can be omitted or relativized.
 
 ### 4. Preserve provenance through every stage
 
-The pipeline has useful provenance at token level (`origin`, tag, surface) but
-some of it is discarded: `BuildWordStatsStep` constructs `SegmentedSentence`
-with `origin=None`.  Consequently the sentence CSV and Anki examples cannot
-reliably identify their source file, even though the raw token stream knows it.
+The pipeline carries source origin and token-aligned spans into selected example
+sentences. If alignment fails, it avoids guessing a highlight position. More
+provenance is still needed to explain every candidate occurrence.
 
 Make source path/ID, raw sentence text, normalized text, extraction mode, and
 token offsets first-class metadata that travels with the artifact.  Merged tokens now retain component surfaces, lemmas, base forms, readings,
