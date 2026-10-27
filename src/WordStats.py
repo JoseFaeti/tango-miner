@@ -1,6 +1,7 @@
 import re
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from html import escape
+from src.TokenProvenance import TokenComponent
 
 
 @dataclass(frozen=True)
@@ -27,13 +28,8 @@ class Sentence:
 
         return f"{text}<br><span class='tag sentence-tag'>{escape(self.tag)} - {self.score}</span>"
 
-@dataclass(frozen=False)
+@dataclass(slots=True)
 class WordStats:
-    __slots__ = (
-        "index", "index_count", "frequency", "score", "reading",
-        "definition", "tags", "sentences", "lemma",
-        "pos", "invalid"
-    )
     index: float       # running mean of normalized position (0=start, 1=end)
     index_count: int   # number of files that have contributed to index
     frequency: int
@@ -45,3 +41,4 @@ class WordStats:
     lemma: str
     pos: tuple[str, ...]
     invalid: bool
+    component_counts: dict[tuple[TokenComponent, ...], int] = field(default_factory=dict)

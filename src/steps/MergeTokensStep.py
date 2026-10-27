@@ -4,6 +4,7 @@ from src.Artifact import Artifact
 from src.JMDict import JMDict
 from src.PipelineStep import PipelineStep
 from src.TokenizedSentence import TokenizedSentence
+from src.TokenProvenance import token_components
 from src.steps.ProcessingStep import ProcessingStep
 
 
@@ -153,6 +154,11 @@ def combine_tokens_jmdict(
                 "base_form": lemma_str,
                 "reading": jmdict.get_reading(match_word, token_string),
                 "pos": new_pos,
+                "components": tuple(
+                    component
+                    for token in token_list[i:j]
+                    for component in token_components(token)
+                ),
             })
             i = j
             match_found = True

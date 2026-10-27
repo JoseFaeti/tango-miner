@@ -2,6 +2,7 @@ from src.Artifact import Artifact
 from src.PipelineStep import PipelineStep
 from src.SegmentedSentence import SegmentedSentence
 from src.TokenizedSentence import TokenizedSentence
+from src.TokenProvenance import token_components
 from src.WordStats import WordStats
 from src.steps.ProcessingStep import ProcessingStep
 from src.steps.TokenizeStep import is_useless, kata_to_hira, is_valid_sentence
@@ -78,6 +79,9 @@ def build_word_stats(
                     lemma, token["pos"], invalid=False,
                 )
                 word_data[lemma] = ws
+
+            components = token_components(token)
+            ws.component_counts[components] = ws.component_counts.get(components, 0) + 1
 
             if tokenized_sentence.tag:
                 ws.tags.add(tokenized_sentence.tag)
