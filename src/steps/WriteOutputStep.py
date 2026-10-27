@@ -27,7 +27,11 @@ def write_candidate_diagnostics(words, path):
         for word, stats in words.items():
             status = 'invalid' if stats.invalid else 'review' if stats.needs_review else 'valid'
             row = {'candidate': word, 'status': status, 'frequency': stats.frequency,
-                   'reading': stats.reading, 'definition': stats.definition}
+                   'reading': stats.reading, 'definition': stats.definition,
+                   'definition_supported_occurrences': (sum(stats.component_counts.get(c, 0) for c in stats.definition_components)
+                                                        if stats.definition_components is not None else None),
+                   'other_occurrences': (sum(count for c, count in stats.component_counts.items() if c not in stats.definition_components)
+                                         if stats.definition_components is not None else None)}
             stream.write(json.dumps(row, ensure_ascii=False, separators=(',', ':')) + '\n')
     temporary.replace(path)
 

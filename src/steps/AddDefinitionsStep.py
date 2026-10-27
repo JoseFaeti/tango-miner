@@ -43,6 +43,8 @@ def add_and_filter_for_definitions(input: dict, progress_handler, on_definition_
 
     for i, word in enumerate(input):
         stats = input[word]
+        selection = jmdict.select_contextual_entry(word, stats.component_counts) if hasattr(jmdict, "select_contextual_entry") else None
+        stats.definition_components = selection[1] if selection else None
         definition = jmdict.get_most_common_definition(word, component_counts=stats.component_counts)
         if (not definition and stats.component_counts
                 and word.endswith("る") and hasattr(jmdict, "get_potential_definition")):

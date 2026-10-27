@@ -62,6 +62,7 @@ def build_word_stats(
 
         sentence_surfaces = {}
         sentence_spans = {}
+        sentence_components = {}
         cursor = 0
         for token in tokenized_sentence.tokens:
             surface = token["surface"]
@@ -102,6 +103,7 @@ def build_word_stats(
                 word_data[lemma] = ws
 
             components = token_components(token)
+            sentence_components[lemma] = components
             ws.component_counts[components] = ws.component_counts.get(components, 0) + 1
 
             if tokenized_sentence.tag:
@@ -115,6 +117,7 @@ def build_word_stats(
                     origin=tokenized_sentence.origin,
                     lemma_surfaces=sentence_surfaces,
                     lemma_spans=sentence_spans,
+                    lemma_components=sentence_components,
                 )
             )
 

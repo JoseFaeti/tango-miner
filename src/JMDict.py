@@ -253,8 +253,83 @@ class JMDict:
                 senses.append(sense)
         return {**entry, 'senses': senses}
 
+    def select_contextual_entry(self, word, component_counts):
+        """Return an entry and supported analyses, or None when evidence is inconclusive.
+
+        A token analysis supports an entry only when it uniquely identifies it;
+        frequency ranks supported entries, never unresolved homophones.
+        """
+        entries = self.lookup_word(word)
+        if len(entries) < 2 or not component_counts:
+            return None
+        scores = {}
+        supported = {}
+        selected_senses = {}
+        for components, count in component_counts.items():
+            if count <= 0 or len(components) != 1:
+                continue
+            token = components[0]
+            if token.lemma != word or not token.pos or not token.reading:
+                continue
+            pos = token.pos[0]
+            category = {"動詞": "verb", "形容詞": "adjective (keiyoushi)",
+                        "副詞": "adverb", "名詞": "noun",
+                        "助動詞": "auxiliary", "連体詞": "pre-noun adjectival"}.get(pos)
+            if not category:
+                continue
+            conjugation = token.pos[4] if len(token.pos) > 4 else ""
+            matches = []
+            for index, entry in enumerate(entries):
+                if not any(r['form'] == token.reading for r in entry['reading']):
+                    continue
+                senses, inherited = [], []
+                for sense in entry['senses']:
+                    if sense['pos']:
+                        inherited = sense['pos']
+                    tags = [p.lower() for p in inherited]
+                    if category == 'verb':
+                        compatible = any('verb' in tag and not tag.startswith(('adverb', 'noun', 'auxiliary')) for tag in tags)
+                        if conjugation.startswith('サ行変格'):
+                            compatible = any(tag.startswith('suru verb') for tag in tags)
+                        elif conjugation.startswith('五段'):
+                            compatible = any(tag.startswith('godan verb') for tag in tags)
+                        elif conjugation.startswith(('上一段', '下一段')):
+                            compatible = any(tag.startswith('ichidan verb') for tag in tags)
+                    else:
+                        compatible = any(tag.startswith(category) for tag in tags)
+                    if compatible and sense['gloss']:
+                        senses.append(sense)
+                if senses:
+                    matches.append((index, senses))
+            # Non-independent ichidan verbs often mark an auxiliary use. Only
+            # narrow by this cue when exactly one compatible entry has it.
+            if len(matches) > 1 and category == 'verb' and len(token.pos) > 1 and token.pos[1] == '非自立可能':
+                auxiliary = [(i, senses) for i, senses in matches if any(
+                    tag.lower().startswith('auxiliary verb')
+                    for sense in entries[i]['senses'] for tag in sense['pos'])]
+                if len(auxiliary) == 1:
+                    matches = auxiliary
+            if len(matches) != 1:
+                continue
+            index, senses = matches[0]
+            scores[index] = scores.get(index, 0) + count
+            supported.setdefault(index, set()).add(components)
+            selected_senses.setdefault(index, {})[tuple(id(s) for s in senses)] = senses
+        if not scores:
+            return None
+        ranking = sorted(scores.items(), key=lambda item: item[1], reverse=True)
+        if len(ranking) > 1 and ranking[0][1] == ranking[1][1]:
+            return None
+        index = ranking[0][0]
+        allowed = {id(s) for senses in selected_senses[index].values() for s in senses}
+        entry = entries[index]
+        return ({**entry, 'senses': [s for s in entry['senses'] if id(s) in allowed]}, supported[index])
+
     def get_most_common_definition(self, word, *, component_counts=None):
-        best_entry = self.get_best_entry(word)
+        selection = self.select_contextual_entry(word, component_counts)
+        if selection is None and component_counts and len(self.lookup_word(word)) > 1:
+            return None
+        best_entry = selection[0] if selection else self.get_best_entry(word)
         contextual_entry = self.get_contextual_modifier_entry(word, component_counts, best_entry)
         if contextual_entry is not None:
             best_entry = contextual_entry

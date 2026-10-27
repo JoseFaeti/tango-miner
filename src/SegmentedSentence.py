@@ -19,4 +19,4 @@ class SegmentedSentence:
     origin: Path
     lemma_surfaces: dict[str, str]
     lemma_spans: dict[str, tuple[int, int]] = field(default_factory=dict)
-    lemma_spans: dict[str, tuple[int, int]] = field(default_factory=dict)
+    lemma_components: dict[str, tuple] = field(default_factory=dict)

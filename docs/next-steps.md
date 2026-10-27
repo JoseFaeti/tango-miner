@@ -5,9 +5,12 @@ colloquialisms, and uncertain candidates in scope. See the
 [roadmap](pipeline-improvement-roadmap.md) for context and the
 [issue inventory](problematic-entries.md) for example frequencies.
 
-- [ ] Improve contextual dictionary selection for high-frequency homophones,
-  starting with `する`, `いる`, and `ようやく`; test legitimate alternative
-  senses and mixed contexts.
+- [x] Use token evidence for contextual dictionary selection across
+  homophones, with `する`, `いる`, and `ようやく` as regressions. Match
+  examples to the selected analysis and report mixed occurrence counts.
+- [ ] Review the 995 net additional unresolved candidates in the full-corpus
+  check; improve coverage without guessing same-POS homophones. Present or
+  separately review alternative supported meanings and merged analyses.
 - [ ] Resolve verb and inflection mismatches such as `おって`, `覆われ`, and
   `つれて` using source and POS evidence; preserve useful expression uses.
 - [ ] Separate expression and verb occurrences, starting with `にかけて`;

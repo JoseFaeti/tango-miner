@@ -142,6 +142,8 @@ def attach_sentences(word_data, segmented_sentences, progress_handler=None, conf
             ws = word_get(lemma)
             if ws is None:
                 continue
+            if ws.definition_components is not None and seg.lemma_components.get(lemma) not in ws.definition_components:
+                continue
 
             # Fraction of sentence words that score harder than this word [0, 1]
             too_hard = len(sorted_scores) - bisect_right(sorted_scores, ws.score)
@@ -211,6 +213,8 @@ def attach_sentences(word_data, segmented_sentences, progress_handler=None, conf
 
                 ws = word_get(lemma)
                 if ws is None:
+                    continue
+                if ws.definition_components is not None and seg.lemma_components.get(lemma) not in ws.definition_components:
                     continue
 
                 sentence = Sentence(

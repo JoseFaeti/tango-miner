@@ -63,12 +63,29 @@ class JMDictTests(unittest.TestCase):
             adjective = evidence('ふかい', '形容詞')
             noun = evidence('ふかい', '名詞')
             self.assertEqual(d.get_most_common_definition('ふかい', component_counts={adjective: 4}), '1. deep<br>2. profound')
-            self.assertEqual(d.get_most_common_definition('どうこう', component_counts={evidence('どうこう', '副詞'): 2}), 'trend')
-            self.assertEqual(d.get_most_common_definition('ふかい', component_counts={adjective: 4, noun: 1}), 'discomfort')
-            self.assertEqual(d.get_most_common_definition('ふかい', component_counts={evidence('ふかい', '形容詞', 'ちがう'): 1}), 'discomfort')
-            self.assertEqual(d.get_most_common_definition('まさか', component_counts={evidence('まさか', '副詞'): 1}), 'noun')
+            self.assertEqual(d.get_most_common_definition('どうこう', component_counts={evidence('どうこう', '副詞'): 2}), 'this and that')
+            self.assertEqual(d.get_most_common_definition('ふかい', component_counts={adjective: 4, noun: 1}), '1. deep<br>2. profound')
+            self.assertIsNone(d.get_most_common_definition('ふかい', component_counts={evidence('ふかい', '形容詞', 'ちがう'): 1}))
+            self.assertIsNone(d.get_most_common_definition('まさか', component_counts={evidence('まさか', '副詞'): 1}))
             merged = adjective + noun
-            self.assertEqual(d.get_most_common_definition('ふかい', component_counts={merged: 1}), 'discomfort')
+            self.assertIsNone(d.get_most_common_definition('ふかい', component_counts={merged: 1}))
+
+    def test_homophone_context_requires_consistent_unambiguous_evidence(self):
+        xml = """<JMdict>
+        <entry><r_ele><reb>ようやく</reb></r_ele><sense><pos>adverb (fukushi)</pos><gloss>finally</gloss></sense></entry>
+        <entry><r_ele><reb>ようやく</reb><re_pri>nf01</re_pri></r_ele><sense><pos>noun (common)</pos><gloss>summary</gloss></sense></entry>
+        </JMdict>"""
+        with tempfile.TemporaryDirectory() as tmp:
+            path = Path(tmp) / "dict.xml"
+            path.write_text(xml, encoding="utf-8")
+            d = JMDict(path)
+            adverb = (TokenComponent("ようやく", "ようやく", "ようやく", "ようやく", ("副詞",)),)
+            noun = (TokenComponent("ようやく", "ようやく", "ようやく", "ようやく", ("名詞",)),)
+            self.assertEqual(d.get_most_common_definition("ようやく", component_counts={adverb: 2}), "finally")
+            self.assertEqual(d.get_most_common_definition("ようやく", component_counts={adverb: 2, noun: 1}), "finally")
+            self.assertEqual(d.get_most_common_definition("ようやく", component_counts={noun: 1}), "summary")
+            self.assertIsNone(d.get_most_common_definition("ようやく", component_counts={adverb: 1, noun: 1}))
+            self.assertEqual(d.get_most_common_definition("ようやく"), "summary")
 
     def test_definitions_respect_known_spelling_and_reading_restrictions(self):
         xml = """<JMdict><entry>
@@ -109,11 +126,11 @@ class JMDictTests(unittest.TestCase):
             path = Path(tmp) / "dict.xml"
             path.write_text(xml, encoding="utf-8")
             d = JMDict(path)
-            self.assertIsNone(d.get_most_common_definition("まつ", component_counts={component("まつ", "動詞"): 2}))
+            self.assertEqual(d.get_most_common_definition("まつ", component_counts={component("まつ", "動詞"): 2}), "wait")
             self.assertEqual(d.get_most_common_definition("たい", component_counts={component("たい", "助動詞"): 2}), "1. want to<br>2. wish to")
             self.assertIsNone(d.get_most_common_definition("そば", component_counts={component("そば", "名詞"): 2}))
-            self.assertIsNone(d.get_most_common_definition("まつ", component_counts={component("まつ", "名詞"): 2}))
-            self.assertIsNone(d.get_most_common_definition("まつ", component_counts={component("まつ", "動詞"): 2, component("まつ", "名詞"): 1}))
+            self.assertEqual(d.get_most_common_definition("まつ", component_counts={component("まつ", "名詞"): 2}), "pine")
+            self.assertEqual(d.get_most_common_definition("まつ", component_counts={component("まつ", "動詞"): 2, component("まつ", "名詞"): 1}), "wait")
             self.assertIsNone(d.get_most_common_definition("まつ"))
 
     def test_potential_fallback_checks_reading_morphology_and_evidence(self):

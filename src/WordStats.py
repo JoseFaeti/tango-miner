@@ -45,6 +45,7 @@ class WordStats:
     pos: tuple[str, ...]
     invalid: bool
     component_counts: dict[tuple[TokenComponent, ...], int] = field(default_factory=dict)
+    definition_components: set[tuple[TokenComponent, ...]] | None = None
     needs_review: bool = False
     reassigned_occurrences: int = 0
     reassigned_tags: set[str] = field(default_factory=set)

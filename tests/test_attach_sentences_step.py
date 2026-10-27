@@ -2,6 +2,7 @@ import unittest
 from pathlib import Path
 
 from src.SegmentedSentence import SegmentedSentence
+from src.TokenProvenance import TokenComponent
 from src.RunConfig import SentencesConfig
 from src.steps.AttachSentencesStep import (
     MAX_SENTENCES,
@@ -25,6 +26,16 @@ def seg(text, lemma_surfaces, tag="tag"):
 
 
 class AttachSentencesStepTests(unittest.TestCase):
+    def test_examples_and_fallback_require_the_selected_occurrence_analysis(self):
+        adverb = (TokenComponent("ようやく", "ようやく", "ようやく", "ようやく", ("副詞",)),)
+        noun = (TokenComponent("ようやく", "ようやく", "ようやく", "ようやく", ("名詞",)),)
+        target = make_stats(score=500, lemma="ようやく")
+        target.definition_components = {adverb}
+        examples = [SegmentedSentence("ようやく着いた。", "a", Path("a"), {"ようやく": "ようやく"}, lemma_components={"ようやく": adverb}),
+                    SegmentedSentence("ようやくを読んだ。", "b", Path("b"), {"ようやく": "ようやく"}, lemma_components={"ようやく": noun})]
+        attach_sentences({"ようやく": target}, examples)
+        self.assertEqual([s.text for s in target.sentences], ["ようやく着いた。"])
+
     def test_configured_example_limit_and_length_affect_selection(self):
         short = "目標です。"
         long = "目標について皆で詳しく話しました。"

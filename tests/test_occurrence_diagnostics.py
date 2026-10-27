@@ -8,6 +8,7 @@ from src.Artifact import Artifact
 from src.Pipeline import Pipeline
 from src.steps.ProcessingStep import ProcessingStep
 from src.TokenizedSentence import TokenizedSentence
+from src.TokenProvenance import TokenComponent
 from src.steps.MergeTokensStep import combine_tokens_jmdict
 from src.steps.OccurrenceDiagnosticsStep import OccurrenceDiagnosticsStep
 from src.steps.WriteOutputStep import write_candidate_diagnostics
@@ -57,6 +58,19 @@ class OccurrenceDiagnosticsTests(unittest.TestCase):
             OccurrenceDiagnosticsStep(path).process(Artifact([sentence]))
             rows = [json.loads(line) for line in path.read_text(encoding='utf-8').splitlines()]
         self.assertEqual([row['span'] for row in rows], [None, None])
+
+    def test_candidate_summary_reports_selected_and_other_occurrences(self):
+        a = (TokenComponent('a', 'a', 'a', 'a', ('名詞',)),)
+        b = (TokenComponent('b', 'a', 'a', 'a', ('動詞',)),)
+        stats = make_stats(lemma='a')
+        stats.component_counts = {a: 7, b: 2}
+        stats.definition_components = {a}
+        with tempfile.TemporaryDirectory() as tmp:
+            path = Path(tmp) / 'candidate.jsonl'
+            write_candidate_diagnostics({'a': stats}, path)
+            row = json.loads(path.read_text(encoding='utf8'))
+        self.assertEqual(row['definition_supported_occurrences'], 7)
+        self.assertEqual(row['other_occurrences'], 2)
 
     def test_candidate_summary_distinguishes_review_invalid_and_valid(self):
         words = {word: make_stats(lemma=word) for word in ['valid', 'review', 'invalid']}

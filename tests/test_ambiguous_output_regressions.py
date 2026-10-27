@@ -322,6 +322,27 @@ class AmbiguousOutputRegressionTests(unittest.TestCase):
                 result = self.jmdict.get_most_common_definition(word, component_counts=words[word].component_counts)
                 self.assertIn(expected, result)
 
+    def test_high_frequency_homophone_definitions_use_token_context(self):
+        for sentence, word, expected in [
+            ("何をする。", "する", "to do"),
+            ("猫がいる。", "いる", "to be"),
+            ("長年探して、ようやく見つけた。", "ようやく", "finally"),
+        ]:
+            with self.subTest(word=word):
+                words, _ = tokenize([sentence])
+                result = self.jmdict.get_most_common_definition(word, component_counts=words[word].component_counts)
+                self.assertIsNotNone(result)
+                self.assertIn(expected, result)
+        for sentence, word, expected in [
+            ("紙に文字を刷る。", "刷る", "print"),
+            ("道具が要る。", "要る", "needed"),
+            ("文章を要約する。", "要約", "summary"),
+        ]:
+            with self.subTest(word=word):
+                words, _ = tokenize([sentence])
+                self.assertIn(word, words)
+                self.assertIn(expected, self.jmdict.get_most_common_definition(word, component_counts=words[word].component_counts))
+
     def test_known_lemma_inventions_do_not_return(self):
         cases = {
             "おまちください。": "おまつ",
