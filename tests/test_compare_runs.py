@@ -6,7 +6,7 @@ import tempfile
 import unittest
 from pathlib import Path
 
-from scripts.compare_runs import completed_runs, load_run, report
+from scripts.compare_runs import compact_report, completed_runs, load_run, report
 
 
 def make_run(root, name, valid, dropped=(), status="completed"):
@@ -40,6 +40,20 @@ class CompareRunsTests(unittest.TestCase):
             self.assertIn("犬: dropped/review -> valid", text)
             self.assertIn("猫: 4 -> 7 (+3)", text)
             self.assertIn("Anki outcome", text)
+
+    def test_compact_report_omits_full_definitions_and_bounds_lists(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            first = make_run(root, '2026-10-27_1200_a', [('猫', 3)])
+            second = make_run(root, '2026-10-27_1201_b', [('犬', 4), ('鳥', 2)])
+            output = io.StringIO()
+            with contextlib.redirect_stdout(output):
+                compact_report(load_run(first), load_run(second), ['猫'], 1)
+            text = output.getvalue()
+            self.assertIn('Added: 2; removed: 1', text)
+            self.assertIn('猫: valid, frequency 3 -> absent', text)
+            self.assertNotIn('definition', text)
+            self.assertNotIn('example', text)
 
     def test_missing_or_duplicate_outputs_fail_instead_of_silent_comparison(self):
         with tempfile.TemporaryDirectory() as tmp:

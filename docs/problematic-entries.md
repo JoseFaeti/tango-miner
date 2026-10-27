@@ -13,15 +13,18 @@ Use frequency to prioritize investigation, not to filter candidates. See the
 - **32,609 — `いる`:** “need” for displayed auxiliary uses.
 - **314 — `ようやく`:** “summary” for displayed uses meaning “finally”.
 - **146 — `により`:** “similarity” for means or accordance.
-- **146 — `覆われ`:** noun “cover” for passive uses of `覆う`.
-- **116 — `おって`:** noun “pursuer” for auxiliary `おる` uses.
+- **146 — `覆われ`:** noun “cover” for passive uses of `覆う`. A later
+  boundary guard recovers the verb when followed by `た` or `て`.
+- **116 — `おって`:** noun “pursuer” for auxiliary `おる` uses. A later
+  guard preserves non-independent `おる` following a continuative verb.
 - **56 — `風花`:** snow definition for displayed Persona character-name uses;
   valid non-name senses must remain available.
 
 ## Inflection, expression, and mixed-occurrence ambiguity
 
 - **153 — `つれて`:** displayed uses are `連れる`; proportional sense is
-  unrelated to those examples.
+  unrelated to those examples. A later repair covers an object plus
+  `つれていく` / `つれてくる`; other contexts remain under review.
 - **90 — `にかけて`:** two displayed examples use `掛ける`; one swears by
   something. Preserve both analyses.
 - **69 — `つかる`:** displayed examples include genuine `浸かる` and one

@@ -101,6 +101,37 @@ status and frequency changes, input/config equality, and recorded Anki outcomes.
 The dropped CSV combines invalid and unresolved candidates; a candidate
 removed from output does not by itself identify a deleted Anki note.
 
+For a short, targeted inspection of the latest completed archive, use:
+
+```sh
+python -X utf8 scripts/inspect_run.py --word する --word いる --examples 1
+python -X utf8 scripts/inspect_run.py --status review --limit 10
+python -X utf8 scripts/compare_runs.py --compact --word する --limit 5
+```
+
+`inspect_run.py` also accepts a run directory, `--contains`, and output limits
+(`--limit`, `--examples`, `--width`). With `--word` and `--occurrences`, it
+streams the run's `occurrences.jsonl` and prints a bounded analysis summary;
+this requires a run made with occurrence diagnostics enabled. Occurrence totals
+include tokens excluded before candidate collection. The dropped/review filter
+also includes invalid candidates.
+
+To check a corpus with Anki disabled and save the verbose progress to a log:
+
+```sh
+python -X utf8 scripts/check_corpus.py --input path/to/corpus --output-dir checks --baseline runs/example-run --word する
+```
+
+Use an actual completed run directory for `--baseline`; omit it to skip the
+comparison. The wrapper loads the normal configuration, forces Anki off in a
+temporary resolved configuration, and writes the run archive and a uniquely
+named log under the output directory. Use `--config` to select another config,
+`--retokenize` to refresh the cache, or `--occurrence-diagnostics` when that
+evidence is needed. The compact comparison reports config equality; disabling
+Anki can itself make configurations differ. The wrapper still runs the full
+pipeline and may take significant time and disk space, but does not print its
+progress log into the conversation.
+
 For detailed parsing investigation, add `--occurrence-diagnostics` to a run.
 It writes `occurrences.jsonl` and `candidate-diagnostics.jsonl` in the run
 archive. These files can be very large and include source text and source

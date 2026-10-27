@@ -21,3 +21,8 @@ The current code and tests determine actual behavior when a document is stale.
 - Keep documentation free of absolute local paths and personal machine details.
   Preserve the user's existing changes and update relevant documentation when
   behavior or priorities change.
+- Work pragmatically and conserve time, compute, and context. Reuse existing
+  code and scripts where practical; create focused reusable helpers or bounded
+  outputs when they reduce repeated work. Prefer targeted archive queries and
+  compact reports, and save verbose corpus-run logs to files. Do not sacrifice
+  necessary validation or recall assessment solely to save resources.

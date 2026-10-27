@@ -145,6 +145,57 @@ def _crosses_incompatible_grammar(tokens: list[dict], entry) -> bool:
     return False
 
 
+def _is_inflection_misread_as_noun(tokens, start, end, entry):
+    """Keep a verb and passive auxiliary when a following inflection confirms it."""
+    if end - start != 2 or end >= len(tokens) or not isinstance(entry, dict):
+        return False
+    verb, auxiliary = tokens[start:end]
+    following = tokens[end]
+    tags = [tag.lower() for sense in entry.get('senses', []) for tag in sense.get('pos', [])]
+    return (bool(tags) and all(tag.startswith('noun') for tag in tags)
+            and verb['pos'][0] == '動詞' and len(verb['pos']) > 5
+            and verb['pos'][5].startswith('未然形')
+            and auxiliary['pos'][0] == '助動詞' and auxiliary['lemma'] in {'れる', 'られる'}
+            and following['lemma'] in {'た', 'て'}
+            and following['pos'][0] in {'助動詞', '助詞'})
+
+
+def _is_auxiliary_oru_misread(tokens, start, end):
+    """A continuative verb followed by non-independent おる is not 追手."""
+    if start == 0 or end - start != 2:
+        return False
+    previous = tokens[start - 1]
+    verb, particle = tokens[start:end]
+    return (previous['pos'][0] == '動詞' and len(previous['pos']) > 5
+            and previous['pos'][5].startswith('連用形')
+            and verb['lemma'] == 'おる' and tuple(verb['pos'][:2]) == ('動詞', '非自立可能')
+            and particle['surface'] == 'て' and particle['pos'][0] == '助詞')
+
+
+def _repair_tsurete_motion(tokens, index, jmdict):
+    """Identify taking someone along only with an object and motion verb."""
+    token = tokens[index]
+    if (token['lemma'] != 'つれる' or token['pos'][0] != '動詞'
+            or index + 2 >= len(tokens) or tokens[index + 1]['surface'] != 'て'
+            or tokens[index + 1]['pos'][0] != '助詞'
+            or tokens[index + 2]['lemma'] not in {'いく', '行く', 'くる', '来る'}
+            or tokens[index + 2]['pos'][0] != '動詞'):
+        return token
+    prior = tokens[max(0, index - 6):index]
+    object_positions = [i for i, t in enumerate(prior)
+                        if t['surface'] == 'を' and t['pos'][0] == '助詞']
+    if not object_positions or any(t['surface'] in {'。', '！', '？', '!', '?', '…'}
+                                   for t in prior[object_positions[-1] + 1:]):
+        return token
+    entries = jmdict.lookup_word('連れる')
+    if not any(any(r['form'] == 'つれる' for r in e.get('reading', []))
+               and any(tag.lower().startswith('ichidan verb') for sense in e.get('senses', [])
+                       for tag in sense.get('pos', [])) for e in entries):
+        return token
+    return {**token, 'lemma': '連れる', 'base_form': '連れる', 'reading': 'つれる',
+            'components': token_components(token), 'analysis_rule': 'object_tsureru_motion'}
+
+
 def _is_kigakawatta_predicate(tokens: list[dict], start: int, end: int) -> bool:
     """Keep the past verb in a clearly delimited 気が変わった predicate."""
     if start < 2 or end - start != 2:
@@ -329,6 +380,7 @@ def combine_tokens_jmdict(
     token_list = _repair_kigahen_boundaries(token_list, jmdict)
     token_list = _repair_grammatical_constructions(_repair_kotoshi_boundaries(token_list))
     token_list = [_repair_imperative(token_list, i, jmdict) for i in range(len(token_list))]
+    token_list = [_repair_tsurete_motion(token_list, i, jmdict) for i in range(len(token_list))]
     merged_tokens = []
     n = len(token_list)
     i = 0
@@ -359,6 +411,12 @@ def combine_tokens_jmdict(
 
             match_word = jmdict.get_best_entry(token_string)
             if not match_word:
+                continue
+            if (_is_inflection_misread_as_noun(token_list, i, j, match_word)
+                    or _is_auxiliary_oru_misread(token_list, i, j)
+                    or (any(t.get('analysis_rule') == 'object_tsureru_motion' for t in token_list[i:j])
+                        and not (token_list[i].get('analysis_rule') == 'object_tsureru_motion'
+                                 and j - i >= 3))):
                 continue
             if _is_kigakawatta_predicate(token_list, i, j):
                 continue

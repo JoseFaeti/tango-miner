@@ -11,8 +11,10 @@ colloquialisms, and uncertain candidates in scope. See the
 - [ ] Review the 995 net additional unresolved candidates in the full-corpus
   check; improve coverage without guessing same-POS homophones. Present or
   separately review alternative supported meanings and merged analyses.
-- [ ] Resolve verb and inflection mismatches such as `おって`, `覆われ`, and
-  `つれて` using source and POS evidence; preserve useful expression uses.
+- [ ] Improve verb and inflection mismatches using source and POS evidence.
+  Context-specific repairs cover auxiliary `おって`, passive `覆われた` /
+  `覆われて`, and object + `つれていく` / `つれてくる`; other contexts
+  still need review. Preserve useful nouns and expressions.
 - [ ] Separate expression and verb occurrences, starting with `にかけて`;
   preserve both the swearing expression and ordinary `掛ける` uses.
 - [ ] Address `により` and investigate remaining boundary errors such as

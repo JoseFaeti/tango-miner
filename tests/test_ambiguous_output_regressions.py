@@ -343,6 +343,42 @@ class AmbiguousOutputRegressionTests(unittest.TestCase):
                 self.assertIn(word, words)
                 self.assertIn(expected, self.jmdict.get_most_common_definition(word, component_counts=words[word].component_counts))
 
+    def test_inflection_merges_keep_verb_targets_and_raw_evidence(self):
+        for sentence, expected, false_target, definition in [
+            ("よくもあんなところに閉じ込めおって！", "おる", "おって", "to be"),
+            ("だが黒いモヤに覆われた生き物。", "覆う", "覆われ", "to cover"),
+            ("冬要塞は硬い壁に覆われている。", "覆う", "覆われ", "to cover"),
+            ("彼は商人に雇われた。", "雇う", "雇われ", "to employ"),
+            ("この子を神殿までつれていって。", "連れる", "つれて", "bring along"),
+            ("彼を町までつれてきた。", "連れる", "つれて", "bring along"),
+            ("何でワシを、こんな所につれてきたんじゃ！？", "連れる", "つれて", "bring along"),
+        ]:
+            with self.subTest(sentence=sentence):
+                words, segments = tokenize([sentence])
+                self.assertIn(expected, words)
+                self.assertNotIn(false_target, words)
+                result = self.jmdict.get_most_common_definition(expected, component_counts=words[expected].component_counts)
+                self.assertIsNotNone(result)
+                self.assertIn(definition, result)
+                components, = words[expected].component_counts
+                self.assertTrue(all(c.surface in sentence for c in components))
+                start, end = segments[0].lemma_spans[expected]
+                self.assertEqual(sentence[start:end], segments[0].lemma_surfaces[expected])
+
+    def test_inflection_repairs_preserve_real_nouns_and_expressions(self):
+        for sentence, target in [
+            ("追手がすぐそこまで来た。", "追手"),
+            ("おって連絡いたします。", "おって"),
+            ("雪の覆われの美しい山だ。", "覆われ"),
+            ("時代の変化につれて成長する。", "につれて"),
+            ("子供たちをつれて遊ぶ。", "つれて"),
+            ("あの子をつれてくる。", "つれてくる"),
+            ("本を読んだ。つれていく。", "つれて"),
+        ]:
+            with self.subTest(sentence=sentence):
+                words, _ = tokenize([sentence])
+                self.assertIn(target, words)
+
     def test_known_lemma_inventions_do_not_return(self):
         cases = {
             "おまちください。": "おまつ",
