@@ -14,9 +14,26 @@ from src.steps.FilterFrequencyStep import FilterFrequencyStep
 from src.steps.ScoreWordStep import ScoreWordStep
 from src.steps.AttachSentencesStep import AttachSentencesStep
 from src.steps.MergeTokensStep import MergeTokensStep
+from src.steps.OccurrenceDiagnosticsStep import OccurrenceDiagnosticsStep
 
 
 class TangoMinerTests(unittest.TestCase):
+    def test_occurrence_diagnostics_are_opt_in_and_configure_both_outputs(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            config = Path(tmp) / 'config.toml'
+            config.write_text('', encoding='utf-8')
+            for enabled in (False, True):
+                with self.subTest(enabled=enabled), patch('tango_miner.Pipeline') as pipeline:
+                    pipeline.return_value.duration = 0
+                    args = ['--config', str(config), '--input', tmp]
+                    if enabled:
+                        args.append('--occurrence-diagnostics')
+                    process_script(args)
+                    steps = pipeline.call_args.kwargs['steps']
+                    self.assertEqual(sum(isinstance(s, OccurrenceDiagnosticsStep) for s in steps), int(enabled))
+                    writer = next(s for s in steps if isinstance(s, WriteOutputStep))
+                    self.assertEqual(writer.diagnostics_path is not None, enabled)
+
     def setUp(self):
         dependency_patch = patch("tango_miner.collect_dependencies", return_value={})
         dependency_patch.start()

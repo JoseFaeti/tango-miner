@@ -211,8 +211,53 @@ class JMDict:
         entry, senses = matches[0]
         return {**entry, "senses": senses}
 
+    def get_contextual_modifier_entry(self, word, component_counts, best_entry):
+        """Correct a POS-incompatible entry only with unanimous adjective evidence."""
+        if not component_counts or not best_entry:
+            return None
+        categories, readings = set(), set()
+        for components, count in component_counts.items():
+            if count <= 0 or len(components) != 1:
+                return None
+            component = components[0]
+            if component.lemma != word or not component.pos or not component.reading:
+                return None
+            category = {"形容詞": "adjective (keiyoushi)"}.get(component.pos[0])
+            if category is None:
+                return None
+            categories.add(category)
+            readings.add(component.reading)
+        if len(categories) != 1 or len(readings) != 1:
+            return None
+        category, = categories
+        reading, = readings
+
+        def compatible(entry):
+            return any(tag.lower().startswith(category)
+                       for sense in entry['senses'] for tag in sense['pos'])
+
+        # Do not replace one plausible homophone with another based on POS.
+        if compatible(best_entry):
+            return None
+        matches = [entry for entry in self.lookup_word(word)
+                   if compatible(entry) and any(r['form'] == reading for r in entry['reading'])]
+        if len(matches) != 1:
+            return None
+        entry = matches[0]
+        senses = []
+        inherited_pos = []
+        for sense in entry['senses']:
+            if sense['pos']:
+                inherited_pos = sense['pos']
+            if any(tag.lower().startswith(category) for tag in inherited_pos):
+                senses.append(sense)
+        return {**entry, 'senses': senses}
+
     def get_most_common_definition(self, word, *, component_counts=None):
         best_entry = self.get_best_entry(word)
+        contextual_entry = self.get_contextual_modifier_entry(word, component_counts, best_entry)
+        if contextual_entry is not None:
+            best_entry = contextual_entry
         if best_entry is None and component_counts:
             best_entry = self.get_contextual_short_entry(word, component_counts)
 

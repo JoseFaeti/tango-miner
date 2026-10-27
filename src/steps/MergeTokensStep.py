@@ -192,9 +192,9 @@ def _repair_kotoshi_boundaries(token_list: list[dict]) -> list[dict]:
             evidence = token_components(token)
             result.extend([
                 {"surface": "こと", "lemma": "こと", "base_form": "こと", "reading": "こと",
-                 "pos": ("名詞", "普通名詞", "一般", "*", "*", "*"), "components": evidence},
+                 "pos": ("名詞", "普通名詞", "一般", "*", "*", "*"), "components": evidence, "analysis_rule": "kotoshi_boundary"},
                 {"surface": "し", "lemma": "する", "base_form": "する", "reading": "する",
-                 "pos": ("動詞", "非自立可能", "*", "*", "サ行変格", "連用形-一般"), "components": evidence},
+                 "pos": ("動詞", "非自立可能", "*", "*", "サ行変格", "連用形-一般"), "components": evidence, "analysis_rule": "kotoshi_boundary"},
             ])
         else:
             result.append(token)
@@ -223,12 +223,12 @@ def _repair_kigahen_boundaries(token_list: list[dict], jmdict) -> list[dict]:
                 evidence = token_components(first)
                 result.extend([
                     {'surface': '気', 'lemma': '気', 'base_form': '気', 'reading': 'き',
-                     'pos': ('名詞', '普通名詞', '一般', '*', '*', '*'), 'components': evidence},
+                     'pos': ('名詞', '普通名詞', '一般', '*', '*', '*'), 'components': evidence, 'analysis_rule': 'kigahen_boundary'},
                     {'surface': 'が', 'lemma': 'が', 'base_form': 'が', 'reading': 'が',
-                     'pos': ('助詞', '格助詞', '*', '*', '*', '*'), 'components': evidence},
+                     'pos': ('助詞', '格助詞', '*', '*', '*', '*'), 'components': evidence, 'analysis_rule': 'kigahen_boundary'},
                     {'surface': '変わっ', 'lemma': '変わる', 'base_form': '変わる', 'reading': 'かわる',
                      'pos': tuple(nodes[0].part_of_speech()),
-                     'components': evidence + token_components(second), 'reassigned_from': 'わる'},
+                     'components': evidence + token_components(second), 'reassigned_from': 'わる', 'analysis_rule': 'kigahen_boundary'},
                 ])
                 i += 2
                 continue
@@ -273,6 +273,7 @@ def _repair_grammatical_constructions(token_list: list[dict]) -> list[dict]:
                 'surface': ''.join(t['surface'] for t in parts),
                 'lemma': 'かもしれない', 'base_form': 'かもしれない',
                 'reading': 'かもしれない', 'pos': ['exp', '*', '*', '*', '*', '*'],
+                'analysis_rule': 'kamoshirenai_construction',
                 'components': tuple(c for t in parts for c in token_components(t)),
             })
             i += length
@@ -312,7 +313,7 @@ def _repair_imperative(token_list: list[dict], index: int, jmdict) -> dict:
                for entry in entries):
         return token
     return {**token, "lemma": base, "base_form": base, "reading": reading,
-            "reassigned_from": lemma, "components": token_components(token)}
+            "reassigned_from": lemma, "components": token_components(token), "analysis_rule": "imperative_reassignment"}
 
 
 def has_kanji(text: str) -> bool:
@@ -385,6 +386,7 @@ def combine_tokens_jmdict(
                 "lemma": lemma_str,
                 "base_form": lemma_str,
                 "reading": jmdict.get_reading(match_word, token_string),
+                "analysis_rule": "jmdict_surface_merge",
                 "pos": new_pos,
                 "components": tuple(
                     component

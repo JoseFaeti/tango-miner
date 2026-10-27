@@ -1,4 +1,5 @@
 import csv
+import json
 
 from pathlib import Path
 
@@ -7,13 +8,28 @@ from src.PipelineStep import PipelineStep
 
 
 class WriteOutputStep(PipelineStep):
-    def __init__(self, output_path: Path):
+    def __init__(self, output_path: Path, diagnostics_path: Path | None = None):
         self._processing_step = None
         self.output_path = output_path
+        self.diagnostics_path = diagnostics_path
 
     def process(self, artifact: Artifact) -> Artifact:
         write_final_file(artifact.data, self.output_path, self.progress)
+        if self.diagnostics_path is not None:
+            write_candidate_diagnostics(artifact.data, self.diagnostics_path)
         return artifact
+
+
+def write_candidate_diagnostics(words, path):
+    path = Path(path)
+    temporary = path.with_suffix(path.suffix + '.tmp')
+    with temporary.open('w', encoding='utf-8', newline='\n') as stream:
+        for word, stats in words.items():
+            status = 'invalid' if stats.invalid else 'review' if stats.needs_review else 'valid'
+            row = {'candidate': word, 'status': status, 'frequency': stats.frequency,
+                   'reading': stats.reading, 'definition': stats.definition}
+            stream.write(json.dumps(row, ensure_ascii=False, separators=(',', ':')) + '\n')
+    temporary.replace(path)
 
 
 def write_final_file(input, output_file, progress_handler=None):

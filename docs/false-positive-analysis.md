@@ -93,9 +93,12 @@ presentation can improve without filtering them out.
 
 **Status (2026-10-27): partial.** Merged tokens retain immutable component
 surfaces, lemmas, base forms, readings, and POS. Candidate aggregation counts
-distinct component sequences, including unmerged tokens. This evidence is not
-yet displayed or used for candidate typing or definition selection. It does
-not change eligibility, merges, or output.
+distinct component sequences, including unmerged tokens. Some definition and
+parsing corrections use these counts. Optional occurrence diagnostics now
+export the individual source-linked analyses and final token rule, including
+tokens excluded before aggregation; candidate diagnostics provide final status
+and definition. They do not yet show rejected merge alternatives or the
+selected dictionary entry and do not change candidate eligibility.
 
 ### 4. Choose definitions using POS, reading, and source form
 
@@ -231,6 +234,16 @@ matching base verb and reading when the full potential form occurs. Other
 inflections and ambiguous definitions
 remain for review.
 
+When all retained analyses consist of one adjective token with the same
+dictionary form and reading, an incompatible frequency-selected entry can be
+replaced by a unique JMdict adjective entry matching that reading. For example,
+`ふかい` can select “deep” instead of the noun “discomfort”. Mixed or merged
+analyses, incompatible readings, multiple matching entries, and already
+compatible entries keep the previous selection. This is not a guarantee that
+Sudachi's POS is correct; ambiguous existing selections are not automatically
+marked for review. Adverbs remain unchanged: corpus inspection showed
+misanalysed word fragments and a noun use of `どかん` tagged as adverbs.
+
 Definition output now respects JMdict sense restrictions for the spelling or
 reading being looked up. A restriction on the other dimension is retained
 because that dimension is not established by the lookup alone. If the chosen
@@ -295,3 +308,23 @@ Comparing merged streams with and without this guard over the latest run's
 cached inputs changed 90 streams across ten surface forms. These include 33
 `変わった`, 28 `疲れた`, and 10 `慣れた` streams; repeated source sentences
 are included, and the comparison does not measure exported candidate counts.
+
+## Yet-to-learn card review (2026-10-27)
+
+The latest completed run's displayed examples show additional definition and
+target-selection problems. `により` is defined as “similarity” where its
+examples express means or accordance; `おって` is defined as a pursuer where
+the examples use inflected auxiliary `おる` after a verb stem; and `覆われ`
+is given a noun definition where the examples use passive `覆う`. The
+`つれて` examples use `連れる`, not the proportional expression; two of
+three `にかけて` examples use `掛ける`, while one is the swearing expression.
+These examples motivate POS and inflection-aware selection as well as
+occurrence-level expression disambiguation. Preserve genuine expression and
+homophone uses when adding regressions; do not reject noun entries globally.
+
+The same run defined `する` as “rub” or “squander” and `いる` as “need”,
+although their displayed examples use “do” and auxiliary `いる`. These
+high-frequency homophones are particularly valuable regression cases. The
+review covers the exported examples, not all occurrences. The run did not
+enable occurrence diagnostics, so its CSV does not establish the underlying
+token analysis or the identity of the selected dictionary entry.

@@ -44,6 +44,32 @@ XML = """<?xml version="1.0" encoding="UTF-8"?>
 
 
 class JMDictTests(unittest.TestCase):
+    def test_unanimous_modifier_evidence_corrects_only_incompatible_entries(self):
+        xml = """<JMdict>
+        <entry><r_ele><reb>ふかい</reb><re_pri>nf01</re_pri></r_ele><sense><pos>noun (common)</pos><gloss>discomfort</gloss></sense></entry>
+        <entry><r_ele><reb>ふかい</reb></r_ele><sense><pos>adjective (keiyoushi)</pos><gloss>deep</gloss></sense><sense><gloss>profound</gloss></sense><sense><pos>noun (common)</pos><gloss>depth</gloss></sense></entry>
+        <entry><r_ele><reb>どうこう</reb><re_pri>nf01</re_pri></r_ele><sense><pos>noun (common)</pos><gloss>trend</gloss></sense></entry>
+        <entry><r_ele><reb>どうこう</reb></r_ele><sense><pos>adverb (fukushi)</pos><gloss>this and that</gloss></sense></entry>
+        <entry><r_ele><reb>まさか</reb><re_pri>nf01</re_pri></r_ele><sense><pos>noun (common)</pos><gloss>noun</gloss></sense></entry>
+        <entry><r_ele><reb>まさか</reb></r_ele><sense><pos>adverb (fukushi)</pos><gloss>first</gloss></sense></entry>
+        <entry><r_ele><reb>まさか</reb></r_ele><sense><pos>adverb (fukushi)</pos><gloss>second</gloss></sense></entry>
+        </JMdict>"""
+        def evidence(word, pos, reading=None):
+            return (TokenComponent(word, word, word, reading or word, (pos, '*')),)
+        with tempfile.TemporaryDirectory() as tmp:
+            path = Path(tmp) / 'dict.xml'
+            path.write_text(xml, encoding='utf-8')
+            d = JMDict(path)
+            adjective = evidence('ふかい', '形容詞')
+            noun = evidence('ふかい', '名詞')
+            self.assertEqual(d.get_most_common_definition('ふかい', component_counts={adjective: 4}), '1. deep<br>2. profound')
+            self.assertEqual(d.get_most_common_definition('どうこう', component_counts={evidence('どうこう', '副詞'): 2}), 'trend')
+            self.assertEqual(d.get_most_common_definition('ふかい', component_counts={adjective: 4, noun: 1}), 'discomfort')
+            self.assertEqual(d.get_most_common_definition('ふかい', component_counts={evidence('ふかい', '形容詞', 'ちがう'): 1}), 'discomfort')
+            self.assertEqual(d.get_most_common_definition('まさか', component_counts={evidence('まさか', '副詞'): 1}), 'noun')
+            merged = adjective + noun
+            self.assertEqual(d.get_most_common_definition('ふかい', component_counts={merged: 1}), 'discomfort')
+
     def test_definitions_respect_known_spelling_and_reading_restrictions(self):
         xml = """<JMdict><entry>
         <k_ele><keb>表記</keb></k_ele><k_ele><keb>別記</keb></k_ele>

@@ -2,6 +2,7 @@ import json
 import urllib.request
 from collections import OrderedDict
 from functools import partial
+from pathlib import Path
 from typing import Any
 
 from src.Artifact import Artifact
@@ -19,8 +20,9 @@ class AnkiConnectError(RuntimeError):
 
 
 class AddWordsToAnkiStep(PipelineStep):
-    def __init__(self, config: AnkiConfig | None = None):
+    def __init__(self, config: AnkiConfig | None = None, plan_path: Path | None = None):
         self.config = config if config is not None else AnkiConfig()
+        self.plan_path = Path(plan_path) if plan_path is not None else None
         self._processing_step = ProcessingStep.ANKI_EXPORT
         self.outcome = {"status": "not_started", "plan": None}
 
@@ -35,11 +37,15 @@ class AddWordsToAnkiStep(PipelineStep):
             self.outcome["plan"] = {"add": add, "modify": modify, "delete": delete, "create_model": model}
         def record_status(status):
             self.outcome["status"] = status
+        def save_details(details):
+            if self.plan_path is not None:
+                self.plan_path.write_text(json.dumps(details, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
+                print(f"Anki detailed plan: {self.plan_path}")
         added, updated, deleted = export_words_to_anki(
             deck_name=self.config.deck, words=artifact.data, model_name=self.config.model,
             progress_handler=self.progress, invoke=invoke, batch_size=self.config.batch_size,
             note_fetching_batch_size=self.config.note_fetch_batch_size, output_only=self.config.output_only,
-            preview_handler=record_plan, status_handler=record_status,
+            preview_handler=record_plan, status_handler=record_status, details_handler=save_details,
         )
         
         if self.config.output_only and preview:
@@ -92,6 +98,7 @@ def export_words_to_anki(
     output_only=False,
     preview_handler=None,
     status_handler=None,
+    details_handler=None,
 ):
     invoke = anki_invoke if invoke is None else invoke
     existing_words = {}
@@ -145,6 +152,7 @@ def export_words_to_anki(
     # --------------------------------------------------
     notes_to_add = []
     update_actions = []
+    update_details = []
     total_notes_to_update = 0
 
     for i, (word, stats) in enumerate(words.items(), start=1):
@@ -199,6 +207,16 @@ def export_words_to_anki(
 
             if dirty or to_add or to_remove:
                 total_notes_to_update += 1
+                new_fields = word_to_anki_fields(word, stats)
+                changed_fields = {
+                    name: {"before": note["fields"][name]["value"], "after": value}
+                    for name, value in new_fields.items()
+                    if dirty and name in note["fields"] and note["fields"][name]["value"] != value
+                }
+                update_details.append({"expression": word, "note_id": note_id,
+                                       "fields": changed_fields,
+                                       "tags_added": sorted(to_add), "tags_removed": sorted(to_remove)})
+
         else:
             dup_ids = invoke("findNotes", {
                 "query": f'deck:\"{deck_name}\" note:\"{model_name}\" Expression:\"{word}\"'
@@ -221,6 +239,16 @@ def export_words_to_anki(
         )
 
     total_notes_to_add = len(notes_to_add)
+    if details_handler is not None:
+        details_handler({
+            "version": 1, "deck": deck_name, "model": model_name,
+            "create_model": not model_exists and bool(total_notes_to_add),
+            "add": [{"expression": n["fields"]["Expression"], "fields": n["fields"],
+                     "tags": sorted(n["tags"])} for n in notes_to_add],
+            "modify": update_details,
+            "delete": [{"expression": word, "note_id": existing_words[word]["noteId"]}
+                       for word in sorted(obsolete_words)],
+        })
     if preview_handler is not None:
         preview_handler((total_notes_to_add, total_notes_to_update, total_notes_to_delete,
                          not model_exists and bool(total_notes_to_add)))

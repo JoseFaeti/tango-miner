@@ -26,6 +26,7 @@ from src.steps.MergeTokensStep import MergeTokensStep
 from src.steps.BuildWordStatsStep import BuildWordStatsStep
 from src.steps.FilterFrequencyStep import FilterFrequencyStep
 from src.steps.WriteOutputStep import WriteOutputStep
+from src.steps.OccurrenceDiagnosticsStep import OccurrenceDiagnosticsStep
 
 from src.steps.debug.DumpSentences import DumpSentences
 
@@ -52,6 +53,7 @@ def print_step_progress(step, amount, total, duration=None, additional_text=""):
         step.TOKENIZING: "Tokenizing",
         step.TOKEN_MERGING: "Merging token compounds",
         step.WORD_COLLECTION: "Collecting tokens",
+        step.OCCURRENCE_DIAGNOSTICS: "Writing occurrence diagnostics",
         step.FILTERING: "Filtering useful vocab",
         step.READINGS: "Adding readings",
         step.DEFINITIONS: "Adding definitions",
@@ -111,6 +113,9 @@ def process_script(argv=None):
     parser.add_argument("--retokenize", action="store_true",
                         help="Regenerate tokens for this run and refresh the tokenizer cache")
 
+    parser.add_argument("--occurrence-diagnostics", action="store_true",
+                        help="Write detailed occurrence and candidate JSONL files (can be large)")
+
     args = parser.parse_args(argv)
     overrides = {}
     for section, key, value in (
@@ -165,18 +170,20 @@ def process_script(argv=None):
             DumpSentences("sentences-normalized.txt") if debug else None,
             RawTokenizeStep(force_retokenize=args.retokenize, config=config.tokenizer),
             MergeTokensStep(max_lookahead=config.merge.max_lookahead, dictionary_path=config.dictionary.jmdict_path),
+            OccurrenceDiagnosticsStep(final_path.parent / "occurrences.jsonl") if args.occurrence_diagnostics else None,
             BuildWordStatsStep(),
             FilterFrequencyStep(min_frequency, keep_percent=config.filter.keep_percent,
                                 min_frequency_per_source=config.filter.min_frequency_per_source),
             AddDefinitionsStep(debug=debug, dictionary_path=config.dictionary.jmdict_path),
             ScoreWordStep(config.scoring),
             AttachSentencesStep(config.sentences),
-            WriteOutputStep(final_path),
-            AddWordsToAnkiStep(config.anki) if config.anki.enabled else None,
+            WriteOutputStep(final_path, diagnostics_path=(final_path.parent / "candidate-diagnostics.jsonl")
+                            if args.occurrence_diagnostics else None),
+            AddWordsToAnkiStep(config.anki, plan_path=final_path.parent / "anki-plan.json") if config.anki.enabled else None,
         ]
 
         summary = {"status": "running", "dependencies": collect_dependencies(config),
-                   "retokenize_requested": args.retokenize, "stages": [],
+                   "retokenize_requested": args.retokenize, "occurrence_diagnostics": args.occurrence_diagnostics, "stages": [],
                    "anki": {"status": "not_started" if config.anki.enabled else "disabled"}}
         write_run_summary(final_path.parent, summary)
         pipeline = Pipeline(steps=[step for step in steps if step is not None], on_progress=print_step_progress)

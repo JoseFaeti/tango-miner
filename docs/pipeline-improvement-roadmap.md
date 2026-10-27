@@ -84,6 +84,12 @@ an explicit `--anki-prune` (or config equivalent).  Before any mutation,
 produce and display a plan: notes to add, update, tag-change, and delete.
 Support `--dry-run` for the full pipeline, including an Anki diff report.
 
+The Anki step prints counts and saves `anki-plan.json` before confirmation,
+including additions, deleted expressions, and before/after field and tag changes.
+The plan contains deck content. `summary.json` records the outcome separately;
+a failure during application may leave partial changes, and the plan is not a
+per-operation receipt. Output-only mode writes the plan without changing Anki.
+
 The Anki configuration should include endpoint, timeout, deck/model names, and
 batch sizes rather than keeping them as module constants.  Validate the model
 fields before export and fail with an actionable message if the configured

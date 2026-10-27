@@ -49,7 +49,11 @@ The
 Anki export is disabled by default. Setting `[anki] enabled = true` in
 `config.toml` enables the AnkiConnect step after CSV output. It reads the deck
 and reports how many notes would be added, modified (including tag changes),
-and deleted. `[anki] output_only = true` (the default) stops after this preview.
+and deleted. The run archive contains `anki-plan.json` with planned additions,
+field and tag changes, and deletions; it is written before confirmation and
+contains deck content. The plan describes intended operations, while
+`summary.json` records the outcome; a failure during application can leave
+partial changes. `[anki] output_only = true` (the default) stops after this preview.
 Set it to `false` to allow changes; the step then asks for explicit confirmation
 before creating a model or changing notes. Declining or unavailable input leaves
 Anki unchanged. Notes in the configured deck and model that are absent from the
@@ -97,6 +101,19 @@ status and frequency changes, input/config equality, and recorded Anki outcomes.
 The dropped CSV combines invalid and unresolved candidates; a candidate
 removed from output does not by itself identify a deleted Anki note.
 
+For detailed parsing investigation, add `--occurrence-diagnostics` to a run.
+It writes `occurrences.jsonl` and `candidate-diagnostics.jsonl` in the run
+archive. These files can be very large and include source text and source
+paths. Each occurrence records its normalized sentence, source, token position,
+aligned character span (or null if alignment failed), candidate, raw component
+evidence, collection eligibility, and the final token analysis rule. The
+candidate file records final output status, frequency, reading and definition
+for candidates surviving frequency filtering. Join on `candidate`; an eligible
+occurrence missing from the candidate file did not survive that filter. The
+files do not record rejected merge attempts or the identity of the selected
+JMdict entry, and the analysis rule does not imply a confidence score. Existing
+archives do not have these files unless produced with this option.
+
 Some integration tests require the installed Sudachi dictionary and local
 JMdict data. Candidate component provenance is retained in memory for eligible
 candidates and supports some definition and parsing corrections; it does not
@@ -104,7 +121,9 @@ yet appear in exported CSVs.
 Existing filters, including the standalone proper-noun filter, do not fully
 match the recall-first goal and should be evaluated before changing them.
 
-See [false-positive analysis](docs/false-positive-analysis.md) for the current
+See [next steps](docs/next-steps.md) for current priorities and the
+[problematic-entry inventory](docs/problematic-entries.md) for frequency-based
+review examples. See [false-positive analysis](docs/false-positive-analysis.md) for the current
 quality policy, known issues, and next steps, and the [pipeline improvement
 roadmap](docs/pipeline-improvement-roadmap.md) for broader work. The
 [initial audit](docs/anki-output-audit-2026-10-26.md) and

@@ -312,6 +312,16 @@ class AmbiguousOutputRegressionTests(unittest.TestCase):
         words, _ = tokenize(["森の中で猫を見れる。"])
         self.assertIsNone(self.jmdict.get_potential_definition("見れる", {}, get_tokenizer()))
 
+    def test_adjective_pos_evidence_disambiguates_dictionary_homographs(self):
+        for sentence, word, expected in [
+            ("ふかい所ではいきが長持ちしませんが。", "ふかい", "deep"),
+            ("むさい男ばっかのパーティーがイヤになった。", "むさい", "filthy"),
+        ]:
+            with self.subTest(word=word):
+                words, _ = tokenize([sentence])
+                result = self.jmdict.get_most_common_definition(word, component_counts=words[word].component_counts)
+                self.assertIn(expected, result)
+
     def test_known_lemma_inventions_do_not_return(self):
         cases = {
             "おまちください。": "おまつ",

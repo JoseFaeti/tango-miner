@@ -1,5 +1,7 @@
 import unittest
 import json
+import tempfile
+from pathlib import Path
 from unittest.mock import Mock
 from unittest.mock import patch
 
@@ -71,6 +73,34 @@ class AddWordsToAnkiStepTests(unittest.TestCase):
         self.assertLess(rendered.index("Changes:"), rendered.index("Anki output-only mode:"))
         self.assertNotIn("Anki plan:", rendered)
         self.assertNotIn("0 added, 0 updated, 0 deleted", rendered)
+        self.assertFalse(set(calls) & {"deleteNotes", "multi", "addNotes", "createModel"})
+
+    def test_detailed_plan_saved_before_confirmation_and_without_mutation(self):
+        calls = []
+        def fake(action, params=None, **kwargs):
+            calls.append(action)
+            if action == "modelNames": return ["Custom"]
+            if action == "findNotes": return [] if "Expression:" in params["query"] else [1, 2]
+            if action == "notesInfo": return [note(1, "猫", tags=["old"], fields={"Meaning": "old"}), note(2, "古い")]
+            raise AssertionError(f"unexpected mutation: {action}")
+
+        words = {"猫": make_stats(index=1, frequency=2, score=123.45), "犬": make_stats()}
+        for output_only in (True, False):
+            with self.subTest(output_only=output_only), tempfile.TemporaryDirectory() as directory:
+                plan_path = Path(directory) / "anki-plan.json"
+                def decline(_prompt):
+                    self.assertTrue(plan_path.exists())
+                    return "n"
+                step = AddWordsToAnkiStep(AnkiConfig(model="Custom", output_only=output_only), plan_path)
+                with patch("src.steps.AddWordsToAnkiStep.anki_invoke", side_effect=fake), \
+                     patch("builtins.input", side_effect=decline), patch("builtins.print"):
+                    Pipeline([step]).run(Artifact(words))
+                plan = json.loads(plan_path.read_text(encoding="utf-8"))
+                self.assertEqual([item["expression"] for item in plan["add"]], ["犬"])
+                self.assertEqual(plan["modify"][0]["fields"]["Meaning"], {"before": "old", "after": "definition"})
+                self.assertEqual(plan["modify"][0]["tags_removed"], ["old"])
+                self.assertEqual(plan["delete"], [{"expression": "古い", "note_id": 2}])
+                self.assertEqual(step.outcome["status"], "preview_only" if output_only else "cancelled")
         self.assertFalse(set(calls) & {"deleteNotes", "multi", "addNotes", "createModel"})
 
     def test_request_uses_configured_endpoint_and_timeout(self):
