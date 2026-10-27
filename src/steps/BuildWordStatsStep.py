@@ -42,6 +42,7 @@ def build_word_stats(
     current_origin = None
     lemma_first_pos_in_file: dict[str, int] = {}
     token_index = 0
+    reassigned_occurrences = {}
 
     def update_source_indexes():
         if token_index == 0:
@@ -61,6 +62,12 @@ def build_word_stats(
 
         sentence_surfaces = {}
         for token in tokenized_sentence.tokens:
+            previous_lemma = token.get("reassigned_from")
+            if previous_lemma:
+                count, tags = reassigned_occurrences.setdefault(previous_lemma, [0, set()])
+                reassigned_occurrences[previous_lemma][0] = count + 1
+                if tokenized_sentence.tag:
+                    tags.add(tokenized_sentence.tag)
             lemma = token["base_form"] or token["lemma"]
             reading = token["reading"]
             if not lemma or not reading or is_useless(token):
@@ -100,4 +107,8 @@ def build_word_stats(
             progress_handler(index, len(tokenized_sentences))
 
     update_source_indexes()
+    for lemma, (count, tags) in reassigned_occurrences.items():
+        if lemma in word_data:
+            word_data[lemma].reassigned_occurrences += count
+            word_data[lemma].reassigned_tags.update(tags)
     return word_data, segmented_out

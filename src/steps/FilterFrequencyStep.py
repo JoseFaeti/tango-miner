@@ -41,9 +41,13 @@ def filter_useful_words(input: OrderedDict, min_frequency: int, keep_percent: in
     kept_set = kept.__setitem__
 
     for i, (word, stats) in enumerate(input.items(), 1):
-        frequency_per_source = stats.frequency / len(stats.tags)
+        # Corrected imperative occurrences can keep a genuine potential candidate
+        # eligible, but do not inflate its recorded frequency or examples.
+        eligibility_frequency = stats.frequency + stats.reassigned_occurrences
+        eligibility_tags = stats.tags | stats.reassigned_tags
+        frequency_per_source = eligibility_frequency / len(eligibility_tags)
 
-        if stats.frequency >= threshold and frequency_per_source >= min_frequency_per_source:
+        if eligibility_frequency >= threshold and frequency_per_source >= min_frequency_per_source:
             kept_set(word, stats)
 
         if progress_handler:

@@ -230,3 +230,21 @@ Source-grounded potential forms can receive a labeled definition from a
 matching base verb and reading when the full potential form occurs. Other
 inflections and ambiguous definitions
 remain for review.
+
+## Grammatical occurrence corrections
+
+The conjunction merge guard covers `ない` tagged as an adjective followed by a
+particle, as well as the pre-existing auxiliary boundary. A single Sudachi
+`ことし` token followed by certain `する` inflections is reconstructed as
+`こと` + `し`, retaining the original token as evidence. The genuine
+`ことし` candidate and `ないし` conjunction remain eligible. A single-token
+`ないし` such as `自信ないし` is not reconstructed by this rule.
+
+Clearly delimited godan imperatives that Sudachi labels as potential lemmas
+are reassigned to their verified base verbs. This does not handle every
+imperative or resolve uncertain sentence fragments. If reassignment would
+otherwise push a real potential candidate below the frequency cutoff, the
+number of reassigned occurrences can preserve its filter eligibility. They are
+not included in the candidate's recorded frequency or example sentences,
+and no potential candidate is created without a real occurrence. Existing
+frequency and source-coverage thresholds otherwise remain in force.

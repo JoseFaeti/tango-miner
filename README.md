@@ -86,7 +86,8 @@ python -m unittest discover -s tests
 
 Some integration tests require the installed Sudachi dictionary and local
 JMdict data. Candidate component provenance is retained in memory for eligible
-candidates; it does not yet alter selection or appear in exported CSVs.
+candidates and supports some definition and parsing corrections; it does not
+yet appear in exported CSVs.
 Existing filters, including the standalone proper-noun filter, do not fully
 match the recall-first goal and should be evaluated before changing them.
 

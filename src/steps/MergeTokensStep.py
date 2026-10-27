@@ -129,7 +129,9 @@ def _crosses_incompatible_grammar(tokens: list[dict], entry) -> bool:
 
     # Negative auxiliary + connective particle is not a lexical conjunction.
     # Entries with an auxiliary/expression sense (e.g. ないで) remain eligible.
-    if (first["pos"][0] == "助動詞" and second["pos"][0] == "助詞"
+    if ((first["pos"][0] == "助動詞"
+         or (first["pos"][0] == "形容詞" and first["lemma"] == "ない"))
+            and second["pos"][0] == "助詞"
             and all(tag == "conjunction" for tag in tags)):
         return True
 
@@ -143,6 +145,59 @@ def _crosses_incompatible_grammar(tokens: list[dict], entry) -> bool:
     return False
 
 
+def _repair_kotoshi_boundaries(token_list: list[dict]) -> list[dict]:
+    """Split ことし when the following token confirms する inflection."""
+    result = []
+    for index, token in enumerate(token_list):
+        following = token_list[index + 1] if index + 1 < len(token_list) else None
+        if (token["surface"] == "ことし" and token["lemma"] == "ことし"
+                and token["pos"][0] == "名詞" and following
+                and following["surface"] in {"て", "ても", "ない", "なくても", "なくちゃ", "なければ", "ちゃあ"}):
+            evidence = token_components(token)
+            result.extend([
+                {"surface": "こと", "lemma": "こと", "base_form": "こと", "reading": "こと",
+                 "pos": ("名詞", "普通名詞", "一般", "*", "*", "*"), "components": evidence},
+                {"surface": "し", "lemma": "する", "base_form": "する", "reading": "する",
+                 "pos": ("動詞", "非自立可能", "*", "*", "サ行変格", "連用形-一般"), "components": evidence},
+            ])
+        else:
+            result.append(token)
+    return result
+
+
+def _repair_imperative(token_list: list[dict], index: int, jmdict) -> dict:
+    """Repair a potential-lemma analysis of a clearly delimited imperative."""
+    token = token_list[index]
+    lemma = token["lemma"]
+    if (index + 1 >= len(token_list) or token["pos"][0] != "動詞"
+            or not lemma.endswith("る") or token["surface"] != lemma[:-1]
+            or token_list[index + 1]["surface"] not in {"。", "！", "!", "？", "?", "、", "…", "って"}
+            or jmdict.lookup_word(lemma)):
+        return token
+    from src.steps.TokenizeStep import get_tokenizer, TOKENIZER_MODE, kata_to_hira
+    nodes = get_tokenizer().tokenize(lemma, TOKENIZER_MODE)
+    if len(nodes) != 1 or nodes[0].dictionary_form() != lemma:
+        return token
+    base = nodes[0].normalized_form()
+    endings = {"う": "える", "く": "ける", "ぐ": "げる", "す": "せる", "つ": "てる",
+               "ぬ": "ねる", "ぶ": "べる", "む": "める", "る": "れる"}
+    if not base or base[-1] not in endings or base[:-1] + endings[base[-1]] != lemma:
+        return token
+    # Restrict to godan verbs: the imperative of an ichidan verb differs.
+    base_nodes = get_tokenizer().tokenize(base, TOKENIZER_MODE)
+    if len(base_nodes) != 1 or "五段" not in base_nodes[0].part_of_speech()[4]:
+        return token
+    reading = kata_to_hira(base_nodes[0].reading_form())
+    entries = jmdict.lookup_word(base)
+    if not any(isinstance(entry, dict) and any(r["form"] == reading for r in entry.get("reading", []))
+               and any("verb" in tag.lower() and not tag.lower().startswith(("adverb", "noun", "auxiliary"))
+                       for sense in entry.get("senses", []) for tag in sense.get("pos", []))
+               for entry in entries):
+        return token
+    return {**token, "lemma": base, "base_form": base, "reading": reading,
+            "reassigned_from": lemma, "components": token_components(token)}
+
+
 def has_kanji(text: str) -> bool:
     return any("一" <= char <= "龯" for char in text)
 
@@ -153,6 +208,8 @@ def combine_tokens_jmdict(
     max_lookahead: int = 10,
 ) -> list[dict]:
     """Greedily merge adjacent lexical compounds recognized by JMdict."""
+    token_list = _repair_kotoshi_boundaries(token_list)
+    token_list = [_repair_imperative(token_list, i, jmdict) for i in range(len(token_list))]
     merged_tokens = []
     n = len(token_list)
     i = 0

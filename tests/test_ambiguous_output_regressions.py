@@ -9,6 +9,7 @@ silently changes the displayed source form into an unrelated dictionary word.
 import unittest
 
 from src.steps.MergeTokensStep import combine_tokens_jmdict, get_jmdict
+from src.steps.FilterFrequencyStep import filter_useful_words
 from src.steps.TokenizeStep import (
     TOKENIZER_MODE,
     get_tokenizer,
@@ -103,6 +104,86 @@ class AmbiguousOutputRegressionTests(unittest.TestCase):
             with self.subTest(sentence=sentence):
                 words, _ = tokenize([sentence])
                 self.assertIn(expected, words)
+
+    def test_negative_adjective_and_auxiliary_do_not_merge_as_naishi(self):
+        cases = [
+            "このあたりは他に町もないしここで身体を休めていってね。",
+            "あ、私もこれ以上、ミヤとの将来は考えたくないし。",
+            "できないし困る。",
+        ]
+        for sentence in cases:
+            with self.subTest(sentence=sentence):
+                words, _ = tokenize([sentence])
+                self.assertIn("ない", words)
+                self.assertNotIn("ないし", words)
+        for sentence, expected in [("ないしは別の方法だ。", "ないし"),
+                                   ("東京ないし大阪に行く。", "ないし"),
+                                   ("行かないでください。", "ないで"),
+                                   ("行かないと間に合わない。", "ないと")]:
+            with self.subTest(sentence=sentence):
+                words, _ = tokenize([sentence])
+                self.assertIn(expected, words)
+
+    def test_kotoshi_splits_only_with_following_suru_grammar(self):
+        for sentence in ["でも先輩はそんなことしなくても、いっぱい貰えますよね。",
+                         "悪いことしても、仕方ねのかなとか思う。",
+                         "みんなを守るはずの兵士があんなことしちゃあ",
+                         "なんでオレがこんなことしなくちゃならないんだよ！",
+                         "そんなことしてみろ、命がいくつあっても足りないぜ。"]:
+            with self.subTest(sentence=sentence):
+                words, _ = tokenize([sentence])
+                self.assertNotIn("ことし", words)
+                self.assertIn("こと", words)
+                self.assertIn("する", words)
+                if any(t["surface"] == "ことし" for t in raw_tokens(sentence)):
+                    evidence = [c for seq in words["こと"].component_counts for c in seq]
+                    self.assertTrue(any(c.surface == "ことし" for c in evidence))
+        for sentence in ["ことしは良い年になる。", "ことしでも来年でもいいよ。"]:
+            with self.subTest(sentence=sentence):
+                words, _ = tokenize([sentence])
+                self.assertIn("ことし", words)
+
+    def test_imperatives_do_not_pollute_potential_forms(self):
+        for sentence, base, potential in [
+            ("フフフせいぜい祈れ。", "祈る", "祈れる"),
+            ("祈れ、今こそ執行の時だ。", "祈る", "祈れる"),
+            ("奈々ちゃんが代われって言った。", "代わる", "代われる"),
+            ("さぁモンショウのありかを吐け！", "吐く", "吐ける"),
+        ]:
+            with self.subTest(sentence=sentence):
+                words, _ = tokenize([sentence])
+                self.assertIn(base, words)
+                self.assertNotIn(potential, words)
+                components, = words[base].component_counts
+                original = next(t for t in raw_tokens(sentence) if t["surface"] == components[0].surface)
+                self.assertEqual(components[0].lemma, original["lemma"])
+        for sentence, expected in [("あなたが祈れるようになった。", "祈れる"),
+                                   ("私は神様に祈れないんだ。", "祈れる"),
+                                   ("代われるものなら代わりたいよ！", "代われる"),
+                                   ("間違えずに全部踊れたら大丈夫。", "踊れる")]:
+            with self.subTest(sentence=sentence):
+                words, _ = tokenize([sentence])
+                self.assertIn(expected, words)
+
+    def test_reassigned_imperatives_do_not_hide_a_real_low_frequency_potential(self):
+        sentences = ["代われるものなら代わりたいよ。", "あなたと代われるなら嬉しい。",
+                     "奈々ちゃんが代われって言った。", "あなたが代われって言った。"]
+        words, segments = tokenize(sentences, tag="fixture")
+        self.assertIn("代われる", words)
+        self.assertEqual(words["代われる"].frequency, 2)
+        self.assertEqual(words["代われる"].reassigned_occurrences, 2)
+        kept = filter_useful_words(words, min_frequency=4, keep_percent=100, min_frequency_per_source=0)
+        self.assertIn("代われる", kept)
+        self.assertEqual(kept["代われる"].frequency, 2)
+        for segment in segments:
+            if "代われって" in segment.text:
+                self.assertNotIn("代われる", segment.lemma_surfaces)
+                self.assertIn("代わる", segment.lemma_surfaces)
+
+    def test_imperatives_do_not_create_a_potential_candidate_by_themselves(self):
+        words, _ = tokenize(["祈れ、今こそ執行の時だ。", "祈れ、願いは届く。"], tag="fixture")
+        self.assertNotIn("祈れる", words)
+        self.assertIn("祈る", words)
 
     def test_potential_form_fallback_is_source_grounded(self):
         for sentence, word, base in [
