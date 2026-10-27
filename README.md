@@ -95,3 +95,18 @@ quality policy, known issues, and next steps, and the [pipeline improvement
 roadmap](docs/pipeline-improvement-roadmap.md) for broader work. The
 [initial audit](docs/anki-output-audit-2026-10-26.md) and
 [re-audit](docs/anki-output-reaudit-2026-10-26.md) record output evidence.
+
+## Unresolved definitions
+
+Candidates without a dictionary definition are written to the existing
+`.dropped.csv` review file, with their examples also marked `review` in the
+sentence CSV. They are not classified as invalid solely because a definition
+is missing. Existing Anki notes for those candidates are protected from
+deletion and are not updated; new unresolved candidates are not added to Anki.
+Candidates absent from the filtered results can still be included in the Anki
+deletion plan. Short kana candidates can use unanimous retained token POS to
+select a unique compatible JMdict entry for auxiliaries and pre-noun forms.
+Short nouns, other uncertain analyses and ambiguous homophones remain for review instead of receiving an
+unsupported definition. Source-grounded potential forms may use a
+labeled definition derived from an unambiguous matching base verb when the
+full potential form occurs in the source.

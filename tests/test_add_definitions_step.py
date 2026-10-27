@@ -14,7 +14,7 @@ class FakeJMDict:
     def __init__(self, path):
         self.path = path
 
-    def get_most_common_definition(self, word):
+    def get_most_common_definition(self, word, *, component_counts=None):
         return {"猫": "cat"}.get(word)
 
 
@@ -26,7 +26,7 @@ class AddDefinitionsStepTests(unittest.TestCase):
         dictionary.assert_called_once_with(Path("custom.xml"))
         self.assertEqual(words["猫"].definition, "cat")
 
-    def test_adds_definitions_and_marks_missing_entries_invalid(self):
+    def test_adds_definitions_and_marks_missing_entries_for_review(self):
         words = {
             "猫": make_stats(definition="", invalid=False),
             "謎語": make_stats(definition="", invalid=False),
@@ -46,7 +46,8 @@ class AddDefinitionsStepTests(unittest.TestCase):
         self.assertEqual(result["猫"].definition, "cat")
         self.assertFalse(result["猫"].invalid)
         self.assertIsNone(result["謎語"].definition)
-        self.assertTrue(result["謎語"].invalid)
+        self.assertFalse(result["謎語"].invalid)
+        self.assertTrue(result["謎語"].needs_review)
         self.assertEqual(processed, [("猫", "cat"), ("謎語", None)])
         self.assertEqual(events[0], (0, 2, "Initializing dictionary..."))
         self.assertEqual(events[-1], (1, 2, "1/2 1 definitions found"))

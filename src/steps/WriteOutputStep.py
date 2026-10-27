@@ -37,7 +37,7 @@ def write_final_file(input, output_file, progress_handler=None):
         for word in sorted_words_by_score:
             word_data = sorted_words_by_score[word]
 
-            writer = drop_writer if word_data.invalid else normal_writer
+            writer = drop_writer if word_data.invalid or word_data.needs_review else normal_writer
 
             writer.writerow([
                 word_data.score,
@@ -62,7 +62,7 @@ def write_final_file(input, output_file, progress_handler=None):
             if not word_data.sentences:
                 continue
 
-            status = "dropped" if word_data.invalid else "kept"
+            status = "review" if word_data.needs_review else "dropped" if word_data.invalid else "kept"
 
             for sentence in word_data.sentences:
                 sentence_writer.writerow([

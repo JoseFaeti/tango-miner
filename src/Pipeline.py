@@ -38,8 +38,9 @@ class Pipeline:
                     ):
                         record["output_sentence_count"] = sum(len(item[1]) for item in data.data)
                     if isinstance(data.data, dict) and type(step).__name__ == "AddDefinitionsStep":
-                        record["valid_candidates"] = sum(not stats.invalid for stats in data.data.values())
-                        record["invalid_candidates"] = len(data.data) - record["valid_candidates"]
+                        record["valid_candidates"] = sum(not stats.invalid and not stats.needs_review for stats in data.data.values())
+                        record["review_candidates"] = sum(stats.needs_review and not stats.invalid for stats in data.data.values())
+                        record["invalid_candidates"] = sum(stats.invalid for stats in data.data.values())
                 except BaseException as exc:
                     record["status"] = "failed"
                     record["error"] = f"{type(exc).__name__}: {exc}"

@@ -42,3 +42,4 @@ class WordStats:
     pos: tuple[str, ...]
     invalid: bool
     component_counts: dict[tuple[TokenComponent, ...], int] = field(default_factory=dict)
+    needs_review: bool = False

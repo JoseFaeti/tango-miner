@@ -148,6 +148,27 @@ class AddWordsToAnkiStepTests(unittest.TestCase):
                 self.assertEqual(plan, [(1, 0, 0, False)])
                 self.assertEqual(statuses[-1], expected)
 
+    def test_unresolved_words_preserve_existing_notes_without_updates_or_new_notes(self):
+        reviewed = make_stats()
+        reviewed.needs_review = True
+        new_reviewed = make_stats()
+        new_reviewed.needs_review = True
+        words = {"未解決": reviewed, "新語": new_reviewed}
+        calls = []
+        def fake(action, params=None):
+            calls.append((action, params))
+            if action == "modelNames": return ["Custom"]
+            if action == "findNotes": return [1, 2]
+            if action == "notesInfo": return [note(1, "未解決"), note(2, "本当に不要")]
+            raise AssertionError(action)
+        plans = []
+        with patch("builtins.print"):
+            result = export_words_to_anki("Deck", words, "Custom", invoke=fake, output_only=True, preview_handler=plans.append)
+        self.assertEqual(result, (0, 0, 0))
+        self.assertEqual(plans, [(0, 0, 1, False)])
+        self.assertFalse(any(action in {"deleteNotes", "multi", "addNotes"} for action, _ in calls))
+        self.assertEqual(sum(action == "findNotes" for action, _ in calls), 1)
+
     def test_declining_mixed_plan_never_writes(self):
         calls = []
         def fake(action, params=None):

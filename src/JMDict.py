@@ -122,8 +122,97 @@ class JMDict:
 
         return best_entry
 
-    def get_most_common_definition(self, word):
+    def get_potential_definition(self, word, component_counts, tokenizer):
+        """Describe a source-grounded potential form using its base verb."""
+        if not component_counts or not word.endswith("る"):
+            return None
+        has_literal = False
+        for components, count in component_counts.items():
+            if count <= 0 or len(components) != 1:
+                return None
+            token = components[0]
+            if not token.pos or token.pos[0] != "動詞" or token.lemma != word:
+                return None
+            has_literal |= token.surface == word
+        if not has_literal:
+            return None
+        from sudachipy import tokenizer as sudachi_tokenizer
+        nodes = tokenizer.tokenize(word, sudachi_tokenizer.Tokenizer.SplitMode.C)
+        if len(nodes) != 1 or nodes[0].dictionary_form() != word:
+            return None
+        base = nodes[0].normalized_form()
+        endings = {"う": "える", "く": "ける", "ぐ": "げる", "す": "せる",
+                   "つ": "てる", "ぬ": "ねる", "ぶ": "べる", "む": "める", "る": "れる"}
+        if not base or base[-1] not in endings or base[:-1] + endings[base[-1]] != word:
+            return None
+        readings = {components[0].reading for components in component_counts}
+        suffix = endings[base[-1]]
+        if len(readings) != 1:
+            return None
+        reading, = readings
+        if not reading.endswith(suffix):
+            return None
+        base_reading = reading[:-len(suffix)] + base[-1]
+        entries = []
+        for entry in self.lookup_word(base):
+            if not any(r["form"] == base_reading for r in entry["reading"]):
+                continue
+            senses = []
+            pos = []
+            for sense in entry["senses"]:
+                if sense["pos"]:
+                    pos = sense["pos"]
+                if sense["gloss"] and any("verb" in tag.lower() and not tag.lower().startswith(("adverb", "noun", "auxiliary")) for tag in pos):
+                    senses.append(sense)
+            if senses:
+                entries.append(senses)
+        if len(entries) != 1:
+            return None
+        glosses = ["; ".join(sense["gloss"]) for sense in entries[0]]
+        definition = "<br>".join(f"{i + 1}. {gloss}" if len(glosses) > 1 else gloss
+                                  for i, gloss in enumerate(glosses))
+        return f"Potential form of {base}: {definition}"
+
+    def get_contextual_short_entry(self, word, component_counts):
+        """Use unanimous single-token POS evidence only when it identifies one entry."""
+        if not (len(word) <= 2 and KANA_RE.fullmatch(word) and component_counts):
+            return None
+        categories = set()
+        for components, count in component_counts.items():
+            if count <= 0 or len(components) != 1 or not components[0].pos:
+                return None
+            category = {"助動詞": "auxiliary", "連体詞": "pre-noun adjectival"}.get(components[0].pos[0])
+            if category is None:
+                return None
+            categories.add(category)
+        if len(categories) != 1:
+            return None
+        category, = categories
+        def compatible(tag):
+            tag = tag.lower()
+            if category == "verb":
+                return "verb" in tag and not tag.startswith("adverb") and not tag.startswith("auxiliary") and not tag.startswith("noun")
+            return tag.startswith(category)
+        matches = []
+        for entry in self.lookup_word(word):
+            senses = []
+            inherited_pos = []
+            for sense in entry["senses"]:
+                if sense["pos"]:
+                    inherited_pos = sense["pos"]
+                if sense["gloss"] and any(compatible(tag) for tag in inherited_pos):
+                    senses.append(sense)
+            if senses:
+                matches.append((entry, senses))
+        if len(matches) != 1:
+            return None
+        entry, senses = matches[0]
+        return {**entry, "senses": senses}
+
+    def get_most_common_definition(self, word, *, component_counts=None):
         best_entry = self.get_best_entry(word)
+        if best_entry is None and component_counts:
+            best_entry = self.get_contextual_short_entry(word, component_counts)
 
         if not best_entry:
             return None

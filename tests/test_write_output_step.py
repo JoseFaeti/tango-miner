@@ -10,6 +10,19 @@ from tests.helpers import make_stats
 
 
 class WriteOutputStepTests(unittest.TestCase):
+    def test_unresolved_candidate_is_written_for_review_with_examples(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            path = Path(tmp) / "out.csv"
+            stats = make_stats(sentences=[Sentence("会えるかな", "tag", "origin", "会える", 1)])
+            stats.needs_review = True
+            write_final_file({"会える": stats}, path)
+            with path.open(encoding="utf-8", newline="") as stream:
+                self.assertEqual(list(csv.reader(stream)), [])
+            with (Path(tmp) / "out.dropped.csv").open(encoding="utf-8", newline="") as stream:
+                self.assertEqual(list(csv.reader(stream))[0][1], "会える")
+            with (Path(tmp) / "out.sentence.csv").open(encoding="utf-8", newline="") as stream:
+                self.assertEqual(list(csv.reader(stream))[1][0], "review")
+
     def test_write_final_file_sorts_by_score_and_splits_invalid_rows(self):
         with tempfile.TemporaryDirectory() as tmp:
             output = Path(tmp) / "out.csv"

@@ -211,3 +211,22 @@ with `ばあちゃん` followed by `と`. Regression tests cover every changed
 sentence, component evidence, grammar boundaries, and restrictive conditions.
 The comparison checks the effects of this rule; it does not establish that all
 remaining analyses are correct, or measure impact on the full source corpus.
+
+## Unresolved definitions and Anki preservation
+
+A missing definition is review status rather than evidence that a candidate is
+invalid. Such candidates remain in the existing `.dropped.csv` review output
+and their sentence rows carry `review` status. Existing Anki notes for them are
+protected from deletion and are not changed; new unresolved candidates are not
+exported. Truly absent filtered candidates remain eligible for the existing
+Anki deletion plan.
+
+When a short kana lookup would be rejected as a noun, unanimous unmerged
+auxiliary or pre-noun component POS can select a single compatible dictionary
+entry. Nouns and other POS,
+mixed analyses, merged components, unsupported POS, and multiple compatible entries stay in
+review; POS alone cannot safely disambiguate noun homophones such as `そば`.
+Source-grounded potential forms can receive a labeled definition from a
+matching base verb and reading when the full potential form occurs. Other
+inflections and ambiguous definitions
+remain for review.

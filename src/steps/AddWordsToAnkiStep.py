@@ -125,10 +125,10 @@ def export_words_to_anki(
     # --------------------------------------------------
     # 2.5 DELETE OBSOLETE NOTES
     # --------------------------------------------------
-    desired_words = desired_words = {
-        w for w, stats in words.items()
-        if not stats.invalid
-    }
+    # Keep existing notes for unresolved candidates, but do not add or update
+    # them until a trustworthy definition is available.
+    desired_words = {w for w, stats in words.items() if not stats.invalid}
+    exportable_words = {w for w in desired_words if not words[w].needs_review}
 
     existing_set = set(existing_words.keys())
 
@@ -148,7 +148,7 @@ def export_words_to_anki(
     total_notes_to_update = 0
 
     for i, (word, stats) in enumerate(words.items(), start=1):
-        if word not in desired_words:
+        if word not in exportable_words:
             continue
 
         new_tags = set(stats.tags)

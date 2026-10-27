@@ -104,6 +104,22 @@ class AmbiguousOutputRegressionTests(unittest.TestCase):
                 words, _ = tokenize([sentence])
                 self.assertIn(expected, words)
 
+    def test_potential_form_fallback_is_source_grounded(self):
+        for sentence, word, base in [
+            ("彼の子孫たちにこうして会えるなんてすごくうれしいよ。", "会える", "会う"),
+            ("果たしてもう一度戦ったとして勝てるかどうか。", "勝てる", "勝つ"),
+            ("神を超える力を持った私を倒せるはずがなかろう。", "倒せる", "倒す"),
+        ]:
+            with self.subTest(word=word):
+                words, _ = tokenize([sentence])
+                stats = words[word]
+                self.assertIsNone(self.jmdict.get_most_common_definition(word))
+                result = self.jmdict.get_potential_definition(word, stats.component_counts, get_tokenizer())
+                self.assertIsNotNone(result)
+                self.assertTrue(result.startswith(f"Potential form of {base}:"))
+        words, _ = tokenize(["森の中で猫を見れる。"])
+        self.assertIsNone(self.jmdict.get_potential_definition("見れる", {}, get_tokenizer()))
+
     def test_known_lemma_inventions_do_not_return(self):
         cases = {
             "おまちください。": "おまつ",

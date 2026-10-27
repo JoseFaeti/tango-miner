@@ -18,7 +18,7 @@ class AddDefinitionsStep(PipelineStep):
     def process(self, artifact: Artifact, debug=False) -> Artifact:
         data, total_valid, total_invalid = add_and_filter_for_definitions(artifact.data, self.progress, self.on_definition_processed, dictionary_path=self.dictionary_path)
 
-        self.done(f'{total_valid} tokens kept.')
+        self.done(f'{total_valid} definitions found; {total_invalid} need review.')
 
         if self._debug:
             dump_invalid_words(data)
@@ -42,7 +42,12 @@ def add_and_filter_for_definitions(input: dict, progress_handler, on_definition_
     # print(f'total cached words: {len(cached_results)}')
 
     for i, word in enumerate(input):
-        definition = jmdict.get_most_common_definition(word)
+        stats = input[word]
+        definition = jmdict.get_most_common_definition(word, component_counts=stats.component_counts)
+        if (not definition and stats.component_counts
+                and word.endswith("る") and hasattr(jmdict, "get_potential_definition")):
+            from src.steps.TokenizeStep import get_tokenizer
+            definition = jmdict.get_potential_definition(word, stats.component_counts, get_tokenizer())
         
         if definition:
             total_valid += 1
@@ -54,9 +59,8 @@ def add_and_filter_for_definitions(input: dict, progress_handler, on_definition_
 
         progress_handler(i, total, f'{i}/{total} {total_valid} definitions found')
 
-        stats = input[word]
         stats.definition = definition
-        stats.invalid = not definition
+        stats.needs_review = not bool(definition)
         kept[word] = stats
 
     return kept, total_valid, total_invalid
@@ -70,7 +74,7 @@ def dump_invalid_words(word_data: dict):
 
     with output_path.open("w", encoding="utf-8") as f:
         for word, stats in word_data.items():
-            if stats.invalid:
+            if stats.needs_review or stats.invalid:
                 f.write(f"{word}\t{stats.reading}\t{' '.join(sorted(stats.tags))}\n")
 
     print(f"Invalid words dumped to {output_path}")
