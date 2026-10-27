@@ -80,8 +80,9 @@ retain the candidate but mark it as ambiguous rather than suppressing it.
 **Status (2026-10-26): partially implemented.** Dictionary compound lookup now
 uses the exact combined source surface rather than concatenated token lemmas.
 This prevents unrelated targets such as `おまつ` from polite `おまち` and
-`ぬし` from `んし`, while preserving the source-derived candidate. Better
-compound reconstruction is still future work. Component provenance is now
+`ぬし` from `んし`, while preserving the source-derived candidate. A narrow
+noun-plus-suffix reconstruction is described below; broader compound
+reconstruction remains future work. Component provenance is now
 retained as described below; it does not change merge decisions.
 
 ### 3. Preserve auxiliary and dependent morphology with candidate-type context
@@ -177,3 +178,36 @@ behavior is defined.
 
 See also [the initial output audit](anki-output-audit-2026-10-26.md) and the
 [18,855-entry re-audit](anki-output-reaudit-2026-10-26.md).
+
+## Targeted grammatical-boundary fixes (2026-10-27)
+
+The supplied examples include `できないし` and `そんなことしてみろ`:
+matching their surfaces across Sudachi tokens previously produced the unrelated
+dictionary entries `ないし` (“or”) and `ことし` (“this year”). The merge
+stage now rejects a conjunction-only entry spanning an auxiliary and particle,
+and a noun/adverb-only entry spanning a noun and an inflected `する` stem.
+The original tokens remain available; genuine standalone `ないし` and
+`ことし`, and auxiliary expressions such as `ないで`, remain covered by tests.
+This is a targeted improvement, not a guarantee that all suspended examples
+disappear: definition ambiguity, proper names, and incorrect single-token
+Sudachi analyses remain unresolved. Mixed uses of a
+word may still aggregate into one card.
+
+## Kana noun reconstruction (2026-10-27)
+
+The merge step also recognizes an exact hiragana JMdict noun surface when
+Sudachi splits it into an unchanged common noun and an unchanged noun-like
+suffix. This narrowly recovers `さいだん` in both supplied examples, instead
+of emitting `さい` from those occurrences. Components remain in provenance.
+The rule does not reconstruct mixed-script `さい月` or split words with other
+POS patterns, and a dictionary spelling alone cannot prove the intended word.
+
+A before/after comparison tokenized all 363 example sentences in the supplied
+suspension export. Eleven token streams changed: two `さいだん` examples,
+`はんてい`, two `ばあさん` examples, `ばあちゃん`, `みなさん`,
+`おっさん`, `じいちゃん`, and two `じょうちゃん` examples. In the
+`ばあちゃん` sentence this also replaces a conflicting `ちゃんと` merge
+with `ばあちゃん` followed by `と`. Regression tests cover every changed
+sentence, component evidence, grammar boundaries, and restrictive conditions.
+The comparison checks the effects of this rule; it does not establish that all
+remaining analyses are correct, or measure impact on the full source corpus.

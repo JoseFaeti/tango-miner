@@ -6,7 +6,7 @@ from src.TokenizedSentence import TokenizedSentence
 from src.Artifact import Artifact
 from src.Pipeline import Pipeline
 from src.steps.BuildWordStatsStep import build_word_stats
-from src.steps.MergeTokensStep import combine_tokens_jmdict, MergeTokensStep, get_jmdict
+from src.steps.MergeTokensStep import combine_tokens_jmdict, MergeTokensStep, get_jmdict, _is_split_kana_noun
 
 
 def token(surface, lemma, pos):
@@ -26,6 +26,25 @@ class Dictionary:
 
 
 class ProvenanceTests(unittest.TestCase):
+    def test_split_noun_rule_requires_surface_and_pos_evidence(self):
+        noun = [{'senses': [{'pos': ['noun (common) (futsuumeishi)']}]}]
+        first = token('さい', 'さい', ['名詞', '普通名詞'])
+        second = token('だん', 'だん', ['接尾辞', '名詞的'])
+        self.assertTrue(_is_split_kana_noun([first, second], noun))
+        cases = [
+            ([token('さい', 'さい', ['名詞', '固有名詞']), second], noun),
+            ([first, token('だん', 'だん', ['名詞', '普通名詞'])], noun),
+            ([first, token('だん', 'だる', ['接尾辞', '名詞的'])], noun),
+            ([token('さ', 'さ', ['名詞', '普通名詞']), token('い', 'い', ['接尾辞', '名詞的'])], noun),
+            ([token('祭', '祭', ['名詞', '普通名詞']), second], noun),
+            ([first, second], [{'senses': [{'pos': ['verb']}] }]),
+            ([first], noun),
+            ([first, second, second], noun),
+        ]
+        for tokens, definitions in cases:
+            with self.subTest(tokens=tokens, definitions=definitions):
+                self.assertFalse(_is_split_kana_noun(tokens, definitions))
+
     def test_dictionary_cache_uses_requested_path(self):
         with patch("src.steps.MergeTokensStep._jmdict", None), \
              patch("src.steps.MergeTokensStep._jmdict_path", None), \

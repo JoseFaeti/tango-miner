@@ -73,7 +73,7 @@ enabled = true
 [anki]
 # Enables AnkiConnect export after CSV output. This adds and updates notes,
 # changes their tags, and deletes matching deck notes absent from this run.
-enabled = true
+enabled = false
 # AnkiConnect endpoint and request timeout in seconds.
 endpoint = "http://127.0.0.1:8765"
 timeout_seconds = 10.0

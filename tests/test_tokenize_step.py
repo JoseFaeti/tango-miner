@@ -34,7 +34,8 @@ class TokenizeStepTests(unittest.TestCase):
         ])
 
         self.assertIn("しよう", words)
-        self.assertIn("さい", words)
+        self.assertIn("さいだん", words)
+        self.assertNotIn("さい", words)
 
     def test_keeps_kana_only_auxiliary_from_suspended_example(self):
         """Grammar forms remain available for recall-first mining."""

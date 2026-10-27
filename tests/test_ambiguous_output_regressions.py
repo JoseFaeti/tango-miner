@@ -51,7 +51,7 @@ class AmbiguousOutputRegressionTests(unittest.TestCase):
         cases = {
             "長年探し続けて、ようやく見つけた。": "ようやく",
             "何をしようが自由だ。": "しよう",
-            "さあ、さいだんへ行こう。": "さい",
+            "さあ、さいだんへ行こう。": "さいだん",
             "お前の後についてくから適当にがんばってくれ。": "てく",
             "楽しいおもいでができた。": "おもいで",
             "うわ、かっけえ！": "かっけえ",
@@ -85,6 +85,24 @@ class AmbiguousOutputRegressionTests(unittest.TestCase):
                 self.assertTrue(
                     all(token["surface"] == token["lemma"] for token in dictionary_merges)
                 )
+
+    def test_grammatical_boundaries_do_not_create_unrelated_words(self):
+        cases = {
+            "できないし困る。": ("ないし", "ない"),
+            "そんなことしてみろ、命がいくつあっても足りないぜ。": ("ことし", "こと"),
+        }
+        for sentence, (unexpected, expected) in cases.items():
+            with self.subTest(sentence=sentence):
+                words, _ = tokenize([sentence])
+                self.assertNotIn(unexpected, words)
+                self.assertIn(expected, words)
+
+    def test_actual_conjunction_and_year_remain_available(self):
+        for sentence, expected in [("ないしは別の方法だ。", "ないし"),
+                                   ("ことしは良い年になる。", "ことし")]:
+            with self.subTest(sentence=sentence):
+                words, _ = tokenize([sentence])
+                self.assertIn(expected, words)
 
     def test_known_lemma_inventions_do_not_return(self):
         cases = {

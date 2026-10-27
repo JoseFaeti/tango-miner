@@ -104,6 +104,45 @@ class TokenizerIntegrationTests(unittest.TestCase):
         self.assertEqual(merged_tokens[0]["lemma"], "おまち")
         self.assertNotIn("おまつ", [token["lemma"] for token in merged_tokens])
 
+    def test_recovers_split_nouns_from_suspended_example_sentences(self):
+        cases = [
+            ("さあ、さいだんのマナの種子に聖剣をかかげてみなさい。", "さいだん", "さい"),
+            ("ラライのガケさいだんの形と像の形が合わないようだ。", "さいだん", "さい"),
+            ("言っのはんていは王様アーと王女様それと私コック長バの３人によるたすうけつで行いますペタペ", "はんてい", "はん"),
+            ("まさかメディばあさんが賢者の末裔だったとはおどろきでがす。", "ばあさん", "ばあ"),
+            ("ローラばあさんはむかし酒場の歌ひめをやっとったんじゃ。", "ばあさん", "ばあ"),
+            ("私のことを助けが必要なおばあちゃんと思ったかい？", "ばあちゃん", "ばあ"),
+            ("言っには、おにい様あだけでなくみなさんの命もかかっていますの！", "みなさん", "みな"),
+            ("なんだかあのおっさんにいいように使われてるでがすなあ。", "おっさん", "おっ"),
+            ("悪いやつらには、ないしょだよおじいちゃんは、お城の東にある、神殿にいるのさ。", "じいちゃん", "じい"),
+            ("じょっじょうちゃん…ぼうは、ぼうはいかん！", "じょうちゃん", "じょう"),
+            ("しかし…じょうちゃんはめつきが悪いぞそんなんじゃ男にもてんぞNAME:03", "じょうちゃん", "じょう"),
+        ]
+        for sentence, expected, fragment in cases:
+            with self.subTest(sentence=sentence):
+                merged = combine_tokens_jmdict(tokenize_sentence(sentence), self.jmdict)
+                self.assertIn(expected, [token["lemma"] for token in merged])
+                self.assertNotIn(fragment, [token["lemma"] for token in merged])
+                token = next(t for t in merged if t["lemma"] == expected)
+                self.assertEqual("".join(c.surface for c in token["components"]), expected)
+
+    def test_neighboring_grammar_and_standalone_words_remain(self):
+        cases = [
+            ("そんなことしてみろ。", "こと", "ことし"),
+            ("できないし困る。", "ない", "ないし"),
+            ("ないしは別の方法だ。", "ないし", None),
+            ("ことしは良い年になる。", "ことし", None),
+            ("行かないでください。", "ないで", None),
+            ("おまちください。", "おまち", "おまつ"),
+        ]
+        for sentence, expected, forbidden in cases:
+            with self.subTest(sentence=sentence):
+                merged = combine_tokens_jmdict(tokenize_sentence(sentence), self.jmdict)
+                lemmas = [token["lemma"] for token in merged]
+                self.assertIn(expected, lemmas)
+                if forbidden:
+                    self.assertNotIn(forbidden, lemmas)
+
     def test_does_not_turn_negative_grammar_into_the_unrelated_word_nushi(self):
         raw_tokens = tokenize_sentence("少なくとも歓迎できる事態ではありませんし。")
         merged_tokens = combine_tokens_jmdict(raw_tokens, self.jmdict)

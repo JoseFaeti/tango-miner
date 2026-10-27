@@ -98,6 +98,51 @@ def _is_prefixed_kana_noun(token_list: list[dict], definitions: list) -> bool:
     return False
 
 
+def _is_split_kana_noun(tokens: list[dict], definitions: list) -> bool:
+    """Recover a noun split into unchanged noun and noun-suffix surfaces."""
+    if len(tokens) != 2:
+        return False
+    first, second = tokens
+    surface = first["surface"] + second["surface"]
+    if (len(surface) < 3 or not all("ぁ" <= char <= "ん" for char in surface)
+            or first["pos"][0] != "名詞" or first["pos"][1] != "普通名詞"
+            or tuple(second["pos"][:2]) != ("接尾辞", "名詞的")
+            or any(token["surface"] != token["lemma"] for token in tokens)):
+        return False
+    return any(
+        part.lower().startswith("noun")
+        for definition in definitions
+        for sense in _get_field(definition, "senses", [])
+        for part in _get_field(sense, "pos", [])
+    )
+
+
+def _crosses_incompatible_grammar(tokens: list[dict], entry) -> bool:
+    """Reject lexical readings contradicted by a clear Sudachi boundary."""
+    if len(tokens) != 2 or not isinstance(entry, dict):
+        return False
+    first, second = tokens
+    senses = entry.get("senses", [])
+    tags = [part.lower() for sense in senses for part in sense.get("pos", [])]
+    if not tags:
+        return False
+
+    # Negative auxiliary + connective particle is not a lexical conjunction.
+    # Entries with an auxiliary/expression sense (e.g. ないで) remain eligible.
+    if (first["pos"][0] == "助動詞" and second["pos"][0] == "助詞"
+            and all(tag == "conjunction" for tag in tags)):
+        return True
+
+    # A noun followed by the inflected stem of する is not a noun or
+    # adverb formed by joining the two surfaces (こと + し != ことし).
+    if (first["pos"][0] == "名詞" and second["pos"][0] == "動詞"
+            and second["lemma"] == "する" and second["surface"] != "する"
+            and all(tag.startswith("noun") or tag.startswith("adverb") for tag in tags)
+            and not any("verb" in tag and not tag.startswith("adverb") or "expression" in tag for tag in tags)):
+        return True
+    return False
+
+
 def has_kanji(text: str) -> bool:
     return any("一" <= char <= "龯" for char in text)
 
@@ -132,11 +177,14 @@ def combine_tokens_jmdict(
                 not has_kanji(token_string)
                 and not _has_useful_kana_only_sense(definitions)
                 and not _is_prefixed_kana_noun(token_list[i:j], definitions)
+                and not _is_split_kana_noun(token_list[i:j], definitions)
             ):
                 continue
 
             match_word = jmdict.get_best_entry(token_string)
             if not match_word:
+                continue
+            if _crosses_incompatible_grammar(token_list[i:j], match_word):
                 continue
 
             jmdict_pos = "exp"
