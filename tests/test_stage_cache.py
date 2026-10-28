@@ -7,7 +7,7 @@ from unittest.mock import patch
 
 from src.Artifact import Artifact
 from src.Pipeline import Pipeline
-from src.StageCache import StageCache, MERGE_SOURCE_DEPENDENCIES, _source_fingerprint
+from src.StageCache import StageCache, MERGE_SOURCE_DEPENDENCIES, _source_fingerprint, _pack_token, _unpack_token
 from src.TokenProvenance import TokenComponent
 from src.TokenizedSentence import TokenizedSentence
 from src.steps.MergeTokensStep import MergeTokensStep
@@ -20,6 +20,11 @@ def sentence(name, text):
 
 
 class StageCacheTests(unittest.TestCase):
+    def test_token_component_context_survives_cache_serialization(self):
+        component = TokenComponent('しかし', 'しかし', 'しかし', 'しかし', ('接続詞',), 'initial_shikashi_comma')
+        token = {'surface': 'しかし', 'pos': ('接続詞',), 'components': (component,)}
+        self.assertEqual(_unpack_token(json.loads(json.dumps(_pack_token(token)))), token)
+
     def test_fingerprint_ignores_unrelated_stages_but_tracks_merge_dependencies(self):
         with tempfile.TemporaryDirectory() as tmp:
             root = Path(tmp)

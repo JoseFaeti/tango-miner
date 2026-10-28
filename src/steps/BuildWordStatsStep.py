@@ -6,6 +6,7 @@ from src.TokenProvenance import token_components
 from src.WordStats import WordStats
 from src.steps.ProcessingStep import ProcessingStep
 from src.steps.TokenizeStep import is_useless, kata_to_hira, is_valid_sentence
+from dataclasses import replace
 
 
 PROGRESS_INTERVAL = 200
@@ -103,6 +104,15 @@ def build_word_stats(
                 word_data[lemma] = ws
 
             components = token_components(token)
+            # A sentence-initial しかし followed by a comma is strong evidence
+            # for the discourse conjunction. Keep this source cue separate
+            # from the original Sudachi POS and do not infer it on failed spans.
+            if (lemma == surface == 'しかし' and len(components) == 1
+                    and components[0].pos and components[0].pos[0] == '接続詞'
+                    and span[0] >= 0
+                    and not tokenized_sentence.text[:span[0]].strip(' 「『（(\t')
+                    and tokenized_sentence.text[span[1]:].startswith('、')):
+                components = (replace(components[0], context='initial_shikashi_comma'),)
             sentence_components[lemma] = components
             ws.component_counts[components] = ws.component_counts.get(components, 0) + 1
 

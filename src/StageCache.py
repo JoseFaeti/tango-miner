@@ -22,7 +22,7 @@ def _pack_token(token):
     if any(not isinstance(v, (str, int, float, bool, type(None))) for v in values.values()):
         raise TypeError("Unsupported token field")
     encoded = None if components is None else [
-        [c.surface, c.lemma, c.base_form, c.reading, list(c.pos)] for c in components
+        [c.surface, c.lemma, c.base_form, c.reading, list(c.pos), c.context] for c in components
     ]
     return [values, pos, isinstance(pos, tuple), encoded]
 
@@ -34,8 +34,8 @@ def _unpack_token(value):
     token = dict(values)
     token["pos"] = tuple(pos) if pos_tuple else pos
     if components is not None:
-        token["components"] = tuple(TokenComponent(a, b, c, d, tuple(p))
-                                    for a, b, c, d, p in components)
+        token["components"] = tuple(TokenComponent(a, b, c, d, tuple(p), context)
+                                    for a, b, c, d, p, context in components)
     return token
 
 

@@ -30,6 +30,45 @@ class AmbiguousOutputRegressionTests(unittest.TestCase):
     def setUpClass(cls):
         cls.jmdict = get_jmdict()
 
+    def test_conjunction_pos_alone_cannot_distinguish_fragments(self):
+        cases = [
+            ('ないし', 'まだ全然自信ないし、それに倒れちゃったら困るから。', '月曜日ないし火曜日に会いましょう。'),
+            ('ものの', 'そんなところもあなたがうっかりもののあかしです。', 'なんとかロマリアに着いたもののもう商売あがったりですよ。'),
+            ('たら', '来月から週休２日になるからがんばってはたらけーっ！', 'いつも難しい顔をしてたら、部下たちも近寄りがたいぞ。'),
+            ('んで', '最初の約束どおり魔法の鏡をもらえるといいんでがすがね。', 'んでもって、部屋がナント個室にうつったってわけよ。'),
+        ]
+        for word, fragment, legitimate in cases:
+            with self.subTest(word=word):
+                bad, _ = tokenize([fragment])
+                good, _ = tokenize([legitimate])
+                self.assertIn(word, bad)
+                self.assertIn(word, good)
+                bad_components = set(bad[word].component_counts)
+                good_components = set(good[word].component_counts)
+                self.assertTrue(bad_components & good_components)
+                self.assertIsNone(self.jmdict.get_most_common_definition(word, component_counts=bad[word].component_counts))
+                self.assertIsNone(self.jmdict.get_most_common_definition(word, component_counts=good[word].component_counts))
+
+    def test_sentence_initial_shikashi_uses_only_source_supported_examples(self):
+        from src.steps.AddDefinitionsStep import add_and_filter_for_definitions
+        from src.steps.AttachSentencesStep import attach_sentences
+
+        supported = 'しかし、そういえば昔、悪い夢を見たことがあるな。'
+        unsupported = 'しかしその塔からもすでに逃げてしまったかも知れんな。'
+        words, sentences = tokenize([supported, unsupported])
+        stats = words['しかし']
+        self.assertEqual(stats.frequency, 2)
+        self.assertEqual({c[0].context for c in stats.component_counts}, {'', 'initial_shikashi_comma'})
+        add_and_filter_for_definitions({'しかし': stats}, lambda *args: None, None)
+        self.assertIn('however', stats.definition)
+        self.assertEqual(sum(stats.component_counts[c] for c in stats.definition_components), 1)
+        stats.score = 100
+        attach_sentences({'しかし': stats}, sentences)
+        self.assertEqual([s.text for s in stats.sentences], [supported])
+
+        alone, _ = tokenize([unsupported])
+        self.assertIsNone(self.jmdict.get_most_common_definition('しかし', component_counts=alone['しかし'].component_counts))
+
     def test_keeps_grammar_and_fixed_expressions(self):
         cases = {
             "これが答えなんだ。": "なんだ",

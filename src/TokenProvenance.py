@@ -10,6 +10,7 @@ class TokenComponent:
     base_form: str
     reading: str
     pos: tuple[str, ...]
+    context: str = ""
 
 
 def token_components(token: dict) -> tuple[TokenComponent, ...]:

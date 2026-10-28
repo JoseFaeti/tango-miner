@@ -65,6 +65,15 @@ colloquialisms, and uncertain candidates in scope. See the
 - [x] Use token evidence for contextual dictionary selection across
   homophones, with `する`, `いる`, and `ようやく` as regressions. Match
   examples to the selected analysis and report mixed occurrence counts.
+- [ ] Complete an independently reviewed, stratified evaluation of both valid
+  and review output, then compare contextual approaches with explicit
+  abstentions. The [offline evaluation workflow](review-evaluation.md) now
+  creates selected-example samples, separate annotation and blinded input files,
+  and scores predictions against labeled target/entry pairs. Its selected
+  examples do not measure corpus-wide occurrence accuracy or recall, and its
+  exact JMdict alternatives do not capture all possible boundaries. Expand the
+  evaluation before drawing corpus-wide conclusions or enabling automatic
+  export of an experimental method.
 - [ ] Review the 995 net additional unresolved candidates in the full-corpus
   check; improve coverage without guessing same-POS homophones. Present or
   separately review alternative supported meanings and merged analyses. The
@@ -73,10 +82,17 @@ colloquialisms, and uncertain candidates in scope. See the
   A spelling-level inventory of the 2,195 review rows in the 2026-10-28
   11:48 archive found 1,293 with multiple exact JMdict entries, 809 with no
   exact entry, and 93 with one entry. These counts do not establish the cause
-  or correctness of each row. Conjunction POS is now used for contextual
-  selection when it uniquely identifies an entry; same-POS ambiguities remain
-  unresolved. Short noun examples such as `みみ` can include fragments of
+  or correctness of each row. A conjunction-POS selection experiment resolved
+  11 rows but also selected misleading fragment examples for `ないし`,
+  `ものの`, `たら`, and `んで`. It was reverted: the tokenizer assigns
+  identical conjunction evidence to valid and fragment uses. Short noun examples such as `みみ` can include fragments of
   longer words, so dictionary coverage alone is not enough to resolve them.
+  A narrower source-context rule now supports `しかし、` at the start of a
+  sentence (allowing opening quotation marks). Only supported occurrences
+  supply examples; other occurrences are still counted but do not receive a
+  separate review card. This does not resolve the other conjunctions or
+  establish that punctuation alone proves meaning in every context. The
+  corpus-wide result has not yet been measured.
 - [ ] Design separate candidate and Anki note identities for grammar points
   and lexical entries that share a spelling, for example `ない` and
   `ない (grammar)`. Preserve the original source form separately from the

@@ -189,8 +189,13 @@ match the recall-first goal and should be evaluated before changing them.
 
 See [next steps](docs/next-steps.md) for current priorities and the
 [problematic-entry inventory](docs/problematic-entries.md) for frequency-based
-review examples. See [false-positive analysis](docs/false-positive-analysis.md) for the current
-quality policy, known issues, and next steps, and the [pipeline improvement
+review examples. The [review evaluation workflow](docs/review-evaluation.md)
+describes how to sample examples and compare independently labeled predictions.
+The [analyzer shadow benchmark](docs/analyzer-shadow-benchmark.md) compares
+raw-source token spans without changing mining output.
+See [false-positive analysis](docs/false-positive-analysis.md) for the current
+quality policy, known issues, and next steps, [Japanese parsing research](docs/japanese-parsing-research.md)
+for analyzer and evaluation options, and the [pipeline improvement
 roadmap](docs/pipeline-improvement-roadmap.md) for broader work. The
 [initial audit](docs/anki-output-audit-2026-10-26.md) and
 [re-audit](docs/anki-output-reaudit-2026-10-26.md) record output evidence.
@@ -205,13 +210,17 @@ deletion and are not updated; new unresolved candidates are not added to Anki.
 Candidates absent from the filtered results can still be included in the Anki
 deletion plan. Short kana candidates can use unanimous retained token POS to
 select a unique compatible JMdict entry for auxiliaries and pre-noun forms.
-When a candidate has multiple dictionary entries, retained single-token POS
-(including conjunctions),
+When a candidate has multiple dictionary entries, retained single-token POS,
 reading and verb-conjugation evidence can identify a compatible entry. The
 most frequent uniquely identified entry supplies the definition, and examples
 are restricted to matching occurrences. Ties and analyses that cannot identify
 an entry remain for review. Counts still include all occurrences; optional
 candidate diagnostics report how many support the selected definition. Cases
+with sentence-initial `しかし、` use that source context as evidence for the
+conjunction; other occurrences do not supply its examples. The other uses are
+still included in the total frequency and do not get a separate review card.
+Occurrence diagnostics capture raw components before this contextual cue is
+added during aggregation. Cases
 without component evidence retain the existing frequency-based lookup. Short
 nouns and other unresolved analyses remain for review. Source-grounded potential forms may use a
 labeled definition derived from an unambiguous matching base verb when the
