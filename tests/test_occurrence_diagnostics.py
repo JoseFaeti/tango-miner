@@ -51,6 +51,22 @@ class OccurrenceDiagnosticsTests(unittest.TestCase):
         self.assertEqual([c['surface'] for c in rows[1]['components']], ['ない', 'で'])
         self.assertTrue(rows[1]['eligible_for_collection'])
 
+    def test_rejected_dictionary_merge_records_reason_without_changing_tokens(self):
+        class NounDictionary(Dictionary):
+            def lookup_word(self, word):
+                if word == 'ないし':
+                    return [{'senses': [{'pos': ['conjunction']}]}]
+                return []
+            def get_best_entry(self, word):
+                return self.lookup_word(word)[0]
+        raw = [token('ない', 'ない', ['助動詞', '*']), token('し', 'し', ['助詞', '*'])]
+        rejected = []
+        result = combine_tokens_jmdict(raw, NounDictionary(), rejected=rejected)
+        self.assertEqual([t['surface'] for t in result], ['ない', 'し'])
+        self.assertEqual(rejected[0]['reason'], 'incompatible_grammar')
+        self.assertEqual(rejected[0]['components'], ['ない', 'し'])
+        self.assertEqual(result, combine_tokens_jmdict(raw, NounDictionary()))
+
     def test_unaligned_token_has_no_invented_span(self):
         sentence = TokenizedSentence('猫と犬', None, Path('a'), [token('狐', '狐', ['名詞', '*']), token('犬', '犬', ['名詞', '*'])])
         with tempfile.TemporaryDirectory() as tmp:
@@ -65,12 +81,14 @@ class OccurrenceDiagnosticsTests(unittest.TestCase):
         stats = make_stats(lemma='a')
         stats.component_counts = {a: 7, b: 2}
         stats.definition_components = {a}
+        stats.selected_dictionary_entry = {'ent_seq': '123', 'kanji': [], 'readings': ['a']}
         with tempfile.TemporaryDirectory() as tmp:
             path = Path(tmp) / 'candidate.jsonl'
             write_candidate_diagnostics({'a': stats}, path)
             row = json.loads(path.read_text(encoding='utf8'))
         self.assertEqual(row['definition_supported_occurrences'], 7)
         self.assertEqual(row['other_occurrences'], 2)
+        self.assertEqual(row['selected_dictionary_entry']['ent_seq'], '123')
 
     def test_candidate_summary_distinguishes_review_invalid_and_valid(self):
         words = {word: make_stats(lemma=word) for word in ['valid', 'review', 'invalid']}

@@ -16,7 +16,8 @@ Use frequency to prioritize investigation, not to filter candidates. See the
 - **146 — `覆われ`:** noun “cover” for passive uses of `覆う`. A later
   boundary guard recovers the verb when followed by `た` or `て`.
 - **116 — `おって`:** noun “pursuer” for auxiliary `おる` uses. A later
-  guard preserves non-independent `おる` following a continuative verb.
+  guard preserves non-independent `おる` following a continuative verb,
+  including a verb followed by connective `て` or `で`.
 - **56 — `風花`:** snow definition for displayed Persona character-name uses;
   valid non-name senses must remain available.
 

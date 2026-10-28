@@ -100,7 +100,7 @@ class JMDict:
                 "dialect": dialect_list
             })
 
-        return {"kanji": k_list, "reading": r_list, "senses": senses}
+        return {"ent_seq": entry.findtext("ent_seq"), "kanji": k_list, "reading": r_list, "senses": senses}
 
     def lookup_word(self, word: str) -> List[Dict]:
         """Return all entries for this word (raw structured JMdict data)."""
@@ -266,7 +266,33 @@ class JMDict:
         supported = {}
         selected_senses = {}
         for components, count in component_counts.items():
-            if count <= 0 or len(components) != 1:
+            if count <= 0:
+                continue
+            # The explanatory んだ is supported by the explicit nominalizing
+            # particle + copula analysis. Single-token んだ can also be an
+            # interjection or a mis-segmented verb and remains unassigned.
+            if word == 'んだ' and len(components) == 2:
+                particle, copula = components
+                if (particle.surface == particle.lemma == 'ん'
+                        and tuple(particle.pos[:2]) == ('助詞', '準体助詞')
+                        and copula.surface == copula.lemma == 'だ'
+                        and copula.pos and copula.pos[0] == '助動詞'):
+                    matches = []
+                    for index, entry in enumerate(entries):
+                        if not any(r['form'] == word for r in entry['reading']):
+                            continue
+                        senses = [sense for sense in entry['senses']
+                                  if sense['gloss'] and any(tag.lower().startswith('expressions')
+                                                            for tag in sense['pos'])]
+                        if senses:
+                            matches.append((index, senses))
+                    if len(matches) == 1:
+                        index, senses = matches[0]
+                        scores[index] = scores.get(index, 0) + count
+                        supported.setdefault(index, set()).add(components)
+                        selected_senses.setdefault(index, {})[tuple(id(s) for s in senses)] = senses
+                continue
+            if len(components) != 1:
                 continue
             token = components[0]
             if token.lemma != word or not token.pos or not token.reading:
@@ -325,7 +351,7 @@ class JMDict:
         entry = entries[index]
         return ({**entry, 'senses': [s for s in entry['senses'] if id(s) in allowed]}, supported[index])
 
-    def get_most_common_definition(self, word, *, component_counts=None):
+    def select_definition_entry(self, word, component_counts=None):
         selection = self.select_contextual_entry(word, component_counts)
         if selection is None and component_counts and len(self.lookup_word(word)) > 1:
             return None
@@ -336,6 +362,13 @@ class JMDict:
         if best_entry is None and component_counts:
             best_entry = self.get_contextual_short_entry(word, component_counts)
 
+        if not best_entry:
+            return None
+
+        return best_entry
+
+    def get_most_common_definition(self, word, *, component_counts=None):
+        best_entry = self.select_definition_entry(word, component_counts)
         if not best_entry:
             return None
 

@@ -44,6 +44,28 @@ XML = """<?xml version="1.0" encoding="UTF-8"?>
 
 
 class JMDictTests(unittest.TestCase):
+    def test_nda_explanatory_selection_requires_split_particle_and_copula(self):
+        xml = """<JMdict>
+        <entry><r_ele><reb>んだ</reb></r_ele><sense><pos>interjection (kandoushi)</pos><gloss>yes</gloss></sense></entry>
+        <entry><r_ele><reb>んだ</reb></r_ele><sense><pos>expressions (phrases, clauses, etc.)</pos><gloss>the reason is</gloss></sense></entry>
+        </JMdict>"""
+        particle = TokenComponent('ん', 'ん', 'ん', 'ん', ('助詞', '準体助詞'))
+        copula = TokenComponent('だ', 'だ', 'だ', 'だ', ('助動詞', '*'))
+        split = (particle, copula)
+        interjection = (TokenComponent('んだ', 'んだ', 'んだ', 'んだ', ('感動詞', '一般')),)
+        ambiguous = (TokenComponent('んだ', 'んだ', 'んだ', 'んだ', ('名詞', '普通名詞')),)
+        wrong_particle = (TokenComponent('ん', 'ん', 'ん', 'ん', ('助詞', '格助詞')), copula)
+        with tempfile.TemporaryDirectory() as tmp:
+            path = Path(tmp) / 'dict.xml'
+            path.write_text(xml, encoding='utf-8')
+            d = JMDict(path)
+            selection = d.select_contextual_entry('んだ', {split: 5, ambiguous: 3, interjection: 1})
+            self.assertEqual(selection[1], {split})
+            self.assertEqual(d.get_most_common_definition('んだ', component_counts={split: 5, ambiguous: 3}), 'the reason is')
+            for other in (ambiguous, interjection, wrong_particle):
+                self.assertIsNone(d.get_most_common_definition('んだ', component_counts={other: 1}))
+            self.assertIsNone(d.get_most_common_definition('んだ', component_counts={split: 0}))
+
     def test_unanimous_modifier_evidence_corrects_only_incompatible_entries(self):
         xml = """<JMdict>
         <entry><r_ele><reb>ふかい</reb><re_pri>nf01</re_pri></r_ele><sense><pos>noun (common)</pos><gloss>discomfort</gloss></sense></entry>

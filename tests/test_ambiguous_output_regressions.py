@@ -322,6 +322,24 @@ class AmbiguousOutputRegressionTests(unittest.TestCase):
                 result = self.jmdict.get_most_common_definition(word, component_counts=words[word].component_counts)
                 self.assertIn(expected, result)
 
+    def test_explanatory_nda_uses_only_supported_occurrences_as_examples(self):
+        from src.steps.AddDefinitionsStep import add_and_filter_for_definitions
+        from src.steps.AttachSentencesStep import attach_sentences
+        sentences = ['ここに入ってたんだ。', 'あの人は昨日の夜に死んだ。', 'んだ、そうだと思うよ。']
+        words, segments = tokenize(sentences, tag='fixture')
+        self.assertIn('んだ', words)
+        stats = words['んだ']
+        add_and_filter_for_definitions({'んだ': stats}, lambda *args: None, None)
+        self.assertFalse(stats.needs_review)
+        self.assertIn('reason', stats.definition)
+        self.assertIsNotNone(stats.definition_components)
+        self.assertTrue(all(len(c) == 2 for c in stats.definition_components))
+        self.assertGreater(sum(count for c, count in stats.component_counts.items()
+                               if c not in stats.definition_components), 0)
+        stats.score = 500
+        attach_sentences({'んだ': stats}, segments)
+        self.assertEqual([s.text for s in stats.sentences], ['ここに入ってたんだ。'])
+
     def test_high_frequency_homophone_definitions_use_token_context(self):
         for sentence, word, expected in [
             ("何をする。", "する", "to do"),
@@ -346,6 +364,9 @@ class AmbiguousOutputRegressionTests(unittest.TestCase):
     def test_inflection_merges_keep_verb_targets_and_raw_evidence(self):
         for sentence, expected, false_target, definition in [
             ("よくもあんなところに閉じ込めおって！", "おる", "おって", "to be"),
+            ("私はたまたま国を離れておってな。", "おる", "おって", "to be"),
+            ("やつらはみな田舎者だと思っておってな。", "おる", "おって", "to be"),
+            ("本を読んでおってくれ。", "おる", "おって", "to be"),
             ("だが黒いモヤに覆われた生き物。", "覆う", "覆われ", "to cover"),
             ("冬要塞は硬い壁に覆われている。", "覆う", "覆われ", "to cover"),
             ("彼は商人に雇われた。", "雇う", "雇われ", "to employ"),
@@ -369,6 +390,7 @@ class AmbiguousOutputRegressionTests(unittest.TestCase):
         for sentence, target in [
             ("追手がすぐそこまで来た。", "追手"),
             ("おって連絡いたします。", "おって"),
+            ("追手がおってきた。", "おって"),
             ("雪の覆われの美しい山だ。", "覆われ"),
             ("時代の変化につれて成長する。", "につれて"),
             ("子供たちをつれて遊ぶ。", "つれて"),

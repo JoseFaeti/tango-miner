@@ -8,7 +8,8 @@ from src.steps.ProcessingStep import ProcessingStep
 
 
 class AddDefinitionsStep(PipelineStep):
-    def __init__(self, on_definition_processed=None, debug=False, dictionary_path: str | Path | None = None):
+    def __init__(self, on_definition_processed=None, debug=False, dictionary_path: str | Path | None = None, diagnostics=False):
+        self.diagnostics = diagnostics
         self._processing_step = ProcessingStep.DEFINITIONS
         self.on_definition_processed = on_definition_processed
         self._debug = debug
@@ -16,7 +17,7 @@ class AddDefinitionsStep(PipelineStep):
 
 
     def process(self, artifact: Artifact, debug=False) -> Artifact:
-        data, total_valid, total_invalid = add_and_filter_for_definitions(artifact.data, self.progress, self.on_definition_processed, dictionary_path=self.dictionary_path)
+        data, total_valid, total_invalid = add_and_filter_for_definitions(artifact.data, self.progress, self.on_definition_processed, dictionary_path=self.dictionary_path, diagnostics=self.diagnostics)
 
         self.done(f'{total_valid} definitions found; {total_invalid} need review.')
 
@@ -26,7 +27,7 @@ class AddDefinitionsStep(PipelineStep):
         return Artifact(data, sentences=artifact.sentences)
 
 
-def add_and_filter_for_definitions(input: dict, progress_handler, on_definition_processed, dictionary_path: str | Path | None = None):
+def add_and_filter_for_definitions(input: dict, progress_handler, on_definition_processed, dictionary_path: str | Path | None = None, diagnostics=False):
     total = len(input)
     kept = {}
     total_valid = 0
@@ -45,7 +46,13 @@ def add_and_filter_for_definitions(input: dict, progress_handler, on_definition_
         stats = input[word]
         selection = jmdict.select_contextual_entry(word, stats.component_counts) if hasattr(jmdict, "select_contextual_entry") else None
         stats.definition_components = selection[1] if selection else None
+        entry = jmdict.select_definition_entry(word, stats.component_counts) if diagnostics and hasattr(jmdict, "select_definition_entry") else None
+        stats.selected_dictionary_entry = ({"ent_seq": entry.get("ent_seq"),
+            "kanji": [k["form"] for k in entry.get("kanji", [])],
+            "readings": [r["form"] for r in entry.get("reading", [])]} if isinstance(entry, dict) else None)
         definition = jmdict.get_most_common_definition(word, component_counts=stats.component_counts)
+        if not definition:
+            stats.selected_dictionary_entry = None
         if (not definition and stats.component_counts
                 and word.endswith("る") and hasattr(jmdict, "get_potential_definition")):
             from src.steps.TokenizeStep import get_tokenizer

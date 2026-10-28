@@ -3,6 +3,8 @@ __pycache__
 debug/*
 resources/*
 scripts/*
+!scripts/inspect_run.py
+!scripts/compare_runs.py
 
 # Archived pipeline output
 runs/

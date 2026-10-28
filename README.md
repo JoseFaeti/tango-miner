@@ -106,6 +106,7 @@ For a short, targeted inspection of the latest completed archive, use:
 ```sh
 python -X utf8 scripts/inspect_run.py --word する --word いる --examples 1
 python -X utf8 scripts/inspect_run.py --status review --limit 10
+python -X utf8 scripts/inspect_run.py --word ないし --rejected-merges --examples 2
 python -X utf8 scripts/compare_runs.py --compact --word する --limit 5
 ```
 
@@ -133,16 +134,14 @@ pipeline and may take significant time and disk space, but does not print its
 progress log into the conversation.
 
 For detailed parsing investigation, add `--occurrence-diagnostics` to a run.
-It writes `occurrences.jsonl` and `candidate-diagnostics.jsonl` in the run
+It writes `occurrences.jsonl`, `rejected-merges.jsonl`, and `candidate-diagnostics.jsonl` in the run
 archive. These files can be very large and include source text and source
 paths. Each occurrence records its normalized sentence, source, token position,
 aligned character span (or null if alignment failed), candidate, raw component
 evidence, collection eligibility, and the final token analysis rule. The
 candidate file records final output status, frequency, reading and definition
 for candidates surviving frequency filtering. Join on `candidate`; an eligible
-occurrence missing from the candidate file did not survive that filter. The
-files do not record rejected merge attempts or the identity of the selected
-JMdict entry, and the analysis rule does not imply a confidence score. Existing
+occurrence missing from the candidate file did not survive that filter. Rejected merge records cover dictionary matches actually considered by the greedy merger, with the guard reason and source sentence; they do not include unmatched sequences or alternatives skipped after a successful merge. Candidate diagnostics include the selected JMdict entry sequence and forms when available. Derived potential definitions have no selected entry recorded. The analysis rule does not imply a confidence score. Existing
 archives do not have these files unless produced with this option.
 
 Some integration tests require the installed Sudachi dictionary and local

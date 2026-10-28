@@ -97,8 +97,7 @@ distinct component sequences, including unmerged tokens. Some definition and
 parsing corrections use these counts. Optional occurrence diagnostics now
 export the individual source-linked analyses and final token rule, including
 tokens excluded before aggregation; candidate diagnostics provide final status
-and definition. They do not yet show rejected merge alternatives or the
-selected dictionary entry and do not change candidate eligibility.
+and definition. Optional diagnostics also record rejected dictionary matches considered by the greedy merger and the selected JMdict entry when available. These records do not change candidate eligibility; skipped alternatives and derived potential definitions are not represented as selected entries.
 
 ### 4. Choose definitions using POS, reading, and source form
 
@@ -369,6 +368,10 @@ dictionary match spans them and following `た` or `て` confirms inflection.
 For example, `覆われた` yields `覆う` and the auxiliary instead of the noun
 `覆われ`. A continuative verb followed by non-independent `おる` + `て`
 likewise retains `おる`, rather than merging the auxiliary as `おって`.
+The guard also recognizes a continuative verb followed by connective `て` or
+`で` and non-independent `おる`, as in `離れておって` and `読んでおって`.
+It depends on those Sudachi analyses and does not repair cases tokenized into
+other components. Standalone `おって` remains eligible.
 The original components remain attached. Standalone noun and adverb uses are
 not covered by these guards.
 
@@ -388,3 +391,17 @@ occurrences, so it does not prove there was no recall loss. `おって` still
 has 47 review occurrences. The remaining `つれて` and `につれて` examples
 still mix taking-along and proportional uses in some contexts; occurrence
 disambiguation beyond the narrow cues above remains future work.
+
+## Explanatory `んだ` (2026-10-28)
+
+A diagnostic run recorded 10,894 `んだ` occurrences with nominalizing
+particle `ん` plus auxiliary `だ`, alongside 8,594 single-token noun analyses
+and smaller groups. The merger and dictionary selection now use that specific
+split analysis to select the explanatory expression when exactly one JMdict
+expression entry matches. Examples are restricted to supported analyses.
+Single-token and other analyses remain unassigned; they include both plausible
+explanatory uses and unrelated fragments, so they must not inherit the selected
+meaning. Frequencies still count all occurrences and optional diagnostics report
+supported and other counts. A valid output card does not provide a separate
+review card for the other analyses; separate grammar and lexical identities
+remain a design task. The corpus-wide result has not yet been rerun.

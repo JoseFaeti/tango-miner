@@ -1,4 +1,5 @@
 from pathlib import Path
+import json
 
 from src.Artifact import Artifact
 from src.JMDict import JMDict
@@ -36,7 +37,8 @@ def get_jmdict(path: str | Path | None = None) -> JMDict:
 class MergeTokensStep(PipelineStep):
     """Merge adjacent Sudachi tokens when their sequence is a JMdict entry."""
 
-    def __init__(self, max_lookahead: int = 10, dictionary_path: str | Path | None = None):
+    def __init__(self, max_lookahead: int = 10, dictionary_path: str | Path | None = None, diagnostics_path: Path | None = None):
+        self.diagnostics_path = diagnostics_path
         self._processing_step = ProcessingStep.TOKEN_MERGING
         self.max_lookahead = max_lookahead
         self.dictionary_path = dictionary_path
@@ -46,18 +48,29 @@ class MergeTokensStep(PipelineStep):
         jmdict = get_jmdict(self.dictionary_path)
         merged_sentences = []
 
+        temporary = Path(self.diagnostics_path).with_suffix(".jsonl.tmp") if self.diagnostics_path is not None else None
+        if temporary is not None:
+            temporary.write_text("", encoding="utf-8")
         for index, sentence in enumerate(tokenized_sentences, 1):
+            sentence_events = [] if temporary is not None else None
             merged_sentences.append(
                 TokenizedSentence(
                     text=sentence.text,
                     tag=sentence.tag,
                     origin=sentence.origin,
-                    tokens=combine_tokens_jmdict(sentence.tokens, jmdict, max_lookahead=self.max_lookahead),
+                    tokens=combine_tokens_jmdict(sentence.tokens, jmdict, max_lookahead=self.max_lookahead, rejected=sentence_events),
                 )
             )
+            if temporary is not None and sentence_events:
+                with temporary.open("a", encoding="utf-8", newline="\n") as stream:
+                    for event in sentence_events:
+                        event.update(sentence_index=index - 1, sentence=sentence.text, source=str(sentence.origin) if sentence.origin is not None else None)
+                        stream.write(json.dumps(event, ensure_ascii=False, separators=(",", ":")) + "\n")
             if index % PROGRESS_INTERVAL == 0 and index < len(tokenized_sentences):
                 self.progress(index, len(tokenized_sentences))
 
+        if temporary is not None:
+            temporary.replace(self.diagnostics_path)
         self.done(f"{len(merged_sentences)} token streams merged.")
         return Artifact(merged_sentences)
 
@@ -166,10 +179,21 @@ def _is_auxiliary_oru_misread(tokens, start, end):
         return False
     previous = tokens[start - 1]
     verb, particle = tokens[start:end]
-    return (previous['pos'][0] == '動詞' and len(previous['pos']) > 5
-            and previous['pos'][5].startswith('連用形')
-            and verb['lemma'] == 'おる' and tuple(verb['pos'][:2]) == ('動詞', '非自立可能')
-            and particle['surface'] == 'て' and particle['pos'][0] == '助詞')
+    auxiliary = (verb['lemma'] == 'おる' and tuple(verb['pos'][:2]) == ('動詞', '非自立可能')
+                 and particle['surface'] == 'て' and particle['pos'][0] == '助詞')
+    if not auxiliary:
+        return False
+
+    def continuative(token):
+        return (token['pos'][0] == '動詞' and len(token['pos']) > 5
+                and token['pos'][5].startswith('連用形'))
+
+    if continuative(previous):
+        return True
+    # A connective て/で can separate the lexical verb from auxiliary おる.
+    return (start >= 2 and previous['surface'] in {'て', 'で'}
+            and tuple(previous['pos'][:2]) == ('助詞', '接続助詞')
+            and continuative(tokens[start - 2]))
 
 
 def _repair_tsurete_motion(tokens, index, jmdict):
@@ -375,6 +399,7 @@ def combine_tokens_jmdict(
     token_list: list[dict],
     jmdict: JMDict,
     max_lookahead: int = 10,
+    rejected: list | None = None,
 ) -> list[dict]:
     """Greedily merge adjacent lexical compounds recognized by JMdict."""
     token_list = _repair_kigahen_boundaries(token_list, jmdict)
@@ -401,28 +426,39 @@ def combine_tokens_jmdict(
             if not definitions:
                 continue
 
+            def reject(reason):
+                if rejected is not None:
+                    rejected.append({"surface": token_string, "start_token": i, "end_token": j,
+                                     "components": [t["surface"] for t in token_list[i:j]], "reason": reason})
+
             if (
                 not has_kanji(token_string)
                 and not _has_useful_kana_only_sense(definitions)
                 and not _is_prefixed_kana_noun(token_list[i:j], definitions)
                 and not _is_split_kana_noun(token_list[i:j], definitions)
             ):
+                reject("kana_entry_not_eligible_for_merge")
                 continue
 
             match_word = jmdict.get_best_entry(token_string)
             if not match_word:
+                reject("no_best_entry")
                 continue
             if (_is_inflection_misread_as_noun(token_list, i, j, match_word)
                     or _is_auxiliary_oru_misread(token_list, i, j)
                     or (any(t.get('analysis_rule') == 'object_tsureru_motion' for t in token_list[i:j])
                         and not (token_list[i].get('analysis_rule') == 'object_tsureru_motion'
                                  and j - i >= 3))):
+                reject("inflection_or_motion_boundary")
                 continue
             if _is_kigakawatta_predicate(token_list, i, j):
+                reject("kigakawatta_predicate")
                 continue
             if _is_prenominal_entry_in_past_predicate(token_list, i, j, match_word):
+                reject("prenominal_in_past_predicate")
                 continue
             if _crosses_incompatible_grammar(token_list[i:j], match_word):
+                reject("incompatible_grammar")
                 continue
 
             jmdict_pos = "exp"
