@@ -8,12 +8,15 @@ from src.PipelineStep import PipelineStep
 
 
 class WriteOutputStep(PipelineStep):
-    def __init__(self, output_path: Path, diagnostics_path: Path | None = None):
+    def __init__(self, output_path: Path, diagnostics_path: Path | None = None, grammar_step=None):
         self._processing_step = None
         self.output_path = output_path
         self.diagnostics_path = diagnostics_path
+        self.grammar_step = grammar_step
 
     def process(self, artifact: Artifact) -> Artifact:
+        if self.grammar_step is not None:
+            self.grammar_step.add_cards(artifact.data)
         write_final_file(artifact.data, self.output_path, self.progress)
         if self.diagnostics_path is not None:
             write_candidate_diagnostics(artifact.data, self.diagnostics_path)

@@ -9,6 +9,7 @@ from src.Artifact import Artifact
 from src.PipelineStep import PipelineStep
 from src.RunConfig import AnkiConfig
 from src.steps.ProcessingStep import ProcessingStep
+from src.GrammarConstants import GRAMMAR_EXPRESSIONS
 
 ANKI_CONNECT_URL = AnkiConfig().endpoint
 DECK_NAME = AnkiConfig().deck
@@ -142,7 +143,8 @@ def export_words_to_anki(
     existing_set = set(existing_words.keys())
 
     absent_words = existing_set - desired_words
-    obsolete_words = absent_words if prune else set()
+    # An opt-in grammar card may be absent in a later vocabulary-only run.
+    obsolete_words = (absent_words - GRAMMAR_EXPRESSIONS) if prune else set()
     obsolete_note_ids = [
         existing_words[word]["noteId"]
         for word in obsolete_words
@@ -160,6 +162,10 @@ def export_words_to_anki(
 
     for i, (word, stats) in enumerate(words.items(), start=1):
         if word not in exportable_words:
+            continue
+
+        # Preserve edits and scheduling on an existing experimental grammar note.
+        if word in GRAMMAR_EXPRESSIONS and word in existing_words:
             continue
 
         new_tags = set(stats.tags)
@@ -221,6 +227,8 @@ def export_words_to_anki(
                        for word in sorted(obsolete_words)],
             "retained_absent": [{"expression": word, "note_id": existing_words[word]["noteId"]}
                                 for word in sorted(absent_words - obsolete_words)],
+            "retained_existing_grammar": [{"expression": word, "note_id": existing_words[word]["noteId"]}
+                                          for word in sorted(GRAMMAR_EXPRESSIONS & existing_set)],
         })
     if preview_handler is not None:
         preview_handler((total_notes_to_add, total_notes_to_update, total_notes_to_delete,

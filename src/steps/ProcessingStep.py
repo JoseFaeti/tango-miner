@@ -14,3 +14,4 @@ class ProcessingStep(IntEnum):
     TOKEN_MERGING = 10
     WORD_COLLECTION = 11
     OCCURRENCE_DIAGNOSTICS = 12
+    GRAMMAR_SHADOW = 13

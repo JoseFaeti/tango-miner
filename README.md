@@ -184,6 +184,22 @@ Some integration tests require the installed Sudachi dictionary and local
 JMdict data. Candidate component provenance is retained in memory for eligible
 candidates and supports some definition and parsing corrections; it does not
 yet appear in exported CSVs.
+
+For experimental, review-only grammar proposals, use `--grammar-shadow`.
+This writes `grammar-shadow.jsonl` in the run archive before token merging;
+it does not alter candidate or Anki decisions. The file contains source-derived
+text and paths. The rules are preliminary, all proposals remain ambiguous, and
+the option does not disable Anki: use an Anki-disabled configuration for safe
+offline checks. See [grammar shadow prototype](docs/grammar-shadow-prototype.md).
+
+To include experimental grammar cards in the normal output, pass
+`--grammar` (`--grammar-te-iru` remains an alias). The first rule creates a
+separate `〜ている (grammar)` candidate only
+when a narrowly supported source example is found. If Anki is enabled, the
+card is included in its normal preview and confirmation workflow. Existing
+notes with that exact identity are retained without automatic updates or
+pruning. See the [grammar shadow prototype](docs/grammar-shadow-prototype.md)
+for supported forms, limitations, and note behavior.
 Existing filters, including the standalone proper-noun filter, do not fully
 match the recall-first goal and should be evaluated before changing them.
 

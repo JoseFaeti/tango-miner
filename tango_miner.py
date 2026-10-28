@@ -29,6 +29,8 @@ from src.steps.BuildWordStatsStep import BuildWordStatsStep
 from src.steps.FilterFrequencyStep import FilterFrequencyStep
 from src.steps.WriteOutputStep import WriteOutputStep
 from src.steps.OccurrenceDiagnosticsStep import OccurrenceDiagnosticsStep
+from src.steps.GrammarShadowStep import GrammarShadowStep
+from src.Grammar import GrammarStep
 
 from src.steps.debug.DumpSentences import DumpSentences
 
@@ -56,6 +58,7 @@ def print_step_progress(step, amount, total, duration=None, additional_text=""):
         step.TOKEN_MERGING: "Merging token compounds",
         step.WORD_COLLECTION: "Collecting tokens",
         step.OCCURRENCE_DIAGNOSTICS: "Writing occurrence diagnostics",
+        step.GRAMMAR_SHADOW: "Analyzing grammar proposals",
         step.FILTERING: "Filtering useful vocab",
         step.READINGS: "Adding readings",
         step.DEFINITIONS: "Adding definitions",
@@ -121,6 +124,12 @@ def process_script(argv=None):
     parser.add_argument("--occurrence-diagnostics", action="store_true",
                         help="Write detailed occurrence and candidate JSONL files (can be large)")
 
+    parser.add_argument("--grammar-shadow", action="store_true",
+                        help="Write tentative grammar proposals without changing mining output")
+
+    parser.add_argument("--grammar", "--grammar-te-iru", dest="grammar", action="store_true",
+                        help="Include source-supported grammar cards")
+
     args = parser.parse_args(argv)
     overrides = {}
     for section, key, value in (
@@ -164,6 +173,7 @@ def process_script(argv=None):
 
         print(f'output path: {final_path.resolve()}')
 
+        grammar_step = GrammarStep(max_examples=config.sentences.max_sentences) if args.grammar else None
         steps = [
             GatherInputFilesStep(input_path_obj, include_subdirectories=recursive, extensions=config.input.extensions,
                                  excluded_directory=final_path.parent.parent,
@@ -174,6 +184,8 @@ def process_script(argv=None):
             NormalizeSentences(),
             DumpSentences("sentences-normalized.txt") if debug else None,
             RawTokenizeStep(force_retokenize=args.retokenize or "all" in args.refresh_cache, config=config.tokenizer),
+            grammar_step,
+            GrammarShadowStep(final_path.parent / "grammar-shadow.jsonl") if args.grammar_shadow else None,
             MergeTokensStep(max_lookahead=config.merge.max_lookahead, dictionary_path=config.dictionary.jmdict_path,
                             diagnostics_path=final_path.parent / "rejected-merges.jsonl" if args.occurrence_diagnostics else None),
             OccurrenceDiagnosticsStep(final_path.parent / "occurrences.jsonl") if args.occurrence_diagnostics else None,
@@ -184,13 +196,13 @@ def process_script(argv=None):
             ScoreWordStep(config.scoring),
             AttachSentencesStep(config.sentences),
             WriteOutputStep(final_path, diagnostics_path=(final_path.parent / "candidate-diagnostics.jsonl")
-                            if args.occurrence_diagnostics else None),
+                            if args.occurrence_diagnostics else None, grammar_step=grammar_step),
             AddWordsToAnkiStep(config.anki, plan_path=final_path.parent / "anki-plan.json") if config.anki.enabled else None,
         ]
 
         dependencies = collect_dependencies(config)
         summary = {"status": "running", "dependencies": dependencies,
-                   "retokenize_requested": args.retokenize, "occurrence_diagnostics": args.occurrence_diagnostics, "stages": [],
+                   "retokenize_requested": args.retokenize, "occurrence_diagnostics": args.occurrence_diagnostics, "grammar_shadow": args.grammar_shadow, "grammar_enabled": args.grammar, "grammar_te_iru": args.grammar, "stages": [],
                    "cache_refresh_requested": args.refresh_cache,
                    "anki": {"status": "not_started" if config.anki.enabled else "disabled"}}
         write_run_summary(final_path.parent, summary)
