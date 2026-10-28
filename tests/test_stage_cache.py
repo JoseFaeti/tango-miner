@@ -160,6 +160,29 @@ class StageCacheTests(unittest.TestCase):
                 self.assertEqual(result.tmpdir, Path(tmp))
                 self.assertEqual(pipeline.stage_records[0]['cache']['hits'], 1)
 
+    def test_completion_reports_hits_misses_refresh_and_disabled_reason(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            cache = StageCache(tmp, {'files': {'jmdict': {'sha256': 'x'}}})
+            step = MergeTokensStep()
+            events = []
+            pipeline = Pipeline([step], cache=cache,
+                                on_progress=lambda *a, **kw: events.append(kw['additional_text']))
+            with patch.object(step, 'process', side_effect=lambda a: Artifact(a.data)):
+                pipeline.run(Artifact([sentence('a', '猫')]))
+                pipeline.run(Artifact([sentence('a', '猫')]))
+                cache.refresh = {'merge'}
+                pipeline.run(Artifact([sentence('a', '猫')]))
+            self.assertIn('0 hits, 1 misses, 0 refreshed', events[0])
+            self.assertIn('1 hits, 0 misses, 0 refreshed', events[1])
+            self.assertIn('0 hits, 0 misses, 1 refreshed', events[2])
+            step.diagnostics_path = Path(tmp) / 'diagnostics.jsonl'
+            def compute(a):
+                step.done('merged.')
+                return Artifact(a.data)
+            with patch.object(step, 'process', side_effect=compute):
+                pipeline.run(Artifact([sentence('a', '猫')]))
+            self.assertIn('Cache disabled: diagnostics', events[-1])
+
     def test_real_merge_and_candidate_evidence_match_uncached(self):
         with tempfile.TemporaryDirectory() as tmp:
             raw = Pipeline([RawTokenizeStep()]).run(Artifact([(Path('fixture.txt'), ['おまもりをください。'])]))

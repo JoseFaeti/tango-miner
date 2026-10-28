@@ -31,13 +31,10 @@ colloquialisms, and uncertain candidates in scope. See the
     results automatically. A conservative code fingerprint or explicitly
     maintained stage versions must cover shared helpers; document the chosen
     mechanism and test it.
-  - Replace or integrate the existing raw-token cache: its per-file mtime
-    shortcut can miss changed content with a preserved timestamp and can reuse
-    stale tokens after extraction or normalization changes; its fingerprint
-    also does not detect dictionaries replaced in place. Key it from actual
-    normalized sentence content and tokenizer dependencies, retaining
-    `--retokenize` as a compatible force-refresh alias. Account for hashing
-    cost and ensure cached tokens stay aligned with their sentences.
+  - The raw-token cache now keys the ordered normalized sentence list and hashes
+    configured system and user dictionaries once per tokenizer stage. It uses
+    versioned entries with a restricted pickle reader and atomic replacement; old entries are not
+    read. Measure end-to-end warm-run costs on a representative corpus.
   - Provide a repeatable stage-specific refresh option and an all-stage
     refresh option. Refresh must bypass and replace the selected entries;
     downstream results must be recomputed or validated against the refreshed

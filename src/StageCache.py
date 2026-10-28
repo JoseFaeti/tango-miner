@@ -1,5 +1,6 @@
 """Cache deterministic stage results without putting cache logic in steps."""
 import hashlib
+from dataclasses import replace
 import json
 import sys
 import tempfile
@@ -144,7 +145,17 @@ class StageCache:
             self.stats["disabled_reason"] = ("diagnostics" if step.diagnostics_path is not None
                                              else "dictionary hash unavailable" if not self.dictionary_hash
                                              else "source fingerprint unavailable")
-            return step.process(artifact)
+            handler = step._progress_handler
+            if handler:
+                def report(event):
+                    if event.current >= event.total:
+                        event = replace(event, message=f"{event.message} Cache disabled: {self.stats['disabled_reason']}.")
+                    handler(event)
+                step._progress_handler = report
+            try:
+                return step.process(artifact)
+            finally:
+                step._progress_handler = handler
 
         output = []
         def compute(group):
@@ -182,7 +193,11 @@ class StageCache:
             if step._progress_handler and len(output) < len(artifact.data):
                 step.progress(len(output), len(artifact.data))
         if step._progress_handler:
-            step.done(f"{len(output)} token streams merged; {self.stats['hits']} source groups cached ({self.stats['hit_streams']} streams).")
+            step.done(
+                f"{len(output)} token streams merged; cache: {self.stats['hits']} hits, "
+                f"{self.stats['misses']} misses, {self.stats['refreshes']} refreshed "
+                f"(source groups; {self.stats['hit_streams']} cached streams)."
+            )
         return Artifact(output)
 
     def _load(self, path, key, original):

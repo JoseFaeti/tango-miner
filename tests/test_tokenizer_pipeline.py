@@ -10,21 +10,96 @@ from src.TokenCache import TokenCache
 from src.RunConfig import TokenizerConfig
 from src.steps.BuildWordStatsStep import BuildWordStatsStep
 from src.steps.MergeTokensStep import MergeTokensStep
-from src.steps.TokenizeStep import RawTokenizeStep, tokenize_raw_sentences, tokenizer_fingerprint, get_tokenizer
+from src.steps.TokenizeStep import (RawTokenizeStep, tokenize_raw_sentences, tokenizer_fingerprint,
+                                    tokenizer_source_fingerprint, TOKENIZER_SOURCE_DEPENDENCIES, get_tokenizer)
 
 
 class TokenizerPipelineTests(unittest.TestCase):
+    def test_source_fingerprint_tracks_dependencies_only(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            for name in TOKENIZER_SOURCE_DEPENDENCIES:
+                path = root / name
+                path.parent.mkdir(parents=True, exist_ok=True)
+                path.write_text("original", encoding="utf-8")
+            unrelated = root / "other.py"
+            unrelated.write_text("original", encoding="utf-8")
+            first = tokenizer_source_fingerprint(root)
+            unrelated.write_text("changed", encoding="utf-8")
+            self.assertEqual(first, tokenizer_source_fingerprint(root))
+            for name in TOKENIZER_SOURCE_DEPENDENCIES:
+                path = root / name
+                path.write_text("changed", encoding="utf-8")
+                self.assertNotEqual(first, tokenizer_source_fingerprint(root), name)
+                path.write_text("original", encoding="utf-8")
+
+    def test_source_change_invalidates_token_cache(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            source = root / "source.txt"
+            source.write_text("猫", encoding="utf-8")
+            config = root / "config.json"
+            config.write_text("{}", encoding="utf-8")
+            dictionary = root / "system.dic"
+            dictionary.write_bytes(b"dictionary")
+            settings = TokenizerConfig(config_path=str(config), dictionary=str(dictionary))
+            token = {"surface": "猫", "lemma": "猫", "base_form": "猫", "reading": "ねこ", "pos": ("名詞",)}
+            tokenizer = Mock()
+            tokenizer.tokenize.return_value = [object()]
+            with patch("src.steps.TokenizeStep.tokenizer_source_fingerprint", side_effect=["first", "first", "changed"]), \
+                 patch("src.steps.TokenizeStep.appdirs.user_cache_dir", return_value=tmp), \
+                 patch("src.steps.TokenizeStep.get_tokenizer", return_value=tokenizer), \
+                 patch("src.steps.TokenizeStep.sudachi_node_to_dict", return_value=token):
+                for _ in range(3):
+                    Pipeline([RawTokenizeStep(config=settings)]).run(Artifact([(source, ["猫"])], tmpdir=root))
+            self.assertEqual(tokenizer.tokenize.call_count, 2)
+
     def test_fingerprint_changes_with_settings_and_json_content(self):
         with tempfile.TemporaryDirectory() as tmp:
             path = Path(tmp) / "sudachi.json"
             path.write_text("{}", encoding="utf-8")
-            full = TokenizerConfig(config_path=str(path), dictionary="full")
-            small = TokenizerConfig(config_path=str(path), dictionary="small")
+            dictionary_path = Path(tmp) / "system.dic"
+            dictionary_path.write_bytes(b"first")
+            full = TokenizerConfig(config_path=str(path), dictionary=str(dictionary_path))
+            small = TokenizerConfig(config_path=str(path), dictionary=str(dictionary_path))
             first = tokenizer_fingerprint(full)
             self.assertEqual(first, tokenizer_fingerprint(full))
+            dictionary_path.write_bytes(b"other")
             self.assertNotEqual(first, tokenizer_fingerprint(small))
             path.write_text('{"test": true}', encoding="utf-8")
             self.assertNotEqual(first, tokenizer_fingerprint(full))
+
+    def test_fingerprint_tracks_user_dictionary_contents(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            system = root / "system.dic"
+            user = root / "user.dic"
+            config = root / "config.json"
+            system.write_bytes(b"system")
+            user.write_bytes(b"first")
+            config.write_text(__import__("json").dumps({"userDict": [str(user)]}), encoding="utf-8")
+            settings = TokenizerConfig(config_path=str(config), dictionary=str(system))
+            before = tokenizer_fingerprint(settings)
+            user.write_bytes(b"other")
+            self.assertNotEqual(before, tokenizer_fingerprint(settings))
+
+    def test_changed_sentences_with_same_timestamp_are_retokenized(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            source = Path(tmp) / "source.txt"
+            source.write_text("猫", encoding="utf-8")
+            cache = TokenCache(Path(tmp) / "cache", "version")
+            token = {"surface": "猫", "lemma": "猫", "base_form": "猫", "reading": "ねこ", "pos": ("名詞",)}
+            tokenizer = Mock()
+            tokenizer.tokenize.return_value = [object()]
+            with patch("src.steps.TokenizeStep.get_tokenizer", return_value=tokenizer), \
+                 patch("src.steps.TokenizeStep.sudachi_node_to_dict", return_value=token):
+                tokenize_raw_sentences(["猫"], tag="a", source_path=source, cache=cache)
+                result = tokenize_raw_sentences(["犬", "猫"], tag="b", source_path=source, cache=cache)
+                cached = tokenize_raw_sentences(["犬", "猫"], tag="c", source_path=source, cache=cache)
+            self.assertEqual(tokenizer.tokenize.call_count, 3)
+            self.assertEqual([s.text for s in result], ["犬", "猫"])
+            self.assertEqual([s.tag for s in cached], ["c", "c"])
+            self.assertEqual([s.tokens for s in result], [s.tokens for s in cached])
 
     def test_tokenizer_reloads_when_settings_change(self):
         with tempfile.TemporaryDirectory() as tmp:
@@ -35,6 +110,7 @@ class TokenizerPipelineTests(unittest.TestCase):
             with patch("src.steps.TokenizeStep._tokenizer", None), \
                  patch("src.steps.TokenizeStep._tokenizer_identity", None), \
                  patch("src.steps.TokenizeStep._lemma_reading_cache", {"old": "reading"}) as readings, \
+                 patch("src.steps.TokenizeStep.tokenizer_fingerprint", side_effect=lambda config: config.dictionary), \
                  patch("src.steps.TokenizeStep.dictionary.Dictionary") as factory:
                 first = get_tokenizer(first_config)
                 self.assertIs(first, get_tokenizer(first_config))
@@ -54,9 +130,10 @@ class TokenizerPipelineTests(unittest.TestCase):
             config_b = TokenizerConfig(config_path=str(config_path), dictionary="small")
             tokenizer = Mock()
             tokenizer.tokenize.return_value = [object()]
-            with patch("src.steps.TokenizeStep.appdirs.user_cache_dir", return_value=str(cache_dir)), \
+            with patch("src.steps.TokenizeStep.tokenizer_fingerprint", side_effect=lambda config: config.dictionary), \
+                 patch("src.steps.TokenizeStep.appdirs.user_cache_dir", return_value=str(cache_dir)), \
                  patch("src.steps.TokenizeStep.get_tokenizer", return_value=tokenizer), \
-                 patch("src.steps.TokenizeStep.sudachi_node_to_dict", return_value={"surface": "猫"}):
+                 patch("src.steps.TokenizeStep.sudachi_node_to_dict", return_value={"surface": "猫", "lemma": "猫", "base_form": "猫", "reading": "ねこ", "pos": ("名詞",)}):
                 for config in (config_a, config_a, config_b):
                     Pipeline([RawTokenizeStep(config=config)]).run(Artifact([(source, ["猫"])], tmpdir=Path(tmp)))
             self.assertEqual(tokenizer.tokenize.call_count, 2)
@@ -67,26 +144,47 @@ class TokenizerPipelineTests(unittest.TestCase):
             source.write_text("猫", encoding="utf-8")
             cache_dir = Path(tmp) / "cache"
             cache = TokenCache(cache_dir, "version")
-            cache.put_by_mtime(source, source.stat().st_mtime_ns, "猫", [[{"surface": "old"}]])
-            cache.flush_mtime_index()
+            old = {"surface": "old", "lemma": "old", "base_form": "old", "reading": "old", "pos": ("名詞",)}
+            new = {"surface": "new", "lemma": "new", "base_form": "new", "reading": "new", "pos": ("名詞",)}
+            cache.put(["猫"], [[old]])
             tokenizer = Mock()
             tokenizer.tokenize.return_value = [object()]
             cache_stats = {"hits": 0, "misses": 0, "disabled": 0}
             with patch("src.steps.TokenizeStep.get_tokenizer", return_value=tokenizer), \
-                 patch("src.steps.TokenizeStep.sudachi_node_to_dict", return_value={"surface": "new"}):
+                 patch("src.steps.TokenizeStep.sudachi_node_to_dict", return_value=new):
                 cached = tokenize_raw_sentences(["猫"], tag="tag", source_path=source, cache=cache, cache_stats=cache_stats)
-                self.assertEqual(cached[0].tokens, [{"surface": "old"}])
+                self.assertEqual(cached[0].tokens, [old])
                 tokenizer.tokenize.assert_not_called()
                 refreshed = tokenize_raw_sentences(["猫"], tag="tag", source_path=source, cache=cache, force_retokenize=True, cache_stats=cache_stats)
-                self.assertEqual(refreshed[0].tokens, [{"surface": "new"}])
+                self.assertEqual(refreshed[0].tokens, [new])
                 tokenizer.tokenize.assert_called_once()
                 self.assertEqual(cache_stats, {"hits": 1, "misses": 1, "disabled": 0})
-            cache.flush_mtime_index()
             reloaded = TokenCache(cache_dir, "version")
             with patch("src.steps.TokenizeStep.get_tokenizer") as get_tokenizer:
                 result = tokenize_raw_sentences(["猫"], tag="tag", source_path=source, cache=reloaded)
-            self.assertEqual(result[0].tokens, [{"surface": "new"}])
+            self.assertEqual(result[0].tokens, [new])
             get_tokenizer.assert_not_called()
+
+    def test_completion_reports_hits_misses_refresh_and_disabled(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            source = Path(tmp) / "source.txt"
+            source.write_text("猫", encoding="utf-8")
+            token = {"surface": "猫", "lemma": "猫", "base_form": "猫", "reading": "ねこ", "pos": ("名詞",)}
+            tokenizer = Mock()
+            tokenizer.tokenize.return_value = [object()]
+            events = []
+            with patch("src.steps.TokenizeStep.tokenizer_fingerprint", return_value="version"), \
+                 patch("src.steps.TokenizeStep.appdirs.user_cache_dir", return_value=tmp), \
+                 patch("src.steps.TokenizeStep.get_tokenizer", return_value=tokenizer), \
+                 patch("src.steps.TokenizeStep.sudachi_node_to_dict", return_value=token):
+                for forced, tmpdir in ((False, Path(tmp)), (False, Path(tmp)), (True, Path(tmp)), (False, None)):
+                    pipeline = Pipeline([RawTokenizeStep(force_retokenize=forced)],
+                                        on_progress=lambda *a, **kw: events.append(kw["additional_text"]))
+                    pipeline.run(Artifact([(source, ["猫"])], tmpdir=tmpdir))
+            self.assertIn("0 hits, 1 misses", events[0])
+            self.assertIn("1 hits, 0 misses", events[1])
+            self.assertIn("1 refreshed files", events[2])
+            self.assertIn("cache disabled", events[3])
 
     def test_tokenize_step_preserves_raw_token_boundaries(self):
         artifact = Artifact([(Path("fixture.txt"), ["おまもりをください。"])])

@@ -78,9 +78,17 @@ against the current working directory.
 Pass `--retokenize` to a normal pipeline run to regenerate tokenizer output
 instead of reading cached tokens. The refreshed tokens are saved to the cache
 for later runs. All other configured stages, including Anki if enabled, run
-as usual. The cache fingerprint includes the Sudachi settings, JSON contents,
-and SudachiPy version. Replacing dictionary files in place is not detected;
-use `--retokenize` after such a change.
+as usual. The cache keys the ordered normalized sentences and the tokenizer identity,
+including tokenizer and cache source code, Python and SudachiPy versions,
+Sudachi settings, JSON, and system and user dictionary contents. The source
+dependency list in `TokenizeStep.py` must be updated if tokenizer or cache
+logic gains another project helper. Dictionary hashing occurs once per tokenizer stage. The
+versioned cache replaces the old pickle and timestamp index; old entries
+are left on disk and are no longer read. Cache files contain source-derived
+token text. Its restricted pickle reader rejects global objects. Tokenizer and merge
+stage completion messages report cache hits and misses, refreshes when forced,
+and when caching is disabled. Tokenizer counts are per file; merge counts are
+per source group, with cached stream counts also shown.
 
 ### Merge cache
 
@@ -104,9 +112,8 @@ a group.
 
 Use `--refresh-cache merge` to recompute and replace merge entries. Use
 `--refresh-cache all` to refresh merge entries and force retokenization. These
-options refresh rather than delete older entries. The existing tokenizer cache
-still uses its documented modification-time shortcut; merge caching does not
-correct stale tokens returned by that cache. Other stages run normally.
+options refresh rather than delete older entries. Tokenizer cache entries are keyed by normalized sentence content and tokenizer
+dependencies. Other stages run normally.
 
 ## Development
 

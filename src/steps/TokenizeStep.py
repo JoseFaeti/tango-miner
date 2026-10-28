@@ -2,7 +2,10 @@ from pathlib import Path
 import appdirs
 import hashlib
 import importlib.metadata
+import importlib.util
+import json
 import re
+import sys
 
 from sudachipy import dictionary, tokenizer as sudachi_tokenizer
 
@@ -29,9 +32,6 @@ SKIP_POS1_POS2 = {
     ("感動詞", "フィラー"),
 }
 
-# This fingerprint represents the raw Sudachi output only. Merge-rule changes
-# deliberately do not invalidate the raw-token cache.
-TOKENIZER_FINGERPRINT = "2026/10/27-1"
 TOKENIZER_MODE = sudachi_tokenizer.Tokenizer.SplitMode.C
 
 MIN_SENTENCE_LENGTH = 10
@@ -41,25 +41,57 @@ _tokenizer = None
 _tokenizer_identity = None
 
 
-def tokenizer_fingerprint(settings: TokenizerConfig) -> str:
-    """Identify raw-token settings and the configured Sudachi JSON contents."""
-    config_path = Path(settings.config_path).expanduser().resolve()
+# These files implement raw tokenization and cache serialization. Add any new
+# project helper used by either stage to this list.
+TOKENIZER_SOURCE_DEPENDENCIES = ("steps/TokenizeStep.py", "TokenCache.py")
+
+
+def tokenizer_source_fingerprint(root=None) -> str:
+    """Hash tokenizer and cache source, without unrelated pipeline stages."""
+    root = Path(root) if root is not None else Path(__file__).resolve().parent.parent
     digest = hashlib.sha256()
-    for value in (TOKENIZER_FINGERPRINT, str(config_path), settings.dictionary,
-                  importlib.metadata.version("SudachiPy"), str(TOKENIZER_MODE)):
-        digest.update(value.encode("utf-8"))
+    for name in TOKENIZER_SOURCE_DEPENDENCIES:
+        digest.update(name.encode("utf-8") + b"\0")
+        digest.update((root / name).read_bytes())
         digest.update(b"\0")
-    digest.update(config_path.read_bytes())
     return digest.hexdigest()
 
 
-def get_tokenizer(settings: TokenizerConfig | None = None):
+def tokenizer_fingerprint(settings: TokenizerConfig) -> str:
+    """Hash tokenizer source, configuration, and configured dictionary contents."""
+    config_path = Path(settings.config_path).expanduser().resolve()
+    config_bytes = config_path.read_bytes()
+    config = json.loads(config_bytes)
+    choice = settings.dictionary
+    if choice in ("small", "core", "full"):
+        spec = importlib.util.find_spec("sudachidict_" + choice)
+        if spec is None or not spec.origin:
+            raise OSError(f"Cannot locate Sudachi {choice} dictionary")
+        system_path = Path(spec.origin).parent / "resources" / "system.dic"
+    else:
+        system_path = Path(choice).expanduser()
+    paths = [system_path, *(Path(p).expanduser() for p in config.get("userDict", []))]
+    digest = hashlib.sha256()
+    for value in (tokenizer_source_fingerprint(), sys.version, str(config_path), choice,
+                  importlib.metadata.version("SudachiPy"), str(TOKENIZER_MODE)):
+        digest.update(value.encode("utf-8") + b"\0")
+    digest.update(config_bytes)
+    for path in paths:
+        path = path.resolve()
+        digest.update(str(path).encode("utf-8") + b"\0")
+        with path.open("rb") as f:
+            while chunk := f.read(1024 * 1024):
+                digest.update(chunk)
+    return digest.hexdigest()
+
+
+def get_tokenizer(settings: TokenizerConfig | None = None, identity: str | None = None):
     global _tokenizer, _tokenizer_identity
     # No argument reuses the active tokenizer for lemma readings and legacy callers.
     if settings is None and _tokenizer is not None:
         return _tokenizer
     settings = settings if settings is not None else TokenizerConfig()
-    identity = tokenizer_fingerprint(settings)
+    identity = identity or tokenizer_fingerprint(settings)
     if _tokenizer is None or _tokenizer_identity != identity:
         new_tokenizer = dictionary.Dictionary(
             config_path=str(Path(settings.config_path).expanduser()), dict=settings.dictionary
@@ -82,9 +114,10 @@ class RawTokenizeStep(PipelineStep):
     def process(self, artifact: Artifact) -> Artifact:
         files: list[tuple[Path, list[str]]] = artifact.data
         self.cache_stats.update(hits=0, misses=0, disabled=0)
+        identity = tokenizer_fingerprint(self.config)
         cache = TokenCache(
             cache_dir=Path(appdirs.user_cache_dir("tango_miner")),
-            tokenizer_fingerprint=tokenizer_fingerprint(self.config),
+            tokenizer_fingerprint=identity,
         ) if artifact.tmpdir else None
 
         tokenized_sentences = []
@@ -97,17 +130,21 @@ class RawTokenizeStep(PipelineStep):
             tokenized_sentences.extend(
                 tokenize_raw_sentences(
                     sentences, tag=tag, source_path=path, cache=cache,
-                    force_retokenize=self.force_retokenize, tokenizer_config=self.config, cache_stats=self.cache_stats,
+                    force_retokenize=self.force_retokenize, tokenizer_config=self.config, cache_stats=self.cache_stats, tokenizer_identity=identity,
                 )
             )
             completed_sentences += len(sentences)
             if completed_sentences < total_sentences:
                 self.progress(completed_sentences, total_sentences, f"{path.name}")
 
-        if cache:
-            cache.flush_mtime_index()
-
-        self.done(f"{len(tokenized_sentences)} raw token streams collected.")
+        if cache is None:
+            cache_message = "cache disabled"
+        elif self.force_retokenize:
+            cache_message = f"cache: 0 hits, {self.cache_stats['misses']} refreshed files"
+        else:
+            cache_message = (f"cache: {self.cache_stats['hits']} hits, "
+                             f"{self.cache_stats['misses']} misses (files)")
+        self.done(f"{len(tokenized_sentences)} raw token streams collected; {cache_message}.")
         return Artifact(tokenized_sentences)
 
 
@@ -135,33 +172,28 @@ class TokenizeStep(PipelineStep):
 def tokenize_raw_sentences(
     sentences_text: list[str], *, tag: str | None, source_path: Path, cache=None,
     force_retokenize: bool = False, tokenizer_config: TokenizerConfig | None = None,
-    cache_stats: dict | None = None,
+    cache_stats: dict | None = None, tokenizer_identity: str | None = None,
 ) -> list[TokenizedSentence]:
     """Tokenize one source file, loading/storing only raw Sudachi output."""
-    all_sentence_tokens = None
-    if cache and source_path:
-        mtime_ns = source_path.stat().st_mtime_ns
-    if cache and source_path and not force_retokenize:
-        hash_ = cache.get_hash_by_mtime(source_path, mtime_ns)
-        if hash_:
-            payload = cache.load_by_hash(hash_)
-            if payload:
-                all_sentence_tokens = payload["tokens"]
+    all_sentence_tokens = cache.load(sentences_text) if cache and not force_retokenize else None
 
     if cache_stats is not None:
         key = "disabled" if not cache else "hits" if all_sentence_tokens is not None else "misses"
         cache_stats[key] += 1
 
     if all_sentence_tokens is None:
-        tokenizer_obj = get_tokenizer(tokenizer_config) if tokenizer_config is not None else get_tokenizer()
+        if tokenizer_config is None:
+            tokenizer_obj = get_tokenizer()
+        elif tokenizer_identity is None:
+            tokenizer_obj = get_tokenizer(tokenizer_config)
+        else:
+            tokenizer_obj = get_tokenizer(tokenizer_config, identity=tokenizer_identity)
         all_sentence_tokens = [
             [sudachi_node_to_dict(node) for node in tokenizer_obj.tokenize(sentence, TOKENIZER_MODE)]
             for sentence in sentences_text
         ]
-        if cache and source_path:
-            cache.put_by_mtime(
-                source_path, mtime_ns, "\n".join(sentences_text), all_sentence_tokens
-            )
+        if cache:
+            cache.put(sentences_text, all_sentence_tokens)
 
     return [
         TokenizedSentence(text=text, tag=tag, origin=source_path, tokens=tokens)
