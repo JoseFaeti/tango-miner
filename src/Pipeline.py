@@ -5,9 +5,10 @@ from src.PipelineStep import PipelineStep, ProgressEvent
 
 
 class Pipeline:
-    def __init__(self, steps: Iterable[PipelineStep], on_progress=None):
+    def __init__(self, steps: Iterable[PipelineStep], on_progress=None, cache=None):
         self.steps: List[PipelineStep] = list(steps)
         self.on_progress = on_progress
+        self.cache = cache
         self.stage_records = []
 
         for step in self.steps:
@@ -27,7 +28,7 @@ class Pipeline:
                 record = {"name": type(step).__name__, "status": "running"}
                 self.stage_records.append(record)
                 try:
-                    data = step.process(data)
+                    data = self.cache.process(step, data) if self.cache is not None else step.process(data)
                     data.tmpdir = tmpdir
                     record["status"] = "completed"
                     if hasattr(data.data, "__len__"):
@@ -49,6 +50,8 @@ class Pipeline:
                     record["duration_seconds"] = time.perf_counter() - step.start_time
                     if hasattr(step, "cache_stats"):
                         record["cache"] = dict(step.cache_stats)
+                    if self.cache is not None and type(step).__name__ == "MergeTokensStep" and self.cache.stats is not None:
+                        record["cache"] = dict(self.cache.stats)
                     if hasattr(step, "outcome"):
                         record["anki"] = dict(step.outcome)
         finally:

@@ -3,6 +3,7 @@
 import argparse
 from pathlib import Path
 import sys
+import appdirs
 from tempfile import TemporaryDirectory
 from os import path
 
@@ -11,6 +12,7 @@ from src.Column import Column
 from src.Pipeline import Pipeline
 from src.RunConfig import resolve_config
 from src.RunArchive import create_run_archive, collect_dependencies, write_run_summary
+from src.StageCache import StageCache
 
 from src.steps.AddDefinitionsStep import AddDefinitionsStep
 from src.steps.AddWordsToAnkiStep import AddWordsToAnkiStep
@@ -113,6 +115,9 @@ def process_script(argv=None):
     parser.add_argument("--retokenize", action="store_true",
                         help="Regenerate tokens for this run and refresh the tokenizer cache")
 
+    parser.add_argument("--refresh-cache", action="append", choices=("merge", "all"), default=[],
+                        help="Refresh the merge cache or all caches; may be repeated")
+
     parser.add_argument("--occurrence-diagnostics", action="store_true",
                         help="Write detailed occurrence and candidate JSONL files (can be large)")
 
@@ -168,7 +173,7 @@ def process_script(argv=None):
             DumpSentences("sentences.txt") if debug else None,
             NormalizeSentences(),
             DumpSentences("sentences-normalized.txt") if debug else None,
-            RawTokenizeStep(force_retokenize=args.retokenize, config=config.tokenizer),
+            RawTokenizeStep(force_retokenize=args.retokenize or "all" in args.refresh_cache, config=config.tokenizer),
             MergeTokensStep(max_lookahead=config.merge.max_lookahead, dictionary_path=config.dictionary.jmdict_path,
                             diagnostics_path=final_path.parent / "rejected-merges.jsonl" if args.occurrence_diagnostics else None),
             OccurrenceDiagnosticsStep(final_path.parent / "occurrences.jsonl") if args.occurrence_diagnostics else None,
@@ -183,11 +188,15 @@ def process_script(argv=None):
             AddWordsToAnkiStep(config.anki, plan_path=final_path.parent / "anki-plan.json") if config.anki.enabled else None,
         ]
 
-        summary = {"status": "running", "dependencies": collect_dependencies(config),
+        dependencies = collect_dependencies(config)
+        summary = {"status": "running", "dependencies": dependencies,
                    "retokenize_requested": args.retokenize, "occurrence_diagnostics": args.occurrence_diagnostics, "stages": [],
+                   "cache_refresh_requested": args.refresh_cache,
                    "anki": {"status": "not_started" if config.anki.enabled else "disabled"}}
         write_run_summary(final_path.parent, summary)
-        pipeline = Pipeline(steps=[step for step in steps if step is not None], on_progress=print_step_progress)
+        stage_cache = StageCache(appdirs.user_cache_dir("tango_miner"), dependencies, args.refresh_cache)
+        pipeline = Pipeline(steps=[step for step in steps if step is not None], on_progress=print_step_progress,
+                            cache=stage_cache)
         try:
             pipeline.run(Artifact(input_path, tmpdir=tmpdir))
             summary["status"] = "completed"

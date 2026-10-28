@@ -80,6 +80,29 @@ as usual. The cache fingerprint includes the Sudachi settings, JSON contents,
 and SudachiPy version. Replacing dictionary files in place is not detected;
 use `--retokenize` after such a change.
 
+### Merge cache
+
+The merge stage caches results per source file in the application cache directory.
+Keys include the raw token streams and source metadata, merge lookahead, JMdict
+content hash, and a conservative fingerprint of all project source modules.
+Changing any source module invalidates merge entries. Cached data includes source
+text and paths; old entries remain until manually removed from the application's
+`stages/merge-v2` cache directory. Older `merge-v1` entries are no longer used
+and can be removed separately. Cache files are JSON and are replaced atomically.
+A missing dictionary hash or occurrence diagnostics disables merge caching for
+that run so rejected-merge diagnostics are complete. The run summary records
+merge hits, misses, refreshes, write failures and any reason for disabling it.
+Hit, miss and
+refresh counts refer to source groups; separate stream counts show how many
+token streams each category covers. Files with no token streams do not form
+a group.
+
+Use `--refresh-cache merge` to recompute and replace merge entries. Use
+`--refresh-cache all` to refresh merge entries and force retokenization. These
+options refresh rather than delete older entries. The existing tokenizer cache
+still uses its documented modification-time shortcut; merge caching does not
+correct stale tokens returned by that cache. Other stages run normally.
+
 ## Development
 
 Run the test suite from the repository root:

@@ -9,7 +9,15 @@ colloquialisms, and uncertain candidates in scope. See the
   runs. This is feasible for deterministic intermediate results, but first
   use archived stage timings and cache hit rates to identify expensive stages
   and measure serialization, hashing, and disk costs on a representative
-  corpus. Prefer per-file caching through merge where practical, so changing
+  corpus. Merge caching is implemented per source, with `--refresh-cache merge`
+  and `--refresh-cache all`; diagnostic runs bypass it. The first full-corpus
+  run exposed excessive serialization overhead, so the cache now stores only
+  merge changes and reports both source-group and token-stream counts. A
+  stage-only full-corpus check matched all 521,821 streams and measured 52.5 s
+  uncached, 77.2 s to populate, and 37.0 s warm, with 88 MB of entries.
+  Continue measuring end-to-end runs before expanding to another stage. The tokenizer cache
+  still needs the correctness work described below. Prefer per-file caching
+  through merge where practical, so changing
   one input does not invalidate the entire corpus; aggregation and later
   stages depend on the combined inputs.
 
