@@ -98,6 +98,6 @@ colloquialisms, and uncertain candidates in scope. See the
 - [x] Improve occurrence diagnostics to capture rejected merges and selected
   dictionary entries; make mixed analyses and unresolved candidates easier to
   review. See [false-positive analysis](false-positive-analysis.md).
-- [ ] Improve Anki safety and planning: separately opt in to pruning and track
-  applied operations or partial failure. The detailed plan already exists; see
+- [ ] Improve Anki safety and planning: track applied operations or partial failure. Pruning now requires the separate
+  `[anki] prune` opt-in. The detailed plan already exists; see
   the [roadmap](pipeline-improvement-roadmap.md).

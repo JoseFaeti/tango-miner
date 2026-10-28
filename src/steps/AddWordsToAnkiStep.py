@@ -45,6 +45,7 @@ class AddWordsToAnkiStep(PipelineStep):
             deck_name=self.config.deck, words=artifact.data, model_name=self.config.model,
             progress_handler=self.progress, invoke=invoke, batch_size=self.config.batch_size,
             note_fetching_batch_size=self.config.note_fetch_batch_size, output_only=self.config.output_only,
+            prune=self.config.prune,
             preview_handler=record_plan, status_handler=record_status, details_handler=save_details,
         )
         
@@ -96,6 +97,7 @@ def export_words_to_anki(
     batch_size=50,
     note_fetching_batch_size=1000,
     output_only=False,
+    prune=False,
     preview_handler=None,
     status_handler=None,
     details_handler=None,
@@ -139,7 +141,8 @@ def export_words_to_anki(
 
     existing_set = set(existing_words.keys())
 
-    obsolete_words = existing_set - desired_words
+    absent_words = existing_set - desired_words
+    obsolete_words = absent_words if prune else set()
     obsolete_note_ids = [
         existing_words[word]["noteId"]
         for word in obsolete_words
@@ -210,12 +213,14 @@ def export_words_to_anki(
     total_notes_to_add = len(additions)
     if details_handler is not None:
         details_handler({
-            "version": 1, "deck": deck_name, "model": model_name,
+            "version": 2, "deck": deck_name, "model": model_name, "prune": prune,
             "create_model": not model_exists and bool(total_notes_to_add),
             "add": additions,
             "modify": update_details,
             "delete": [{"expression": word, "note_id": existing_words[word]["noteId"]}
                        for word in sorted(obsolete_words)],
+            "retained_absent": [{"expression": word, "note_id": existing_words[word]["noteId"]}
+                                for word in sorted(absent_words - obsolete_words)],
         })
     if preview_handler is not None:
         preview_handler((total_notes_to_add, total_notes_to_update, total_notes_to_delete,

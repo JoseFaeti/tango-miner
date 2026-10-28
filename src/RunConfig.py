@@ -69,6 +69,7 @@ class OutputConfig:
 class AnkiConfig:
     enabled: bool = False
     output_only: bool = True
+    prune: bool = False
     endpoint: str = "http://127.0.0.1:8765"
     deck: str = "日本語::3. 単語::Mined Vocab"
     model: str = "TangoMiner:Japanese"
@@ -194,7 +195,7 @@ def _update_section(name, section, values):
                            "too_hard_word_penalty": (int, float), "difficulty_weight": (int, float),
                            "short_sentence_penalty": (int, float), "min_word_count": (int,),
                            "variance_divisor": (int, float)},
-             "debug": {"enabled": (bool,)}, "anki": {"enabled": (bool,), "output_only": (bool,), "endpoint": (str,), "deck": (str,), "model": (str,),
+             "debug": {"enabled": (bool,)}, "anki": {"enabled": (bool,), "output_only": (bool,), "prune": (bool,), "endpoint": (str,), "deck": (str,), "model": (str,),
                       "timeout_seconds": (int, float), "batch_size": (int,), "note_fetch_batch_size": (int,)}}
     for key, value in values.items():
         if type(value) not in types[name][key]:

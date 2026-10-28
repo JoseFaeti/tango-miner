@@ -2,8 +2,8 @@ import appdirs
 from pathlib import Path
 
 from src.Artifact import Artifact
-from src.JMDict import JMDict
 from src.PipelineStep import PipelineStep
+from src.steps.MergeTokensStep import get_jmdict
 from src.steps.ProcessingStep import ProcessingStep
 
 
@@ -33,10 +33,9 @@ def add_and_filter_for_definitions(input: dict, progress_handler, on_definition_
     total_valid = 0
     total_invalid = 0
 
-    progress_handler(0, total, 'Initializing dictionary...')
+    progress_handler(0, total, 'Loading dictionary...')
     
-    path = Path(dictionary_path).expanduser() if dictionary_path is not None else Path.home() / "JMdict_e.xml"
-    jmdict = JMDict(path)
+    jmdict = get_jmdict(dictionary_path)
 
     # print(f'total words to process: {total}')
     # print(f'total words to look up: {len(words_to_lookup)}')

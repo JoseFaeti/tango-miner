@@ -58,8 +58,9 @@ describes intended operations, while
 partial changes. `[anki] output_only = true` (the default) stops after this preview.
 Set it to `false` to allow changes; the step then asks for explicit confirmation
 before creating a model or changing notes. Declining or unavailable input leaves
-Anki unchanged. Notes in the configured deck and model that are absent from the
-current results are deleted when approved, so a partial corpus can remove notes.
+Anki unchanged. Absent notes are retained by default and listed in the plan as `retained_absent`.
+Set `[anki] prune = true` to include absent notes in the deletion plan; approving
+such a plan can remove notes when the corpus is partial.
 
 ## Run configuration
 
