@@ -44,6 +44,27 @@ XML = """<?xml version="1.0" encoding="UTF-8"?>
 
 
 class JMDictTests(unittest.TestCase):
+    def test_conjunction_evidence_selects_only_a_unique_matching_entry(self):
+        xml = """<JMdict>
+        <entry><r_ele><reb>しかし</reb></r_ele><sense><pos>conjunction</pos><gloss>however</gloss></sense></entry>
+        <entry><r_ele><reb>しかし</reb></r_ele><sense><pos>noun (common)</pos><gloss>harlot</gloss></sense></entry>
+        <entry><r_ele><reb>だが</reb></r_ele><sense><pos>conjunction</pos><gloss>but</gloss></sense></entry>
+        <entry><r_ele><reb>だが</reb></r_ele><sense><pos>conjunction</pos><gloss>yet</gloss></sense></entry>
+        </JMdict>"""
+        with tempfile.TemporaryDirectory() as tmp:
+            path = Path(tmp) / 'dict.xml'
+            path.write_text(xml, encoding='utf-8')
+            d = JMDict(path)
+            conjunction = (TokenComponent('しかし', 'しかし', 'しかし', 'しかし', ('接続詞',)),)
+            noun = (TokenComponent('しかし', 'しかし', 'しかし', 'しかし', ('名詞',)),)
+            selection = d.select_contextual_entry('しかし', {conjunction: 3, noun: 1})
+            self.assertEqual(selection[1], {conjunction})
+            self.assertEqual(d.get_most_common_definition('しかし', component_counts={conjunction: 3, noun: 1}), 'however')
+            self.assertEqual(d.get_most_common_definition('しかし', component_counts={noun: 1}), 'harlot')
+            self.assertIsNone(d.get_most_common_definition('しかし', component_counts={conjunction: 1, noun: 1}))
+            ambiguous = (TokenComponent('だが', 'だが', 'だが', 'だが', ('接続詞',)),)
+            self.assertIsNone(d.get_most_common_definition('だが', component_counts={ambiguous: 1}))
+
     def test_nda_explanatory_selection_requires_split_particle_and_copula(self):
         xml = """<JMdict>
         <entry><r_ele><reb>んだ</reb></r_ele><sense><pos>interjection (kandoushi)</pos><gloss>yes</gloss></sense></entry>

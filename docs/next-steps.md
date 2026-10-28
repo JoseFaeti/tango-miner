@@ -70,6 +70,13 @@ colloquialisms, and uncertain candidates in scope. See the
   separately review alternative supported meanings and merged analyses. The
   split nominalizing `ん` + copula `だ` analysis now supports the explanatory
   `んだ` entry; other `んだ` analyses still need separate review.
+  A spelling-level inventory of the 2,195 review rows in the 2026-10-28
+  11:48 archive found 1,293 with multiple exact JMdict entries, 809 with no
+  exact entry, and 93 with one entry. These counts do not establish the cause
+  or correctness of each row. Conjunction POS is now used for contextual
+  selection when it uniquely identifies an entry; same-POS ambiguities remain
+  unresolved. Short noun examples such as `みみ` can include fragments of
+  longer words, so dictionary coverage alone is not enough to resolve them.
 - [ ] Design separate candidate and Anki note identities for grammar points
   and lexical entries that share a spelling, for example `ない` and
   `ない (grammar)`. Preserve the original source form separately from the

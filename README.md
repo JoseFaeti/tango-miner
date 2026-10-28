@@ -205,7 +205,8 @@ deletion and are not updated; new unresolved candidates are not added to Anki.
 Candidates absent from the filtered results can still be included in the Anki
 deletion plan. Short kana candidates can use unanimous retained token POS to
 select a unique compatible JMdict entry for auxiliaries and pre-noun forms.
-When a candidate has multiple dictionary entries, retained single-token POS,
+When a candidate has multiple dictionary entries, retained single-token POS
+(including conjunctions),
 reading and verb-conjugation evidence can identify a compatible entry. The
 most frequent uniquely identified entry supplies the definition, and examples
 are restricted to matching occurrences. Ties and analyses that cannot identify

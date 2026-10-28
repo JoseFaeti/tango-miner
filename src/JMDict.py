@@ -299,7 +299,7 @@ class JMDict:
                 continue
             pos = token.pos[0]
             category = {"動詞": "verb", "形容詞": "adjective (keiyoushi)",
-                        "副詞": "adverb", "名詞": "noun",
+                        "副詞": "adverb", "名詞": "noun", "接続詞": "conjunction",
                         "助動詞": "auxiliary", "連体詞": "pre-noun adjectival"}.get(pos)
             if not category:
                 continue
