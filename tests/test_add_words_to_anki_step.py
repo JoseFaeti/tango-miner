@@ -64,9 +64,11 @@ class AddWordsToAnkiStepTests(unittest.TestCase):
         config = AnkiConfig(enabled=True, model="Custom", output_only=True)
         output = StringIO()
         with patch("src.steps.AddWordsToAnkiStep.anki_invoke", side_effect=fake), \
-             patch("sys.stdout", output), patch("builtins.input") as prompt:
+             patch("sys.stdout", output), patch("builtins.input") as prompt, \
+             patch("src.steps.AddWordsToAnkiStep.build_mutation_actions") as build_actions:
             Pipeline([AddWordsToAnkiStep(config)], on_progress=print_step_progress).run(Artifact(words))
         prompt.assert_not_called()
+        build_actions.assert_not_called()
         rendered = output.getvalue()
         self.assertIn("Changes: 1 to add, 1 to modify, 1 to delete.", rendered)
         self.assertIn("Anki output-only mode: no changes applied.", rendered)

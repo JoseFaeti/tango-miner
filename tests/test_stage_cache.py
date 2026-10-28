@@ -7,7 +7,7 @@ from unittest.mock import patch
 
 from src.Artifact import Artifact
 from src.Pipeline import Pipeline
-from src.StageCache import StageCache
+from src.StageCache import StageCache, MERGE_SOURCE_DEPENDENCIES, _source_fingerprint
 from src.TokenProvenance import TokenComponent
 from src.TokenizedSentence import TokenizedSentence
 from src.steps.MergeTokensStep import MergeTokensStep
@@ -20,6 +20,52 @@ def sentence(name, text):
 
 
 class StageCacheTests(unittest.TestCase):
+    def test_fingerprint_ignores_unrelated_stages_but_tracks_merge_dependencies(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            for name in MERGE_SOURCE_DEPENDENCIES:
+                path = root / name
+                path.parent.mkdir(parents=True, exist_ok=True)
+                path.write_text(name, encoding='utf8')
+            unrelated = root / 'steps' / 'AddWordsToAnkiStep.py'
+            unrelated.write_text('original', encoding='utf8')
+            first = _source_fingerprint(root)
+            unrelated.write_text('changed', encoding='utf8')
+            self.assertEqual(first, _source_fingerprint(root))
+            for name in MERGE_SOURCE_DEPENDENCIES:
+                path = root / name
+                content = path.read_text(encoding='utf8')
+                path.write_text(content + ' changed', encoding='utf8')
+                self.assertNotEqual(first, _source_fingerprint(root), name)
+                path.write_text(content, encoding='utf8')
+            self.assertEqual(first, _source_fingerprint(root))
+
+    def test_unrelated_edits_reuse_entries_but_merge_edits_invalidate_them(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp) / 'source'
+            for name in MERGE_SOURCE_DEPENDENCIES:
+                path = root / name
+                path.parent.mkdir(parents=True, exist_ok=True)
+                path.write_text(name, encoding='utf8')
+            unrelated = root / 'steps' / 'AddWordsToAnkiStep.py'
+            unrelated.write_text('before', encoding='utf8')
+            dependencies = {'files': {'jmdict': {'sha256': 'x'}}}
+            step = MergeTokensStep()
+            inputs = [sentence('a', '猫')]
+            with patch('src.StageCache._source_fingerprint', side_effect=lambda: _source_fingerprint(root)), \
+                 patch.object(step, 'process', side_effect=lambda a: Artifact(a.data)) as process:
+                StageCache(Path(tmp) / 'cache', dependencies).process(step, Artifact(inputs))
+                unrelated.write_text('after', encoding='utf8')
+                cache = StageCache(Path(tmp) / 'cache', dependencies)
+                cache.process(step, Artifact(inputs))
+                self.assertEqual(cache.stats['hits'], 1)
+                self.assertEqual(process.call_count, 1)
+                (root / 'steps' / 'MergeTokensStep.py').write_text('changed', encoding='utf8')
+                cache = StageCache(Path(tmp) / 'cache', dependencies)
+                cache.process(step, Artifact(inputs))
+                self.assertEqual(cache.stats['misses'], 1)
+                self.assertEqual(process.call_count, 2)
+
     def test_per_source_hits_refresh_and_dependency_changes(self):
         with tempfile.TemporaryDirectory() as tmp:
             deps = {'files': {'jmdict': {'sha256': 'dictionary-a'}}}

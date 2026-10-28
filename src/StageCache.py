@@ -101,14 +101,23 @@ def _bytes(value):
     return json.dumps(value, ensure_ascii=False, separators=(",", ":"), allow_nan=False).encode("utf-8")
 
 
-def _source_fingerprint():
-    """Conservatively invalidate if any project source module changes."""
-    root = Path(__file__).resolve().parent
+# Cache correctness depends on these modules. Update this list if merge logic
+# starts calling another project module; upstream token changes are in the key.
+MERGE_SOURCE_DEPENDENCIES = (
+    "StageCache.py", "Artifact.py", "JMDict.py", "PipelineStep.py",
+    "TokenizedSentence.py", "TokenProvenance.py",
+    "steps/MergeTokensStep.py", "steps/ProcessingStep.py",
+)
+
+
+def _source_fingerprint(root=None):
+    """Fingerprint merge and its project helpers, excluding unrelated stages."""
+    root = Path(root) if root is not None else Path(__file__).resolve().parent
     digest = hashlib.sha256()
-    for path in sorted(root.rglob("*.py")):
-        digest.update(str(path.relative_to(root)).encode("utf-8"))
+    for name in MERGE_SOURCE_DEPENDENCIES:
+        digest.update(name.encode("utf-8"))
         digest.update(b"\0")
-        digest.update(path.read_bytes())
+        digest.update((root / name).read_bytes())
         digest.update(b"\0")
     return digest.hexdigest()
 

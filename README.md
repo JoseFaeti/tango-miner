@@ -51,7 +51,9 @@ Anki export is disabled by default. Setting `[anki] enabled = true` in
 and reports how many notes would be added, modified (including tag changes),
 and deleted. The run archive contains `anki-plan.json` with planned additions,
 field and tag changes, and deletions; it is written before confirmation and
-contains deck content. The plan describes intended operations, while
+contains deck content. The preview still compares notes and checks additions with
+Anki; mutation request payloads are prepared only after approval. The plan
+describes intended operations, while
 `summary.json` records the outcome; a failure during application can leave
 partial changes. `[anki] output_only = true` (the default) stops after this preview.
 Set it to `false` to allow changes; the step then asks for explicit confirmation
@@ -84,8 +86,11 @@ use `--retokenize` after such a change.
 
 The merge stage caches results per source file in the application cache directory.
 Keys include the raw token streams and source metadata, merge lookahead, JMdict
-content hash, and a conservative fingerprint of all project source modules.
-Changing any source module invalidates merge entries. Cached data includes source
+content hash, and a fingerprint of the merge stage, cache code, and their
+shared project dependencies. Changes to those modules invalidate merge entries;
+changes to unrelated stages such as Anki export do not. The dependency list in
+`StageCache.py` must be updated if the merge stage gains a new project dependency.
+Cached data includes source
 text and paths; old entries remain until manually removed from the application's
 `stages/merge-v2` cache directory. Older `merge-v1` entries are no longer used
 and can be removed separately. Cache files are JSON and are replaced atomically.

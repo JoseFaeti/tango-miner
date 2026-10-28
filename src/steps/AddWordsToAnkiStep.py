@@ -148,11 +148,11 @@ def export_words_to_anki(
     total_notes_to_delete = len(obsolete_note_ids)
 
     # --------------------------------------------------
-    # 3. Prepare add + update batches
+    # 3. Compare notes and build the preview
     # --------------------------------------------------
-    notes_to_add = []
-    update_actions = []
+    additions = []
     update_details = []
+    dirty_updates = set()
     total_notes_to_update = 0
 
     for i, (word, stats) in enumerate(words.items(), start=1):
@@ -167,17 +167,6 @@ def export_words_to_anki(
 
             dirty = anki_fields_differ_from_stats(note, stats)
 
-            if dirty:
-                update_actions.append({
-                    "action": "updateNoteFields",
-                    "params": {
-                        "note": {
-                            "id": note_id,
-                            "fields": word_to_anki_fields(word, stats)
-                        }
-                    }
-                })
-
             old_tags = set(note["tags"])
             new_tags = set(stats.tags)
 
@@ -187,25 +176,9 @@ def export_words_to_anki(
                 if t not in new_tags
             }
 
-            if to_add:
-                update_actions.append({
-                    "action": "addTags",
-                    "params": {
-                        "notes": [note_id],
-                        "tags": " ".join(to_add),
-                    }
-                })
-
-            if to_remove:
-                update_actions.append({
-                    "action": "removeTags",
-                    "params": {
-                        "notes": [note_id],
-                        "tags": " ".join(to_remove),
-                    }
-                })
-
             if dirty or to_add or to_remove:
+                if dirty:
+                    dirty_updates.add(word)
                 total_notes_to_update += 1
                 new_fields = word_to_anki_fields(word, stats)
                 changed_fields = {
@@ -225,26 +198,21 @@ def export_words_to_anki(
             if dup_ids:
                 continue
 
-            notes_to_add.append({
-                "deckName": deck_name,
-                "modelName": model_name,
-                "fields": word_to_anki_fields(word, stats),
-                "tags": list(new_tags),
-            })
+            additions.append({"expression": word, "fields": word_to_anki_fields(word, stats),
+                              "tags": sorted(new_tags)})
 
         progress_handler(
             25 + (i / len(words) * 25),
             100,
-            "Preparing actions..."
+            "Comparing notes..."
         )
 
-    total_notes_to_add = len(notes_to_add)
+    total_notes_to_add = len(additions)
     if details_handler is not None:
         details_handler({
             "version": 1, "deck": deck_name, "model": model_name,
             "create_model": not model_exists and bool(total_notes_to_add),
-            "add": [{"expression": n["fields"]["Expression"], "fields": n["fields"],
-                     "tags": sorted(n["tags"])} for n in notes_to_add],
+            "add": additions,
             "modify": update_details,
             "delete": [{"expression": word, "note_id": existing_words[word]["noteId"]}
                        for word in sorted(obsolete_words)],
@@ -273,6 +241,8 @@ def export_words_to_anki(
         if status_handler: status_handler("cancelled")
         return 0, 0, 0
     if status_handler: status_handler("applying")
+    notes_to_add, update_actions = build_mutation_actions(
+        deck_name, model_name, additions, update_details, dirty_updates, words)
     if not model_exists and total_notes_to_add:
         ensure_model_exists(model_name, invoke=invoke)
     for i in range(0, total_notes_to_delete, batch_size):
@@ -317,6 +287,22 @@ def export_words_to_anki(
 
     if status_handler: status_handler("applied")
     return total_notes_to_add, total_notes_to_update, total_notes_to_delete
+
+
+def build_mutation_actions(deck_name, model_name, additions, update_details, dirty_updates, words):
+    notes_to_add = [{"deckName": deck_name, "modelName": model_name,
+                     "fields": item["fields"], "tags": item["tags"]}
+                    for item in additions]
+    update_actions = []
+    for item in update_details:
+        note_id = item["note_id"]
+        if item["expression"] in dirty_updates:
+            update_actions.append({"action": "updateNoteFields", "params": {"note": {
+                "id": note_id, "fields": word_to_anki_fields(item["expression"], words[item["expression"]])}}})
+        for action, tags in (("addTags", item["tags_added"]), ("removeTags", item["tags_removed"])):
+            if tags:
+                update_actions.append({"action": action, "params": {"notes": [note_id], "tags": " ".join(tags)}})
+    return notes_to_add, update_actions
 
 
 def word_to_anki_fields(word: str, stats):
