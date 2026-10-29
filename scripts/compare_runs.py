@@ -8,54 +8,10 @@ import re
 import sys
 from pathlib import Path
 
-ARCHIVE = re.compile(r"^(\d{4}-\d{2}-\d{2}_\d{4})_[^/]+?(?:_(\d+))?$")
-
-
-def load_json(path):
-    return json.loads(path.read_text(encoding="utf-8"))
-
-
-def completed_runs(root):
-    runs = []
-    for path in Path(root).iterdir():
-        match = ARCHIVE.fullmatch(path.name)
-        if not path.is_dir() or not match:
-            continue
-        try:
-            summary = load_json(path / "summary.json")
-        except (OSError, ValueError):
-            continue
-        if summary.get("status") == "completed":
-            runs.append((match.group(1), int(match.group(2) or 1), path.name, path))
-    return [item[-1] for item in sorted(runs)]
-
-
-def load_run(path):
-    path = Path(path)
-    summary = load_json(path / "summary.json")
-    if summary.get("status") != "completed":
-        raise ValueError(f"Run is not completed: {path}")
-    csvs = [p for p in path.glob("*.csv")
-            if not p.name.endswith((".dropped.csv", ".sentence.csv"))]
-    if len(csvs) != 1:
-        raise ValueError(f"Expected exactly one main CSV in {path}, found {len(csvs)}")
-    main = csvs[0]
-    dropped = main.with_name(main.stem + ".dropped" + main.suffix)
-    rows = {}
-    for file, status in ((main, "valid"), (dropped, "dropped/review")):
-        with file.open(encoding="utf-8-sig", newline="") as stream:
-            for row in csv.reader(stream):
-                if len(row) != 9:
-                    raise ValueError(f"Unexpected row in {file}: expected 9 columns")
-                word = row[1]
-                if word in rows:
-                    raise ValueError(f"Duplicate candidate {word!r} in {path}")
-                rows[word] = {"status": status, "frequency": int(row[4]),
-                              "definition": row[5], "examples": row[8]}
-    return {"path": path, "summary": summary, "rows": rows,
-            "config": load_json(path / "config.json"),
-            "manifest": load_json(path / "input-manifest.json")}
-
+# Support direct invocation as well as imports from tests and other scripts.
+if __package__ in (None, ""):
+    sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
+from src.RunComparison import completed_runs, load_run, build_change_report, write_change_report
 
 def describe(candidate):
     if candidate is None:
@@ -131,6 +87,7 @@ def main(argv=None):
     parser.add_argument("--word", action="append", default=[], help="inspect a candidate; repeat as needed")
     parser.add_argument("--limit", type=int, default=20, help="maximum entries displayed per summary list")
     parser.add_argument("--compact", action="store_true", help="bounded summary without definitions or examples")
+    parser.add_argument("--json-output", type=Path, help="write the complete structured change report")
     args = parser.parse_args(argv)
     if (args.before is None) != (args.after is None):
         parser.error("provide both run directories or neither")
@@ -143,7 +100,10 @@ def main(argv=None):
                 raise ValueError(f"Fewer than two completed runs in {args.runs_dir}")
             args.before, args.after = runs[-2:]
         before, after = load_run(args.before), load_run(args.after)
-        (compact_report if args.compact else report)(before, after, args.word, args.limit)
+        if args.json_output:
+            write_change_report(args.json_output, build_change_report(before, after))
+        else:
+            (compact_report if args.compact else report)(before, after, args.word, args.limit)
     except (OSError, ValueError, KeyError, csv.Error) as exc:
         print(f"Error: {exc}", file=sys.stderr)
         return 1

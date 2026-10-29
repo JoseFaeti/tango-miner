@@ -37,7 +37,9 @@ of discovered input files. `summary.json` records run status, per-stage counts
 and durations, file-level tokenizer cache hits and misses, the retokenization
 option, dependency versions and dictionary hashes, and the Anki plan and
 outcome. It remains `running` if the process is terminated before cleanup;
-an interrupted Anki apply can have made partial changes. Each executed stage also
+an interrupted Anki apply can have made partial changes. After CSV output, the run writes `csv-changes.json` with all added, removed and changed candidate fields compared with the preceding completed archive in the same `runs` directory. It records the baseline, input/config equality and counts; a first run reports `no_baseline`. The comparison covers the main and dropped/review CSVs, not sentence-level source metadata or Anki changes. Candidate text is the identity; renames appear as removal and addition. A malformed baseline fails the comparison step. The report contains source-derived examples and definitions.
+
+Each executed stage also
 writes an ordered `steps/NN-StageName.json` report with its status, duration,
 available input and output counts, completion message and links to related run
 artifacts. Grammar reports include occurrence and example counts per rule;
@@ -153,6 +155,7 @@ pipeline or contacting Anki:
 python -X utf8 scripts/compare_runs.py --word しれる --word かもしれない
 ```
 
+Use `--json-output PATH` to save the complete structured comparison for any two runs.
 Pass two run directories to compare particular runs, or use `--runs-dir` to
 select another archive root. The report shows candidate additions, removals,
 status and frequency changes, input/config equality, and recorded Anki outcomes.

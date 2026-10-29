@@ -12,6 +12,7 @@ from src.Column import Column
 from src.Pipeline import Pipeline
 from src.RunConfig import resolve_config
 from src.RunArchive import write_stage_record, create_run_archive, collect_dependencies, write_run_summary
+from src.steps.CompareOutputStep import CompareOutputStep
 from src.StageCache import StageCache
 
 from src.steps.AddDefinitionsStep import AddDefinitionsStep
@@ -201,6 +202,7 @@ def process_script(argv=None):
             AttachSentencesStep(config.sentences),
             WriteOutputStep(final_path, diagnostics_path=(final_path.parent / "candidate-diagnostics.jsonl")
                             if args.occurrence_diagnostics else None),
+            CompareOutputStep(final_path),
             AddWordsToAnkiStep(config.anki, plan_path=final_path.parent / "anki-plan.json") if config.anki.enabled else None,
         ]
 

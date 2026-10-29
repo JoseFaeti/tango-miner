@@ -110,7 +110,7 @@ class TangoMinerTests(unittest.TestCase):
                 self.assertEqual(sum(isinstance(step, AddWordsToAnkiStep) for step in steps), int(enabled))
                 self.assertFalse(any(step is None for step in steps))
                 if enabled:
-                    self.assertIsInstance(steps[-2], WriteOutputStep)
+                    self.assertIsInstance(steps[-3], WriteOutputStep)
                     self.assertIsInstance(steps[-1], AddWordsToAnkiStep)
                     self.assertEqual(steps[-1].config.deck, "Test Deck")
 

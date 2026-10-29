@@ -63,6 +63,8 @@ class Pipeline:
                         record["cache"] = dict(step.cache_stats)
                     if self.cache is not None and type(step).__name__ == "MergeTokensStep" and self.cache.stats is not None:
                         record["cache"] = dict(self.cache.stats)
+                    if getattr(step, "comparison", None) is not None:
+                        record["comparison"] = dict(step.comparison)
                     if hasattr(step, "outcome"):
                         record["anki"] = dict(step.outcome)
                     if type(step).__name__ == "GrammarStep" and record["status"] == "completed":
