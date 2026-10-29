@@ -36,13 +36,18 @@ by source evidence, and preserve ambiguous and useful lexical readings.
   - Remaining: other valid tokenizations and contexts; distinguish nominal
     もの + の and evaluate whether the surrounding context is concessive.
 
-All six rules require eligible source examples, cover only supported analyses,
+- [~] 〜ない — verbal negation.
+  - Covered: supported split negative auxiliaries after irrealis verbs and
+    selected passive, potential and causative auxiliaries.
+  - Remaining: adjective negation, polite and other forms, merged analyses
+    and independent precision and recall evaluation.
+
+All seven rules require eligible source examples, cover only supported analyses,
 and need independent precision and recall evaluation. See the
 [grammar card details](grammar-shadow-prototype.md#grammar-cards).
 
 ## Next candidates
 
-- [ ] 〜ない — negation; distinguish adjective and lexical uses.
 - [ ] 〜たら — conditional; distinguish fragments and other uses.
 - [ ] 〜ていく — movement away or change continuing onward; include 〜てく where distinguishable.
 - [ ] 〜ことがある — experience or occasional occurrence; distinguish meanings.

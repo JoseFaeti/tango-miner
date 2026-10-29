@@ -64,6 +64,39 @@ class GrammarReservationTests(unittest.TestCase):
         self.assertEqual(stage.occurrences[RULE.id].count, 0)
         self.assertEqual(stage.spans, {})
 
+    def test_negative_at_expression_start_preserves_expression_and_other_negatives(self):
+        from src.grammar_rules.rules.nai import RULE as NAI_RULE
+        source = sentence('本を読まないといけないが遊ばない。', [
+            tok('本を', '本', ('名詞', '普通名詞')),
+            tok('読ま', '読む', ('動詞', '一般', '*', '*', '五段', '未然形-一般')),
+            tok('ない', 'ない', ('助動詞', '*')),
+            tok('と', 'と', ('助詞', '*')),
+            tok('いけ', 'いける', ('動詞', '一般', '*', '*', '下一段', '未然形-一般')),
+            tok('ない', 'ない', ('助動詞', '*')),
+            tok('が', 'が', ('助詞', '*')),
+            tok('遊ば', '遊ぶ', ('動詞', '一般', '*', '*', '五段', '未然形-一般')),
+            tok('ない', 'ない', ('助動詞', '*')),
+            tok('。', '。', ('補助記号', '*'))])
+        for token in source.tokens:
+            token.update(base_form=token['lemma'], reading='ヨミ')
+        entry = {'senses': [{'pos': ['expressions (phrases, clauses, etc.)']}]}
+        class ExpressionDictionary(Dictionary):
+            def lookup_word(self, word): return [entry] if word == 'ないといけない' else []
+            def get_best_entry(self, word): return entry
+            def get_reading(self, entry, word): return word
+        dictionary = ExpressionDictionary()
+        stage = GrammarStep(rules=(NAI_RULE,), prefer_expressions=True)
+        with patch('src.steps.MergeTokensStep.get_jmdict', return_value=dictionary):
+            artifact = stage.process(Artifact([source]))
+        self.assertEqual(stage.occurrences[NAI_RULE.id].count, 1)
+        tokens = ExcludeGrammarTokensStep(stage).process(artifact).data[0].tokens
+        self.assertEqual([t['surface'] for t in tokens if t.get('grammar_reserved')], ['ない'])
+        merged = combine_tokens_jmdict(tokens, dictionary)
+        expression = next(t for t in merged if t['lemma'] == 'ないといけない')
+        self.assertEqual([c.surface for c in expression['components']], ['ない', 'と', 'いけ', 'ない'])
+        self.assertTrue(any(t['lemma'] == '読む' for t in merged))
+        self.assertTrue(any(t['lemma'] == '遊ぶ' for t in merged))
+
     def test_explanatory_copula_overrides_misleading_dictionary_merge(self):
         source = sentence('葉っぱにはかけちゃだめなんだって。', [
             tok('葉っぱにはかけちゃだめ', 'だめ', ('名詞', '普通名詞')),

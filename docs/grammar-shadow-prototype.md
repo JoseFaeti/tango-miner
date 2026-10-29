@@ -232,3 +232,10 @@ proposal-selected and stratified, not a representative sentence sample; they
 cannot measure missed grammar or corpus-wide accuracy. Their contents may be
 private. Do not use the same examples for both rule design and independent
 evaluation.
+
+The `〜ない` card covers split verbal negative auxiliaries after an irrealis
+verb or selected passive, potential and causative auxiliaries. It includes
+`ない`, `なかった`, `なく`, and split `なければ`; following `で` and
+`て` remain outside the span. Independent adjectival `ない` and `無い`
+remain lexical, and adjective negation, polite negatives and merged analyses
+are not covered. Precision and recall have not been evaluated across a corpus.

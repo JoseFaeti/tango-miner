@@ -78,7 +78,8 @@ class GrammarStep(PipelineStep):
                                    if rule.id == 'explanatory_nda'
                                    and t['span'][1] == start and t['surface'] == 'な'
                                    and t['lemma'] == 'だ' and t['pos'][:1] == ['助動詞']}
-                if any(a < start and end <= b and a not in copular_starts
+                if any(a <= start and end <= b and (a < start or end < b)
+                       and a not in copular_starts
                        for a, b in expression_spans):
                     continue
                 group = self.occurrences[rule.id]

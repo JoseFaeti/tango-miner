@@ -5,10 +5,11 @@ from src.grammar_rules.rules.nda import RULE as NDA
 from src.grammar_rules.rules.tai import RULE as TAI
 from src.grammar_rules.rules.te_shimau import RULE as TE_SHIMAU
 from src.grammar_rules.rules.monono import RULE as MONONO
+from src.grammar_rules.rules.nai import RULE as NAI
 
 from src.grammar_rules.rules.te_kuru import RULE as TE_KURU
 
-RULES = (TE_KURU, TE_IRU, NDA, TAI, TE_SHIMAU, MONONO,)
+RULES = (NAI, TE_KURU, TE_IRU, NDA, TAI, TE_SHIMAU, MONONO,)
 
 if frozenset(rule.expression for rule in RULES) != GRAMMAR_EXPRESSIONS:
     raise ValueError('Registered grammar identities and Anki protections must match')
