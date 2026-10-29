@@ -53,13 +53,20 @@ by source evidence, and preserve ambiguous and useful lexical readings.
     and volitional forms.
   - Remaining: merged expressions and ambiguous 〜てく; evaluate precision and recall.
 
-All nine rules require eligible source examples, cover only supported analyses,
+- [~] 〜たことがある — past experience.
+  - Covered: verb + past auxiliary followed by merged ことがある or split
+    こと + が + ある / あります.
+  - Remaining: other inflections and tokenizations, negative experience, and
+    independent precision and recall evaluation. Non-past occasional occurrence
+    is not classified because it can also describe an existing matter.
+
+All ten rules require eligible source examples, cover only supported analyses,
 and need independent precision and recall evaluation. See the
 [grammar card details](grammar-shadow-prototype.md#grammar-cards).
 
 ## Next candidates
 
-- [ ] 〜ことがある — experience or occasional occurrence; distinguish meanings.
+- [ ] 〜ことがある — occasional occurrence; distinguish existing-matter readings.
 - [ ] 〜ように — purpose, manner or instruction; distinguish meanings and lexical uses.
 - [ ] 〜と思う — thought or intention; retain lexical 思う.
 - [ ] 〜なければならない / 〜なくてはいけない — obligation; include common contractions.

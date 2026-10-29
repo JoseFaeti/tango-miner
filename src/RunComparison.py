@@ -57,24 +57,23 @@ def load_run(path, *, require_completed=True):
 
 
 def build_change_report(before, after):
-    changes = []
+    changes = {key: [] for key in ("added", "removed", "changed")}
     old = before["rows"] if before else {}
     new = after["rows"]
     if before is not None:
         for word in sorted(old.keys() | new.keys()):
             a, b = old.get(word), new.get(word)
             if a is None or b is None:
-                changes.append({"candidate": word, "type": "added" if a is None else "removed",
-                                "before": a, "after": b})
+                category = "added" if a is None else "removed"
+                changes[category].append({"candidate": word, "before": a, "after": b})
             else:
                 fields = {key: {"before": a[key], "after": b[key]}
                           for key in ("status", *FIELDS) if a[key] != b[key]}
                 if fields:
-                    changes.append({"candidate": word, "type": "changed", "fields": fields})
-    counts = {key: sum(item["type"] == key for item in changes)
-              for key in ("added", "removed", "changed")}
-    counts["status_changes"] = sum("status" in item.get("fields", {}) for item in changes)
-    return {"schema_version": 1, "status": "compared" if before else "no_baseline",
+                    changes["changed"].append({"candidate": word, "fields": fields})
+    counts = {key: len(items) for key, items in changes.items()}
+    counts["status_changes"] = sum("status" in item["fields"] for item in changes["changed"])
+    return {"schema_version": 2, "status": "compared" if before else "no_baseline",
             "baseline": before["path"].name if before else None,
             "current": after["path"].name,
             "inputs_identical": before["manifest"] == after["manifest"] if before else None,

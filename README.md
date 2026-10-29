@@ -37,7 +37,7 @@ of discovered input files. `summary.json` records run status, per-stage counts
 and durations, file-level tokenizer cache hits and misses, the retokenization
 option, dependency versions and dictionary hashes, and the Anki plan and
 outcome. It remains `running` if the process is terminated before cleanup;
-an interrupted Anki apply can have made partial changes. After CSV output, the run writes `csv-changes.json` with all added, removed and changed candidate fields compared with the preceding completed archive in the same `runs` directory. It records the baseline, input/config equality and counts; a first run reports `no_baseline`. The comparison covers the main and dropped/review CSVs, not sentence-level source metadata or Anki changes. Candidate text is the identity; renames appear as removal and addition. A malformed baseline fails the comparison step. The report contains source-derived examples and definitions.
+an interrupted Anki apply can have made partial changes. After CSV output, the run writes `csv-changes.json` with all added, removed and changed candidate fields compared with the preceding completed archive in the same `runs` directory. The `changes` object groups entries into `added`, `removed`, and `changed` arrays; status transitions appear in `changed` alongside any other field changes. Schema version 2 identifies this grouped format. It records the baseline, input/config equality and counts; a first run reports `no_baseline`. The comparison covers the main and dropped/review CSVs, not sentence-level source metadata or Anki changes. Candidate text is the identity; renames appear as removal and addition. A malformed baseline fails the comparison step. The report contains source-derived examples and definitions.
 
 Each executed stage also
 writes an ordered `steps/NN-StageName.json` report with its status, duration,
@@ -235,7 +235,8 @@ The normal pipeline includes experimental grammar cards by default; pass
 `--no-grammar` to disable them. The rules create separate
 `〜ている`, explanatory `〜んだ` and desire
 `〜たい`, `〜てしまう`, concessive
-`〜ものの`, `〜てくる`, `〜ていく`, `〜ない`, and `〜たら` candidates when
+`〜ものの`, `〜てくる`, `〜ていく`, `〜ない`, `〜たら`, and
+`〜たことがある` candidates when
 narrowly supported source examples are found. If Anki is enabled, each
 card is included in its normal preview and confirmation workflow. Existing
 notes with those exact identities are retained without automatic updates or

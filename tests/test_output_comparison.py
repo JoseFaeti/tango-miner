@@ -22,14 +22,18 @@ class OutputComparisonTests(unittest.TestCase):
             with (b / 'output.csv').open('w', encoding='utf-8', newline='') as f:
                 csv.writer(f).writerows(rows)
             result = build_change_report(load_run(a), load_run(b))
-            entries = {x['candidate']: x for x in result['changes']}
+            self.assertEqual(result['schema_version'], 2)
+            self.assertEqual(set(result['changes']), {'added', 'removed', 'changed'})
+            entries = {x['candidate']: x for group in result['changes'].values() for x in group}
+            self.assertEqual([x['candidate'] for x in result['changes']['added']], ['新'])
+            self.assertEqual([x['candidate'] for x in result['changes']['removed']], ['旧'])
+            self.assertEqual([x['candidate'] for x in result['changes']['changed']], sorted(['猫', '犬']))
             self.assertEqual(result['counts'], {'added': 1, 'removed': 1, 'changed': 2, 'status_changes': 1})
             self.assertEqual(set(entries['猫']['fields']), {'score', 'reading', 'index', 'frequency', 'definition', 'tags', 'sentence_count', 'examples'})
             self.assertEqual(entries['猫']['fields']['definition']['after'], 'new\nmeaning')
             self.assertEqual(entries['犬']['fields']['status']['after'], 'valid')
             self.assertEqual(entries['新']['after']['word'], '新')
             self.assertEqual(entries['旧']['before']['word'], '旧')
-            self.assertEqual(list(entries), sorted(entries))
 
     def test_step_first_run_and_previous_completed(self):
         with tempfile.TemporaryDirectory() as tmp:
@@ -38,7 +42,9 @@ class OutputComparisonTests(unittest.TestCase):
             step = CompareOutputStep(first / 'output.csv')
             artifact = Artifact({})
             self.assertIs(step.process(artifact), artifact)
-            self.assertEqual(json.loads(step.path.read_text(encoding='utf-8'))['status'], 'no_baseline')
+            first_report = json.loads(step.path.read_text(encoding='utf-8'))
+            self.assertEqual(first_report['status'], 'no_baseline')
+            self.assertEqual(first_report['changes'], {'added': [], 'removed': [], 'changed': []})
             summary = first / 'summary.json'
             summary.write_text('{"status":"completed"}', encoding='utf-8')
             make_run(root, '2026-10-27_1201_b', [], status='failed')

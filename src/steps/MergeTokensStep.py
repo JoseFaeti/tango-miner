@@ -256,6 +256,34 @@ def _is_prenominal_entry_in_past_predicate(tokens: list[dict], start: int, end: 
             or (following['surface'] in {'か', 'ん'} and following['pos'][0] == '助詞'))
 
 
+def _repair_komatta_koto_boundary(tokens: list[dict]) -> list[dict]:
+    """Expose the problem noun inside Sudachi's merged ことがある token."""
+    result = []
+    for i, token in enumerate(tokens):
+        if (i >= 2 and i + 1 < len(tokens)
+                and tokens[i - 2]['surface'] == '困っ' and tokens[i - 2]['lemma'] == '困る'
+                and tokens[i - 1]['surface'] == 'た' and tokens[i - 1]['pos'][:1] in (('助動詞',), ['助動詞'])
+                and token['surface'] == token['lemma'] == 'ことがある'
+                and tokens[i + 1]['surface'] == 'なら' and tokens[i + 1]['lemma'] == 'だ'
+                and not (i >= 3 and tokens[i - 3]['surface'] == 'に'
+                         and tokens[i - 3]['pos'][:1] in (('助詞',), ['助詞']))):
+            evidence = token_components(token)
+            result.extend([
+                {'surface': 'こと', 'lemma': 'こと', 'base_form': 'こと', 'reading': 'こと',
+                 'pos': ('名詞', '普通名詞', '一般', '*', '*', '*'),
+                 'components': evidence, 'analysis_rule': 'komatta_koto_boundary'},
+                {'surface': 'が', 'lemma': 'が', 'base_form': 'が', 'reading': 'が',
+                 'pos': ('助詞', '格助詞', '*', '*', '*', '*'),
+                 'components': evidence, 'analysis_rule': 'komatta_koto_boundary'},
+                {'surface': 'ある', 'lemma': 'ある', 'base_form': 'ある', 'reading': 'ある',
+                 'pos': ('動詞', '非自立可能', '*', '*', '五段-ラ行', '終止形-一般'),
+                 'components': evidence, 'analysis_rule': 'komatta_koto_boundary'},
+            ])
+        else:
+            result.append(token)
+    return result
+
+
 def _repair_kotoshi_boundaries(token_list: list[dict]) -> list[dict]:
     """Split ことし when the following token confirms する inflection."""
     result = []
@@ -439,7 +467,7 @@ def combine_tokens_jmdict(
     # Boundary repairs operate on lexical runs, while the merge guards below
     # can still inspect adjacent reserved tokens as context.
     def repair_run(run):
-        return _repair_grammatical_constructions(_repair_kotoshi_boundaries(run))
+        return _repair_grammatical_constructions(_repair_kotoshi_boundaries(_repair_komatta_koto_boundary(run)))
 
     if any(token.get('grammar_reserved') for token in token_list):
         repaired, start = [], 0

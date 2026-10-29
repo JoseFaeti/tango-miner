@@ -246,6 +246,17 @@ forms. It covers movement away and continuing change without distinguishing
 those meanings. Merged expressions and ambiguous contracted `〜てく` remain
 unrecognized; independent precision and recall evaluation remains needed.
 
+The `〜たことがある` card recognizes a continuative verb and past auxiliary
+followed by merged `ことがある` or split `ことがある` / `ことがあります`.
+It describes past experience and reserves the `ことがある` portion while
+retaining the verb and past auxiliary. Non-past occasional occurrences, negative
+forms, and other inflections are not yet classified; ordinary nominal `こと`
+and existence uses remain eligible for lexical processing. Precision and recall
+have not been independently evaluated. The observed `困ったことがあるなら`
+problem-expression context and observed `言い忘れたことがあるわ` are left
+to lexical processing; other ambiguous
+readings, including experience uses of `困る`, remain possible.
+
 The `〜たら` card recognizes the hypothetical auxiliary `たら` / `だら`
 after an adjacent continuative verb, adjective, or auxiliary when another clause
 begins afterward. It covers conditions and events followed by a later outcome;
