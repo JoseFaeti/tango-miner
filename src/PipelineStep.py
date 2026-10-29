@@ -32,7 +32,7 @@ class PipelineStep(ABC):
     def done(self, message=""):
         if self.start_time:
             self.end_time = time.perf_counter()
-            self.elapsed_time = self.end_time - self.start_time
+            self.elapsed_time = max(0.0, self.end_time - self.start_time - getattr(self, 'wait_seconds', 0.0))
             # print(f"yay self.start_time! {self.start_time} {self.end_time} {self.elapsed_time}")
 
         if self._progress_handler:

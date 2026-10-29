@@ -103,6 +103,9 @@ def build_word_stats(
                 )
                 word_data[lemma] = ws
 
+            if token.get("dictionary_expression"):
+                ws.dictionary_expression_occurrences += 1
+
             components = token_components(token)
             # A sentence-initial しかし followed by a comma is strong evidence
             # for the discourse conjunction. Keep this source cue separate

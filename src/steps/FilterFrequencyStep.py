@@ -22,6 +22,24 @@ class FilterFrequencyStep(PipelineStep):
         return Artifact(data, sentences=artifact.sentences)
 
 
+def _has_supported_base_expression(stats, candidates, threshold):
+    """Retain an inflected expression for review when its base also occurs."""
+    if not stats.dictionary_expression_occurrences:
+        return False
+    for components in stats.component_counts:
+        if (len(components) < 3 or components[-1].surface not in ('て', 'で')
+                or not components[-1].pos or components[-1].pos[0] != '助詞'
+                or not components[-2].pos or components[-2].pos[0] != '動詞'
+                or not components[-2].lemma):
+            continue
+        base = ''.join(c.surface for c in components[:-2]) + components[-2].lemma
+        candidate = candidates.get(base)
+        if (candidate is not None and candidate.dictionary_expression_occurrences
+                and candidate.frequency + candidate.reassigned_occurrences >= threshold):
+            return True
+    return False
+
+
 def filter_useful_words(input: OrderedDict, min_frequency: int, keep_percent: int = 98, progress_handler=None, min_frequency_per_source: float = 1.1) -> OrderedDict:
     total = len(input)
 
@@ -48,6 +66,12 @@ def filter_useful_words(input: OrderedDict, min_frequency: int, keep_percent: in
         frequency_per_source = eligibility_frequency / len(eligibility_tags)
 
         if eligibility_frequency >= threshold and frequency_per_source >= min_frequency_per_source:
+            kept_set(word, stats)
+        elif ((eligibility_frequency >= threshold and stats.dictionary_expression_occurrences > 0)
+              or _has_supported_base_expression(stats, input, threshold)):
+            # Preserve dictionary-backed expressions for review when coverage is
+            # low or a sufficiently frequent base expression supports the form.
+            stats.coverage_review = True
             kept_set(word, stats)
 
         if progress_handler:

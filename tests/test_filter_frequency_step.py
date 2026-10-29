@@ -7,6 +7,7 @@ from src.steps.FilterFrequencyStep import FilterFrequencyStep, filter_useful_wor
 from src.steps.ProcessingStep import ProcessingStep
 
 from tests.helpers import make_stats
+from src.TokenProvenance import TokenComponent
 
 
 class FilterFrequencyStepTests(unittest.TestCase):
@@ -40,6 +41,36 @@ class FilterFrequencyStepTests(unittest.TestCase):
         dropped = Pipeline([FilterFrequencyStep(1, keep_percent=100, min_frequency_per_source=1.1)]).run(Artifact(words))
         self.assertIn("word", kept.data)
         self.assertNotIn("word", dropped.data)
+
+    def test_low_coverage_dictionary_expression_is_kept_for_review(self):
+        expression = make_stats(frequency=4, tags={'a', 'b', 'c', 'd'})
+        expression.dictionary_expression_occurrences = 4
+        lexical = make_stats(frequency=4, tags={'a', 'b', 'c', 'd'})
+        below_threshold = make_stats(frequency=3, tags={'a'})
+        below_threshold.dictionary_expression_occurrences = 3
+        words = OrderedDict([('expression', expression), ('lexical', lexical),
+                             ('below', below_threshold)])
+        result = filter_useful_words(words, min_frequency=4, keep_percent=100)
+        self.assertEqual(list(result), ['expression'])
+        self.assertTrue(expression.coverage_review)
+
+    def test_low_frequency_inflection_is_reviewed_only_with_supported_base(self):
+        def component(surface, lemma, pos):
+            return TokenComponent(surface, lemma, lemma, surface, (pos, '*'))
+        inflected = make_stats(frequency=3, tags={'a'})
+        inflected.dictionary_expression_occurrences = 3
+        inflected.component_counts = {(component('目', '目', '名詞'),
+                                       component('に', 'に', '助詞'),
+                                       component('見え', '見える', '動詞'),
+                                       component('て', 'て', '助詞')): 3}
+        base = make_stats(frequency=8, tags={'a', 'b'})
+        base.dictionary_expression_occurrences = 8
+        words = OrderedDict([('目に見えて', inflected), ('目に見える', base)])
+        kept = filter_useful_words(words, min_frequency=4, keep_percent=100)
+        self.assertIn('目に見えて', kept)
+        self.assertTrue(inflected.coverage_review)
+        base.dictionary_expression_occurrences = 0
+        self.assertNotIn('目に見えて', filter_useful_words(words, min_frequency=4, keep_percent=100))
 
     def test_filter_empty_input_returns_empty_ordered_dict(self):
         kept = filter_useful_words(OrderedDict(), min_frequency=4)

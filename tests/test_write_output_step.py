@@ -1,9 +1,10 @@
 import csv
+import json
 import tempfile
 import unittest
 from pathlib import Path
 
-from src.steps.WriteOutputStep import write_final_file
+from src.steps.WriteOutputStep import write_final_file, write_candidate_diagnostics
 from src.WordStats import Sentence
 
 from tests.helpers import make_stats
@@ -28,6 +29,16 @@ class WriteOutputStepTests(unittest.TestCase):
                 self.assertEqual(list(csv.reader(stream))[0][1], "会える")
             with (Path(tmp) / "out.sentence.csv").open(encoding="utf-8", newline="") as stream:
                 self.assertEqual(list(csv.reader(stream))[1][0], "review")
+
+    def test_diagnostics_explain_coverage_review(self):
+        stats = make_stats(definition='meaning')
+        stats.needs_review = True
+        stats.coverage_review = True
+        with tempfile.TemporaryDirectory() as tmp:
+            path = Path(tmp) / 'candidates.jsonl'
+            write_candidate_diagnostics({'expression': stats}, path)
+            row = json.loads(path.read_text(encoding='utf-8'))
+        self.assertEqual(row['review_reasons'], ['expression_frequency_or_source_coverage'])
 
     def test_write_final_file_sorts_by_score_and_splits_invalid_rows(self):
         with tempfile.TemporaryDirectory() as tmp:

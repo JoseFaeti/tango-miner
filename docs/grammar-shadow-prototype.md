@@ -6,7 +6,9 @@ after raw tokenization and before dictionary merging:
     python -X utf8 tango_miner.py --input path/to/corpus --output path/to/output.csv --grammar-shadow
 
 The normal configured Anki behavior still applies; disable Anki explicitly in
-the configuration before using this for a safe corpus check. The shadow stage
+the configuration before using this for a safe corpus check. The separate
+grammar card stage is enabled by default; pass `--no-grammar` to disable it.
+The shadow stage
 does not change token streams, candidates, CSVs, or Anki plans. Output contains
 normalized sentences, raw token evidence and source paths. Original text and
 source offsets are not yet carried through normalization, so raw spans are null.
@@ -62,22 +64,73 @@ component-aware rules, merged-token evidence and independent review. Standalone
 proper nouns remain filtered by the existing pipeline. This experimental layer
 does not affect CSV or Anki.
 
-## First opt-in grammar card
+## Grammar cards
 
-Pass `--grammar` to run the shared grammar stage; the older `--grammar-te-iru`
-option is an alias. The stage checks all registered rules, currently just one,
-and adds a separate `〜ている (grammar)` candidate to
+The shared grammar stage runs by default. Pass `--no-grammar` to disable it.
+The stage checks the registered rules and adds separate
+grammar candidates to
 the normal CSV and, when Anki is enabled, to its usual plan. Only uninflected
 source occurrences with adjacent Sudachi continuative verb/auxiliary + connective て/で +
-non-independent `いる` evidence are counted. This covers a limited subset of
-the grammar; contracted, past, polite and other variants are not counted. The
+non-independent `いる`, or a contracted auxiliary `てる`/`でる`, are counted.
+Supported forms include plain, past, negative, polite and some contracted
+inflections, such as `でいた`, `ていなかった`, `ていませんでした`,
+`てる` and `でた`. Contracted negatives include analyses such as `でない`,
+`でなかった`, `でなく` and `でませんでした`, even when Sudachi merges
+or mislabels their components. These surface and context cues can still be
+ambiguous; other tokenizations remain unsupported. The
 example must also pass the existing sentence-validity check. No card is emitted
 without an eligible example. Its frequency counts only the supported subset,
-and index and score are zero placeholders rather than corpus ranking. It is
-added after ordinary lexical scoring and filtering; the minimum-frequency
-threshold does not apply to this one grammar card. The lexical candidates and
-their examples are unchanged. This is a narrow evidence rule, not a guarantee
+and its index is the mean first occurrence position in each source, measured
+against eligible merged tokens. Grammar cards are added after lexical filtering
+and definition lookup but before scoring, so they share frequency, position,
+source diversity and normalization calculations with vocabulary. The grammar
+label does not count as a source tag. The minimum-frequency threshold does not
+apply to these grammar cards. Their source examples receive the same mean
+recognized-word score as lexical examples; an example remains at zero when
+its source sentence cannot be matched or contains no scored vocabulary. Before reserving grammar tokens, the established dictionary merger checks for
+a complete source-matched expression spanning the construction and its attached
+word. If it finds one, that occurrence is counted as the lexical expression
+instead of grammar. This is a heuristic: dictionary matches can be ambiguous.
+Remaining matched grammar tokens are reserved before lexical merging and collection.
+The attached verb outside the highlighted span remains eligible. Other occurrences
+of the same word remain lexical candidates. A rule reserves tokens only if it
+has an eligible example for a card, and only at complete token boundaries.
+The merger retains reserved neighboring tokens as context for inflection guards.
+These decisions change lexical frequencies, examples and potentially output status; overlapping grammar rules may still match
+the same tokens. This is a narrow evidence rule, not a guarantee
 that every occurrence has a single unambiguous aspectual meaning.
+
+A replay of the first 20,000 sentences of an earlier shadow archive found
+214 `〜てくる` matches and 206 reserved raw `くる` tokens, alongside
+1,627 `〜ている` and 1,043 `〜んだ` matches. These are ordered,
+source-biased raw-token counts, not post-merge frequency changes or a precision
+and recall evaluation. Treating a match exclusively as grammar can remove a
+useful lexical analysis when the rule is wrong; unmatched uses remain eligible.
+
+For explanatory `んだ`, a dictionary merge beginning at copular `な`
+does not override the supported `な` + `ん` + copula analysis. This avoids
+interpreting `だめなんだって` as interrogative `なんだって`. Longer
+merged expressions such as `そうなんですか` may still take precedence,
+and other ambiguous tokenizations remain unresolved by this rule. An ordered
+20,000-sentence archive replay found 218 copular matches; the former precedence
+rule preempted 141, including longer expressions, so that number is not a
+measurement of the narrowed rule or a representative accuracy estimate.
+
+The `〜んだ` card covers explanatory んだ, a common conversational
+construction. Supported adjacent token analyses include ん/の with だ or です,
+past, conjectural and common negative forms, and のである. The written の
+form requires a preceding predicate to limit possessive matches. The rule also
+recognizes single-token のだ and のです after a predicate, and a split の +
+だった analysis. Highlights include the recognized ending. This is a
+morphological cue, not a guarantee of the intended nuance: nominalized things
+and some negative constructions can still be ambiguous. Other tokenizations,
+including some where the nominalizer is merged with the preceding word, bare
+explanatory questions, and unaligned streams can be missed. As with 〜ている,
+a valid source example is required; other occurrences remain available as lexical candidates.
+Existing notes with this exact identity are protected from automatic updates
+and pruning, so their examples do not refresh automatically. Corpus diagnostics
+recorded 10,894 split んだ analyses, but they were not independently evaluated
+as grammar matches and do not measure this expanded rule's precision or recall.
 
 A replay of the first 15,000 sentences in a full-corpus shadow archive found 25
 matching occurrences after the continuative-form restriction. A prior version
@@ -87,24 +140,86 @@ the three inspected examples are not a representative evaluation and cannot
 establish precision or recall. An Anki-disabled small pipeline run produced the
 new card and a source-linked, highlighted example.
 
+After expanding the rule, a replay of the first 20,000 sentences in that
+archive found 1,621 supported occurrences, including 755 `てる`, 403 `てた`,
+43 `ていた`, and 42 `ている`. This ordered sample is biased toward the
+first sources and is not a precision or recall evaluation. The latest completed
+full run before this expansion counted 15,372 occurrences under the old rule;
+it does not measure the expanded rule. A future run will produce new counts,
+but existing Anki grammar notes retain their prior examples and frequency.
+The later contracted-negative extension found six `でない` and one
+`でなかった` in the same 20,000-sentence replay. The observed examples
+support those matches, but this small, ordered check does not establish
+general precision or recall.
+
+The `〜たい` card expresses a desire to perform an action. It
+requires a source-aligned continuative verb followed by Sudachi's `たい`
+auxiliary. It recognizes plain, past, negative, conditional and selected polite
+forms, such as `たい`, `たかった`, `たくない`, `たければ` and `たいです`.
+It also recognizes continuative `たく`, for example in `たくなる`. The
+distinct `たがる` construction is not included. Some valid forms are missed
+when the analyzer merges the verb and auxiliary, and morphological evidence
+does not guarantee the intended interpretation. Other occurrences remain
+available as lexical candidates and existing notes with this exact identity are protected like the
+other grammar notes. An ordered replay of the first 20,000 archived sentences
+found 343 matches; this is not an independent precision or recall evaluation.
+
+The `〜てくる` card describes movement toward a point, an action
+followed by return, or a change emerging or continuing up to the present,
+depending on context. It requires an adjacent continuative verb or auxiliary,
+connective て/で and non-independent くる/来る. Supported split forms include
+plain, past, negative, polite, て-form and volitional forms. It does not
+recognize merged words such as `持ってくる` or ambiguous `てく`, which can
+also represent `ていく`. Morphology alone cannot distinguish the meanings.
+Other occurrences remain available as lexical candidates and existing notes with this identity are
+protected like the other grammar notes.
+
+The `〜ものの` card covers concessive “although ...” uses when
+Sudachi identifies a single `ものの` conjunction immediately after a verb,
+adjective, or auxiliary in terminal or attributive form, and text follows it.
+Split nominal `もの` + `の` is not matched. This narrow analysis can miss
+valid constructions and does not prove that the following text is a complete
+contrast; matching tokens are reserved from lexical processing. Existing notes with this
+identity receive the same protection as the other grammar cards.
+
+The `〜てしまう` card describes completion or an unintended or
+regrettable result, depending on context. The rule recognizes an adjacent
+continuative verb plus connective て/で and non-independent しまう, as well
+as the auxiliary contractions ちゃう/じゃう. Supported forms include plain,
+past, common negative and polite inflections. Matched grammar tokens are excluded from lexical processing; the grammar card requires an eligible source example and
+its Anki identity is protected from updates and pruning. Other tokenizations,
+inflections and nuances may be missed, and the morphology alone cannot decide
+the intended nuance. In an ordered replay of the first 20,000 archived
+sentences the rule found 197 occurrences, including 77 `ちゃった` and 75
+`ちゃう`. This limited, selected check does not establish precision or recall.
+
 The distinct Expression is the Anki identity. A new card participates in the
 existing preview and confirmation flow. If a note with that exact expression
-already exists in the configured deck/model, it is preserved rather than
-updated; this protects user edits but means its frequency and examples do not
-refresh automatically. The plan lists it under `retained_existing_grammar`.
-The identity is also protected from pruning in later runs where the flag is
-absent or no occurrence is found. The flag does not enable Anki or disable
-other planned updates. Review the complete Anki plan before applying it.
+already exists in the configured deck/model, its fields and other tags are preserved;
+its frequency and examples do not refresh automatically. When the card is present
+in the current output, the plan removes the old synthetic `grammar` tag unless
+`grammar` is an actual input source tag. New cards receive only source tags. The plan lists it under `retained_existing_grammar`.
+The identity is also protected from pruning in later runs where the stage is
+disabled or no occurrence is found. With pruning enabled, a lexical note that disappears from the output can be
+planned for deletion; review the entire plan before approving it. Grammar settings
+do not enable Anki or disable other planned updates. Review the complete Anki plan before applying it.
 
-The agreed naming convention uses `〜` to indicate an attachment point, where
-appropriate, and `(grammar)` as a distinctive suffix, for example
-`〜ている (grammar)`. The attachment marker alone does not guarantee uniqueness
-against vocabulary expressions. Treat the full expression as a stable identity;
-changing it later requires an explicit migration plan for existing notes.
+Grammar identities use `〜` as an attachment marker, for example `〜ている`.
+The marker does not guarantee uniqueness against vocabulary expressions; the
+pipeline rejects collisions. For an existing suffix-style note, an Anki plan
+renames its Expression in place when the current card exists, there is exactly
+one old note, and no note already has the new identity. Other fields, custom
+tags and scheduling remain intact; the existing synthetic-tag cleanup applies.
+When both identities exist or multiple old notes share an identity, the plan
+records `grammar_migration_conflicts` and leaves them untouched. Both old and
+new identities are protected from pruning, including when grammar is disabled.
+Plans still require the normal approval before any Anki mutation.
 The shared grammar stage collects all registered rules in one pass; the output
-writer adds its cards after lexical scoring. When registering another rule,
-register its identity in the Anki protection set as well; startup validates
-that both registrations match.
+card stage adds its cards before scoring. Each matcher and its metadata live in a separate module under `src/grammar_rules/rules/`;
+`registry.py` lists the rules used by the shared stage. The corresponding
+`tests/test_grammar_*.py` files check each rule. When adding a rule, register it
+and its identity in the Anki protection set; startup validates that both
+registrations match.
 
 For a bounded proposal-review sample from an existing shadow archive:
 

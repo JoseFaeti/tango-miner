@@ -37,7 +37,15 @@ of discovered input files. `summary.json` records run status, per-stage counts
 and durations, file-level tokenizer cache hits and misses, the retokenization
 option, dependency versions and dictionary hashes, and the Anki plan and
 outcome. It remains `running` if the process is terminated before cleanup;
-an interrupted Anki apply can have made partial changes. Hashing large
+an interrupted Anki apply can have made partial changes. Each executed stage also
+writes an ordered `steps/NN-StageName.json` report with its status, duration,
+available input and output counts, completion message and links to related run
+artifacts. Grammar reports include occurrence and example counts per rule;
+cache and Anki reports include their recorded outcomes. A report is created
+when a stage starts and updated on completion or failure, so an interrupted
+stage may remain `running`. These are compact summaries, not full intermediate
+data dumps; optional diagnostics provide more detail and contain source text.
+Stages disabled by configuration have no report. Hashing large
 dictionaries adds startup time. Git changes, including untracked files, are saved
 in `changes.patch` when the checkout is dirty. Ignored files (including local
 dictionaries) are not included, so their versions should be recorded in notes
@@ -111,8 +119,22 @@ refresh counts refer to source groups; separate stream counts show how many
 token streams each category covers. Files with no token streams do not form
 a group.
 
+### Grammar cache
+
+The grammar analysis stage caches its results for the complete ordered corpus in
+`stages/grammar-v1`. The key includes token streams and source metadata, grammar
+rules and their project dependencies, example limit, expression preference,
+merge lookahead, and the JMdict content hash when expression preference is enabled.
+A change to any input invalidates the corpus entry. The cache restores matches,
+spans and examples used by later stages; custom rule sets and an unavailable
+required dictionary hash disable caching. Cached JSON contains source text and
+paths. Entries are checksummed and replaced atomically, and invalid entries are
+recomputed. The grammar stage report records hits, misses, refreshes, write
+failures, and any reason caching was disabled. Update the grammar dependency
+fingerprint in `GrammarCache.py` when adding project dependencies.
+
 Use `--refresh-cache merge` to recompute and replace merge entries. Use
-`--refresh-cache all` to refresh merge entries and force retokenization. These
+`--refresh-cache all` to refresh grammar and merge entries and force retokenization. These
 options refresh rather than delete older entries. Tokenizer cache entries are keyed by normalized sentence content and tokenizer
 dependencies. Other stages run normally.
 
@@ -153,6 +175,18 @@ this requires a run made with occurrence diagnostics enabled. Occurrence totals
 include tokens excluded before candidate collection. The dropped/review filter
 also includes invalid candidates.
 
+For other JSONL diagnostics, search a field or the whole record without loading
+the file into memory or running the pipeline:
+
+```sh
+python -X utf8 scripts/query_jsonl.py runs/example-run/occurrences.jsonl --field sentence --contains ないし --show candidate --show sentence
+python -X utf8 scripts/query_jsonl.py runs/example-run/grammar-shadow.jsonl --field proposals.construction_id --exact te_iru --show normalized_sentence --show proposals --limit 5
+```
+
+Dotted fields traverse arrays; repeated `--show` selects fields. Output is
+bounded by `--limit` and `--width`, but the whole file is scanned to count
+matches. These records can include source text and paths.
+
 To check a corpus with Anki disabled and save the verbose progress to a log:
 
 ```sh
@@ -160,7 +194,8 @@ python -X utf8 scripts/check_corpus.py --input path/to/corpus --output-dir check
 ```
 
 Use an actual completed run directory for `--baseline`; omit it to skip the
-comparison. The wrapper loads the normal configuration, forces Anki off in a
+comparison. Pass `--no-grammar` to omit grammar cards from the check. The wrapper
+loads the normal configuration, forces Anki off in a
 temporary resolved configuration, and writes the run archive and a uniquely
 named log under the output directory. Use `--config` to select another config,
 `--retokenize` to refresh the cache, or `--occurrence-diagnostics` when that
@@ -177,7 +212,7 @@ aligned character span (or null if alignment failed), candidate, raw component
 evidence, collection eligibility, and the final token analysis rule. The
 candidate file records final output status, frequency, reading and definition
 for candidates surviving frequency filtering. Join on `candidate`; an eligible
-occurrence missing from the candidate file did not survive that filter. Rejected merge records cover dictionary matches actually considered by the greedy merger, with the guard reason and source sentence; they do not include unmatched sequences or alternatives skipped after a successful merge. Candidate diagnostics include the selected JMdict entry sequence and forms when available. Derived potential definitions have no selected entry recorded. The analysis rule does not imply a confidence score. Existing
+occurrence missing from the candidate file did not survive that filter. Rejected merge records cover dictionary matches actually considered by the greedy merger, with the guard reason and source sentence; they do not include unmatched sequences or alternatives skipped after a successful merge. Candidate diagnostics include review reasons and the selected JMdict entry sequence and forms when available. Older archives may not contain review reasons. Derived potential definitions have no selected entry recorded. The analysis rule does not imply a confidence score. Existing
 archives do not have these files unless produced with this option.
 
 Some integration tests require the installed Sudachi dictionary and local
@@ -187,19 +222,30 @@ yet appear in exported CSVs.
 
 For experimental, review-only grammar proposals, use `--grammar-shadow`.
 This writes `grammar-shadow.jsonl` in the run archive before token merging;
-it does not alter candidate or Anki decisions. The file contains source-derived
+it does not itself alter candidate or Anki decisions; the separate normal grammar
+stage remains enabled unless `--no-grammar` is passed. The file contains source-derived
 text and paths. The rules are preliminary, all proposals remain ambiguous, and
 the option does not disable Anki: use an Anki-disabled configuration for safe
 offline checks. See [grammar shadow prototype](docs/grammar-shadow-prototype.md).
 
-To include experimental grammar cards in the normal output, pass
-`--grammar` (`--grammar-te-iru` remains an alias). The first rule creates a
-separate `〜ている (grammar)` candidate only
-when a narrowly supported source example is found. If Anki is enabled, the
+The normal pipeline includes experimental grammar cards by default; pass
+`--no-grammar` to disable them. The rules create separate
+`〜ている`, explanatory `〜んだ` and desire
+`〜たい`, `〜てしまう`, concessive
+`〜ものの`, and `〜てくる` candidates when
+narrowly supported source examples are found. If Anki is enabled, each
 card is included in its normal preview and confirmation workflow. Existing
-notes with that exact identity are retained without automatic updates or
-pruning. See the [grammar shadow prototype](docs/grammar-shadow-prototype.md)
-for supported forms, limitations, and note behavior.
+notes with those exact identities are retained without automatic updates or
+pruning. Existing suffix-style grammar notes are renamed in place through the
+Anki plan when the new identity is unambiguous; conflicts are retained for review. Grammar cards use the same scoring formula as vocabulary, including
+source position, frequency and source diversity; they are added after lexical
+filtering and do not use its minimum-frequency threshold. See the [grammar shadow prototype](docs/grammar-shadow-prototype.md)
+for supported forms, limitations, and note behavior. Recognized grammar spans
+are reserved before lexical merging and collection, unless the existing dictionary
+merger identifies a complete expression spanning the construction and its attached
+word; that occurrence is then counted as the expression. Other occurrences and the
+preceding verb remain eligible. This can change lexical frequencies and may
+place absent lexical notes in an Anki deletion plan when pruning is enabled.
 Existing filters, including the standalone proper-noun filter, do not fully
 match the recall-first goal and should be evaluated before changing them.
 
@@ -215,6 +261,15 @@ for analyzer and evaluation options, and the [pipeline improvement
 roadmap](docs/pipeline-improvement-roadmap.md) for broader work. The
 [initial audit](docs/anki-output-audit-2026-10-26.md) and
 [re-audit](docs/anki-output-reaudit-2026-10-26.md) record output evidence.
+
+Dictionary-backed multi-token expressions that meet the frequency cutoff but
+fail the per-source coverage rule are retained in the review CSV. An inflected
+expression below the cutoff is also retained for review when its component
+evidence points to a sufficiently frequent dictionary-backed base expression.
+Their source
+examples can represent different senses, so they are not automatically added
+to Anki and existing notes are protected from pruning. This review path can
+retain additional expressions beyond the examples motivating it.
 
 ## Unresolved definitions
 

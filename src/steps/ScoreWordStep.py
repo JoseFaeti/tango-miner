@@ -36,7 +36,8 @@ def score_words(input: dict, progress_handler=None, config: ScoringConfig | None
             position_exponent=config.position_exponent,
         )
 
-        score *= tag_diversity_factor(len(stats.tags), saturation_tags=config.tag_saturation, min_factor=config.minimum_tag_factor)
+        tag_count = len(stats.tags) if stats.scoring_tag_count is None else stats.scoring_tag_count
+        score *= tag_diversity_factor(tag_count, saturation_tags=config.tag_saturation, min_factor=config.minimum_tag_factor)
 
         stats.score = score
 

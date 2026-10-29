@@ -7,7 +7,7 @@ from datetime import datetime
 from pathlib import Path
 
 from src.Artifact import Artifact
-from src.RunArchive import create_run_archive, collect_dependencies, write_run_summary
+from src.RunArchive import create_run_archive, collect_dependencies, write_run_summary, write_stage_record
 from src.RunConfig import RunConfig, TokenizerConfig, DictionaryConfig
 from dataclasses import replace
 from unittest.mock import patch
@@ -67,6 +67,19 @@ class RunArchiveTests(unittest.TestCase):
             self.assertTrue(result["python"])
             system.unlink()
             self.assertIn("error", collect_dependencies(config)["files"]["sudachi_dictionary"][0])
+
+    def test_stage_report_links_only_existing_archive_artifacts(self):
+        from types import SimpleNamespace
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            output = root / "output.csv"
+            output.write_text("data", encoding="utf-8")
+            (root / "output.dropped.csv").write_text("", encoding="utf-8")
+            step = SimpleNamespace(output_path=output, diagnostics_path=root / "missing.jsonl")
+            write_stage_record(root, 3, step, {"name": "WriteOutputStep", "status": "completed"})
+            report = json.loads((root / "steps" / "03-WriteOutputStep.json").read_text(encoding="utf-8"))
+            self.assertEqual(report["artifacts"], ["output.csv", "output.dropped.csv"])
+            self.assertEqual(report["schema_version"], 1)
 
     def test_summary_replaces_prior_running_status(self):
         with tempfile.TemporaryDirectory() as tmp:

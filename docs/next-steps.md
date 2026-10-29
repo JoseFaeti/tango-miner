@@ -95,7 +95,7 @@ colloquialisms, and uncertain candidates in scope. See the
   corpus-wide result has not yet been measured.
 - [ ] Design separate candidate and Anki note identities for grammar points
   and lexical entries that share a spelling, for example `ない` and
-  `ない (grammar)`. Preserve the original source form separately from the
+  `〜ない`. Preserve the original source form separately from the
   display/identity label, and use occurrence evidence to assign definitions,
   examples, and frequency without guessing ambiguous analyses. Assess
   duplicate detection, existing-note migration and deletion plans, user edits,

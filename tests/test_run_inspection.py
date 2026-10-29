@@ -43,6 +43,16 @@ class RunInspectionTests(unittest.TestCase):
             self.assertIn('猫 occurrences: 5', result.stdout)
             self.assertEqual(result.stdout.count('sample:'), 1)
 
+    def test_inspection_displays_optional_review_reasons(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            run = make_run(Path(tmp), '2026-10-27_1200_abc', [('猫', 10)])
+            row = {'candidate': '猫', 'review_reasons': ['expression_frequency_or_source_coverage']}
+            (run / 'candidate-diagnostics.jsonl').write_text(json.dumps(row), encoding='utf8')
+            result = subprocess.run([sys.executable, '-X', 'utf8', str(ROOT / 'scripts' / 'inspect_run.py'),
+                                     str(run), '--word', '猫'], capture_output=True, text=True, encoding='utf8')
+            self.assertEqual(result.returncode, 0, result.stderr)
+            self.assertIn('review reasons: expression_frequency_or_source_coverage', result.stdout)
+
     def test_check_corpus_disables_anki_and_redirects_output(self):
         with tempfile.TemporaryDirectory() as tmp:
             root = Path(tmp)

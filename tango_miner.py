@@ -11,7 +11,7 @@ from src.Artifact import Artifact
 from src.Column import Column
 from src.Pipeline import Pipeline
 from src.RunConfig import resolve_config
-from src.RunArchive import create_run_archive, collect_dependencies, write_run_summary
+from src.RunArchive import write_stage_record, create_run_archive, collect_dependencies, write_run_summary
 from src.StageCache import StageCache
 
 from src.steps.AddDefinitionsStep import AddDefinitionsStep
@@ -30,7 +30,7 @@ from src.steps.FilterFrequencyStep import FilterFrequencyStep
 from src.steps.WriteOutputStep import WriteOutputStep
 from src.steps.OccurrenceDiagnosticsStep import OccurrenceDiagnosticsStep
 from src.steps.GrammarShadowStep import GrammarShadowStep
-from src.Grammar import GrammarStep
+from src.Grammar import GrammarStep, GrammarPositionStep, AddGrammarCardsStep, ExcludeGrammarTokensStep
 
 from src.steps.debug.DumpSentences import DumpSentences
 
@@ -100,7 +100,7 @@ def _print_progress_line(text: str, newline: bool):
 
 def process_script(argv=None):
     # Define command-line arguments
-    parser = argparse.ArgumentParser(description="Process a Japanese text and extract word frequencies.")
+    parser = argparse.ArgumentParser(description="Process a Japanese text and extract word frequencies.", allow_abbrev=False)
 
     parser.add_argument("--input", "-i", required=False, help="Path to input text file")
     parser.add_argument("--output", "-o", required=False, help="CSV filename or output directory; runs are saved in its runs subdirectory")
@@ -127,8 +127,8 @@ def process_script(argv=None):
     parser.add_argument("--grammar-shadow", action="store_true",
                         help="Write tentative grammar proposals without changing mining output")
 
-    parser.add_argument("--grammar", "--grammar-te-iru", dest="grammar", action="store_true",
-                        help="Include source-supported grammar cards")
+    parser.add_argument("--no-grammar", dest="grammar", action="store_false",
+                        help="Disable source-supported grammar cards")
 
     args = parser.parse_args(argv)
     overrides = {}
@@ -173,7 +173,8 @@ def process_script(argv=None):
 
         print(f'output path: {final_path.resolve()}')
 
-        grammar_step = GrammarStep(max_examples=config.sentences.max_sentences) if args.grammar else None
+        grammar_step = GrammarStep(max_examples=config.sentences.max_sentences, dictionary_path=config.dictionary.jmdict_path,
+                                   prefer_expressions=True, max_lookahead=config.merge.max_lookahead) if args.grammar else None
         steps = [
             GatherInputFilesStep(input_path_obj, include_subdirectories=recursive, extensions=config.input.extensions,
                                  excluded_directory=final_path.parent.parent,
@@ -186,17 +187,20 @@ def process_script(argv=None):
             RawTokenizeStep(force_retokenize=args.retokenize or "all" in args.refresh_cache, config=config.tokenizer),
             grammar_step,
             GrammarShadowStep(final_path.parent / "grammar-shadow.jsonl") if args.grammar_shadow else None,
+            ExcludeGrammarTokensStep(grammar_step) if grammar_step else None,
             MergeTokensStep(max_lookahead=config.merge.max_lookahead, dictionary_path=config.dictionary.jmdict_path,
                             diagnostics_path=final_path.parent / "rejected-merges.jsonl" if args.occurrence_diagnostics else None),
             OccurrenceDiagnosticsStep(final_path.parent / "occurrences.jsonl") if args.occurrence_diagnostics else None,
+            GrammarPositionStep(grammar_step) if grammar_step else None,
             BuildWordStatsStep(),
             FilterFrequencyStep(min_frequency, keep_percent=config.filter.keep_percent,
                                 min_frequency_per_source=config.filter.min_frequency_per_source),
             AddDefinitionsStep(debug=debug, dictionary_path=config.dictionary.jmdict_path, diagnostics=args.occurrence_diagnostics),
+            AddGrammarCardsStep(grammar_step) if grammar_step else None,
             ScoreWordStep(config.scoring),
             AttachSentencesStep(config.sentences),
             WriteOutputStep(final_path, diagnostics_path=(final_path.parent / "candidate-diagnostics.jsonl")
-                            if args.occurrence_diagnostics else None, grammar_step=grammar_step),
+                            if args.occurrence_diagnostics else None),
             AddWordsToAnkiStep(config.anki, plan_path=final_path.parent / "anki-plan.json") if config.anki.enabled else None,
         ]
 
@@ -208,7 +212,8 @@ def process_script(argv=None):
         write_run_summary(final_path.parent, summary)
         stage_cache = StageCache(appdirs.user_cache_dir("tango_miner"), dependencies, args.refresh_cache)
         pipeline = Pipeline(steps=[step for step in steps if step is not None], on_progress=print_step_progress,
-                            cache=stage_cache)
+                            cache=stage_cache,
+                            on_stage_record=lambda index, step, record: write_stage_record(final_path.parent, index, step, record))
         try:
             pipeline.run(Artifact(input_path, tmpdir=tmpdir))
             summary["status"] = "completed"

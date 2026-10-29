@@ -5,6 +5,7 @@ resources/*
 scripts/*
 checks/*
 !scripts/inspect_run.py
+!scripts/query_jsonl.py
 !scripts/compare_runs.py
 !scripts/evaluate_review.py
 !scripts/compare_japanese_analyzers.py

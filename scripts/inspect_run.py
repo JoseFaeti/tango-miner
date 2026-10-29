@@ -65,6 +65,8 @@ def main(argv=None):
         for word, item in selected[:args.limit]:
             print(f"{word} | {item['status']} | frequency {item['frequency']}")
             print(f"  definition: {clip(plain_examples(item['definition']), args.width) or '(unresolved)'}")
+            if item['status'] != 'valid' and item['definition']:
+                print('  review: definition present; CSV does not record the reason')
             # Each CSV example is separated by two HTML line breaks.
             examples = re.split(r'(?:<br\s*/?>\s*){2}', item['examples'], flags=re.I)
             for example in examples[:args.examples]:
@@ -91,6 +93,8 @@ def main(argv=None):
                     row = json.loads(line)
                     if row.get('candidate') in args.word[:args.limit]:
                         print(f"{row['candidate']} selected entry: {row.get('selected_dictionary_entry')} | supported: {row.get('definition_supported_occurrences')} | other: {row.get('other_occurrences')}")
+                        if row.get('review_reasons'):
+                            print(f"  review reasons: {', '.join(row['review_reasons'])}")
         if args.rejected_merges:
             path = args.run / 'rejected-merges.jsonl'
             if not path.is_file():

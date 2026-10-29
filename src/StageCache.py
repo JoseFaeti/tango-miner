@@ -137,6 +137,10 @@ class StageCache:
         self.stats = None
 
     def process(self, step, artifact):
+        from src.Grammar import GrammarStep
+        if isinstance(step, GrammarStep):
+            from src.GrammarCache import GrammarCache
+            return GrammarCache(self.directory.parent.parent, self.dictionary_hash, self.refresh).process(step, artifact)
         if not isinstance(step, MergeTokensStep):
             return step.process(artifact)
         self.stats = {"stage": "merge", "unit": "source groups", "hits": 0, "misses": 0, "refreshes": 0,

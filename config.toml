@@ -74,9 +74,9 @@ variance_divisor = 100000.0
 # Enables AnkiConnect export after CSV output, including additions, updates and tag changes.
 enabled = true
 # Preview the Anki changes without applying them. Set false to allow confirmation.
-output_only = true
+output_only = false
 # Allow deletion of matching deck notes absent from this run after confirmation.
-prune = false
+prune = true
 # AnkiConnect endpoint and request timeout in seconds.
 endpoint = "http://127.0.0.1:8765"
 timeout_seconds = 10.0

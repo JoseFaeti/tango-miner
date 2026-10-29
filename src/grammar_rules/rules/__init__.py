@@ -1,0 +1,1 @@
+"""Individual grammar construction rules."""

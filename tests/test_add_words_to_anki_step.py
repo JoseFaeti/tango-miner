@@ -39,6 +39,60 @@ def note(note_id, expression, tags=None, fields=None):
 
 
 class AddWordsToAnkiStepTests(unittest.TestCase):
+    def test_confirmation_wait_is_excluded_from_pipeline_and_stage_timers(self):
+        for answer in ('n', 'y', None):
+            with self.subTest(answer=answer):
+                clock = [100.0]
+                actions = []
+                def fake(action, params=None, **kwargs):
+                    actions.append(action)
+                    clock[0] += 2.0
+                    if action == 'modelNames': return ['Custom']
+                    if action == 'findNotes': return []
+                    if action == 'addNotes': return [1]
+                    raise AssertionError(action)
+                def input_after_delay(_):
+                    clock[0] += 60.0
+                    if answer is None:
+                        raise EOFError()
+                    return answer
+                step = AddWordsToAnkiStep(AnkiConfig(model='Custom', output_only=False))
+                events = []
+                pipeline = Pipeline([step], on_progress=lambda *args, **kwargs: events.append(kwargs))
+                with patch('time.perf_counter', side_effect=lambda: clock[0]), \
+                        patch('src.steps.AddWordsToAnkiStep.anki_invoke', side_effect=fake), \
+                        patch('builtins.input', side_effect=input_after_delay), patch('builtins.print'):
+                    pipeline.run(Artifact({'犬': make_stats()}))
+                record = pipeline.stage_records[0]
+                self.assertEqual(pipeline.wait_seconds, 60.0)
+                self.assertEqual(pipeline.duration, 8.0 if answer == 'y' else 6.0)
+                self.assertEqual(record['duration_seconds'], pipeline.duration)
+                self.assertNotIn('wait_seconds', record)
+                self.assertNotIn('wall_duration_seconds', record)
+                self.assertEqual(events[-1]['duration'], record['duration_seconds'])
+                self.assertEqual(step.outcome['status'], 'applied' if answer == 'y' else 'cancelled')
+                self.assertEqual('addNotes' in actions, answer == 'y')
+
+    def test_interrupted_confirmation_records_wait_on_failed_stage(self):
+        clock = [100.0]
+        def fake(action, params=None, **kwargs):
+            if action == 'modelNames': return ['Custom']
+            if action == 'findNotes': return []
+            raise AssertionError(action)
+        def interrupt(_):
+            clock[0] += 25.0
+            raise KeyboardInterrupt()
+        pipeline = Pipeline([AddWordsToAnkiStep(AnkiConfig(model='Custom', output_only=False))])
+        with patch('time.perf_counter', side_effect=lambda: clock[0]), \
+                patch('src.steps.AddWordsToAnkiStep.anki_invoke', side_effect=fake), \
+                patch('builtins.input', side_effect=interrupt), patch('builtins.print'):
+            with self.assertRaises(KeyboardInterrupt):
+                pipeline.run(Artifact({'犬': make_stats()}))
+        self.assertEqual(pipeline.wait_seconds, 25.0)
+        self.assertEqual(pipeline.duration, 0.0)
+        self.assertEqual(pipeline.stage_records[0]['status'], 'failed')
+        self.assertNotIn('wait_seconds', pipeline.stage_records[0])
+
     def test_step_passes_configured_destination_and_batches(self):
         config = AnkiConfig(enabled=True, endpoint="http://localhost:9999", deck="Deck", model="Custom", timeout_seconds=2, batch_size=3, note_fetch_batch_size=7)
         with patch("src.steps.AddWordsToAnkiStep.export_words_to_anki", return_value=(0, 0, 0)) as export:

@@ -27,6 +27,14 @@ class AddDefinitionsStepTests(unittest.TestCase):
         dictionary.assert_called_once_with("custom.xml")
         self.assertEqual(words["猫"].definition, "cat")
 
+    def test_coverage_review_survives_dictionary_definition(self):
+        stats = make_stats()
+        stats.coverage_review = True
+        with patch("src.steps.AddDefinitionsStep.get_jmdict", return_value=FakeJMDict(None)):
+            Pipeline([AddDefinitionsStep()]).run(Artifact({"猫": stats}))
+        self.assertEqual(stats.definition, "cat")
+        self.assertTrue(stats.needs_review)
+
     def test_merge_and_definitions_share_dictionary(self):
         words = {"猫": make_stats()}
         with patch("src.steps.MergeTokensStep._jmdict", None), \

@@ -395,6 +395,36 @@ def has_kanji(text: str) -> bool:
     return any("一" <= char <= "龯" for char in text)
 
 
+def _recover_me_ni_mieru(tokens, jmdict):
+    """Keep the source-grounded expression before a reserved て-form ending."""
+    result = []
+    i = 0
+    while i < len(tokens):
+        parts = tokens[i:i + 4]
+        if (len(parts) == 4 and [t['surface'] for t in parts[:3]] == ['目', 'に', '見え']
+                and parts[0]['lemma'] == '目' and parts[1]['pos'][0] == '助詞'
+                and parts[2]['lemma'] == '見える' and parts[2]['pos'][0] == '動詞'
+                and parts[3].get('grammar_reserved')
+                and parts[3]['surface'] in ('て', 'てる', 'てた', 'てない')):
+            word = '目に見える'
+            entries = jmdict.lookup_word(word)
+            entry = jmdict.get_best_entry(word) if entries else None
+            if entry and isinstance(entry, dict) and any(
+                    any('expression' in tag.lower() for tag in sense.get('pos', []))
+                    for sense in entry.get('senses', [])):
+                result.append({'surface': '目に見え', 'lemma': word, 'base_form': word,
+                               'reading': jmdict.get_reading(entry, word),
+                               'pos': ['exp', '*', '*', '*', '*', '*'],
+                               'dictionary_expression': True,
+                               'analysis_rule': 'inflected_expression_me_ni_mieru',
+                               'components': tuple(c for t in parts[:3] for c in token_components(t))})
+                i += 3
+                continue
+        result.append(tokens[i])
+        i += 1
+    return result
+
+
 def combine_tokens_jmdict(
     token_list: list[dict],
     jmdict: JMDict,
@@ -402,17 +432,41 @@ def combine_tokens_jmdict(
     rejected: list | None = None,
 ) -> list[dict]:
     """Greedily merge adjacent lexical compounds recognized by JMdict."""
-    token_list = _repair_kigahen_boundaries(token_list, jmdict)
-    token_list = _repair_grammatical_constructions(_repair_kotoshi_boundaries(token_list))
-    token_list = [_repair_imperative(token_list, i, jmdict) for i in range(len(token_list))]
-    token_list = [_repair_tsurete_motion(token_list, i, jmdict) for i in range(len(token_list))]
+    token_list = _recover_me_ni_mieru(token_list, jmdict)
+    # Boundary repairs operate on lexical runs, while the merge guards below
+    # can still inspect adjacent reserved tokens as context.
+    def repair_run(run):
+        run = _repair_kigahen_boundaries(run, jmdict)
+        return _repair_grammatical_constructions(_repair_kotoshi_boundaries(run))
+
+    if any(token.get('grammar_reserved') for token in token_list):
+        repaired, start = [], 0
+        for index, token in enumerate(token_list):
+            if token.get('grammar_reserved'):
+                repaired.extend(repair_run(token_list[start:index]))
+                repaired.append(token)
+                start = index + 1
+        repaired.extend(repair_run(token_list[start:]))
+        token_list = repaired
+    else:
+        token_list = repair_run(token_list)
+    token_list = [_repair_imperative(token_list, i, jmdict) if not token.get('grammar_reserved') else token
+                  for i, token in enumerate(token_list)]
+    token_list = [_repair_tsurete_motion(token_list, i, jmdict) if not token.get('grammar_reserved') else token
+                  for i, token in enumerate(token_list)]
     merged_tokens = []
     n = len(token_list)
     i = 0
 
     while i < n:
+        if token_list[i].get('grammar_reserved'):
+            merged_tokens.append(token_list[i])
+            i += 1
+            continue
         match_found = False
         for j in range(min(n, i + max_lookahead), i + 1, -1):
+            if any(token.get('grammar_reserved') for token in token_list[i:j]):
+                continue
             combined_surface = "".join(token["surface"] for token in token_list[i:j])
             # A merged card must be grounded in the text the learner will see.
             # Matching a concatenation of dictionary lemmas can invent an
@@ -481,6 +535,9 @@ def combine_tokens_jmdict(
                 "base_form": lemma_str,
                 "reading": jmdict.get_reading(match_word, token_string),
                 "analysis_rule": "jmdict_surface_merge",
+                "dictionary_expression": isinstance(match_word, dict) and any(
+                    "expression" in tag.lower() for sense in match_word.get("senses", [])
+                    for tag in sense.get("pos", [])),
                 "pos": new_pos,
                 "components": tuple(
                     component

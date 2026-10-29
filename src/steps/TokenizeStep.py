@@ -285,6 +285,8 @@ def kata_to_hira(text: str) -> str:
 
 
 def is_useless(token: dict) -> bool:
+    if token.get("grammar_reserved"):
+        return True
     lemma = token["base_form"] or token["lemma"]
 
     if not lemma:

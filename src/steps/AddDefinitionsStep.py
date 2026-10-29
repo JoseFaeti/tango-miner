@@ -19,7 +19,7 @@ class AddDefinitionsStep(PipelineStep):
     def process(self, artifact: Artifact, debug=False) -> Artifact:
         data, total_valid, total_invalid = add_and_filter_for_definitions(artifact.data, self.progress, self.on_definition_processed, dictionary_path=self.dictionary_path, diagnostics=self.diagnostics)
 
-        self.done(f'{total_valid} definitions found; {total_invalid} need review.')
+        self.done(f'{total_valid} definitions found; {total_invalid} have no definition.')
 
         if self._debug:
             dump_invalid_words(data)
@@ -68,7 +68,7 @@ def add_and_filter_for_definitions(input: dict, progress_handler, on_definition_
         progress_handler(i, total, f'{i}/{total} {total_valid} definitions found')
 
         stats.definition = definition
-        stats.needs_review = not bool(definition)
+        stats.needs_review = stats.coverage_review or not bool(definition)
         kept[word] = stats
 
     return kept, total_valid, total_invalid

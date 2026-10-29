@@ -1,4 +1,5 @@
 import json
+import time
 import urllib.request
 from collections import OrderedDict
 from functools import partial
@@ -9,7 +10,7 @@ from src.Artifact import Artifact
 from src.PipelineStep import PipelineStep
 from src.RunConfig import AnkiConfig
 from src.steps.ProcessingStep import ProcessingStep
-from src.GrammarConstants import GRAMMAR_EXPRESSIONS
+from src.GrammarConstants import GRAMMAR_EXPRESSIONS, LEGACY_GRAMMAR_EXPRESSIONS
 
 ANKI_CONNECT_URL = AnkiConfig().endpoint
 DECK_NAME = AnkiConfig().deck
@@ -29,6 +30,7 @@ class AddWordsToAnkiStep(PipelineStep):
 
 
     def process(self, artifact: Artifact) -> Artifact:
+        self.wait_seconds = 0.0
         invoke = partial(anki_invoke, endpoint=self.config.endpoint, timeout=self.config.timeout_seconds)
         preview = []
         self.outcome = {"status": "preparing", "plan": None}
@@ -38,6 +40,8 @@ class AddWordsToAnkiStep(PipelineStep):
             self.outcome["plan"] = {"add": add, "modify": modify, "delete": delete, "create_model": model}
         def record_status(status):
             self.outcome["status"] = status
+        def record_wait(seconds):
+            self.wait_seconds += seconds
         def save_details(details):
             if self.plan_path is not None:
                 self.plan_path.write_text(json.dumps(details, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
@@ -48,6 +52,7 @@ class AddWordsToAnkiStep(PipelineStep):
             note_fetching_batch_size=self.config.note_fetch_batch_size, output_only=self.config.output_only,
             prune=self.config.prune,
             preview_handler=record_plan, status_handler=record_status, details_handler=save_details,
+            wait_handler=record_wait,
         )
         
         if self.config.output_only and preview:
@@ -102,9 +107,11 @@ def export_words_to_anki(
     preview_handler=None,
     status_handler=None,
     details_handler=None,
+    wait_handler=None,
 ):
     invoke = anki_invoke if invoke is None else invoke
     existing_words = {}
+    expression_note_ids = {}
 
     model_exists = model_name in invoke("modelNames")
 
@@ -128,6 +135,7 @@ def export_words_to_anki(
         for note in notes:
             jp_field = note["fields"]["Expression"]["value"]
             existing_words[jp_field] = note
+            expression_note_ids.setdefault(jp_field, []).append(note["noteId"])
 
         progress = (i + note_fetching_batch_size) / max(len(all_note_ids), 1) * 25
         progress_handler(progress, 100, "Fetching existing notes from Anki...")
@@ -144,7 +152,7 @@ def export_words_to_anki(
 
     absent_words = existing_set - desired_words
     # An opt-in grammar card may be absent in a later vocabulary-only run.
-    obsolete_words = (absent_words - GRAMMAR_EXPRESSIONS) if prune else set()
+    obsolete_words = (absent_words - GRAMMAR_EXPRESSIONS - LEGACY_GRAMMAR_EXPRESSIONS.keys()) if prune else set()
     obsolete_note_ids = [
         existing_words[word]["noteId"]
         for word in obsolete_words
@@ -159,13 +167,38 @@ def export_words_to_anki(
     update_details = []
     dirty_updates = set()
     total_notes_to_update = 0
+    grammar_migration_conflicts = []
 
     for i, (word, stats) in enumerate(words.items(), start=1):
         if word not in exportable_words:
             continue
 
-        # Preserve edits and scheduling on an existing experimental grammar note.
+        if word in GRAMMAR_EXPRESSIONS:
+            legacy = word + ' (grammar)'
+            legacy_ids = expression_note_ids.get(legacy, [])
+            current_ids = expression_note_ids.get(word, [])
+            if legacy_ids:
+                if len(legacy_ids) != 1 or current_ids:
+                    grammar_migration_conflicts.append({
+                        'expression': word, 'legacy_expression': legacy,
+                        'legacy_note_ids': legacy_ids, 'current_note_ids': current_ids})
+                    continue
+                note = existing_words[legacy]
+                total_notes_to_update += 1
+                update_details.append({'expression': word, 'note_id': note['noteId'],
+                                       'fields': {'Expression': {'before': legacy, 'after': word}},
+                                       'tags_added': [],
+                                       'tags_removed': ['grammar'] if 'grammar' in note['tags'] and 'grammar' not in stats.tags else []})
+                continue
+
+        # Preserve existing grammar fields and other tags, but remove the old
+        # synthetic tag unless it is also a tag of a current input source.
         if word in GRAMMAR_EXPRESSIONS and word in existing_words:
+            note = existing_words[word]
+            if 'grammar' in note['tags'] and 'grammar' not in stats.tags:
+                total_notes_to_update += 1
+                update_details.append({'expression': word, 'note_id': note['noteId'],
+                                       'fields': {}, 'tags_added': [], 'tags_removed': ['grammar']})
             continue
 
         new_tags = set(stats.tags)
@@ -228,7 +261,8 @@ def export_words_to_anki(
             "retained_absent": [{"expression": word, "note_id": existing_words[word]["noteId"]}
                                 for word in sorted(absent_words - obsolete_words)],
             "retained_existing_grammar": [{"expression": word, "note_id": existing_words[word]["noteId"]}
-                                          for word in sorted(GRAMMAR_EXPRESSIONS & existing_set)],
+                                          for word in sorted((GRAMMAR_EXPRESSIONS | LEGACY_GRAMMAR_EXPRESSIONS.keys()) & existing_set)],
+            "grammar_migration_conflicts": grammar_migration_conflicts,
         })
     if preview_handler is not None:
         preview_handler((total_notes_to_add, total_notes_to_update, total_notes_to_delete,
@@ -245,10 +279,15 @@ def export_words_to_anki(
     if not (total_notes_to_add or total_notes_to_update or total_notes_to_delete):
         if status_handler: status_handler("no_changes")
         return 0, 0, 0
+    started_waiting = time.perf_counter()
     try:
-        approved = input("Apply these Anki changes? [y/N] ").strip().lower() == "y"
-    except EOFError:
-        approved = False
+        try:
+            approved = input("Apply these Anki changes? [y/N] ").strip().lower() == "y"
+        except EOFError:
+            approved = False
+    finally:
+        if wait_handler:
+            wait_handler(time.perf_counter() - started_waiting)
     if not approved:
         print("Anki changes cancelled.")
         if status_handler: status_handler("cancelled")
@@ -312,6 +351,9 @@ def build_mutation_actions(deck_name, model_name, additions, update_details, dir
         if item["expression"] in dirty_updates:
             update_actions.append({"action": "updateNoteFields", "params": {"note": {
                 "id": note_id, "fields": word_to_anki_fields(item["expression"], words[item["expression"]])}}})
+        elif 'Expression' in item['fields']:
+            update_actions.append({"action": "updateNoteFields", "params": {"note": {
+                "id": note_id, "fields": {"Expression": item['fields']['Expression']['after']}}}})
         for action, tags in (("addTags", item["tags_added"]), ("removeTags", item["tags_removed"])):
             if tags:
                 update_actions.append({"action": action, "params": {"notes": [note_id], "tags": " ".join(tags)}})

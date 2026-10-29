@@ -26,3 +26,14 @@ The current code and tests determine actual behavior when a document is stale.
   outputs when they reduce repeated work. Prefer targeted archive queries and
   compact reports, and save verbose corpus-run logs to files. Do not sacrifice
   necessary validation or recall assessment solely to save resources.
+- Never run the full pipeline using source files outside the project directory.
+  If such a run is needed, ask the user to run it and then inspect its output.
+  Full pipeline runs require a curated input corpus agreed with the user in
+  advance.
+- Before a task, check whether a script in `scripts/` can perform it. If none
+  exists, strongly consider creating a reusable script. In particular, prefer
+  reusable scripts for querying and inspecting output, such as searching for a
+  word or other criteria. Avoid long-running work the user can perform and
+  avoid lengthy ad hoc code when a single script would suffice.
+- Preserve each existing file's line endings when editing. Avoid line-ending-only
+  diffs, and check the diff for unintended newline changes before finishing.

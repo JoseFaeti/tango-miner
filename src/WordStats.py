@@ -50,3 +50,6 @@ class WordStats:
     needs_review: bool = False
     reassigned_occurrences: int = 0
     reassigned_tags: set[str] = field(default_factory=set)
+    scoring_tag_count: int | None = None
+    dictionary_expression_occurrences: int = 0
+    coverage_review: bool = False

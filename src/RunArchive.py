@@ -130,3 +130,36 @@ def write_run_summary(directory, summary):
     temporary = target.with_suffix(".json.tmp")
     temporary.write_text(json.dumps(summary, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
     temporary.replace(target)
+
+
+def write_stage_record(directory, index, step, record):
+    """Persist a compact ordered stage report and available archive artifacts."""
+    import re
+    root = Path(directory)
+    stage_dir = root / "steps"
+    stage_dir.mkdir(parents=True, exist_ok=True)
+    name = re.sub(r"[^A-Za-z0-9_-]", "_", record["name"])
+    target = stage_dir / f"{index:02d}-{name}.json"
+    report = {"schema_version": 1, "step_number": index, **record}
+    paths = []
+    for attribute in ("manifest_path", "path", "diagnostics_path", "plan_path", "output_path"):
+        value = getattr(step, attribute, None)
+        if value is None:
+            continue
+        path = Path(value)
+        candidates = [path]
+        if attribute == "output_path":
+            candidates += [path.with_name(path.stem + suffix + path.suffix)
+                           for suffix in (".dropped", ".sentence")]
+        for candidate in candidates:
+            try:
+                relative = candidate.resolve().relative_to(root.resolve())
+            except ValueError:
+                continue
+            if candidate.is_file():
+                paths.append(relative.as_posix())
+    if paths:
+        report["artifacts"] = sorted(set(paths))
+    temporary = target.with_suffix(".json.tmp")
+    temporary.write_text(json.dumps(report, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
+    temporary.replace(target)

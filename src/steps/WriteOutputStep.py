@@ -8,15 +8,12 @@ from src.PipelineStep import PipelineStep
 
 
 class WriteOutputStep(PipelineStep):
-    def __init__(self, output_path: Path, diagnostics_path: Path | None = None, grammar_step=None):
+    def __init__(self, output_path: Path, diagnostics_path: Path | None = None):
         self._processing_step = None
         self.output_path = output_path
         self.diagnostics_path = diagnostics_path
-        self.grammar_step = grammar_step
 
     def process(self, artifact: Artifact) -> Artifact:
-        if self.grammar_step is not None:
-            self.grammar_step.add_cards(artifact.data)
         write_final_file(artifact.data, self.output_path, self.progress)
         if self.diagnostics_path is not None:
             write_candidate_diagnostics(artifact.data, self.diagnostics_path)
@@ -31,6 +28,10 @@ def write_candidate_diagnostics(words, path):
             status = 'invalid' if stats.invalid else 'review' if stats.needs_review else 'valid'
             row = {'candidate': word, 'status': status, 'frequency': stats.frequency,
                    'reading': stats.reading, 'definition': stats.definition,
+                   'review_reasons': ([
+                       *(['expression_frequency_or_source_coverage'] if stats.coverage_review else []),
+                       *(['missing_definition'] if not stats.definition else []),
+                   ] if stats.needs_review else []),
                    'selected_dictionary_entry': stats.selected_dictionary_entry,
                    'definition_supported_occurrences': (sum(stats.component_counts.get(c, 0) for c in stats.definition_components)
                                                         if stats.definition_components is not None else None),
