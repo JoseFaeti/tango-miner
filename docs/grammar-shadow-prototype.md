@@ -325,3 +325,12 @@ covered. The full matched span supplies the example and expression precedence,
 and its tokens are reserved from lexical collection. The attached predicate
 and independent uses of 思う remain eligible.
 The meaning remains context-dependent; this is not a semantic classifier.
+
+### 〜てもいい
+
+The permission card recognizes an adjacent continuative verb followed by merged
+`てもいい` or split `て/で` + `も` + `いい`, `よい` or `良い`, including
+`よかった`/`良かった`. It reserves the construction while retaining the verb;
+a complete dictionary expression can take precedence. Noun + `でもいい` and
+negative or other inflections are left to lexical processing. Depending on context,
+the construction can express acceptance or concession as well as permission.
