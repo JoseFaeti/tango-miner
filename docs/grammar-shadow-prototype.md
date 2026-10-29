@@ -246,11 +246,30 @@ forms. It covers movement away and continuing change without distinguishing
 those meanings. Merged expressions and ambiguous contracted `〜てく` remain
 unrecognized; independent precision and recall evaluation remains needed.
 
+The `〜ことがある` card recognizes a non-past verb with `時々`, `ときどき`,
+`たまに`, `偶に`, `時には` or `ときには` within the preceding 20 tokens,
+stopping at sentence or quotation boundaries. It accepts merged `ことがある`
+and split positive present, past and polite forms through `ことがありました`. A targeted replay found an existing-matter
+reading in `いなくなってわかったことがあった`; that observed context is
+left lexical. Other similar ambiguities remain unresolved.
+It reserves only the construction, leaving the verb and cue eligible. A cue
+can modify another clause or describe an existing matter, so it does not prove
+the intended meaning. Negative, uncued and other forms remain lexical. A replay
+of an older 521,821-sentence shadow archive found nine raw rule matches; this
+does not apply expression precedence or example eligibility, and is not an
+independent precision or recall evaluation. Dictionary expression precedence
+applies during a normal run. The shared `positive_verb_end` helper recognizes
+only explicitly supplied verb forms; each rule must choose its own supported
+inflections and semantic constraints.
+
 The `〜たことがある` card recognizes a continuative verb and past auxiliary
-followed by merged `ことがある` or split `ことがある` / `ことがあります`.
+followed by merged `ことがある` or split positive present, past and polite
+forms through `ことがありました`. A targeted replay found an existing-matter
+reading in `いなくなってわかったことがあった`; that observed context is
+left lexical. Other similar ambiguities remain unresolved.
 It describes past experience and reserves the `ことがある` portion while
-retaining the verb and past auxiliary. Non-past occasional occurrences, negative
-forms, and other inflections are not yet classified; ordinary nominal `こと`
+retaining the verb and past auxiliary. Negative experience and other inflections
+are not yet classified by this rule; ordinary nominal `こと`
 and existence uses remain eligible for lexical processing. Precision and recall
 have not been independently evaluated. The observed `困ったことがあるなら`
 problem-expression context and observed `言い忘れたことがあるわ` are left

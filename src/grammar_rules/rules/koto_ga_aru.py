@@ -1,7 +1,7 @@
 """Past experience expressed by a verb + たことがある."""
 from src.GrammarConstants import KOTO_GA_ARU_EXPERIENCE
 from src.grammar_rules.base import GrammarRule
-from src.grammar_rules.helpers import adjacent, next_matches
+from src.grammar_rules.helpers import adjacent, next_matches, positive_verb_end
 
 
 RULE = GrammarRule(
@@ -26,14 +26,19 @@ def match_experience(tokens):
         elif (koto['surface'] == 'こと' and koto['pos'][:1] == ['名詞']
               and next_matches(tokens, i, 'が', '助詞', 'が')
               and next_matches(tokens, i + 1, 'ある', '動詞')):
-            end = i + 2
-            if tokens[end]['surface'] == 'あり':
-                if not next_matches(tokens, end, 'ます', '助動詞', 'ます'):
-                    continue
-                end += 1
-            elif tokens[end]['surface'] != 'ある':
+            end = positive_verb_end(tokens, i + 2, lemma='ある',
+                                    base_forms={'ある'}, past_stems={'あっ'},
+                                    polite_stems={'あり'})
+            if end is None:
                 continue
         else:
+            continue
+        # In the observed source, this names what was realized after someone
+        # disappeared. Other uses of わかる can describe an experience.
+        if (verb['lemma'] == 'わかる' and i >= 5
+                and [t['surface'] for t in tokens[i - 5:i - 2]] == ['なく', 'なっ', 'て']
+                and all(adjacent(tokens[j], tokens[j + 1]) for j in range(i - 5, i - 2))
+                and tokens[end]['surface'] == 'た'):
             continue
         # The observed sentence means there is something left unsaid. Do not
         # generalize to every 忘れたこと: past experience is also possible.

@@ -207,6 +207,16 @@ Anki can itself make configurations differ. The wrapper still runs the full
 pipeline and may take significant time and disk space, but does not print its
 progress log into the conversation.
 
+Replay a registered grammar rule against an existing shadow archive without
+running the pipeline:
+
+```sh
+python -X utf8 scripts/replay_grammar.py runs/example-run/grammar-shadow.jsonl --rule koto_ga_aru_occasional --limit 10
+```
+
+The replay counts raw matches; it does not apply dictionary expression
+precedence or example eligibility.
+
 For detailed parsing investigation, add `--occurrence-diagnostics` to a run.
 It writes `occurrences.jsonl`, `rejected-merges.jsonl`, and `candidate-diagnostics.jsonl` in the run
 archive. These files can be very large and include source text and source
@@ -236,7 +246,7 @@ The normal pipeline includes experimental grammar cards by default; pass
 `〜ている`, explanatory `〜んだ` and desire
 `〜たい`, `〜てしまう`, concessive
 `〜ものの`, `〜てくる`, `〜ていく`, `〜ない`, `〜たら`, and
-`〜たことがある` candidates when
+`〜たことがある` and occasional `〜ことがある` candidates when
 narrowly supported source examples are found. If Anki is enabled, each
 card is included in its normal preview and confirmation workflow. Existing
 notes with those exact identities are retained without automatic updates or

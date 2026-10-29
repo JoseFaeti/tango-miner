@@ -55,18 +55,23 @@ by source evidence, and preserve ambiguous and useful lexical readings.
 
 - [~] 〜たことがある — past experience.
   - Covered: verb + past auxiliary followed by merged ことがある or split
-    こと + が + ある / あります.
+    こと + が + positive present, past and polite forms through ありました.
   - Remaining: other inflections and tokenizations, negative experience, and
     independent precision and recall evaluation. Non-past occasional occurrence
-    is not classified because it can also describe an existing matter.
+    is handled separately and can also describe an existing matter.
 
-All ten rules require eligible source examples, cover only supported analyses,
+- [~] 〜ことがある — occasional occurrence.
+  - Covered: non-past verbs with a nearby frequency cue and supported
+    positive present, past and polite forms of ことがある.
+  - Remaining: uncued occurrences, negative forms, other tokenizations, and
+    distinguishing existing-matter readings; the cue does not prove its scope.
+
+All eleven rules require eligible source examples, cover only supported analyses,
 and need independent precision and recall evaluation. See the
 [grammar card details](grammar-shadow-prototype.md#grammar-cards).
 
 ## Next candidates
 
-- [ ] 〜ことがある — occasional occurrence; distinguish existing-matter readings.
 - [ ] 〜ように — purpose, manner or instruction; distinguish meanings and lexical uses.
 - [ ] 〜と思う — thought or intention; retain lexical 思う.
 - [ ] 〜なければならない / 〜なくてはいけない — obligation; include common contractions.
