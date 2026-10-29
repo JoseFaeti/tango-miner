@@ -68,7 +68,9 @@ class GrammarStep(PipelineStep):
                                                max_lookahead=self.max_lookahead)
                 aligned, merge_error = aligned_tokens(sentence.text, merged)
                 if not merge_error:
-                    expression_spans = [tuple(t['span']) for t in aligned
+                    expression_spans = [(t['span'][0], t['span'][1],
+                                         merged[t['index']].get('dictionary_expression', False))
+                                        for t in aligned
                                         if merged[t['index']].get('analysis_rule') == 'jmdict_surface_merge']
             for rule, start, end in proposals:
                 # A copular な immediately before explanatory んだ is part of
@@ -78,9 +80,16 @@ class GrammarStep(PipelineStep):
                                    if rule.id == 'explanatory_nda'
                                    and t['span'][1] == start and t['surface'] == 'な'
                                    and t['lemma'] == 'だ' and t['pos'][:1] == ['助動詞']}
-                if any(a <= start and end <= b and (a < start or end < b)
-                       and a not in copular_starts
-                       for a, b in expression_spans):
+                # ておく can overlap a longer dictionary expression beginning
+                # at おく, such as おけばいい. Keep that complete expression
+                # available to the lexical merger instead of reserving its stem.
+                connective_ends = {t['span'][1] for t in tokens
+                                   if rule.id == 'te_oku' and t['span'][0] == start
+                                   and t['surface'] in ('て', 'で')}
+                if any((a <= start and end <= b and (a < start or end < b)
+                        and a not in copular_starts)
+                       or (is_expression and a in connective_ends and a < end < b)
+                       for a, b, is_expression in expression_spans):
                     continue
                 group = self.occurrences[rule.id]
                 group.count += 1

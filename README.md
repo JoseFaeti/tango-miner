@@ -246,7 +246,7 @@ The normal pipeline includes experimental grammar cards by default; pass
 `〜ている`, explanatory `〜んだ` and desire
 `〜たい`, `〜てしまう`, concessive
 `〜ものの`, `〜てくる`, `〜ていく`, `〜ない`, `〜たら`, and
-`〜たことがある`, permission `〜てもいい`, prohibition `〜てはいけない`, obligation `〜なければならない`, occasional `〜ことがある`, `〜ように`, and `〜と思う` candidates when
+`〜たことがある`, `〜ておく`, permission `〜てもいい`, prohibition `〜てはいけない`, obligation `〜なければならない`, occasional `〜ことがある`, `〜ように`, and `〜と思う` candidates when
 narrowly supported source examples are found. If Anki is enabled, each
 card is included in its normal preview and confirmation workflow. Existing
 notes with those exact identities are retained without automatic updates or
@@ -257,7 +257,8 @@ filtering and do not use its minimum-frequency threshold. See the [grammar shado
 for supported forms, limitations, and note behavior. Recognized grammar spans
 are reserved before lexical merging and collection, unless the existing dictionary
 merger identifies a complete expression spanning the construction and its attached
-word; that occurrence is then counted as the expression. Other occurrences and the
+word; that occurrence is then counted as the expression. For `〜ておく`, a longer
+JMdict expression beginning at `おく`, such as `おけばいい`, also takes precedence. Other occurrences and the
 preceding verb remain eligible. For `〜と思う`, the matched 思う is reserved;
 independent lexical uses remain eligible. This can change lexical frequencies and may
 place absent lexical notes in an Anki deletion plan when pruning is enabled.

@@ -66,6 +66,27 @@ does not affect CSV or Anki.
 
 ## Grammar cards
 
+The `〜ておく` card matches a continuative verb or auxiliary followed by
+split て/で + non-independent おく, or a Sudachi とく/どく auxiliary.
+Supported complete forms include present, past, negative, polite, て-form,
+conditional and volitional forms, including たら as a complete token. The
+conditional card can also match the same たら. Ambiguous analyses such as
+読んどいた, negative antecedents such as 忘れないでおいて and the 置く
+spelling remain lexical. The meaning can be preparation or leaving a resulting
+state; tokenization cannot establish which.
+A raw replay of the first 20,000 archived sentences found 123 matches, before
+expression precedence and example eligibility; this does not measure precision
+or recall. In the archived ほっとく example, the current dictionary merger
+leaves ほっ and とく separate. Reservation keeps the ほる component and removes
+the とく lexical occurrence; the complete expression is not emitted as a
+lexical candidate in this example. Independent おく and 置く remain eligible.
+When a longer JMdict expression starts at おく and extends beyond the
+construction, as in おけばいい or おけばよかった, it takes precedence over
+this grammar match. The attached verb remains eligible; in 従っておく, the
+merger leaves 従う as a verb rather than selecting the adverb 従って. These
+changes are validated on selected examples and have not been compared in a
+full corpus. The interpretation and wider frequency effects need further evaluation.
+
 The obligation card `〜なければならない` recognizes selected complete verbal
 negative conditional forms followed by `ならない` or `いけない`, including
 plain and polite present and past negative endings and `なきゃ`, `なくちゃ`, and `ないと`. It reserves

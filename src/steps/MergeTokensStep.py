@@ -528,6 +528,14 @@ def combine_tokens_jmdict(
             if not match_word:
                 reject("no_best_entry")
                 continue
+            # In 従っておく, 従って is the て-form of 従う, not the
+            # dictionary adverb meaning "therefore". Preserve its verb evidence.
+            if (token_string == '従って' and j < n
+                    and token_list[i]['lemma'] == '従う'
+                    and token_list[j]['lemma'] == 'おく'
+                    and tuple(token_list[j]['pos'][:2]) == ('動詞', '非自立可能')):
+                reject('te_oku_verb_not_adverb')
+                continue
             if (_is_inflection_misread_as_noun(token_list, i, j, match_word)
                     or _is_auxiliary_oru_misread(token_list, i, j)
                     or (any(t.get('analysis_rule') == 'object_tsureru_motion' for t in token_list[i:j])

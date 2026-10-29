@@ -153,7 +153,14 @@ pipeline test suite and record remaining ambiguity and partial coverage.
 - [~] 〜てもいい — permission.
   - Covered: verb continuative + merged てもいい or split て/で + も + いい/よい/良い, including supported past forms. Other readings and inflections remain lexical.
 - [~] 〜てはいけない — prohibition. Covered: verb continuative + ては / では / ちゃ / じゃ + selected complete plain and polite present and past forms of いけない. Other tokenizations, inflections and contextual ambiguity remain to be evaluated.
-- [ ] 〜ておく — preparation or leaving a state; include 〜とく / 〜どく.
+- [~] 〜ておく — preparation or leaving a state.
+  - Covered: split て/で + おく and auxiliary とく/どく, including selected
+    plain, past, negative, polite, て-form, conditional and volitional forms.
+  - Remaining: ambiguous analyses such as 読んどいた, merged tokens, negative
+    antecedents, 置く spelling and other inflections. Evaluate lexical expression precedence,
+    contextual meanings and independent precision and recall. Longer JMdict
+    expressions beginning at おく take precedence; effects on output frequencies
+    need a same-input corpus comparison.
 - [ ] 〜てみる — try doing something.
 - [ ] 〜ことになる — decided outcome or consequence.
 - [ ] 〜ことにする — decision to do something.
