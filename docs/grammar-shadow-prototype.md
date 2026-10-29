@@ -295,3 +295,11 @@ begins afterward. It covers conditions and events followed by a later outcome;
 it does not distinguish these meanings. Conjunction analyses, sentence-final
 uses, and other tokenizations remain unrecognized. The rule has not undergone
 independent precision or recall evaluation.
+
+The `〜ように` card recognizes selected merged and split `ように` analyses
+after an adjacent finite verb, adjective or auxiliary, with following text. It
+can express purpose, manner, resemblance or instruction; morphology does not
+distinguish these meanings. Noun comparisons and other tokenizations remain
+lexical. Dictionary expression precedence applies, and matched construction
+tokens are reserved while the preceding predicate remains eligible. Precision
+and recall have not been independently evaluated.

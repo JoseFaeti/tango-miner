@@ -67,7 +67,11 @@ by source evidence, and preserve ambiguous and useful lexical readings.
   - Remaining: uncued occurrences, negative forms, other tokenizations, and
     distinguishing existing-matter readings; the cue does not prove its scope.
 
-All eleven rules require eligible source examples, cover only supported analyses,
+- [~] 〜ように — predicate-attached purpose, manner, resemblance or instruction.
+  - Covered: selected merged and split tokenizations after a finite predicate.
+  - Remaining: other forms, contextual disambiguation and independent evaluation.
+
+All twelve rules require eligible source examples, cover only supported analyses,
 and need independent precision and recall evaluation. See the
 [grammar card details](grammar-shadow-prototype.md#grammar-cards).
 
@@ -144,7 +148,6 @@ pipeline test suite and record remaining ambiguity and partial coverage.
 
 ## Next candidates
 
-- [ ] 〜ように — purpose, manner or instruction; distinguish meanings and lexical uses.
 - [ ] 〜と思う — thought or intention; retain lexical 思う.
 - [ ] 〜なければならない / 〜なくてはいけない — obligation; include common contractions.
 - [ ] 〜てもいい — permission.

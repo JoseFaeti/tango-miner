@@ -246,7 +246,7 @@ The normal pipeline includes experimental grammar cards by default; pass
 `〜ている`, explanatory `〜んだ` and desire
 `〜たい`, `〜てしまう`, concessive
 `〜ものの`, `〜てくる`, `〜ていく`, `〜ない`, `〜たら`, and
-`〜たことがある` and occasional `〜ことがある` candidates when
+`〜たことがある`, occasional `〜ことがある`, and `〜ように` candidates when
 narrowly supported source examples are found. If Anki is enabled, each
 card is included in its normal preview and confirmation workflow. Existing
 notes with those exact identities are retained without automatic updates or
