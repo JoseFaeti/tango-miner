@@ -152,7 +152,7 @@ pipeline test suite and record remaining ambiguity and partial coverage.
 - [~] 〜なければならない / 〜なくてはいけない — obligation. Covered: selected complete present and past, plain and polite negative endings, including なきゃ, なくちゃ and ないと. Merged verb-plus-suffix analyses, conditional past endings and elliptical forms remain unsupported; independent precision and recall evaluation remains needed.
 - [~] 〜てもいい — permission.
   - Covered: verb continuative + merged てもいい or split て/で + も + いい/よい/良い, including supported past forms. Other readings and inflections remain lexical.
-- [ ] 〜てはいけない — prohibition; include 〜ちゃいけない / 〜じゃいけない.
+- [~] 〜てはいけない — prohibition. Covered: verb continuative + ては / では / ちゃ / じゃ + selected complete plain and polite present and past forms of いけない. Other tokenizations, inflections and contextual ambiguity remain to be evaluated.
 - [ ] 〜ておく — preparation or leaving a state; include 〜とく / 〜どく.
 - [ ] 〜てみる — try doing something.
 - [ ] 〜ことになる — decided outcome or consequence.

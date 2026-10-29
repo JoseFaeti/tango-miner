@@ -334,3 +334,12 @@ The permission card recognizes an adjacent continuative verb followed by merged
 a complete dictionary expression can take precedence. Noun + `でもいい` and
 negative or other inflections are left to lexical processing. Depending on context,
 the construction can express acceptance or concession as well as permission.
+
+### 〜てはいけない
+
+A source-aligned verb continuative followed by ては / では or contracted
+ちゃ / じゃ and いけない expresses prohibition. Selected complete plain
+and polite present and past endings are supported; the verb remains available
+for lexical processing. Other forms and tokenizations remain lexical, and
+contextual ambiguity, expression precedence and corpus-level recall remain
+unmeasured.
