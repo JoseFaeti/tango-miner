@@ -148,7 +148,7 @@ pipeline test suite and record remaining ambiguity and partial coverage.
 
 ## Next candidates
 
-- [ ] 〜と思う — thought or intention; retain lexical 思う.
+- [~] 〜と思う — predicate quotation and intention; reserves matched 思う while retaining independent lexical uses. Quoted questions, noun predicates and other inflections remain unsupported.
 - [ ] 〜なければならない / 〜なくてはいけない — obligation; include common contractions.
 - [ ] 〜てもいい — permission.
 - [ ] 〜てはいけない — prohibition; include 〜ちゃいけない / 〜じゃいけない.

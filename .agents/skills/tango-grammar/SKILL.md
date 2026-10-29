@@ -5,7 +5,7 @@ description: Implement or extend a Japanese grammar card in the Tango Miner pipe
 
 # Tango Miner grammar cards
 
-Follow the repository's AGENTS.md. Read README.md and docs/false-positive-analysis.md before changing mining behavior; consult docs/pipeline-improvement-roadmap.md and docs/grammar-priorities.md. For an unspecified next point, select the first unchecked entry in the tracker; use current code and tests when documentation is stale.
+Follow the repository's AGENTS.md. Read README.md and docs/false-positive-analysis.md before changing mining behavior; consult docs/grammar-priorities.md. For an unspecified next point, select the first unchecked entry in the tracker; use current code and tests when documentation is stale.
 
 Inspect existing rules, tests, scripts and archive evidence before choosing a scope. Prefer the existing bounded scripts, including scripts/replay_grammar.py, scripts/query_jsonl.py, scripts/inspect_run.py and scripts/compare_runs.py. Examine actual source-aligned Sudachi tokenizations and semantic ambiguity. Decide what the grammar card means and which evidence supports it; preserve useful lexical readings and retain attached words and component evidence. Avoid broad filters. Dictionary expression precedence and grammar reservation can change lexical candidates and frequencies, so assess their effects rather than equating a larger match count with improved recall.
 

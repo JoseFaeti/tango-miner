@@ -303,3 +303,15 @@ distinguish these meanings. Noun comparisons and other tokenizations remain
 lexical. Dictionary expression precedence applies, and matched construction
 tokens are reserved while the preceding predicate remains eligible. Precision
 and recall have not been independently evaluated.
+
+### 〜と思う
+
+The `〜と思う` card matches a source-aligned finite or volitional verb,
+adjective, or auxiliary followed by と and 思う, 思った, 思います,
+思いました, 思わない, 思わなかった, or 思って. It describes thought or
+judgment, with intention possible after volitional forms. Quoted questions,
+bare noun predicates, other inflections, and spaced token boundaries are not
+covered. The full matched span supplies the example and expression precedence,
+and its tokens are reserved from lexical collection. The attached predicate
+and independent uses of 思う remain eligible.
+The meaning remains context-dependent; this is not a semantic classifier.
