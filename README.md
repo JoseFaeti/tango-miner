@@ -232,7 +232,7 @@ The normal pipeline includes experimental grammar cards by default; pass
 `--no-grammar` to disable them. The rules create separate
 `〜ている`, explanatory `〜んだ` and desire
 `〜たい`, `〜てしまう`, concessive
-`〜ものの`, and `〜てくる` candidates when
+`〜ものの`, `〜てくる`, `〜ない`, and `〜たら` candidates when
 narrowly supported source examples are found. If Anki is enabled, each
 card is included in its normal preview and confirmation workflow. Existing
 notes with those exact identities are retained without automatic updates or

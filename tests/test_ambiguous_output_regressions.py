@@ -208,6 +208,29 @@ class AmbiguousOutputRegressionTests(unittest.TestCase):
                 retained, _ = tokenize([text])
                 self.assertIn(expected, retained)
 
+    def test_kigahen_repair_uses_reserved_conditional_as_context(self):
+        from src.Artifact import Artifact
+        from src.Grammar import GrammarStep, ExcludeGrammarTokensStep
+        from src.grammar_rules.rules.tara import RULE
+        from tests.test_grammar_te_iru import sentence
+
+        for text in ['じゃあ気が変わったらまた声をかけてちょうだいね。',
+                     'やめとくうか…気が変わったらいつでも来る。']:
+            with self.subTest(text=text):
+                source = sentence(text, raw_tokens(text))
+                stage = GrammarStep(rules=(RULE,), prefer_expressions=True)
+                artifact = stage.process(Artifact([source]))
+                tokens = ExcludeGrammarTokensStep(stage).process(artifact).data[0].tokens
+                merged = combine_tokens_jmdict(tokens, self.jmdict)
+                self.assertEqual(stage.occurrences[RULE.id].count, 1)
+                self.assertEqual([t['surface'] for t in merged if t.get('grammar_reserved')], ['たら'])
+                self.assertIn('気', [t['lemma'] for t in merged])
+                verb = next(t for t in merged if t['lemma'] == '変わる')
+                self.assertEqual(verb['surface'], '変わっ')
+                self.assertEqual([c.surface for c in verb['components']], ['気が変', 'わっ'])
+                self.assertNotIn('気が変', [t['lemma'] for t in merged])
+                self.assertNotIn('わる', [t['lemma'] for t in merged])
+
     def test_empty_sudachi_tokens_do_not_break_later_highlights(self):
         sentence = "やめとくうか…気が変わったらいつでも来る。"
         words, segments = tokenize([sentence])

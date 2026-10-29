@@ -239,3 +239,10 @@ verb or selected passive, potential and causative auxiliaries. It includes
 `て` remain outside the span. Independent adjectival `ない` and `無い`
 remain lexical, and adjective negation, polite negatives and merged analyses
 are not covered. Precision and recall have not been evaluated across a corpus.
+
+The `〜たら` card recognizes the hypothetical auxiliary `たら` / `だら`
+after an adjacent continuative verb, adjective, or auxiliary when another clause
+begins afterward. It covers conditions and events followed by a later outcome;
+it does not distinguish these meanings. Conjunction analyses, sentence-final
+uses, and other tokenizations remain unrecognized. The rule has not undergone
+independent precision or recall evaluation.

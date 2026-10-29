@@ -173,6 +173,15 @@ class GrammarReservationTests(unittest.TestCase):
         self.assertFalse(any(t['lemma'] == '目に見える'
                              for t in combine_tokens_jmdict(ordinary, ExpressionDictionary())))
 
+    def test_kigahen_repair_does_not_change_reserved_components(self):
+        from src.steps.MergeTokensStep import _repair_kigahen_boundaries
+        tokens = [dict(surface='気が変', lemma='気が変', pos=('形状詞',), grammar_reserved=True),
+                  dict(surface='わっ', lemma='わる', pos=('動詞',)),
+                  dict(surface='たら', lemma='た', pos=('助動詞',), grammar_reserved=True)]
+        class PresentDictionary:
+            def lookup_word(self, word): return [word]
+        self.assertEqual(_repair_kigahen_boundaries(tokens, PresentDictionary()), tokens)
+
     def test_passive_guard_sees_reserved_connective(self):
         from src.steps.MergeTokensStep import _is_inflection_misread_as_noun
         tokens = [dict(surface='覆わ', lemma='覆う', pos=('動詞', '*', '*', '*', '*', '未然形')),

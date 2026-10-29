@@ -42,13 +42,18 @@ by source evidence, and preserve ambiguous and useful lexical readings.
   - Remaining: adjective negation, polite and other forms, merged analyses
     and independent precision and recall evaluation.
 
-All seven rules require eligible source examples, cover only supported analyses,
+- [~] 〜たら — conditional or subsequent event.
+  - Covered: split hypothetical たら / だら following supported continuative
+    predicates and a following clause.
+  - Remaining: sentence-final and other tokenizations, semantic distinctions,
+    and independent precision and recall evaluation.
+
+All eight rules require eligible source examples, cover only supported analyses,
 and need independent precision and recall evaluation. See the
 [grammar card details](grammar-shadow-prototype.md#grammar-cards).
 
 ## Next candidates
 
-- [ ] 〜たら — conditional; distinguish fragments and other uses.
 - [ ] 〜ていく — movement away or change continuing onward; include 〜てく where distinguishable.
 - [ ] 〜ことがある — experience or occasional occurrence; distinguish meanings.
 - [ ] 〜ように — purpose, manner or instruction; distinguish meanings and lexical uses.

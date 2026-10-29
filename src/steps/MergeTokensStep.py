@@ -282,7 +282,8 @@ def _repair_kigahen_boundaries(token_list: list[dict], jmdict) -> list[dict]:
     i = 0
     while i < len(token_list):
         parts = token_list[i:i + 3]
-        if (len(parts) == 3 and parts[0]['surface'] == '気が変'
+        if (len(parts) == 3 and not any(t.get('grammar_reserved') for t in parts[:2])
+                and parts[0]['surface'] == '気が変'
                 and parts[0]['lemma'] == '気が変' and parts[0]['pos'][0] == '形状詞'
                 and parts[1]['surface'] == 'わっ' and parts[1]['lemma'] == 'わる'
                 and parts[1]['pos'][0] == '動詞'
@@ -433,10 +434,11 @@ def combine_tokens_jmdict(
 ) -> list[dict]:
     """Greedily merge adjacent lexical compounds recognized by JMdict."""
     token_list = _recover_me_ni_mieru(token_list, jmdict)
+    # The reserved ending remains context for this repair, but is never changed.
+    token_list = _repair_kigahen_boundaries(token_list, jmdict)
     # Boundary repairs operate on lexical runs, while the merge guards below
     # can still inspect adjacent reserved tokens as context.
     def repair_run(run):
-        run = _repair_kigahen_boundaries(run, jmdict)
         return _repair_grammatical_constructions(_repair_kotoshi_boundaries(run))
 
     if any(token.get('grammar_reserved') for token in token_list):
