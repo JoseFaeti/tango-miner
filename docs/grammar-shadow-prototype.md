@@ -66,6 +66,16 @@ does not affect CSV or Anki.
 
 ## Grammar cards
 
+The obligation card `〜なければならない` recognizes selected complete verbal
+negative conditional forms followed by `ならない` or `いけない`, including
+plain and polite present and past negative endings and `なきゃ`, `なくちゃ`, and `ないと`. It reserves
+the suffix while retaining the attached verb; dictionary expression precedence
+can suppress the card. Entirely merged verb-and-suffix tokens, conditional past endings and
+elliptical obligations remain unsupported. Surface and token boundaries do not
+resolve every contextual ambiguity, and precision and recall have not been
+independently evaluated.
+
+
 The shared grammar stage runs by default. Pass `--no-grammar` to disable it.
 The stage checks the registered rules and adds separate
 grammar candidates to

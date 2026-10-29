@@ -149,7 +149,7 @@ pipeline test suite and record remaining ambiguity and partial coverage.
 ## Next candidates
 
 - [~] 〜と思う — predicate quotation and intention; reserves matched 思う while retaining independent lexical uses. Quoted questions, noun predicates and other inflections remain unsupported.
-- [ ] 〜なければならない / 〜なくてはいけない — obligation; include common contractions.
+- [~] 〜なければならない / 〜なくてはいけない — obligation. Covered: selected complete present and past, plain and polite negative endings, including なきゃ, なくちゃ and ないと. Merged verb-plus-suffix analyses, conditional past endings and elliptical forms remain unsupported; independent precision and recall evaluation remains needed.
 - [ ] 〜てもいい — permission.
 - [ ] 〜てはいけない — prohibition; include 〜ちゃいけない / 〜じゃいけない.
 - [ ] 〜ておく — preparation or leaving a state; include 〜とく / 〜どく.
