@@ -78,8 +78,8 @@ Shared matching should let each construction choose applicable forms and meaning
 a successful morphological match does not by itself establish the intended
 interpretation.
 
-1. [ ] Recognize complete conditional and colloquial negative sequences. Some
-   restored matches retain partial spans, such as `〜なくっ` within `〜なくって`.
+1. [~] Recognize complete conditional and colloquial
+   negative sequences.
    Evaluate complete forms including `〜なきゃ` and `〜なかったら` for
    `〜ている`, `〜ていく`, `〜てくる`, `〜たい` and `〜んだ`, preserving
    independently useful lexical expressions and construction-specific boundaries.
@@ -87,11 +87,21 @@ interpretation.
    `なけれ` + `ば` completely; incomplete stems are rejected. Existing
    `なきゃ` and `なかったら` coverage is tested across selected rules.
    Sudachi’s `なくっ` + `た` + `ってな` analysis remains unsupported, and
-   corpus-wide effects on precedence, frequencies and Anki plans are unverified.
-2. [ ] Extend shared positive verb inflection handling for observed stem and
+   A same-input run found `〜ていく` down two and lexical `いく` and
+   `ない` each up two; the Anki preview had no deletions. Other effects on
+   expression precedence and recall still need investigation.
+2. [~] Extend positive verb inflection handling for observed stem and
    tokenization patterns used by `〜ていく`, `〜てくる` and `〜てしまう`.
    These rules already cover many common past and polite forms; moving existing
    logic alone is a refactor, not evidence of improved coverage.
+   `〜てしまって`, `〜ちゃって` and `〜じゃって` now include an
+   adjacent separate connective `て`. A raw replay of one shadow archive
+   found 1,049 such matches, up from zero. A same-input run increased the
+   grammar frequency by 1,049, with corresponding decreases in `しまう`,
+   `ちゃう` and `じゃう`. `ても`, `ては` and `てもいい` also fell;
+   overlapping expression reservation needs investigation. The Anki preview
+   reported no deletions.
+   Fused `てる` tokenizations and other positive forms remain future work.
 3. [ ] Consolidate and extend polite-suffix handling for supported `ます`,
    `ました`, `ません` and `ませんでした` tokenizations. The existing
    `polite_suffix_end` helper resides in the shadow module; assess shared use

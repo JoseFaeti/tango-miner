@@ -1,7 +1,7 @@
 """Rule for te_shimau."""
 from src.GrammarConstants import TE_SHIMAU_GRAMMAR_EXPRESSION
 from src.grammar_rules.base import GrammarRule
-from src.grammar_rules.helpers import has_next, negative_suffix_end
+from src.grammar_rules.helpers import has_next, next_matches, negative_suffix_end
 from src.GrammarShadow import polite_suffix_end
 
 
@@ -34,7 +34,8 @@ def match_te_shimau(tokens):
         if surface in ('しまう', '仕舞う', 'ちゃう', 'じゃう'):
             pass
         elif surface in ('しまっ', '仕舞っ', 'ちゃっ', 'じゃっ'):
-            if not has_next(tokens, end) or tokens[end + 1]['lemma'] != 'た' or tokens[end + 1]['pos'][:1] != ['助動詞']:
+            if not (next_matches(tokens, end, 'た', '助動詞')
+                    or next_matches(tokens, end, 'て', '助詞', 'て')):
                 continue
             end += 1
         elif surface in ('しまい', '仕舞い', 'ちゃい', 'じゃい'):

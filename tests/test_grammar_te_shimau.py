@@ -1,7 +1,7 @@
 import unittest
 
 from src.Artifact import Artifact
-from src.Grammar import GrammarStep
+from src.Grammar import GrammarStep, ExcludeGrammarTokensStep
 from src.grammar_rules.rules.te_shimau import match_te_shimau
 from src.GrammarConstants import TE_SHIMAU_GRAMMAR_EXPRESSION as EXPRESSION
 from src.GrammarShadow import aligned_tokens
@@ -18,6 +18,10 @@ class TeShimauTests(unittest.TestCase):
         except (ImportError, OSError, RuntimeError) as exc:
             self.skipTest(f'Sudachi full dictionary unavailable: {exc}')
         cases = {
+            '圭くんささっと友達遊びにいってしまって': 'てしまって',
+            'こんな貴重な物もらっちゃって': 'ちゃって',
+            'ごめんねひな店番頼んじゃって': 'じゃって',
+            '大切に仕舞っておいたのに': None,
             '本を読んでしまう。': 'でしまう', '本を読んでしまった。': 'でしまった',
             '宿題をしてしまいました。': 'てしまいました',
             '本を読んでしまわない。': 'でしまわない',
@@ -53,6 +57,21 @@ class TeShimauTests(unittest.TestCase):
         self.assertEqual(words[EXPRESSION].frequency, 2)
         self.assertEqual(words[EXPRESSION].sentences[0].surface_form, 'でしまった')
         self.assertEqual(len(words[EXPRESSION].sentences), 1)
+
+    def test_complete_span_reserves_only_grammar_tokens(self):
+        source = sentence('本を読んじゃって困る。', [
+            tok('本を', '本', ('名詞',)),
+            tok('読ん', '読む', ('動詞', '一般', '*', '*', '五段', '連用形-撥音便')),
+            tok('じゃっ', 'じゃう', ('助動詞',)),
+            tok('て', 'て', ('助詞', '接続助詞')),
+            tok('困る', '困る', ('動詞',)), tok('。', '。', ('補助記号',))])
+        stage = GrammarStep()
+        data = Artifact([source])
+        stage.process(data)
+        reserved = ExcludeGrammarTokensStep(stage).process(data).data[0].tokens
+        self.assertEqual([t['surface'] for t in reserved if t.get('grammar_reserved')],
+                         ['じゃっ', 'て'])
+        self.assertEqual(stage.occurrences['te_shimau'].examples[0].surface_form, 'じゃって')
 
     def test_existing_note_is_protected(self):
         existing = note(123, EXPRESSION, fields={'Meaning': 'user edited'})
