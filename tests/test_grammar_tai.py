@@ -36,6 +36,40 @@ class TaiCardTests(unittest.TestCase):
                 self.assertEqual([text[a:b] for a, b in match_tai(aligned)],
                                  [] if expected is None else [expected])
 
+    def test_inflection_boundaries_and_lexical_controls(self):
+        verb = tok('読み', '読む', ('動詞', '一般', '*', '*', '五段', '連用形-一般'))
+        def matches(parts):
+            raw = [verb] + parts
+            text = ''.join(t['surface'] for t in raw)
+            aligned, error = aligned_tokens(text, raw)
+            self.assertIsNone(error)
+            return [text[a:b] for a, b in match_tai(aligned)]
+        desire = lambda surface: tok(surface, 'たい', ('助動詞',))
+        past = tok('た', 'た', ('助動詞',))
+        negative = tok('ない', 'ない', ('形容詞',))
+        conditional = tok('ば', 'ば', ('助詞',))
+        for parts, expected in [
+            ([desire('たかっ'), past], ['たかった']),
+            ([desire('たく'), negative], ['たくない']),
+            ([desire('たけれ'), conditional], ['たければ']),
+            ([desire('たかっ')], []),
+            ([desire('たけれ')], []),
+            ([desire('たく'), tok('なけれ', 'ない', ('形容詞',))], []),
+            ([tok('たい', 'たい', ('名詞',))], []),
+        ]:
+            with self.subTest(parts=parts):
+                self.assertEqual(matches(parts), expected)
+
+    def test_shared_matcher_allows_caller_to_select_forms(self):
+        from src.grammar_rules.helpers import adjective_inflection_end
+        raw = [tok('高けれ', '高い', ('形容詞',)), tok('ば', 'ば', ('助詞',))]
+        tokens, error = aligned_tokens('高ければ', raw)
+        self.assertIsNone(error)
+        kwargs = dict(lemma='高い', pos='形容詞', base='高い', past_stem='高かっ',
+                      continuative_stem='高く', conditional_stem='高けれ')
+        self.assertEqual(adjective_inflection_end(tokens, 0, forms=('conditional',), **kwargs), 1)
+        self.assertIsNone(adjective_inflection_end(tokens, 0, forms=('base',), **kwargs))
+
     def test_card_uses_source_and_keeps_lexical_candidates(self):
         source = sentence('私は本を読みたいと思います。', [
             tok('私は本を', '本', ('名詞',)),

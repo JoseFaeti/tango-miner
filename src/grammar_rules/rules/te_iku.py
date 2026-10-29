@@ -1,8 +1,7 @@
 """Source-aligned verb て-form + いく construction."""
 from src.GrammarConstants import TE_IKU_GRAMMAR_EXPRESSION
-from src.GrammarShadow import polite_suffix_end
 from src.grammar_rules.base import GrammarRule
-from src.grammar_rules.helpers import adjacent, next_matches, negative_predicate_end
+from src.grammar_rules.helpers import polite_suffix_end, adjacent, next_matches, negative_predicate_end
 
 
 RULE = GrammarRule(
@@ -35,9 +34,8 @@ def match_te_iku(tokens):
                 end += 1
             elif surface in ('いき', '行き', 'ゆき') and next_matches(tokens, end, 'ます', '助動詞'):
                 end += 1
-                suffix = tokens[end]
                 end = polite_suffix_end(tokens, end)
-                if suffix['surface'] in ('まし', 'ませ') and tokens[end] is suffix:
+                if end is None:
                     continue
             else:
                 continue

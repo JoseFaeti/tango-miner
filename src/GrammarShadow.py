@@ -3,6 +3,8 @@ import hashlib
 import json
 from pathlib import Path
 
+from src.grammar_rules.helpers import next_matches, polite_suffix_end
+
 SCHEMA_VERSION = 2
 RULE_VERSION = 'grammar-shadow-4'
 CATALOG = {
@@ -62,34 +64,6 @@ def token_evidence(construction, start, end, tokens):
     return overlapping, evidence
 
 
-def polite_suffix_end(tokens, index):
-    """Extend documented split polite suffixes only when adjacent and supported."""
-    token = tokens[index]
-    end = index
-    if token['lemma'] != 'ます' or token['pos'][:1] != ['助動詞']:
-        return end
-
-    def next_matches(surface, lemma, pos):
-        next_index = end + 1
-        return (next_index < len(tokens) and tokens[end]['span'][1] == tokens[next_index]['span'][0]
-                and tokens[next_index]['surface'] == surface
-                and tokens[next_index]['lemma'] == lemma
-                and tokens[next_index]['pos'][:1] == [pos])
-
-    if token['surface'] == 'まし':
-        if next_matches('た', 'た', '助動詞') or next_matches('て', 'て', '助詞'):
-            end += 1
-    elif token['surface'] == 'ませ' and next_matches('ん', 'ぬ', '助動詞'):
-        end += 1
-        if (next_matches('でし', 'です', '助動詞') and end + 2 < len(tokens)
-                and tokens[end + 1]['span'][1] == tokens[end + 2]['span'][0]
-                and tokens[end + 2]['surface'] == 'た'
-                and tokens[end + 2]['lemma'] == 'た'
-                and tokens[end + 2]['pos'][:1] == ['助動詞']):
-            end += 2
-    return end
-
-
 def inflected_te_iru_spans(tokens):
     """Propose observed inflected forms, preserving original token boundaries."""
     for index, token in enumerate(tokens):
@@ -101,13 +75,19 @@ def inflected_te_iru_spans(tokens):
                 and following[0]['lemma'] in ('いる', '居る')
                 and following[0]['surface'] == 'い'
                 and following[1]['lemma'] in ('た', 'ます')):
-            end = polite_suffix_end(tokens, index + 2)
+            end = (polite_suffix_end(tokens, index + 2) if following[1]['lemma'] == 'ます' else index + 2)
+            if end is None:
+                end = index + 2
+                if following[1]['surface'] == 'ませ' and next_matches(tokens, end, 'ぬ', '助動詞', 'ん'):
+                    end += 1
             yield token['span'][0], tokens[end]['span'][1], 'inflected_iru_plus_auxiliary_analysis'
         if (token['surface'] in ('て', 'で') and token['lemma'] in ('てる', 'でる')
                 and token['pos'][:1] == ['助動詞'] and following
                 and token['span'][1] == following[0]['span'][0]
                 and following[0]['lemma'] in ('た', 'ます')):
-            end = polite_suffix_end(tokens, index + 1)
+            end = (polite_suffix_end(tokens, index + 1) if following[0]['lemma'] == 'ます' else index + 1)
+            if end is None:
+                end = index + 1
             yield token['span'][0], tokens[end]['span'][1], 'contracted_inflected_auxiliary_analysis'
 
 

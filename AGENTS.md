@@ -26,14 +26,16 @@ The current code and tests determine actual behavior when a document is stale.
   outputs when they reduce repeated work. Prefer targeted archive queries and
   compact reports, and save verbose corpus-run logs to files. Do not sacrifice
   necessary validation or recall assessment solely to save resources.
-- Never run the full pipeline using source files outside the project directory.
-  If such a run is needed, ask the user to run it and then inspect its output.
-  Full pipeline runs require a curated input corpus agreed with the user in
-  advance.
+- Full pipeline runs require a curated input corpus agreed with the user in
+  advance; source files may be outside the project directory. Before starting,
+  verify the resolved configuration has Anki disabled or in output-only mode.
+  Save verbose output to a log and wait for the process completion signal or
+  exit status before inspecting the run, its log, or its artifacts. Then check
+  the result and report failures. Do not mutate Anki during these runs.
 - Before a task, check whether a script in `scripts/` can perform it. If none
   exists, strongly consider creating a reusable script. In particular, prefer
   reusable scripts for querying and inspecting output, such as searching for a
-  word or other criteria. Avoid long-running work the user can perform and
+  word or other criteria. Avoid unnecessary long-running work and
   avoid lengthy ad hoc code when a single script would suffice.
 - Preserve each existing file's line endings when editing. Avoid line-ending-only
   diffs, and check the diff for unintended newline changes before finishing.

@@ -18,6 +18,34 @@ def next_matches(tokens, index, lemma, pos, surface=None):
             and (surface is None or tokens[index + 1]['surface'] == surface))
 
 
+def polite_suffix_end(tokens, index, *, forms=('positive', 'negative', 'te', 'volitional')):
+    """Return the end of a complete supported ます suffix, or None.
+
+    The caller selects meanings/forms appropriate to its construction.
+    """
+    token = tokens[index]
+    if token['lemma'] != 'ます' or token['pos'][:1] != ['助動詞']:
+        return None
+    surface = token['surface']
+    if surface in ('ます', 'ました') and 'positive' in forms:
+        return index
+    if surface in ('ません', 'ませんでした') and 'negative' in forms:
+        return index
+    if surface in ('ましょう', 'ましょ') and 'volitional' in forms:
+        return index
+    if surface == 'まし':
+        if 'positive' in forms and next_matches(tokens, index, 'た', '助動詞', 'た'):
+            return index + 1
+        if 'te' in forms and next_matches(tokens, index, 'て', '助詞', 'て'):
+            return index + 1
+    if surface == 'ませ' and 'negative' in forms and next_matches(tokens, index, 'ぬ', '助動詞', 'ん'):
+        end = index + 1
+        if next_matches(tokens, end, 'です', '助動詞', 'でし'):
+            return end + 2 if next_matches(tokens, end + 1, 'た', '助動詞', 'た') else None
+        return end
+    return None
+
+
 def positive_verb_end(tokens, index, *, lemma, base_forms, past_stems, polite_stems):
     """Match selected positive finite forms; return the last token index or None.
 
@@ -33,11 +61,7 @@ def positive_verb_end(tokens, index, *, lemma, base_forms, past_stems, polite_st
     if surface in past_stems and next_matches(tokens, index, 'た', '助動詞', 'た'):
         return index + 1
     if surface in polite_stems and next_matches(tokens, index, 'ます', '助動詞'):
-        suffix = tokens[index + 1]['surface']
-        if suffix == 'ます':
-            return index + 1
-        if suffix == 'まし' and next_matches(tokens, index + 1, 'た', '助動詞', 'た'):
-            return index + 2
+        return polite_suffix_end(tokens, index + 1, forms=('positive',))
     return None
 
 
@@ -61,6 +85,34 @@ def negative_suffix_end(tokens, index, *, pos, continuative=False, conditional=F
     return None
 
 
+def adjective_inflection_end(tokens, index, *, lemma, pos, base, past_stem,
+                              continuative_stem, conditional_stem,
+                              forms=('base', 'past', 'continuative', 'negative', 'te', 'conditional')):
+    """Match selected adjective-like forms; return the last token index.
+
+    The caller supplies the adjective's surfaces and selects applicable forms.
+    A match describes morphology only, not the construction's meaning.
+    """
+    token = tokens[index]
+    if token['lemma'] != lemma or token['pos'][:1] != [pos]:
+        return None
+    surface = token['surface']
+    if surface == base and 'base' in forms:
+        return index
+    if surface == past_stem and 'past' in forms:
+        return index + 1 if next_matches(tokens, index, 'た', '助動詞') else None
+    if surface == conditional_stem and 'conditional' in forms:
+        return index + 1 if next_matches(tokens, index, 'ば', '助詞', 'ば') else None
+    if surface == continuative_stem:
+        if 'negative' in forms and next_matches(tokens, index, 'ない', '形容詞'):
+            return negative_suffix_end(tokens, index + 1, pos='形容詞', continuative=True, extended=True)
+        if 'te' in forms and next_matches(tokens, index, 'て', '助詞', 'て'):
+            return index + 1
+        if 'continuative' in forms:
+            return index
+    return None
+
+
 def negative_predicate_end(tokens, index, *, polite_lemma, polite_stems,
                            plain_lemma=None, plain_stems=(), continuative=False, extended=False):
     """Match ない / なかった or a supplied verb's ません / ませんでした.
@@ -77,12 +129,6 @@ def negative_predicate_end(tokens, index, *, polite_lemma, polite_stems,
         return negative_suffix_end(tokens, index, pos='形容詞')
     if (token['lemma'] != polite_lemma or token['pos'][:1] != ['動詞']
             or token['surface'] not in polite_stems
-            or not next_matches(tokens, index, 'ます', '助動詞', 'ませ')
-            or not next_matches(tokens, index + 1, 'ぬ', '助動詞', 'ん')):
+            or not next_matches(tokens, index, 'ます', '助動詞')):
         return None
-    end = index + 2
-    if next_matches(tokens, end, 'です', '助動詞', 'でし'):
-        if not next_matches(tokens, end + 1, 'た', '助動詞', 'た'):
-            return None
-        return end + 2
-    return end
+    return polite_suffix_end(tokens, index + 1, forms=('negative',))

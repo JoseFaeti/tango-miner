@@ -1,8 +1,7 @@
 """Rule for te_iru."""
 from src.GrammarConstants import TE_IRU_GRAMMAR_EXPRESSION
 from src.grammar_rules.base import GrammarRule
-from src.grammar_rules.helpers import has_next, negative_suffix_end
-from src.GrammarShadow import polite_suffix_end
+from src.grammar_rules.helpers import polite_suffix_end, has_next, negative_suffix_end
 
 
 RULE = GrammarRule(
@@ -24,8 +23,6 @@ def match_te_iru(tokens):
             return i + 1
         if suffix['lemma'] == 'ます':
             end = polite_suffix_end(tokens, i + 1)
-            if suffix['surface'] in ('まし', 'ませ') and end == i + 1:
-                return None
             return end
         if suffix['lemma'] == 'ない':
             return negative_suffix_end(tokens, i + 1, pos='助動詞', continuative=True, extended=True)

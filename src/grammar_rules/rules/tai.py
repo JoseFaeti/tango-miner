@@ -1,7 +1,7 @@
 """Rule for tai."""
 from src.GrammarConstants import TAI_GRAMMAR_EXPRESSION
 from src.grammar_rules.base import GrammarRule
-from src.grammar_rules.helpers import adjacent, next_matches, negative_suffix_end
+from src.grammar_rules.helpers import adjacent, next_matches, adjective_inflection_end
 
 
 RULE = GrammarRule(
@@ -19,23 +19,10 @@ def match_tai(tokens):
                 and len(verb['pos']) >= 6 and verb['pos'][5].startswith('連用形')
                 and desire['lemma'] == 'たい' and desire['pos'][:1] == ['助動詞']):
             continue
-        end = i
-        if desire['surface'] == 'たかっ':
-            if not next_matches(tokens, end, 'た', '助動詞'):
-                continue
-            end += 1
-        elif desire['surface'] == 'たく':
-            if next_matches(tokens, end, 'ない', '形容詞'):
-                end = negative_suffix_end(tokens, end + 1, pos='形容詞', continuative=True, extended=True)
-                if end is None:
-                    continue
-            elif next_matches(tokens, end, 'て', '助詞', 'て'):
-                end += 1
-        elif desire['surface'] == 'たけれ':
-            if not next_matches(tokens, end, 'ば', '助詞', 'ば'):
-                continue
-            end += 1
-        elif desire['surface'] != 'たい':
+        end = adjective_inflection_end(
+            tokens, i, lemma='たい', pos='助動詞', base='たい', past_stem='たかっ',
+            continuative_stem='たく', conditional_stem='たけれ')
+        if end is None:
             continue
         if next_matches(tokens, end, 'です', '助動詞', 'です'):
             end += 1
