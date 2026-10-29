@@ -240,6 +240,12 @@ verb or selected passive, potential and causative auxiliaries. It includes
 remain lexical, and adjective negation, polite negatives and merged analyses
 are not covered. Precision and recall have not been evaluated across a corpus.
 
+The `〜ていく` card recognizes supported split verb + connective + いく /
+行く / ゆく forms, including past, negative, polite, て-form and volitional
+forms. It covers movement away and continuing change without distinguishing
+those meanings. Merged expressions and ambiguous contracted `〜てく` remain
+unrecognized; independent precision and recall evaluation remains needed.
+
 The `〜たら` card recognizes the hypothetical auxiliary `たら` / `だら`
 after an adjacent continuative verb, adjective, or auxiliary when another clause
 begins afterward. It covers conditions and events followed by a later outcome;

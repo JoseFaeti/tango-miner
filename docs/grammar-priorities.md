@@ -48,13 +48,17 @@ by source evidence, and preserve ambiguous and useful lexical readings.
   - Remaining: sentence-final and other tokenizations, semantic distinctions,
     and independent precision and recall evaluation.
 
-All eight rules require eligible source examples, cover only supported analyses,
+- [~] 〜ていく — movement away or change continuing onward.
+  - Covered: supported split forms including past, negative, polite, て-form
+    and volitional forms.
+  - Remaining: merged expressions and ambiguous 〜てく; evaluate precision and recall.
+
+All nine rules require eligible source examples, cover only supported analyses,
 and need independent precision and recall evaluation. See the
 [grammar card details](grammar-shadow-prototype.md#grammar-cards).
 
 ## Next candidates
 
-- [ ] 〜ていく — movement away or change continuing onward; include 〜てく where distinguishable.
 - [ ] 〜ことがある — experience or occasional occurrence; distinguish meanings.
 - [ ] 〜ように — purpose, manner or instruction; distinguish meanings and lexical uses.
 - [ ] 〜と思う — thought or intention; retain lexical 思う.
