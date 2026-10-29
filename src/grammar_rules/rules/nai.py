@@ -1,7 +1,7 @@
 """Source-aligned verbal negative auxiliary."""
 from src.GrammarConstants import NAI_GRAMMAR_EXPRESSION
 from src.grammar_rules.base import GrammarRule
-from src.grammar_rules.helpers import adjacent, next_matches
+from src.grammar_rules.helpers import adjacent, negative_suffix_end
 
 
 RULE = GrammarRule(
@@ -24,15 +24,7 @@ def match_nai(tokens):
                 (previous['pos'][:1] == ['助動詞'] and
                  previous['lemma'] in ('れる', 'られる', 'せる', 'させる'))):
             continue
-        end = i
-        if negative['surface'] == 'なかっ':
-            if not next_matches(tokens, end, 'た', '助動詞', 'た'):
-                continue
-            end += 1
-        elif negative['surface'] == 'なけれ':
-            if not next_matches(tokens, end, 'ば', '助詞', 'ば'):
-                continue
-            end += 1
-        elif negative['surface'] not in ('ない', 'なく'):
+        end = negative_suffix_end(tokens, i, pos='助動詞', continuative=True, conditional=True)
+        if end is None:
             continue
         yield negative['span'][0], tokens[end]['span'][1]

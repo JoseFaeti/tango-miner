@@ -2,7 +2,7 @@
 from src.GrammarConstants import TE_IKU_GRAMMAR_EXPRESSION
 from src.GrammarShadow import polite_suffix_end
 from src.grammar_rules.base import GrammarRule
-from src.grammar_rules.helpers import adjacent, next_matches
+from src.grammar_rules.helpers import adjacent, next_matches, negative_predicate_end
 
 
 RULE = GrammarRule(
@@ -42,13 +42,11 @@ def match_te_iku(tokens):
             else:
                 continue
         elif surface in ('いか', '行か', 'ゆか'):
-            if not next_matches(tokens, end, 'ない', '助動詞'):
+            end = negative_predicate_end(tokens, end, polite_lemma=iku['lemma'],
+                                         polite_stems=(), plain_lemma=iku['lemma'],
+                                         plain_stems={surface}, continuative=True, extended=True)
+            if end is None:
                 continue
-            end += 1
-            if tokens[end]['surface'] == 'なかっ':
-                if not next_matches(tokens, end, 'た', '助動詞'):
-                    continue
-                end += 1
         else:
             continue
         yield connective['span'][0], tokens[end]['span'][1]

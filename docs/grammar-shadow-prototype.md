@@ -249,7 +249,10 @@ unrecognized; independent precision and recall evaluation remains needed.
 The `〜ことがある` card recognizes a non-past verb with `時々`, `ときどき`,
 `たまに`, `偶に`, `時には` or `ときには` within the preceding 20 tokens,
 stopping at sentence or quotation boundaries. It accepts merged `ことがある`
-and split positive present, past and polite forms through `ことがありました`. A targeted replay found an existing-matter
+and split positive present, past and polite forms through `ことがありました`; negative experience includes merged
+`ことがない` and split `ことがなかった`, `ことがありません` and
+`ことがありませんでした`. Negative forms can still have nominal readings.
+A targeted replay found an existing-matter
 reading in `いなくなってわかったことがあった`; that observed context is
 left lexical. Other similar ambiguities remain unresolved.
 It reserves only the construction, leaving the verb and cue eligible. A cue
@@ -260,16 +263,26 @@ does not apply expression precedence or example eligibility, and is not an
 independent precision or recall evaluation. Dictionary expression precedence
 applies during a normal run. The shared `positive_verb_end` helper recognizes
 only explicitly supplied verb forms; each rule must choose its own supported
-inflections and semantic constraints.
+inflections and semantic constraints. The shared `negative_predicate_end`
+helper supports selected plain and polite negative forms. The shared negative
+suffix matcher is also used by verbal negation, desire, explanatory, aspect,
+direction and completion rules. Rules explicitly choose supported forms and
+continue to handle their own contractions and meanings. These rules retain
+previously recognized conditional, colloquial and dialectal negative token
+boundaries, including some partial spans; they do not claim full construction
+coverage or resolve lexical expression ambiguity.
 
 The `〜たことがある` card recognizes a continuative verb and past auxiliary
 followed by merged `ことがある` or split positive present, past and polite
-forms through `ことがありました`. A targeted replay found an existing-matter
+forms through `ことがありました`; negative experience includes merged
+`ことがない` and split `ことがなかった`, `ことがありません` and
+`ことがありませんでした`. Negative forms can still have nominal readings.
+A targeted replay found an existing-matter
 reading in `いなくなってわかったことがあった`; that observed context is
 left lexical. Other similar ambiguities remain unresolved.
 It describes past experience and reserves the `ことがある` portion while
-retaining the verb and past auxiliary. Negative experience and other inflections
-are not yet classified by this rule; ordinary nominal `こと`
+retaining the verb and past auxiliary. Unsupported inflections remain outside
+this rule; ordinary nominal `こと`
 and existence uses remain eligible for lexical processing. Precision and recall
 have not been independently evaluated. The observed `困ったことがあるなら`
 problem-expression context and observed `言い忘れたことがあるわ` are left

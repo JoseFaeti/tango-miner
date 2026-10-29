@@ -1,7 +1,7 @@
 """Rule for nda."""
 from src.GrammarConstants import NDA_GRAMMAR_EXPRESSION
 from src.grammar_rules.base import GrammarRule
-from src.grammar_rules.helpers import adjacent
+from src.grammar_rules.helpers import adjacent, negative_suffix_end, negative_predicate_end
 
 
 RULE = GrammarRule(
@@ -57,27 +57,15 @@ def match_nda(tokens):
                 continue
             word = tokens[j]
             if word['lemma'] == 'ない' and word['pos'][:1] == ['形容詞']:
-                end = j
-                if word['surface'] == 'なかっ':
-                    if (j + 1 >= len(tokens) or not adjacent(word, tokens[j + 1])
-                            or tokens[j + 1]['lemma'] != 'た'
-                            or tokens[j + 1]['pos'][:1] != ['助動詞']):
-                        continue
-                    end += 1
+                end = negative_suffix_end(tokens, j, pos='形容詞', continuative=True, extended=True)
+                if end is None:
+                    continue
             elif word['lemma'] == 'ある' and word['pos'][:1] == ['動詞']:
                 end = j
-                if (j + 2 < len(tokens) and adjacent(word, tokens[j + 1])
-                        and adjacent(tokens[j + 1], tokens[j + 2])
-                        and tokens[j + 1]['lemma'] == 'ます' and tokens[j + 1]['surface'] == 'ませ'
-                        and tokens[j + 2]['lemma'] == 'ぬ' and tokens[j + 2]['surface'] == 'ん'):
-                    end = j + 2
-                    if (end + 2 < len(tokens) and adjacent(tokens[end], tokens[end + 1])
-                            and adjacent(tokens[end + 1], tokens[end + 2])
-                            and tokens[end + 1]['lemma'] == 'です' and tokens[end + 1]['surface'] == 'でし'
-                            and tokens[end + 2]['lemma'] == 'た'):
-                        end += 2
-                elif word['surface'] != 'ある':
-                    continue
+                if word['surface'] != 'ある':
+                    end = negative_predicate_end(tokens, j, polite_lemma='ある', polite_stems={'あり'})
+                    if end is None:
+                        continue
             else:
                 continue
         elif surface not in ('だ', 'です', 'だろう', 'でしょう', 'でしょ'):

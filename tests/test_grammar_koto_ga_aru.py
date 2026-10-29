@@ -17,10 +17,17 @@ class ExperienceTests(unittest.TestCase):
         cases = {'日本へ行ったことがある。': 'ことがある',
                  '本を読んだことがあります。': 'ことがあります',
                  '雨が降ることがある。': None, 'そんなことがあった。': None,
-                 '行ったことがない。': None, '食べたことがあった。': 'ことがあった',
+                 '行ったことがない。': 'ことがない',
+                 '日本へ行ったことがなかった。': 'ことがなかった',
+                 '日本へ行ったことがありません。': 'ことがありません',
+                 '日本へ行ったことがありませんでした。': 'ことがありませんでした',
+                 'わしはブーメランを見たことがない。': 'ことがない',
+                 'やることがないなら宿屋へ。': None,
+                 '聞きたいことがない。': None,
+                 '食べたことがあった。': 'ことがあった',
                  '日本に行ったことがありました。': 'ことがありました',
                  'どこかで見たことがあったと思ったら。': 'ことがあった',
-                 '行ったことがありません。': None,
+                 '行ったことがありません。': 'ことがありません',
                  '困ったことがあったら相談して。': None,
                  '言い忘れたことがあったわ。': None,
                  'アークがいなくなってわかったことがあった。': None,
@@ -39,6 +46,47 @@ class ExperienceTests(unittest.TestCase):
                 self.assertIsNone(error)
                 self.assertEqual([text[a:b] for a, b in match_experience(aligned)],
                                  [] if expected is None else [expected])
+
+    def test_negative_reservation_keeps_verb_and_lexical_control(self):
+        verb = ('動詞', '一般', '*', '*', '五段', '連用形-促音便')
+        matched = sentence('まだ本を読んだことがない。', [
+            tok('まだ本を', '本', ('名詞',)), tok('読ん', '読む', verb),
+            tok('だ', 'だ', ('助動詞',)), tok('ことがない', 'ことがない', ('形容詞',)),
+            tok('。', '。', ('補助記号',))])
+        lexical = sentence('聞きたいことがない。', [
+            tok('聞き', '聞く', verb), tok('たい', 'たい', ('助動詞',)),
+            tok('ことがない', 'ことがない', ('形容詞',)), tok('。', '。', ('補助記号',))])
+        stage = GrammarStep(rules=(RULE,))
+        data = ExcludeGrammarTokensStep(stage).process(stage.process(Artifact([matched, lexical])))
+        self.assertEqual([t['surface'] for t in data.data[0].tokens if t.get('grammar_reserved')], ['ことがない'])
+        self.assertFalse(any(t.get('grammar_reserved') for t in data.data[1].tokens))
+        words = {'読む': object()}
+        stage.add_cards(words)
+        self.assertIn('読む', words)
+        self.assertIn('negative', words[RULE.expression].definition)
+
+    def test_shared_negative_helper_accepts_opted_in_verb_stems(self):
+        from src.grammar_rules.helpers import negative_predicate_end
+        tokens = [dict(surface='いか', lemma='いく', pos=['動詞'], span=[0, 2]),
+                  dict(surface='なかっ', lemma='ない', pos=['助動詞'], span=[2, 5]),
+                  dict(surface='た', lemma='た', pos=['助動詞'], span=[5, 6])]
+        args = dict(polite_lemma='いく', polite_stems={'いき'},
+                    plain_lemma='いく', plain_stems={'いか'})
+        self.assertEqual(negative_predicate_end(tokens, 0, **args), 2)
+        self.assertIsNone(negative_predicate_end(tokens[:-1], 0, **args))
+        self.assertIsNone(negative_predicate_end(tokens, 0, polite_lemma='いく', polite_stems={'いき'}))
+
+    def test_incomplete_negative_suffix_is_not_reserved(self):
+        from src.grammar_rules.helpers import negative_predicate_end
+        tokens = [dict(surface='あり', lemma='ある', pos=['動詞'], span=[0, 2]),
+                  dict(surface='ませ', lemma='ます', pos=['助動詞'], span=[2, 4]),
+                  dict(surface='ん', lemma='ぬ', pos=['助動詞'], span=[4, 5]),
+                  dict(surface='でし', lemma='です', pos=['助動詞'], span=[5, 7])]
+        self.assertIsNone(negative_predicate_end(tokens, 0, polite_lemma='ある', polite_stems={'あり'}))
+        tokens.pop()
+        self.assertEqual(negative_predicate_end(tokens, 0, polite_lemma='ある', polite_stems={'あり'}), 2)
+        tokens[2]['span'] = [5, 6]
+        self.assertIsNone(negative_predicate_end(tokens, 0, polite_lemma='ある', polite_stems={'あり'}))
 
     def test_problem_expression_remains_unreserved_when_other_match_is_active(self):
         problem = sentence('困ったことがあるなら相談して。', [

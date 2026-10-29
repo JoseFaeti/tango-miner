@@ -1,13 +1,14 @@
 """Past experience expressed by a verb + たことがある."""
 from src.GrammarConstants import KOTO_GA_ARU_EXPERIENCE
 from src.grammar_rules.base import GrammarRule
-from src.grammar_rules.helpers import adjacent, next_matches, positive_verb_end
+from src.grammar_rules.helpers import adjacent, next_matches, positive_verb_end, negative_predicate_end
 
 
 RULE = GrammarRule(
     id='koto_ga_aru_experience', expression=KOTO_GA_ARU_EXPERIENCE,
     reading='たことがある',
-    meaning='Grammar: verb past form + ことがある describes having experienced an action.',
+    meaning=('Grammar: verb past form + ことがある describes having experienced an action; '
+             'negative forms such as ことがない describe never having experienced it.'),
     match=lambda tokens: match_experience(tokens),
 )
 
@@ -21,14 +22,19 @@ def match_experience(tokens):
                 or past['pos'][:1] != ['助動詞']
                 or not adjacent(verb, past) or not adjacent(past, koto)):
             continue
-        if koto['surface'] == 'ことがある' and koto['lemma'] == 'ことがある':
+        if ((koto['surface'] == 'ことがある' and koto['lemma'] == 'ことがある')
+                or (koto['surface'] == 'ことがない' and koto['lemma'] == 'ことがない'
+                    and koto['pos'][:1] == ['形容詞'])):
             end = i
         elif (koto['surface'] == 'こと' and koto['pos'][:1] == ['名詞']
               and next_matches(tokens, i, 'が', '助詞', 'が')
-              and next_matches(tokens, i + 1, 'ある', '動詞')):
+              and i + 2 < len(tokens) and adjacent(tokens[i + 1], tokens[i + 2])):
             end = positive_verb_end(tokens, i + 2, lemma='ある',
                                     base_forms={'ある'}, past_stems={'あっ'},
                                     polite_stems={'あり'})
+            if end is None:
+                end = negative_predicate_end(tokens, i + 2, polite_lemma='ある',
+                                             polite_stems={'あり'})
             if end is None:
                 continue
         else:

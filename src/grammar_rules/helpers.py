@@ -39,3 +39,50 @@ def positive_verb_end(tokens, index, *, lemma, base_forms, past_stems, polite_st
         if suffix == 'まし' and next_matches(tokens, index + 1, 'た', '助動詞', 'た'):
             return index + 2
     return None
+
+
+def negative_suffix_end(tokens, index, *, pos, continuative=False, conditional=False, extended=False):
+    """Return the end of a supported negative suffix, requiring complete forms."""
+    token = tokens[index]
+    if token['lemma'] != 'ない' or token['pos'][:1] != [pos]:
+        return None
+    surface = token['surface']
+    if surface == 'ない' or (continuative and surface == 'なく'):
+        return index
+    if surface == 'なかっ' and (next_matches(tokens, index, 'た', '助動詞', 'た')
+                                 or (extended and next_matches(tokens, index, 'た', '助動詞'))):
+        return index + 1
+    if extended and surface == 'なくっ':
+        return index + 1 if next_matches(tokens, index, 'て', '助詞', 'て') else None
+    if (conditional or extended) and surface == 'なけれ':
+        return index + 1 if next_matches(tokens, index, 'ば', '助詞', 'ば') else None
+    if extended and surface in ('なきゃ', 'なけりゃ', 'なかろう', 'んかっ', 'な'):
+        return index
+    return None
+
+
+def negative_predicate_end(tokens, index, *, polite_lemma, polite_stems,
+                           plain_lemma=None, plain_stems=(), continuative=False, extended=False):
+    """Match ない / なかった or a supplied verb's ません / ませんでした.
+
+    Return the final token index, or None for unsupported or incomplete forms.
+    Callers are responsible for validating the surrounding construction.
+    """
+    token = tokens[index]
+    if (token['lemma'] == plain_lemma and token['pos'][:1] == ['動詞']
+            and token['surface'] in plain_stems
+            and next_matches(tokens, index, 'ない', '助動詞')):
+        return negative_suffix_end(tokens, index + 1, pos='助動詞', continuative=continuative, extended=extended)
+    if token['lemma'] == 'ない' and token['pos'][:1] == ['形容詞']:
+        return negative_suffix_end(tokens, index, pos='形容詞')
+    if (token['lemma'] != polite_lemma or token['pos'][:1] != ['動詞']
+            or token['surface'] not in polite_stems
+            or not next_matches(tokens, index, 'ます', '助動詞', 'ませ')
+            or not next_matches(tokens, index + 1, 'ぬ', '助動詞', 'ん')):
+        return None
+    end = index + 2
+    if next_matches(tokens, end, 'です', '助動詞', 'でし'):
+        if not next_matches(tokens, end + 1, 'た', '助動詞', 'た'):
+            return None
+        return end + 2
+    return end

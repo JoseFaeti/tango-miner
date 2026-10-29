@@ -1,7 +1,7 @@
 """Rule for te_iru."""
 from src.GrammarConstants import TE_IRU_GRAMMAR_EXPRESSION
 from src.grammar_rules.base import GrammarRule
-from src.grammar_rules.helpers import has_next
+from src.grammar_rules.helpers import has_next, negative_suffix_end
 from src.GrammarShadow import polite_suffix_end
 
 
@@ -28,12 +28,7 @@ def match_te_iru(tokens):
                 return None
             return end
         if suffix['lemma'] == 'ない':
-            if suffix['surface'] == 'なかっ':
-                if (not has_next(tokens, i + 1) or tokens[i + 2]['lemma'] != 'た'
-                        or tokens[i + 2]['pos'][:1] != ['助動詞']):
-                    return None
-                return i + 2
-            return i + 1
+            return negative_suffix_end(tokens, i + 1, pos='助動詞', continuative=True, extended=True)
         return None
 
     for i in range(1, len(tokens)):
@@ -62,12 +57,7 @@ def match_te_iru(tokens):
                 elif iru['surface'] in ('い', '居'):
                     end = suffix_end(i + 1)
             elif (iru['lemma'] == 'ない' and iru['pos'][:2] == ['形容詞', '非自立可能']):
-                end = i + 1
-                if iru['surface'] == 'なかっ':
-                    if (not has_next(tokens, end) or tokens[end + 1]['lemma'] != 'た'
-                            or tokens[end + 1]['pos'][:1] != ['助動詞']):
-                        continue
-                    end += 1
+                end = negative_suffix_end(tokens, i + 1, pos='形容詞', continuative=True, extended=True)
             elif (iru['surface'] in ('ません', 'ませんでした')
                   and iru['pos'][:1] in (['接尾辞'], ['名詞'])):
                 end = i + 1

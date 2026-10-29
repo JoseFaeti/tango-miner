@@ -1,7 +1,7 @@
 """Rule for tai."""
 from src.GrammarConstants import TAI_GRAMMAR_EXPRESSION
 from src.grammar_rules.base import GrammarRule
-from src.grammar_rules.helpers import adjacent, next_matches
+from src.grammar_rules.helpers import adjacent, next_matches, negative_suffix_end
 
 
 RULE = GrammarRule(
@@ -26,11 +26,9 @@ def match_tai(tokens):
             end += 1
         elif desire['surface'] == 'たく':
             if next_matches(tokens, end, 'ない', '形容詞'):
-                end += 1
-                if tokens[end]['surface'] == 'なかっ':
-                    if not next_matches(tokens, end, 'た', '助動詞'):
-                        continue
-                    end += 1
+                end = negative_suffix_end(tokens, end + 1, pos='形容詞', continuative=True, extended=True)
+                if end is None:
+                    continue
             elif next_matches(tokens, end, 'て', '助詞', 'て'):
                 end += 1
         elif desire['surface'] == 'たけれ':

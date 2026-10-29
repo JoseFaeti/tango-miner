@@ -55,8 +55,9 @@ by source evidence, and preserve ambiguous and useful lexical readings.
 
 - [~] 〜たことがある — past experience.
   - Covered: verb + past auxiliary followed by merged ことがある or split
-    こと + が + positive present, past and polite forms through ありました.
-  - Remaining: other inflections and tokenizations, negative experience, and
+    こと + が + positive and negative present, past and polite forms,
+    including merged ことがない.
+  - Remaining: other inflections and tokenizations, nominal ambiguity, and
     independent precision and recall evaluation. Non-past occasional occurrence
     is handled separately and can also describe an existing matter.
 
@@ -69,6 +70,41 @@ by source evidence, and preserve ambiguous and useful lexical readings.
 All eleven rules require eligible source examples, cover only supported analyses,
 and need independent precision and recall evaluation. See the
 [grammar card details](grammar-shadow-prototype.md#grammar-cards).
+
+## Shared inflection improvements
+
+Prioritize these cross-rule improvements using observed source tokenizations.
+Shared matching should let each construction choose applicable forms and meanings;
+a successful morphological match does not by itself establish the intended
+interpretation.
+
+1. [ ] Recognize complete conditional and colloquial negative sequences. Some
+   restored matches retain partial spans, such as `〜なくっ` within `〜なくって`.
+   Evaluate complete forms including `〜なきゃ` and `〜なかったら` for
+   `〜ている`, `〜ていく`, `〜てくる`, `〜たい` and `〜んだ`, preserving
+   independently useful lexical expressions and construction-specific boundaries.
+   The shared matcher now consumes observed `なくっ` + `て` and split
+   `なけれ` + `ば` completely; incomplete stems are rejected. Existing
+   `なきゃ` and `なかったら` coverage is tested across selected rules.
+   Sudachi’s `なくっ` + `た` + `ってな` analysis remains unsupported, and
+   corpus-wide effects on precedence, frequencies and Anki plans are unverified.
+2. [ ] Extend shared positive verb inflection handling for observed stem and
+   tokenization patterns used by `〜ていく`, `〜てくる` and `〜てしまう`.
+   These rules already cover many common past and polite forms; moving existing
+   logic alone is a refactor, not evidence of improved coverage.
+3. [ ] Consolidate and extend polite-suffix handling for supported `ます`,
+   `ました`, `ません` and `ませんでした` tokenizations. The existing
+   `polite_suffix_end` helper resides in the shadow module; assess shared use
+   and retain construction-specific constraints and incomplete-form controls.
+4. [ ] Add reusable adjective-like inflection handling for forms such as
+   `〜たかった`, `〜たくない` and `〜たければ`, supporting `〜たい`
+   and future applicable constructions without conflating their meanings.
+
+For each change, inspect archived source examples, test positive and negative
+forms and useful lexical controls, and compare old and new matches and reserved
+spans. Assess expression precedence, candidate frequencies, examples and Anki
+plans; a larger count alone is not a recall or precision evaluation. Run the
+pipeline test suite and record remaining ambiguity and partial coverage.
 
 ## Next candidates
 
