@@ -9,8 +9,18 @@ and [remaining candidates](docs/grammar/remaining-candidates.md) guide future wo
 
 ## Getting started
 
-1. Install Python, SudachiPy, the Sudachi full dictionary and `appdirs`, and
-   obtain a JMdict XML file. Configure its path in `config.toml`.
+1. Install Python 3.11 or newer (including its `venv` module), then run:
+
+   ```sh
+   ./setup.sh
+   . .venv/bin/activate
+   ```
+
+   The script installs the Python dependencies and the Sudachi full dictionary
+   into `.venv`. Set `PYTHON` to choose a Python executable or `VENV_DIR` to
+   choose a different virtual environment directory. Obtain a JMdict English
+   XML file separately (available from [EDRDG](https://www.edrdg.org/wiki/index.php/JMdict-EDICT_Dictionary_Project))
+   and set `[dictionary]` `jmdict_path` in `config.toml` to its uncompressed path.
 2. Check `config.toml` and `sudachi.config.json`. The current baseline uses the
    full Sudachi system dictionary without a user dictionary. Set `[anki]`
    `enabled = false` for a CSV-only run, or `output_only = true` for a preview.

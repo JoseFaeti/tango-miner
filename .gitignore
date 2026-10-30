@@ -16,3 +16,6 @@ checks/*
 
 # Archived pipeline output
 runs/
+
+# Local Python environment
+.venv/
