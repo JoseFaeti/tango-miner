@@ -535,6 +535,7 @@ def combine_tokens_jmdict(
                   for i, token in enumerate(token_list)]
     merged_tokens = []
     n = len(token_list)
+    surfaces = [token["surface"] for token in token_list]
     # Each candidate range stops before the next reserved token. Compute that
     # boundary once instead of scanning every overlapping candidate slice.
     next_reserved = [n] * n
@@ -554,7 +555,7 @@ def combine_tokens_jmdict(
         for j in range(min(n, i + max_lookahead), i + 1, -1):
             if j > next_reserved[i]:
                 continue
-            combined_surface = "".join(token["surface"] for token in token_list[i:j])
+            combined_surface = "".join(surfaces[i:j])
             # A merged card must be grounded in the text the learner will see.
             # Matching a concatenation of dictionary lemmas can invent an
             # unrelated word from inflected or grammatical tokens: for example,

@@ -79,6 +79,8 @@ class GrammarReservationTests(unittest.TestCase):
         class Entries:
             def __init__(self):
                 self.calls = 0
+            def lookup_word(self, word):
+                return []
             def get_best_entry(self, word):
                 self.calls += 1
                 return {'word': word} if word == '表現' else None

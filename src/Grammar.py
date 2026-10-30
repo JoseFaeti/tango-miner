@@ -24,6 +24,7 @@ class _PrecedenceDictionary:
     """Reuse immutable JMdict entry selection within one grammar invocation."""
     def __init__(self, dictionary):
         self._dictionary = dictionary
+        self.lookup_word = dictionary.lookup_word
         self.get_best_entry = lru_cache(maxsize=8192)(dictionary.get_best_entry)
 
     def __getattr__(self, name):

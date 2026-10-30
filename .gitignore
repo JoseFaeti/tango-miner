@@ -6,6 +6,7 @@ scripts/*
 checks/*
 !scripts/inspect_run.py
 !scripts/report_performance.py
+!scripts/benchmark_snapshot_payload.py
 !scripts/query_jsonl.py
 !scripts/replay_grammar.py
 !scripts/profile_grammar_rules.py

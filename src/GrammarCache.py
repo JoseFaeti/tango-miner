@@ -87,7 +87,11 @@ class GrammarCache:
                         step.prefer_expressions, step.max_lookahead, step.max_examples,
                         _input_key_data(artifact.data, progress=lambda done, total: step.progress(done, total, 'Preparing cache key'))]
             step.progress(0, 1, 'Hashing cache key')
-            key = hashlib.sha256(_bytes(key_data)).hexdigest()
+            # ASCII escaping lets the JSON encoder produce bytes more cheaply
+            # on Japanese text; it preserves the complete key data exactly.
+            key_bytes = json.dumps(key_data, ensure_ascii=True, separators=(',', ':'),
+                                   allow_nan=False).encode('ascii')
+            key = hashlib.sha256(key_bytes).hexdigest()
         except (OSError, TypeError, ValueError, KeyError, AttributeError, RecursionError) as exc:
             stats['disabled_reason'] = str(exc) or 'cache key unavailable'
             key = None

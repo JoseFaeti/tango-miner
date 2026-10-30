@@ -107,3 +107,40 @@ a corpus-wide estimate; the profile includes streams without grammar proposals.
 Both grammar and merge caches invalidate because their dependencies include
 the merger. String joining and dictionary lookup remain visible costs; measure
 those on proposal-bearing current-baseline inputs before changing merge logic.
+
+## Proposal-bearing merge profile
+
+A bounded sample of 7,287 current-tokenizer source lines included 1,626
+with a grammar proposal. Profiling those merges showed repeated string
+construction and dictionary-proxy attribute resolution. The merger now
+prepares token surfaces once, and grammar precedence binds dictionary lookup
+once per invocation. Three paired measurements on these proposal-bearing
+streams took 0.345--0.379 seconds before and 0.245--0.317 seconds after,
+with identical merged tokens and rejected-merge diagnostics. The sample was
+selected from a few source files and is not a corpus-wide speedup estimate.
+Both grammar and merge caches invalidate because the merger changed. The
+remaining large measured phases are rule matching and grammar cache-key
+preparation; compare the next completed run before prioritizing either.
+
+## Grammar-key JSON encoding
+
+On a bounded sample made by repeating current-tokenizer lines from six input
+files, four measurements of encoding and hashing the same input-key data
+took 0.223--0.225 seconds with UTF-8 JSON and 0.198--0.213 seconds with
+ASCII-escaped JSON. The latter produced about 16.1 MB instead of 12.3 MB, so
+it trades additional memory and hashing bytes for faster encoding. Grammar
+keys now use this representation; all source data remains included. The
+grammar source fingerprint changes, so existing grammar entries miss once.
+These measurements are sequential and bounded, not an end-to-end estimate.
+
+## Further rule matching: te iku
+
+The `te_iku` matcher now checks the motion-verb lemma and connective before
+boundary and predicate checks, as the `te_kuru` matcher already does. A
+paired check on 7,287 current-tokenizer sentences from eight source files
+preserved all 50 match spans. Three measurements took 0.0427--0.0434 seconds
+before and 0.0181--0.0491 seconds after; the first updated measurement was
+0.0491 seconds, so this small sample does not establish a corpus-wide gain.
+Existing supported forms, lexical controls and reservation tests pass. This
+rule change invalidates the grammar cache fingerprint once. Profile remaining
+matching costs on current-baseline inputs before selecting the next rule.

@@ -1,4 +1,5 @@
 import tempfile
+from dataclasses import replace
 import unittest
 from pathlib import Path
 from unittest.mock import patch
@@ -84,6 +85,31 @@ class GrammarCacheTests(unittest.TestCase):
             self.assertEqual(step.cache_stats['misses'], 1)
             cache.process(step, Artifact(fixture('別の文。')))
             self.assertEqual(step.cache_stats['misses'], 1)
+
+    def test_input_identity_changes_invalidate_grammar_cache(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            cache = StageCache(tmp, {})
+            original = fixture()
+            step = GrammarStep()
+            cache.process(step, Artifact(original))
+            cache.process(step, Artifact(fixture()))
+            self.assertEqual(step.cache_stats['hits'], 1)
+            for change in ('text', 'tag', 'origin', 'lemma', 'pos_type'):
+                with self.subTest(change=change):
+                    changed = fixture()
+                    source = changed[0]
+                    if change == 'text':
+                        changed[0] = replace(source, text=source.text + '。')
+                    elif change == 'tag':
+                        changed[0] = replace(source, tag='別のタグ')
+                    elif change == 'origin':
+                        changed[0] = replace(source, origin=Path('別.txt'))
+                    elif change == 'lemma':
+                        source.tokens[0]['lemma'] = '別'
+                    else:
+                        source.tokens[0]['pos'] = list(source.tokens[0]['pos'])
+                    cache.process(step, Artifact(changed))
+                    self.assertEqual(step.cache_stats['misses'], 1)
 
     def test_dictionary_and_source_fingerprints_invalidate(self):
         with tempfile.TemporaryDirectory() as tmp:

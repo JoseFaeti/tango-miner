@@ -30,6 +30,10 @@ stated scope and validated. Partial items identify the remaining work.
 - [ ] Compare instrumented and uninstrumented behavior and timings on a bounded
   representative fixture. Full pipeline runs require a corpus agreed with the
   user and Anki disabled or output-only.
+- [ ] Design and measure an unchanged-run fast path. On a validated identity
+  match, restore a complete deterministic result snapshot and skip intermediate
+  mining stages; on any uncertainty or mismatch, fall back to normal stage
+  execution and caches. See [unchanged-run reuse](unchanged-run-reuse.md).
 - [ ] Add phase measurements to other steps when a concrete performance
   question warrants them; avoid collecting per-function or per-sentence traces.
 

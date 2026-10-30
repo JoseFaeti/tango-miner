@@ -14,13 +14,13 @@ RULE = GrammarRule(
 def match_te_iku(tokens):
     for i in range(1, len(tokens) - 1):
         verb, connective, iku = tokens[i - 1:i + 2]
-        if (not adjacent(verb, connective) or not adjacent(connective, iku)
-                or verb['pos'][:1] not in (['動詞'], ['助動詞'])
-                or len(verb['pos']) < 6 or not verb['pos'][5].startswith('連用形')
+        if (iku['lemma'] not in ('いく', '行く', 'ゆく')
+                or iku['pos'][:2] != ['動詞', '非自立可能']
                 or connective['surface'] not in ('て', 'で')
                 or connective['pos'][:2] != ['助詞', '接続助詞']
-                or iku['lemma'] not in ('いく', '行く', 'ゆく')
-                or iku['pos'][:2] != ['動詞', '非自立可能']):
+                or not adjacent(verb, connective) or not adjacent(connective, iku)
+                or verb['pos'][:1] not in (['動詞'], ['助動詞'])
+                or len(verb['pos']) < 6 or not verb['pos'][5].startswith('連用形')):
             continue
         end = i + 1
         surface = iku['surface']
