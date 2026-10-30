@@ -6,8 +6,7 @@ from src.grammar_rules.helpers import adjacent, negative_suffix_end, negative_pr
 
 RULE = GrammarRule(
     id='explanatory_nda', expression=NDA_GRAMMAR_EXPRESSION, reading='んだ',
-    meaning=('Grammar: explanatory んだ. Presents a statement as an explanation '
-             'or emphasizes its relevance to the situation; nuance depends on context.'),
+    meaning='it is that; the reason is; (adds explanation or emphasis)',
     match=lambda tokens: match_nda(tokens),
 )
 

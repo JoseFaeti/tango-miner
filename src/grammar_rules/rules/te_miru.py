@@ -35,7 +35,6 @@ def match_te_miru(tokens):
 
 RULE = GrammarRule(
     id='te_miru', expression=TE_MIRU_GRAMMAR_EXPRESSION, reading='てみる',
-    meaning=('Grammar: verb て-form + みる expresses trying an action to see what happens; '
-             'some contexts can retain a literal “see” reading.'),
+    meaning='try doing; have a go at; do and see what happens',
     match=match_te_miru,
 )

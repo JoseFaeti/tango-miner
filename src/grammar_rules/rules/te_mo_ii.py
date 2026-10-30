@@ -32,7 +32,6 @@ def match_te_mo_ii(tokens):
 
 RULE = GrammarRule(
     id='te_mo_ii', expression=TE_MO_II_GRAMMAR_EXPRESSION, reading='てもいい',
-    meaning=('Grammar: verb て-form + もいい expresses permission or acceptance; '
-             'context can also imply concession.'),
+    meaning='may; can; it is all right to; even if',
     match=match_te_mo_ii,
 )

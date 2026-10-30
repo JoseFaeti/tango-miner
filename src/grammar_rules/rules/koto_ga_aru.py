@@ -7,8 +7,7 @@ from src.grammar_rules.helpers import adjacent, next_matches, positive_verb_end,
 RULE = GrammarRule(
     id='koto_ga_aru_experience', expression=KOTO_GA_ARU_EXPERIENCE,
     reading='たことがある',
-    meaning=('Grammar: verb past form + ことがある describes having experienced an action; '
-             'negative forms such as ことがない describe never having experienced it.'),
+    meaning='have done before; have experienced doing; (negative) have never done',
     match=lambda tokens: match_experience(tokens),
 )
 

@@ -6,9 +6,7 @@ from src.grammar_rules.helpers import polite_suffix_end, has_next, next_matches,
 
 RULE = GrammarRule(
     id='te_shimau', expression=TE_SHIMAU_GRAMMAR_EXPRESSION, reading='てしまう',
-    meaning=('Grammar: verb て-form + しまう can express completion or an '
-             'unintended or regrettable outcome; context determines the nuance. '
-             'Colloquial forms include ちゃう and じゃう.'),
+    meaning='finish doing; do completely; do unintentionally or with regret',
     match=lambda tokens: match_te_shimau(tokens),
 )
 

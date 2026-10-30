@@ -6,8 +6,7 @@ from src.grammar_rules.helpers import adjacent, negative_suffix_end
 
 RULE = GrammarRule(
     id='verbal_nai', expression=NAI_GRAMMAR_EXPRESSION, reading='ない',
-    meaning=('Grammar: the negative auxiliary ない attaches to a verb in its '
-             'irrealis form to negate the action or state.'),
+    meaning='not; do not; does not',
     match=lambda tokens: match_nai(tokens),
 )
 

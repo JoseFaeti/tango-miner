@@ -6,8 +6,7 @@ from src.grammar_rules.helpers import polite_suffix_end, has_next, negative_suff
 
 RULE = GrammarRule(
     id='te_iru', expression=TE_IRU_GRAMMAR_EXPRESSION, reading='ている',
-    meaning=('Grammar: verb て-form + いる. Can describe an ongoing action, '
-             'a resulting state, or a habitual action, depending on context.'),
+    meaning='be doing; be in a resulting state; do habitually',
     match=lambda tokens: match_te_iru(tokens),
 )
 

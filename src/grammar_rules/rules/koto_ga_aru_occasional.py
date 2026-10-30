@@ -7,7 +7,7 @@ from src.grammar_rules.helpers import adjacent, next_matches, positive_verb_end
 RULE = GrammarRule(
     id='koto_ga_aru_occasional', expression=KOTO_GA_ARU_OCCASIONAL,
     reading='ことがある',
-    meaning='Grammar: a non-past verb + ことがある can describe an occasional occurrence.',
+    meaning='sometimes do; there are times when something happens',
     match=lambda tokens: match_occasional(tokens),
 )
 

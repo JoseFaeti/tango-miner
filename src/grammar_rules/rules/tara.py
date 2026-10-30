@@ -6,8 +6,7 @@ from src.grammar_rules.helpers import adjacent
 
 RULE = GrammarRule(
     id='conditional_tara', expression=TARA_GRAMMAR_EXPRESSION, reading='たら',
-    meaning=('Grammar: たら presents a condition or a preceding event; the '
-             'following clause describes what happens or what would happen afterward.'),
+    meaning='if; when; after; once',
     match=lambda tokens: match_tara(tokens),
 )
 

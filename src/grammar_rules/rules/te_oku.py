@@ -54,8 +54,6 @@ def match_te_oku(tokens):
 
 RULE = GrammarRule(
     id='te_oku', expression=TE_OKU_GRAMMAR_EXPRESSION, reading='ておく',
-    meaning=('Grammar: verb て-form + おく can describe doing something in advance '
-             'or leaving a resulting state. Colloquial forms include とく and どく; '
-             'context determines the meaning.'),
+    meaning='do in advance; do in preparation; leave something in a resulting state',
     match=match_te_oku,
 )

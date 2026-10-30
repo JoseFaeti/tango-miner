@@ -6,9 +6,7 @@ from src.grammar_rules.helpers import adjacent
 
 RULE = GrammarRule(
     id='you_ni', expression=YOU_NI_GRAMMAR_EXPRESSION, reading='ように',
-    meaning=('Grammar: ように connects a predicate to a following action or '
-             'description, expressing purpose, manner, resemblance or an instruction '
-             'depending on context.'),
+    meaning='so that; in order to; as; like; (in a request) to do something',
     match=lambda tokens: match_you_ni(tokens),
 )
 

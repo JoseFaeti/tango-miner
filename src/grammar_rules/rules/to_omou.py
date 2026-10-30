@@ -27,7 +27,6 @@ def match_to_omou(tokens):
 
 RULE = GrammarRule(
     id='to_omou', expression=TO_OMOU_GRAMMAR_EXPRESSION, reading='とおもう',
-    meaning=('Grammar: a quoted predicate + と思う expresses a thought or judgment; '
-             'a volitional predicate can express intention.'),
+    meaning='think that; believe that; (after a volitional form) intend to',
     match=match_to_omou,
 )

@@ -6,9 +6,7 @@ from src.grammar_rules.helpers import polite_suffix_end, adjacent, next_matches,
 
 RULE = GrammarRule(
     id='te_kuru', expression=TE_KURU_GRAMMAR_EXPRESSION, reading='てくる',
-    meaning=('Grammar: verb て-form + くる can describe motion toward a point, '
-             'an action followed by coming back, or a change emerging or continuing '
-             'up to the present. Context determines the meaning.'),
+    meaning='come and do; do and come back; begin to; continue up to the present',
     match=lambda tokens: match_te_kuru(tokens),
 )
 

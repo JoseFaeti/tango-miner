@@ -6,8 +6,7 @@ from src.grammar_rules.helpers import adjacent
 
 RULE = GrammarRule(
     id='concessive_monono', expression=MONONO_GRAMMAR_EXPRESSION, reading='ものの',
-    meaning=('Grammar: ものの introduces a contrast: although the preceding '
-             'statement is true, the following situation differs from what might be expected.'),
+    meaning='although; even though; but',
     match=lambda tokens: match_monono(tokens),
 )
 

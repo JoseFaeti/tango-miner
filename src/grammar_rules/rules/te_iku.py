@@ -6,8 +6,7 @@ from src.grammar_rules.helpers import polite_suffix_end, adjacent, next_matches,
 
 RULE = GrammarRule(
     id='te_iku', expression=TE_IKU_GRAMMAR_EXPRESSION, reading='ていく',
-    meaning=('Grammar: verb て-form + いく can describe movement away or '
-             'an action or change continuing onward. Context determines the meaning.'),
+    meaning='go and do; continue doing; change or move away from the present or speaker',
     match=lambda tokens: match_te_iku(tokens),
 )
 

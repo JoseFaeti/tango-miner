@@ -6,8 +6,7 @@ from src.grammar_rules.helpers import adjacent, next_matches, adjective_inflecti
 
 RULE = GrammarRule(
     id='tai', expression=TAI_GRAMMAR_EXPRESSION, reading='たい',
-    meaning=('Grammar: verb stem + たい expresses a desire to do the action. '
-             'It conjugates like an adjective; context determines whose desire is meant.'),
+    meaning='want to do; wish to do',
     match=lambda tokens: match_tai(tokens),
 )
 

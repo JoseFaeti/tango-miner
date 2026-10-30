@@ -33,6 +33,6 @@ def match_te_wa_ikenai(tokens):
 
 RULE = GrammarRule(
     id='te_wa_ikenai', expression=TE_WA_IKENAI_GRAMMAR_EXPRESSION, reading='てはいけない',
-    meaning='Grammar: verb て-form + はいけない expresses prohibition or that an action must not be done.',
+    meaning='must not; may not; not allowed to',
     match=match_te_wa_ikenai,
 )

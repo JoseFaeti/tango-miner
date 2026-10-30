@@ -38,6 +38,6 @@ def match_obligation(tokens):
 
 RULE = GrammarRule(
     id='obligation', expression=OBLIGATION_GRAMMAR_EXPRESSION, reading='なければならない',
-    meaning='Grammar: a verb followed by a negative conditional and ならない or いけない expresses obligation or necessity.',
+    meaning='must; have to; need to',
     match=match_obligation,
 )
