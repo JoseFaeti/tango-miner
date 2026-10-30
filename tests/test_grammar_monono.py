@@ -30,8 +30,10 @@ class MononoTests(unittest.TestCase):
                        for m in analyzer.tokenize(text, tokenizer.Tokenizer.SplitMode.C)]
                 aligned, error = aligned_tokens(text, raw)
                 self.assertIsNone(error)
-                self.assertEqual([text[a:b] for a, b in match_monono(aligned)],
-                                 ['ものの'] if expected else [])
+                # The system dictionary splits もの + の; this ambiguous
+                # analysis remains lexical. A separate fixture tests the
+                # supported single-token conjunction analysis.
+                self.assertEqual([text[a:b] for a, b in match_monono(aligned)], [])
 
     def test_card_retains_lexical_evidence_and_span(self):
         source = sentence('買ったものの、使わない。', [

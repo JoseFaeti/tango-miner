@@ -23,7 +23,7 @@ class TeIkuTests(unittest.TestCase):
                  '気をひきしめていかなきゃな。': 'ていかなきゃ',
                  '出ていかなくったってなあ。': None,
                  '歩いていって。': 'ていって', '歩いていこう。': 'ていこう',
-                 '家に行く。': None, '食べてく。': None, '持っていく。': None,
+                 '家に行く。': None, '食べてく。': None, '持っていく。': 'ていく',
                  '雨が降ってきた。': None}
         for text, expected in cases.items():
             with self.subTest(text=text):

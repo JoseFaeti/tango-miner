@@ -24,7 +24,7 @@ class TeKuruTests(unittest.TestCase):
             '入ってこんかったがのう。': 'てこんかっ',
             '持って来る。': 'て来る', '持って来ない。': 'て来ない',
             '持ってきて。': 'てきて', '持ってこよう。': 'てこよう',
-            '家に来た。': None, '連れてく。': None, '持ってくる。': None,
+            '家に来た。': None, '連れてく。': None, '持ってくる。': 'てくる',
         }
         for text, expected in cases.items():
             with self.subTest(text=text):

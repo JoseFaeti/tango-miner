@@ -273,7 +273,8 @@ class JMDict:
             # interjection or a mis-segmented verb and remains unassigned.
             if word == 'んだ' and len(components) == 2:
                 particle, copula = components
-                if (particle.surface == particle.lemma == 'ん'
+                if (particle.context != 'initial_nda'
+                        and particle.surface == particle.lemma == 'ん'
                         and tuple(particle.pos[:2]) == ('助詞', '準体助詞')
                         and copula.surface == copula.lemma == 'だ'
                         and copula.pos and copula.pos[0] == '助動詞'):

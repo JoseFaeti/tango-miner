@@ -36,5 +36,20 @@ of rule matching, 44.1 seconds of expression precedence, and 33.1 seconds
 of cache-key preparation. Within precedence, merging took 32.1 seconds,
 dictionary access 8.9 seconds, and merged-token alignment 1.6 seconds. These
 subphases are included in the precedence total. This single run is not a
-controlled estimate of the dictionary lookup change, and its pipeline was still
-running when the grammar stage was inspected.
+controlled estimate of the dictionary lookup change. The archived pipeline
+subsequently completed; its merge stage reported
+231 cached source groups (521,821 token streams) in 46.2 seconds. These are
+observations from the same run, not a controlled comparison.
+
+## Bounded best-entry reuse
+
+Expression precedence now memoizes up to 8,192 JMdict best-entry selections
+within each grammar invocation. This avoids repeating entry ranking for the
+same spelling while leaving merge decisions and reservation unchanged. The
+cache is discarded after the invocation and does not affect the persistent
+grammar cache. In a synthetic check of 12,000 calls using six repeated
+spellings, direct selection took 0.102 seconds and memoized selection 0.0014
+seconds, excluding dictionary loading. This does not estimate stage-level
+savings or demonstrate representative hit rates. Rule scans, merge work, and
+cache-key preparation remain separate optimization targets. Focused tests
+compare occurrences, spans, examples and reservation with memoization disabled.

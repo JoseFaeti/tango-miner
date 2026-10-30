@@ -117,6 +117,12 @@ def build_word_stats(
                     and not tokenized_sentence.text[:span[0]].strip(' 「『（(\t')
                     and tokenized_sentence.text[span[1]:].startswith('、')):
                 components = (replace(components[0], context='initial_shikashi_comma'),)
+            # Initial んだ can be an interjection even when Sudachi splits
+            # it into a nominalizer and copula; do not treat it as explanatory.
+            if (lemma == surface == 'んだ' and len(components) == 2
+                    and span[0] >= 0
+                    and not tokenized_sentence.text[:span[0]].strip(' 「『（(\t')):
+                components = (replace(components[0], context='initial_nda'), components[1])
             sentence_components[lemma] = components
             sentence_occurrences.setdefault(lemma, []).append((surface, span, components))
             ws.component_counts[components] = ws.component_counts.get(components, 0) + 1

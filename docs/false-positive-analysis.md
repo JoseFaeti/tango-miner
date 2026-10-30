@@ -65,6 +65,23 @@ may reflect lost recall rather than a fix. No historical issue has yet been
 verified as unnecessary solely by this comparison. Full corpus comparisons
 require an agreed corpus and Anki disabled or output-only.
 
+## System-dictionary regression follow-up
+
+The configured system dictionary can split 時には into 時 + に + は;
+the occasional ことがある rule now recognizes this contiguous frequency
+cue. A targeted merge repair recovers 悪い and こと before continuative し
+when Sudachi treats 悪いこと as a proper noun, and another recovers ちげぇ
+from the observed それ + はち + げ + ぇ analysis. Both retain original token
+components. Other tokenizations and contexts remain unclassified by these
+repairs; standalone proper-noun filtering remains an open recall gap.
+
+Sentence-initial んだ can be an interjection even when Sudachi labels it as
+nominalizer plus copula. Its component evidence is now distinguished from
+explanatory occurrences so it cannot supply examples for that definition.
+The system dictionary also splits concessive ものの into nominal もの + の;
+that ambiguous analysis remains lexical rather than being reserved as grammar.
+These targeted regressions are not a corpus-wide precision or recall estimate.
+
 ## Topic index
 
 - [Scope](quality/scope.md)

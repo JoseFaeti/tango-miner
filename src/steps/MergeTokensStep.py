@@ -284,6 +284,55 @@ def _repair_komatta_koto_boundary(tokens: list[dict]) -> list[dict]:
     return result
 
 
+def _repair_chigee_boundary(tokens: list[dict]) -> list[dict]:
+    """Recover colloquial ちげぇ after それは from a split numeral analysis."""
+    result = []
+    i = 0
+    while i < len(tokens):
+        if (i > 0 and i + 2 < len(tokens) and tokens[i - 1]['surface'] == 'それ'
+                and [t['surface'] for t in tokens[i:i + 3]] == ['はち', 'げ', 'ぇ']
+                and tokens[i]['pos'][:2] in (('名詞', '数詞'), ['名詞', '数詞'])
+                and tokens[i + 1]['pos'][:1] in (('接尾辞',), ['接尾辞'])
+                and tokens[i + 2]['pos'][:1] in (('補助記号',), ['補助記号'])):
+            evidence = tuple(c for t in tokens[i:i + 3] for c in token_components(t))
+            result.extend([
+                {'surface': 'は', 'lemma': 'は', 'base_form': 'は', 'reading': 'は',
+                 'pos': ('助詞', '係助詞', '*', '*', '*', '*'),
+                 'components': token_components(tokens[i]), 'analysis_rule': 'chigee_boundary'},
+                {'surface': 'ちげぇ', 'lemma': 'ちげぇ', 'base_form': 'ちげぇ', 'reading': 'ちげぇ',
+                 'pos': ('形容詞', '一般', '*', '*', '*', '*'),
+                 'components': evidence, 'analysis_rule': 'chigee_boundary'},
+            ])
+            i += 3
+        else:
+            result.append(tokens[i])
+            i += 1
+    return result
+
+
+def _repair_warui_koto_boundary(tokens: list[dict]) -> list[dict]:
+    """Recover the adjective and noun before continuative する."""
+    result = []
+    for index, token in enumerate(tokens):
+        following = tokens[index + 1] if index + 1 < len(tokens) else None
+        if (token['surface'] == token['lemma'] == '悪いこと'
+                and following and following['surface'] == 'し'
+                and following['lemma'] == 'する'
+                and following['pos'][:1] in (('動詞',), ['動詞'])):
+            evidence = token_components(token)
+            result.extend([
+                {'surface': '悪い', 'lemma': '悪い', 'base_form': '悪い', 'reading': 'わるい',
+                 'pos': ('形容詞', '一般', '*', '*', '形容詞', '連体形-一般'),
+                 'components': evidence, 'analysis_rule': 'warui_koto_boundary'},
+                {'surface': 'こと', 'lemma': 'こと', 'base_form': 'こと', 'reading': 'こと',
+                 'pos': ('名詞', '普通名詞', '一般', '*', '*', '*'),
+                 'components': evidence, 'analysis_rule': 'warui_koto_boundary'},
+            ])
+        else:
+            result.append(token)
+    return result
+
+
 def _repair_kotoshi_boundaries(token_list: list[dict]) -> list[dict]:
     """Split ことし when the following token confirms する inflection."""
     result = []
@@ -467,7 +516,7 @@ def combine_tokens_jmdict(
     # Boundary repairs operate on lexical runs, while the merge guards below
     # can still inspect adjacent reserved tokens as context.
     def repair_run(run):
-        return _repair_grammatical_constructions(_repair_kotoshi_boundaries(_repair_komatta_koto_boundary(run)))
+        return _repair_grammatical_constructions(_repair_kotoshi_boundaries(_repair_warui_koto_boundary(_repair_chigee_boundary(_repair_komatta_koto_boundary(run)))))
 
     if any(token.get('grammar_reserved') for token in token_list):
         repaired, start = [], 0

@@ -1,6 +1,7 @@
 """Shared stages for collecting and scoring registered grammar rules."""
 from dataclasses import dataclass, field
 from bisect import bisect_right
+from functools import lru_cache
 from time import perf_counter
 
 from src.GrammarShadow import aligned_tokens
@@ -17,6 +18,16 @@ from src.grammar_rules.rules.nda import match_nda
 from src.grammar_rules.rules.tai import match_tai
 from src.grammar_rules.rules.te_shimau import match_te_shimau
 from src.grammar_rules.rules.monono import match_monono
+
+
+class _PrecedenceDictionary:
+    """Reuse immutable JMdict entry selection within one grammar invocation."""
+    def __init__(self, dictionary):
+        self._dictionary = dictionary
+        self.get_best_entry = lru_cache(maxsize=8192)(dictionary.get_best_entry)
+
+    def __getattr__(self, name):
+        return getattr(self._dictionary, name)
 
 
 @dataclass
@@ -83,7 +94,7 @@ class GrammarStep(PipelineStep):
                 from src.steps.MergeTokensStep import combine_tokens_jmdict, get_jmdict
                 if not dictionary_loaded:
                     with self.performance_phase('expression_dictionary'):
-                        dictionary = get_jmdict(self.dictionary_path)
+                        dictionary = _PrecedenceDictionary(get_jmdict(self.dictionary_path))
                     dictionary_loaded = True
                 with self.performance_phase('expression_merge'):
                     merged = combine_tokens_jmdict(sentence.tokens, dictionary,

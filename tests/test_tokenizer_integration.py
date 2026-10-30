@@ -55,7 +55,7 @@ class TokenizerIntegrationTests(unittest.TestCase):
         raw_tokens = tokenize_sentence("あまりにも静か。")
         merged_tokens = combine_tokens_jmdict(raw_tokens, self.jmdict)
 
-        self.assertEqual([token["surface"] for token in raw_tokens], ["あまり", "にも", "静か", "。"])
+        self.assertEqual([token["surface"] for token in raw_tokens], ["あまり", "に", "も", "静か", "。"])
         self.assertEqual(
             token_details(merged_tokens),
             [

@@ -73,6 +73,54 @@ class GrammarReservationTests(unittest.TestCase):
             GrammarStep(rules=(), prefer_expressions=True).process(Artifact([source]))
             get_dictionary.assert_not_called()
 
+    def test_precedence_entry_cache_is_scoped_to_one_invocation(self):
+        from src.Grammar import _PrecedenceDictionary
+
+        class Entries:
+            def __init__(self):
+                self.calls = 0
+            def get_best_entry(self, word):
+                self.calls += 1
+                return {'word': word} if word == '表現' else None
+
+        entries = Entries()
+        first = _PrecedenceDictionary(entries)
+        self.assertEqual(first.get_best_entry('表現'), {'word': '表現'})
+        self.assertEqual(first.get_best_entry('表現'), {'word': '表現'})
+        self.assertIsNone(first.get_best_entry('不明'))
+        self.assertIsNone(first.get_best_entry('不明'))
+        self.assertEqual(entries.calls, 2)
+        second = _PrecedenceDictionary(entries)
+        self.assertEqual(second.get_best_entry('表現'), {'word': '表現'})
+        self.assertEqual(entries.calls, 3)
+
+    def test_precedence_cache_preserves_occurrences_and_reservation(self):
+        source = sentence('外では雨が降ってきたよ。', [
+            tok('外では雨が', '雨', ('名詞', '普通名詞')),
+            tok('降っ', '降る', ('動詞', '一般', '*', '*', '五段', '連用形-促音便')),
+            tok('て', 'て', ('助詞', '接続助詞')),
+            tok('き', 'くる', ('動詞', '非自立可能')),
+            tok('た', 'た', ('助動詞', '*')),
+            tok('よ。', 'よ', ('助詞', '*'))])
+        for token in source.tokens:
+            token.update(base_form=token['lemma'], reading='ヨミ')
+        class EmptyDictionary:
+            def lookup_word(self, word):
+                return []
+            def get_best_entry(self, word):
+                return None
+        def run(use_cache):
+            stage = GrammarStep(rules=(RULE,), prefer_expressions=True)
+            with patch('src.steps.MergeTokensStep.get_jmdict', return_value=EmptyDictionary()):
+                if use_cache:
+                    stage.process(Artifact([source, source]))
+                else:
+                    with patch('src.Grammar._PrecedenceDictionary', side_effect=lambda d: d):
+                        stage.process(Artifact([source, source]))
+            reserved = ExcludeGrammarTokensStep(stage).process(Artifact([source, source]))
+            return stage.occurrences, stage.spans, stage.matches, reserved.data
+        self.assertEqual(run(True), run(False))
+
     def test_complete_dictionary_expression_takes_precedence(self):
         source = sentence('私はいってきますね。', [
             tok('私は', '私', ('名詞', '普通名詞')),

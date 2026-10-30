@@ -15,9 +15,11 @@ The current code and tests determine actual behavior when a document is stale.
 - Existing behavior does not always meet the intended policy: standalone
   proper nouns are currently filtered. Identify such gaps explicitly and add
   focused regressions when changing them.
-- Run `python -m unittest discover -s tests` for pipeline changes and report
-  unavailable integration dependencies or test failures. Avoid real Anki
-  mutations during tests; inspect the current pipeline before running it.
+- Run `python -m unittest discover -s tests` for pipeline changes. A passing
+  full suite is required: investigate and fix failures rather than accepting
+  them as a baseline. Preserve meaningful regression coverage and report any
+  unavailable integration dependencies. Avoid real Anki mutations during
+  tests; inspect the current pipeline before running it.
 - Keep documentation free of absolute local paths and personal machine details.
   Preserve the user's existing changes and update relevant documentation when
   behavior or priorities change.

@@ -19,7 +19,14 @@ BOUNDARIES = set('。！？!?「」『』；;')
 
 
 def has_frequency_cue(tokens, verb_index):
-    for token in reversed(tokens[max(0, verb_index - 20):verb_index]):
+    window = tokens[max(0, verb_index - 20):verb_index]
+    for index in range(len(window) - 1, -1, -1):
+        token = window[index]
+        if (index >= 2 and [t['surface'] for t in window[index - 2:index + 1]]
+                in (['時', 'に', 'は'], ['とき', 'に', 'は'])
+                and all(adjacent(window[j], window[j + 1])
+                        for j in (index - 2, index - 1))):
+            return True
         if any(char in BOUNDARIES for char in token['surface']):
             return False
         if token['surface'] in CUES:
