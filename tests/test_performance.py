@@ -31,6 +31,8 @@ class PerformanceTests(unittest.TestCase):
         with self.assertRaisesRegex(ValueError, 'failure'):
             pipeline.run(Artifact([]))
         self.assertEqual(set(pipeline.performance), {'1', '2'})
+        self.assertEqual(pipeline.performance['1']['name'], 'Step')
+        self.assertEqual(pipeline.performance['2']['name'], 'Broken')
         self.assertGreaterEqual(pipeline.performance['1']['entries_seconds']['work'], 0)
         self.assertEqual(pipeline.performance['1']['entries_seconds']['total'], pipeline.stage_records[0]['duration_seconds'])
         self.assertGreaterEqual(pipeline.performance['2']['entries_seconds']['partial'], 0)
@@ -55,6 +57,7 @@ class PerformanceTests(unittest.TestCase):
                     pipeline.run(Artifact(fixture()))
             data = json.loads((Path(tmp) / 'performance.json').read_text(encoding='utf-8'))
             stage = json.loads(next((Path(tmp) / 'steps').glob('*.json')).read_text(encoding='utf-8'))
+            self.assertEqual(data['steps']['1']['name'], 'GrammarStep')
             entries = data['steps']['1']['entries_seconds']
             self.assertEqual(entries['total'], stage['duration_seconds'])
             self.assertGreaterEqual(entries['cache_key'], 0)

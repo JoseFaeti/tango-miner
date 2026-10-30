@@ -65,7 +65,7 @@ class Pipeline:
                     self.wait_seconds += wait_seconds
                     record["duration_seconds"] = max(0.0, wall_seconds - wait_seconds)
                     if self.profiling:
-                        self.performance[str(index)] = {'entries_seconds': {'total': record["duration_seconds"], **step._performance_entries}}
+                        self.performance[str(index)] = {'name': record['name'], 'entries_seconds': {'total': record["duration_seconds"], **step._performance_entries}}
                     if hasattr(step, "cache_stats"):
                         record["cache"] = dict(step.cache_stats)
                     if self.cache is not None and type(step).__name__ == "MergeTokensStep" and self.cache.stats is not None:

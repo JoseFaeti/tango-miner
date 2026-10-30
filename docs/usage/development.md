@@ -141,6 +141,9 @@ retain additional expressions beyond the examples motivating it.
 
 ## Pipeline performance measurements
 
+See the [performance plan](../pipeline-performance-plan.md) for findings and
+future work.
+
 Set `[profiling] enabled = true` in `config.toml` to collect named phase
 measurements in `performance.json`. Each executed step has a `total` in the
 report and in `performance.json`, matching the duration in its existing

@@ -52,6 +52,8 @@ class GrammarStep(PipelineStep):
         self.occurrences = {rule.id: GrammarOccurrences() for rule in self.rules}
         self.matches = {}
         self.spans = {}
+        dictionary_loaded = False
+        dictionary = None
         total = len(artifact.data)
         interval = max(1, min(2000, total // 100))
         for sentence_index, sentence in enumerate(artifact.data):
@@ -79,9 +81,15 @@ class GrammarStep(PipelineStep):
                 # Use the established dictionary merger as evidence of a complete
                 # expression, before deciding which analysis owns the occurrence.
                 from src.steps.MergeTokensStep import combine_tokens_jmdict, get_jmdict
-                merged = combine_tokens_jmdict(sentence.tokens, get_jmdict(self.dictionary_path),
-                                               max_lookahead=self.max_lookahead)
-                aligned, merge_error = aligned_tokens(sentence.text, merged)
+                if not dictionary_loaded:
+                    with self.performance_phase('expression_dictionary'):
+                        dictionary = get_jmdict(self.dictionary_path)
+                    dictionary_loaded = True
+                with self.performance_phase('expression_merge'):
+                    merged = combine_tokens_jmdict(sentence.tokens, dictionary,
+                                                   max_lookahead=self.max_lookahead)
+                with self.performance_phase('expression_alignment'):
+                    aligned, merge_error = aligned_tokens(sentence.text, merged)
                 if not merge_error:
                     expression_spans = [(t['span'][0], t['span'][1],
                                          merged[t['index']].get('dictionary_expression', False))

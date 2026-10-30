@@ -37,7 +37,7 @@ def report(root):
         for index, profile in sorted(perf.get('steps', {}).items(), key=lambda item: int(item[0])):
             if perf.get('schema_version') == 3:
                 row = named_steps.get(index, {})
-                print(f"  {row.get('name', 'Step ' + index)} named timings:")
+                print(f"  {profile.get('name', row.get('name', 'Step ' + index))} named timings:")
                 entries = profile.get('entries_seconds', {})
                 if 'total' not in entries:
                     total = row.get('duration_seconds')

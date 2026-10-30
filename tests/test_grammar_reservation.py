@@ -47,6 +47,32 @@ class GrammarReservationTests(unittest.TestCase):
         stage.add_cards(words)
         self.assertEqual(words[RULE.expression].frequency, 1)
 
+    def test_expression_dictionary_is_loaded_once_per_invocation_and_only_when_needed(self):
+        source = sentence('私はいってきますね。', [
+            tok('私は', '私', ('名詞', '普通名詞')),
+            tok('いっ', 'いく', ('動詞', '一般', '*', '*', '五段', '連用形-促音便')),
+            tok('て', 'て', ('助詞', '接続助詞')),
+            tok('き', 'くる', ('動詞', '非自立可能')),
+            tok('ます', 'ます', ('助動詞', '*')),
+            tok('ね。', 'ね', ('助詞', '*'))])
+        merged = [source.tokens[0], {'surface': 'いってきます', 'lemma': 'いってきます',
+                  'pos': ('exp', '*'), 'analysis_rule': 'jmdict_surface_merge'}, source.tokens[-1]]
+        stage = GrammarStep(rules=(RULE,), prefer_expressions=True)
+        with patch('src.steps.MergeTokensStep.get_jmdict') as get_dictionary, \
+             patch('src.steps.MergeTokensStep.combine_tokens_jmdict', return_value=merged) as merge:
+            stage.process(Artifact([source, source, source]))
+            self.assertEqual(get_dictionary.call_count, 1)
+            self.assertEqual(merge.call_count, 3)
+            self.assertEqual(stage.occurrences[RULE.id].count, 0)
+            self.assertEqual(stage.spans, {})
+            self.assertTrue({'expression_dictionary', 'expression_merge', 'expression_alignment'}
+                            <= stage._performance_entries.keys())
+            stage.process(Artifact([source]))
+            self.assertEqual(get_dictionary.call_count, 2)
+        with patch('src.steps.MergeTokensStep.get_jmdict') as get_dictionary:
+            GrammarStep(rules=(), prefer_expressions=True).process(Artifact([source]))
+            get_dictionary.assert_not_called()
+
     def test_complete_dictionary_expression_takes_precedence(self):
         source = sentence('私はいってきますね。', [
             tok('私は', '私', ('名詞', '普通名詞')),
