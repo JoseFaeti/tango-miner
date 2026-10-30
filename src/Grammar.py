@@ -213,5 +213,18 @@ class AddGrammarCardsStep(PipelineStep):
 
     def process(self, artifact):
         self.grammar.add_cards(artifact.data)
+        rules = {rule.id: rule for rule in self.grammar.rules}
+        for rule in self.grammar.rules:
+            if rule.expression in artifact.data:
+                artifact.data[rule.expression].sentences = []
+        for sentence in artifact.sentences:
+            for rule_id, start, end in self.grammar.spans.get(sentence.source_index, ()):
+                expression = rules[rule_id].expression
+                if expression not in artifact.data:
+                    continue
+                surface = sentence.text[start:end]
+                sentence.lemma_surfaces[expression] = surface
+                sentence.lemma_spans[expression] = (start, end)
+                sentence.lemma_occurrences.setdefault(expression, []).append((surface, (start, end), None))
         self.done('Added source-supported grammar cards for scoring.')
         return artifact

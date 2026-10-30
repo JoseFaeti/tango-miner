@@ -6,7 +6,6 @@ from src.SegmentedSentence import SegmentedSentence
 from src.WordStats import Sentence, WordStats
 
 from collections import defaultdict
-from dataclasses import replace
 from itertools import count
 import heapq
 import re
@@ -90,11 +89,6 @@ def attach_sentences(word_data, segmented_sentences, progress_handler=None, conf
     max_score = max(ws.score for ws in word_data.values())
 
     candidates = defaultdict(dict)
-    grammar_examples = defaultdict(list)
-    for stats in word_data.values():
-        if stats.pos == ('grammar',):
-            for index, example in enumerate(stats.sentences):
-                grammar_examples[(example.origin, example.text)].append((stats, index))
     counter = count()
 
     word_get = word_data.get
@@ -131,12 +125,6 @@ def attach_sentences(word_data, segmented_sentences, progress_handler=None, conf
             variance = 0.0
             sentence_difficulty = 0.0
             sorted_scores = []
-
-        # Grammar examples were selected from raw tokens before vocabulary
-        # scoring. Give them the same sentence mean used by lexical examples.
-        key = (str(seg.origin or ''), seg.text)
-        for stats, index in grammar_examples.pop(key, ()):
-            stats.sentences[index] = replace(stats.sentences[index], score=round(mean, 2))
 
         # ------------------------------------------------------------
         # PHASE 2: sentence-level penalties (once per sentence)
@@ -175,7 +163,7 @@ def attach_sentences(word_data, segmented_sentences, progress_handler=None, conf
             too_hard = len(sorted_scores) - bisect_right(sorted_scores, ws.score)
 
             # Symmetric distance: penalize sentences both harder AND easier than the word
-            lemma_adjustment = abs(mean - ws.score) / max_score
+            lemma_adjustment = abs(mean - ws.score) / max_score if max_score else 0.0
 
             fitness = (
                 base_penalty

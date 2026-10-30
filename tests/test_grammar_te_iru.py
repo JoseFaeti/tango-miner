@@ -89,6 +89,57 @@ class TeIruCardTests(unittest.TestCase):
         self.assertIn('いる', words)
         self.assertEqual(card.tags, {'source'})
 
+    def test_all_matched_sources_reach_shared_scoring_and_sentence_selection(self):
+        from src.SegmentedSentence import SegmentedSentence
+        from src.RunConfig import SentencesConfig
+        from src.steps.ScoreWordStep import score_words
+        from src.steps.AttachSentencesStep import attach_sentences
+
+        first = self.valid()
+        second_tokens = [{**token, 'surface': token['surface'].replace('今日', '明日')} for token in first.tokens]
+        second = TokenizedSentence(first.text.replace('今日', '明日'), 'other', Path('other.txt'), second_tokens)
+        collection = GrammarStep(max_examples=1)
+        collection.process(Artifact([first, second]))
+        segments = [SegmentedSentence(item.text, item.tag, item.origin, {'読む': '読ん'}, source_index=i)
+                    for i, item in enumerate([first, second])]
+        words = {'読む': make_stats(index=0.5, frequency=2, lemma='読む', tags={'source', 'other'})}
+        artifact = Artifact(words, sentences=segments)
+        AddGrammarCardsStep(collection).process(artifact)
+        self.assertEqual(len(collection.occurrences['te_iru'].examples), 1)
+        self.assertEqual([seg.lemma_surfaces[EXPRESSION] for seg in segments], ['でいる', 'でいる'])
+        self.assertEqual(words[EXPRESSION].sentences, [])
+        score_words(words)
+        self.assertGreater(words[EXPRESSION].score, 0)
+        attach_sentences(words, segments, config=SentencesConfig(max_sentences=2))
+        self.assertEqual(words[EXPRESSION].sentences[0].surface_form, 'でいる')
+        self.assertEqual(words[EXPRESSION].sentences[0].span, (7, 10))
+        self.assertEqual({s.tag for s in words[EXPRESSION].sentences}, {'source', 'other'})
+        self.assertEqual(words[EXPRESSION].sentences[0].score, words['読む'].sentences[0].score)
+
+    def test_grammar_spans_survive_word_collection_and_invalid_sentence_skips(self):
+        from src.Grammar import ExcludeGrammarTokensStep
+        from src.steps.BuildWordStatsStep import build_word_stats
+        from src.steps.ScoreWordStep import score_words
+        from src.steps.AttachSentencesStep import attach_sentences
+
+        source = self.valid()
+        for token in source.tokens:
+            token.update(base_form=token['lemma'], reading=token['lemma'], pos=tuple(token['pos']) + ('*',) * max(0, 2 - len(token['pos'])))
+        invalid = sentence('短い', [dict(source.tokens[0], surface='短い')])
+        collection = GrammarStep()
+        artifact = Artifact([invalid, source])
+        collection.process(artifact)
+        ExcludeGrammarTokensStep(collection).process(artifact)
+        words, segments = build_word_stats(artifact.data)
+        artifact = Artifact(words, sentences=segments)
+        AddGrammarCardsStep(collection).process(artifact)
+        score_words(artifact.data)
+        attach_sentences(artifact.data, artifact.sentences)
+        example = artifact.data[EXPRESSION].sentences[0]
+        self.assertEqual(example.text, source.text)
+        self.assertEqual(example.surface_form, 'でいる')
+        self.assertEqual(example.text[slice(*example.span)], 'でいる')
+
     def test_lexical_iru_and_misleading_or_unaligned_cases_do_not_create_card(self):
         items = [sentence('公園に人がいるんですよ。', [tok('公園に人が', '公園', ('名詞',)),
                     tok('いる', 'いる', ('動詞', '非自立可能')), tok('んですよ。', 'ん', ('助詞',))]),
@@ -229,7 +280,7 @@ class TeIruCardTests(unittest.TestCase):
         score_words(words)
         self.assertGreater(card.score, 0)
         self.assertEqual(card.score, lexical.score)
-        self.assertEqual(card.sentences[0].surface_form, 'でいる')
+        self.assertEqual(card.sentences, [])
         from src.steps.WriteOutputStep import WriteOutputStep
         with tempfile.TemporaryDirectory() as temp:
             path = Path(temp) / 'output.csv'

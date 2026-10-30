@@ -102,7 +102,9 @@ notes with those exact identities are retained without automatic updates or
 pruning. Existing suffix-style grammar notes are renamed in place through the
 Anki plan when the new identity is unambiguous; conflicts are retained for review. Grammar cards use the same scoring formula as vocabulary, including
 source position, frequency and source diversity; they are added after lexical
-filtering and do not use its minimum-frequency threshold. See the [grammar shadow prototype](../grammar-shadow-prototype.md)
+filtering and do not use its minimum-frequency threshold. Grammar and lexical
+cards are scored together, and eligible source-aligned grammar occurrences use
+the same sentence ranking, deduplication and fallback as lexical examples. See the [grammar shadow prototype](../grammar-shadow-prototype.md)
 for supported forms, limitations, and note behavior. Recognized grammar spans
 are reserved before lexical merging and collection, unless the existing dictionary
 merger identifies a complete expression spanning the construction and its attached

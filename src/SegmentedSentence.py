@@ -22,3 +22,4 @@ class SegmentedSentence:
     lemma_components: dict[str, tuple] = field(default_factory=dict)
     # All aligned occurrences, including repeated lemmas with different analyses.
     lemma_occurrences: dict[str, list[tuple[str, tuple[int, int], tuple]]] = field(default_factory=dict)
+    source_index: int | None = None

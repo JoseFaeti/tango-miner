@@ -27,23 +27,21 @@ def seg(text, lemma_surfaces, tag="tag"):
 
 
 class AttachSentencesStepTests(unittest.TestCase):
-    def test_grammar_examples_use_the_same_sentence_mean_as_lexical_examples(self):
-        text = '私は本を読んでいるよ。'
-        first = make_stats(score=800, lemma='読む')
-        second = make_stats(score=200, lemma='本')
-        grammar = make_stats(score=700, lemma='〜ている (grammar)')
+    def test_grammar_examples_use_the_same_ranking_as_lexical_examples(self):
+        grammar = make_stats(score=700, lemma='〜ている')
         grammar.pos = ('grammar',)
-        grammar.sentences = [Sentence(text, 'tag', 'source.txt', 'でいる', 0.0, (6, 9))]
-        other_source = make_stats(score=600, lemma='〜たい (grammar)')
-        other_source.pos = ('grammar',)
-        other_source.sentences = [Sentence(text, 'other', 'other.txt', 'でいる', 0.0, (6, 9))]
-        words = {'読む': first, '本': second, grammar.lemma: grammar, other_source.lemma: other_source}
-        attach_sentences(words, [seg(text, {'読む': '読ん', '本': '本'})])
-        self.assertEqual(grammar.sentences[0].score, 500.0)
-        self.assertEqual(first.sentences[0].score, 500.0)
-        self.assertEqual(grammar.sentences[0].span, (6, 9))
-        self.assertEqual(grammar.sentences[0].surface_form, 'でいる')
-        self.assertEqual(other_source.sentences[0].score, 0.0)
+        words = {'〜ている': grammar, '本': make_stats(score=700, lemma='本')}
+        short = SegmentedSentence('本を読んでいる。', 'first', Path('first'),
+                                  {'〜ている': 'でいる', '本': '本'},
+                                  lemma_spans={'〜ている': (4, 7)})
+        better = SegmentedSentence('本を楽しく読んでいる。', 'second', Path('second'),
+                                   {'〜ている': 'でいる', '本': '本'},
+                                   lemma_spans={'〜ている': (7, 10)})
+        attach_sentences(words, [short, better], config=SentencesConfig(max_sentences=1, ideal_length=len(better.text)))
+        self.assertEqual(grammar.sentences[0].text, better.text)
+        self.assertEqual(grammar.sentences[0].origin, Path('second'))
+        self.assertEqual(grammar.sentences[0].span, (7, 10))
+        self.assertEqual(grammar.sentences[0].score, words['本'].sentences[0].score)
 
     def test_examples_and_fallback_require_the_selected_occurrence_analysis(self):
         adverb = (TokenComponent("ようやく", "ようやく", "ようやく", "ようやく", ("副詞",)),)

@@ -134,6 +134,7 @@ def build_word_stats(
                     lemma_spans=sentence_spans,
                     lemma_components=sentence_components,
                     lemma_occurrences=sentence_occurrences,
+                    source_index=index - 1,
                 )
             )
 
