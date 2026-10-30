@@ -49,7 +49,7 @@ class GrammarStep(PipelineStep):
         interval = max(1, min(2000, total // 100))
         for sentence_index, sentence in enumerate(artifact.data):
             if sentence_index % interval == 0:
-                self.progress(sentence_index, total)
+                self.progress(sentence_index, total, 'Matching grammar')
             tokens, error = aligned_tokens(sentence.text, sentence.tokens)
             if error:
                 continue

@@ -7,7 +7,7 @@ from pathlib import Path
 from typing import Any
 
 from src.Artifact import Artifact
-from src.PipelineStep import PipelineStep
+from src.PipelineStep import PipelineStep, ProgressEvent
 from src.RunConfig import AnkiConfig
 from src.steps.ProcessingStep import ProcessingStep
 from src.GrammarConstants import GRAMMAR_EXPRESSIONS, LEGACY_GRAMMAR_EXPRESSIONS
@@ -29,6 +29,11 @@ class AddWordsToAnkiStep(PipelineStep):
         self.outcome = {"status": "not_started", "plan": None}
 
 
+    def phase_progress(self, current, total, message=""):
+        # Phase completion is not completion of the whole Anki stage.
+        if self._progress_handler:
+            self._progress_handler(ProgressEvent(self._processing_step, current, total, message=message))
+
     def process(self, artifact: Artifact) -> Artifact:
         self.wait_seconds = 0.0
         invoke = partial(anki_invoke, endpoint=self.config.endpoint, timeout=self.config.timeout_seconds)
@@ -45,10 +50,10 @@ class AddWordsToAnkiStep(PipelineStep):
         def save_details(details):
             if self.plan_path is not None:
                 self.plan_path.write_text(json.dumps(details, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
-                print(f"Anki detailed plan: {self.plan_path}")
+
         added, updated, deleted = export_words_to_anki(
             deck_name=self.config.deck, words=artifact.data, model_name=self.config.model,
-            progress_handler=self.progress, invoke=invoke, batch_size=self.config.batch_size,
+            progress_handler=self.phase_progress, invoke=invoke, batch_size=self.config.batch_size,
             note_fetching_batch_size=self.config.note_fetch_batch_size, output_only=self.config.output_only,
             prune=self.config.prune,
             preview_handler=record_plan, status_handler=record_status, details_handler=save_details,
@@ -113,6 +118,7 @@ def export_words_to_anki(
     existing_words = {}
     expression_note_ids = {}
 
+    progress_handler(0, 1, "Fetching existing notes from Anki...")
     model_exists = model_name in invoke("modelNames")
 
     # --------------------------------------------------
@@ -137,12 +143,15 @@ def export_words_to_anki(
             existing_words[jp_field] = note
             expression_note_ids.setdefault(jp_field, []).append(note["noteId"])
 
-        progress = (i + note_fetching_batch_size) / max(len(all_note_ids), 1) * 25
-        progress_handler(progress, 100, "Fetching existing notes from Anki...")
+        progress_handler(min(i + len(batch_ids), len(all_note_ids)), len(all_note_ids),
+                         "Fetching existing notes from Anki...")
 
     # --------------------------------------------------
     # 2.5 DELETE OBSOLETE NOTES
     # --------------------------------------------------
+    if not all_note_ids:
+        progress_handler(1, 1, "Fetching existing notes from Anki...")
+    progress_handler(0, 1, "Preparing comparison...")
     # Keep existing notes for unresolved candidates, but do not add or update
     # them until a trustworthy definition is available.
     desired_words = {w for w, stats in words.items() if not stats.invalid}
@@ -159,6 +168,7 @@ def export_words_to_anki(
     ]
 
     total_notes_to_delete = len(obsolete_note_ids)
+    progress_handler(1, 1, "Preparing comparison...")
 
     # --------------------------------------------------
     # 3. Compare notes and build the preview
@@ -169,7 +179,10 @@ def export_words_to_anki(
     total_notes_to_update = 0
     grammar_migration_conflicts = []
 
+    progress_handler(0, max(len(words), 1), "Comparing notes...")
     for i, (word, stats) in enumerate(words.items(), start=1):
+        if i > 1:
+            progress_handler(i - 1, len(words), "Comparing notes...")
         if word not in exportable_words:
             continue
 
@@ -243,11 +256,7 @@ def export_words_to_anki(
             additions.append({"expression": word, "fields": word_to_anki_fields(word, stats),
                               "tags": sorted(new_tags)})
 
-        progress_handler(
-            25 + (i / len(words) * 25),
-            100,
-            "Comparing notes..."
-        )
+    progress_handler(max(len(words), 1), max(len(words), 1), "Comparing notes...")
 
     total_notes_to_add = len(additions)
     if details_handler is not None:
@@ -293,15 +302,20 @@ def export_words_to_anki(
         if status_handler: status_handler("cancelled")
         return 0, 0, 0
     if status_handler: status_handler("applying")
+    progress_handler(0, 1, "Preparing actions...")
     notes_to_add, update_actions = build_mutation_actions(
         deck_name, model_name, additions, update_details, dirty_updates, words)
+    progress_handler(1, 1, "Preparing actions...")
     if not model_exists and total_notes_to_add:
         ensure_model_exists(model_name, invoke=invoke)
-    for i in range(0, total_notes_to_delete, batch_size):
-        invoke("deleteNotes", {"notes": obsolete_note_ids[i:i + batch_size]})
-
-    total = len(update_actions) + len(notes_to_add)
+    total = total_notes_to_delete + len(update_actions) + len(notes_to_add)
     processed = 0
+    progress_handler(0, max(total, 1), "Applying changes...")
+    for i in range(0, total_notes_to_delete, batch_size):
+        batch = obsolete_note_ids[i:i + batch_size]
+        invoke("deleteNotes", {"notes": batch})
+        processed += len(batch)
+        progress_handler(processed, max(total, 1), "Applying changes...")
 
     # --------------------------------------------------
     # 4. Batch update existing notes
@@ -311,13 +325,8 @@ def export_words_to_anki(
             "actions": update_actions[i:i + batch_size]
         })
 
-        progress_handler(
-            50 + (i / max(total, 1) * 50),
-            100,
-            f"Updating {total_notes_to_update} notes..."
-        )
-
-    processed = len(update_actions)
+        processed += len(update_actions[i:i + batch_size])
+        progress_handler(processed, max(total, 1), "Applying changes...")
 
     # --------------------------------------------------
     # 5. Batch add new notes
@@ -331,12 +340,11 @@ def export_words_to_anki(
             "notes": notes_to_add[i:i + batch_size]
         })
 
-        progress_handler(
-            50 + ((processed + i) / max(total, 1) * 50),
-            100,
-            f"Adding {total_notes_to_add} new notes..."
-        )
+        processed += len(notes_to_add[i:i + batch_size])
+        progress_handler(processed, max(total, 1), "Applying changes...")
 
+    if total == 0:
+        progress_handler(1, 1, "Applying changes...")
     if status_handler: status_handler("applied")
     return total_notes_to_add, total_notes_to_update, total_notes_to_delete
 

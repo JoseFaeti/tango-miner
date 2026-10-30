@@ -15,7 +15,7 @@ extensions = [".tsv", ".txt", ".csv", ".pdf", ".xml", ".html", ".srt"]
 path = "."
 
 [debug]
-enabled = true
+enabled = false
 
 [tokenizer]
 # Sudachi JSON configuration and installed system dictionary name or path.

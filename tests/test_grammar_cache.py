@@ -43,6 +43,26 @@ class GrammarCacheTests(unittest.TestCase):
             AddGrammarCardsStep(second).process(Artifact(second_words))
             self.assertEqual(first_words, second_words)
 
+    def test_progress_reports_cache_preparation_and_matching_or_hit(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            cache = StageCache(tmp, {})
+            sources = fixture() * 5
+            messages = []
+            def report(step, current, total, **kwargs):
+                messages.append((current, total, kwargs['additional_text']))
+            Pipeline([GrammarStep()], cache=cache, on_progress=report).run(Artifact(sources))
+            self.assertTrue(any(message == 'Preparing cache key' and current > 0 and total == 5
+                                for current, total, message in messages))
+            self.assertTrue(any(message == 'Hashing cache key' for _, _, message in messages))
+            self.assertTrue(any(message == 'Checking grammar cache' for _, _, message in messages))
+            self.assertTrue(any(message == 'Matching grammar' and current > 0
+                                for current, _, message in messages))
+            self.assertTrue(any(message == 'Saving grammar cache' for _, _, message in messages))
+            messages.clear()
+            Pipeline([GrammarStep()], cache=cache, on_progress=report).run(Artifact(sources))
+            self.assertTrue(any('Cache hit' in message for _, _, message in messages))
+            self.assertFalse(any(message == 'Matching grammar' for _, _, message in messages))
+
     def test_invalidation_refresh_and_corruption(self):
         with tempfile.TemporaryDirectory() as tmp:
             cache = StageCache(tmp, {})

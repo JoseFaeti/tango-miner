@@ -39,10 +39,14 @@ def _unpack_token(value):
     return token
 
 
-def _input_key_data(sentences):
+def _input_key_data(sentences, progress=None):
     """Encode raw inputs compactly while preserving POS and source identities."""
     result = []
-    for sentence in sentences:
+    total = len(sentences)
+    interval = max(1, min(2000, total // 100))
+    for index, sentence in enumerate(sentences):
+        if progress and index % interval == 0:
+            progress(index, total)
         raw = []
         for token in sentence.tokens:
             # Normal tokenizer output is JSON-native apart from POS tuples.

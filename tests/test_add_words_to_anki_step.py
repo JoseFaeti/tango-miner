@@ -93,6 +93,54 @@ class AddWordsToAnkiStepTests(unittest.TestCase):
         self.assertEqual(pipeline.stage_records[0]['status'], 'failed')
         self.assertNotIn('wait_seconds', pipeline.stage_records[0])
 
+    def test_comparison_reaches_100_before_prompt_even_if_final_candidate_is_skipped(self):
+        from io import StringIO
+        from src.ConsoleProgress import ConsoleProgress
+        reviewed = make_stats()
+        reviewed.needs_review = True
+        words = {'犬': make_stats(), '未解決': reviewed}
+        def fake(action, params=None, **kwargs):
+            if action == 'modelNames': return ['Custom']
+            if action == 'findNotes': return []
+            raise AssertionError(f'unexpected mutation: {action}')
+        output = StringIO()
+        seen_at_prompt = []
+        def decline(prompt):
+            seen_at_prompt.append(output.getvalue())
+            return 'n'
+        step = AddWordsToAnkiStep(AnkiConfig(model='Custom', output_only=False))
+        display = ConsoleProgress(output, 1)
+        with patch('src.steps.AddWordsToAnkiStep.anki_invoke', side_effect=fake), \
+                patch('builtins.input', side_effect=decline):
+            with display.capture_step_output():
+                Pipeline([step], on_progress=display.progress, on_stage_record=display.stage).run(Artifact(words))
+        self.assertIn('100.0% Comparing notes...', seen_at_prompt[0])
+        self.assertEqual(step.outcome['status'], 'cancelled')
+        self.assertNotIn('Preparing actions...', output.getvalue())
+
+    def test_phases_cover_empty_and_confirmed_plans(self):
+        for words, answer in [({}, None), ({'犬': make_stats()}, 'y')]:
+            with self.subTest(words=words):
+                events = []
+                calls = []
+                def fake(action, params=None):
+                    calls.append(action)
+                    if action == 'modelNames': return ['Custom']
+                    if action == 'findNotes': return []
+                    if action == 'addNotes': return [1]
+                    raise AssertionError(action)
+                with patch('builtins.input', return_value=answer), patch('builtins.print'):
+                    export_words_to_anki('Deck', words, 'Custom', invoke=fake,
+                                         progress_handler=lambda *args: events.append(args))
+                for phase in ('Fetching existing notes from Anki...', 'Preparing comparison...', 'Comparing notes...'):
+                    self.assertTrue(any(current == total for current, total, message in events if message == phase), phase)
+                if words:
+                    for phase in ('Preparing actions...', 'Applying changes...'):
+                        self.assertTrue(any(current == total for current, total, message in events if message == phase), phase)
+                    self.assertIn('addNotes', calls)
+                else:
+                    self.assertNotIn('addNotes', calls)
+
     def test_step_passes_configured_destination_and_batches(self):
         config = AnkiConfig(enabled=True, endpoint="http://localhost:9999", deck="Deck", model="Custom", timeout_seconds=2, batch_size=3, note_fetch_batch_size=7)
         with patch("src.steps.AddWordsToAnkiStep.export_words_to_anki", return_value=(0, 0, 0)) as export:
@@ -104,7 +152,7 @@ class AddWordsToAnkiStepTests(unittest.TestCase):
 
     def test_output_only_reports_plan_after_progress_without_mutations(self):
         from io import StringIO
-        from tango_miner import print_step_progress
+        from src.ConsoleProgress import ConsoleProgress
 
         calls = []
         def fake(action, params=None, **kwargs):
@@ -120,7 +168,10 @@ class AddWordsToAnkiStepTests(unittest.TestCase):
         with patch("src.steps.AddWordsToAnkiStep.anki_invoke", side_effect=fake), \
              patch("sys.stdout", output), patch("builtins.input") as prompt, \
              patch("src.steps.AddWordsToAnkiStep.build_mutation_actions") as build_actions:
-            Pipeline([AddWordsToAnkiStep(config)], on_progress=print_step_progress).run(Artifact(words))
+            display = ConsoleProgress(output, 1)
+            with display.capture_step_output():
+                Pipeline([AddWordsToAnkiStep(config)], on_progress=display.progress,
+                         on_stage_record=display.stage).run(Artifact(words))
         prompt.assert_not_called()
         build_actions.assert_not_called()
         rendered = output.getvalue()

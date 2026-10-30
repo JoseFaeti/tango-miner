@@ -39,6 +39,33 @@ class TangoMinerTests(unittest.TestCase):
         dependency_patch.start()
         self.addCleanup(dependency_patch.stop)
 
+    def test_run_saves_log_in_default_and_verbose_modes(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            config = Path(tmp) / 'config.toml'
+            config.write_text('', encoding='utf-8')
+            for verbose in (False, True):
+                with self.subTest(verbose=verbose), patch('tango_miner.Pipeline') as factory:
+                    pipeline = factory.return_value
+                    pipeline.duration = 1.0
+                    pipeline.stage_records = []
+                    def run(artifact):
+                        display_stage = factory.call_args.kwargs['on_stage_record']
+                        step = factory.call_args.kwargs['steps'][0]
+                        display_stage(1, step, {'name': type(step).__name__, 'status': 'running'})
+                        print('example step output')
+                        display_stage(1, step, {'name': type(step).__name__, 'status': 'completed', 'duration_seconds': 0.5, 'message': 'finished'})
+                    pipeline.run.side_effect = run
+                    args = ['--config', str(config), '--input', tmp]
+                    if verbose:
+                        args.append('--verbose')
+                    process_script(args)
+                    archives = sorted((Path(tmp) / 'runs').glob('*/pipeline.log'), key=lambda p: p.stat().st_mtime_ns)
+                    text = archives[-1].read_text(encoding='utf-8')
+                    self.assertIn('Finding input files', text)
+                    self.assertIn('example step output', text)
+                    self.assertIn('finished', text)
+                    self.assertIn('All tasks completed in 1.0 seconds.', text)
+
     def test_failed_pipeline_writes_error_and_stage_summary(self):
         with tempfile.TemporaryDirectory() as tmp:
             config = Path(tmp) / "config.toml"
@@ -52,6 +79,8 @@ class TangoMinerTests(unittest.TestCase):
                     process_script(["--config", str(config), "--input", tmp])
             summary_path, = (Path(tmp) / "runs").glob("*/summary.json")
             summary = json.loads(summary_path.read_text(encoding="utf-8"))
+            log = (summary_path.parent / "pipeline.log").read_text(encoding="utf-8")
+            self.assertIn("Pipeline failed: RuntimeError: example failure", log)
             self.assertEqual(summary["status"], "failed")
             self.assertIn("example failure", summary["error"])
             self.assertEqual(summary["stages"][0]["name"], "ReadFilesStep")

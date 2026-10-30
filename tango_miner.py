@@ -10,6 +10,7 @@ from os import path
 from src.Artifact import Artifact
 from src.Column import Column
 from src.Pipeline import Pipeline
+from src.ConsoleProgress import ConsoleProgress
 from src.RunConfig import resolve_config
 from src.RunArchive import write_stage_record, create_run_archive, collect_dependencies, write_run_summary
 from src.steps.CompareOutputStep import CompareOutputStep
@@ -47,58 +48,6 @@ def enable_debug_logging():
     print_debug = print
 
 
-_LAST_LEN = 0
-
-def print_step_progress(step, amount, total, duration=None, additional_text=""):
-    if step is None:
-        print(additional_text)
-        return
-
-    step_text = {
-        step.TOKENIZING: "Tokenizing",
-        step.TOKEN_MERGING: "Merging token compounds",
-        step.WORD_COLLECTION: "Collecting tokens",
-        step.OCCURRENCE_DIAGNOSTICS: "Writing occurrence diagnostics",
-        step.GRAMMAR_SHADOW: "Analyzing grammar proposals",
-        step.FILTERING: "Filtering useful vocab",
-        step.READINGS: "Adding readings",
-        step.DEFINITIONS: "Adding definitions",
-        step.SCORING: "Calculating scores",
-        step.SENTENCES: "Adding sentences",
-        step.ANKI_EXPORT: "Sending words to Anki",
-        step.SENTENCE_EXTRACTION: "Extracting sentences",
-        step.SENTENCE_NORMALIZATION: "Normalizing sentences",
-        step.READ_FILES: "Reading files"
-    }
-
-    text = step_text[step] if step in step_text else "???"
-
-    if amount >= total:
-        if duration is not None:
-            _print_progress_line(f"{text}... done in {duration:.1f} seconds. {additional_text}", newline=True)
-        else:
-            _print_progress_line(f"{text}... done. {additional_text}", newline=True)
-    else:
-        percent = f"{amount / total:.1%}"
-        _print_progress_line(f"{text}... {percent} {additional_text}", newline=False)
-
-
-def _print_progress_line(text: str, newline: bool):
-    global _LAST_LEN
-
-    # Pad with spaces to fully overwrite previous output
-    padded = text.ljust(_LAST_LEN)
-
-    sys.stdout.write("\r" + padded)
-    if newline:
-        sys.stdout.write("\n")
-        _LAST_LEN = 0
-    else:
-        _LAST_LEN = len(padded)
-
-    sys.stdout.flush()
-
-
 def process_script(argv=None):
     # Define command-line arguments
     parser = argparse.ArgumentParser(description="Process a Japanese text and extract word frequencies.", allow_abbrev=False)
@@ -108,6 +57,7 @@ def process_script(argv=None):
 
     parser.add_argument("--tags", "-t", required=False, help="Tags to add to every word")
     parser.add_argument("--min-frequency", "--minFrequency", "-f", dest="min_frequency", type=int, required=False, help="Min amount of times a word needs to appear in the text to be included")
+    parser.add_argument("--verbose", "-v", action="store_true", help="Keep progress for completed pipeline steps")
     parser.add_argument("--debug", "-d", action='store_true', default=None)
     parser.add_argument("--recursive", "-r", required=False, action='store_true', default=None)
     parser.add_argument("--user-dict", required=False)
@@ -157,7 +107,6 @@ def process_script(argv=None):
     if debug:
         enable_debug_logging()
 
-    print(f'Min frequency: {min_frequency}')
     print_debug('debug = true')
     print_debug(f'recursive mode = {recursive}')
 
@@ -167,12 +116,12 @@ def process_script(argv=None):
 
         print_debug(f"tmp dir: {tmpdir}")
 
-        print(f'Mining all relevant files from directory {input_path_obj.resolve()}...')
+        print_debug(f'Mining all relevant files from directory {input_path_obj.resolve()}...')
 
         output_path = resolve_directory_output_path(input_path_obj, config.output.path)
         final_path = create_run_archive(output_path, config)
 
-        print(f'output path: {final_path.resolve()}')
+        print_debug(f'Output path: {final_path.resolve()}')
 
         grammar_step = GrammarStep(max_examples=config.sentences.max_sentences, dictionary_path=config.dictionary.jmdict_path,
                                    prefer_expressions=True, max_lookahead=config.merge.max_lookahead) if args.grammar else None
@@ -213,15 +162,26 @@ def process_script(argv=None):
                    "anki": {"status": "not_started" if config.anki.enabled else "disabled"}}
         write_run_summary(final_path.parent, summary)
         stage_cache = StageCache(appdirs.user_cache_dir("tango_miner"), dependencies, args.refresh_cache)
-        pipeline = Pipeline(steps=[step for step in steps if step is not None], on_progress=print_step_progress,
-                            cache=stage_cache,
-                            on_stage_record=lambda index, step, record: write_stage_record(final_path.parent, index, step, record))
+        active_steps = [step for step in steps if step is not None]
+        log_path = final_path.parent / "pipeline.log"
+        log = log_path.open("w", encoding="utf-8", newline="\n")
+        log.write(f"Min frequency: {min_frequency}\nInput: {input_path_obj}\nOutput: {final_path}\n")
+        display = ConsoleProgress(sys.stdout, len(active_steps), verbose=args.verbose, log=log)
+
+        def record_stage(index, step, record):
+            write_stage_record(final_path.parent, index, step, record)
+            display.stage(index, step, record)
+
+        pipeline = Pipeline(steps=active_steps, on_progress=display.progress,
+                            cache=stage_cache, on_stage_record=record_stage)
         try:
-            pipeline.run(Artifact(input_path, tmpdir=tmpdir))
+            with display.capture_step_output():
+                pipeline.run(Artifact(input_path, tmpdir=tmpdir))
             summary["status"] = "completed"
         except BaseException as exc:
             summary["status"] = "failed"
             summary["error"] = f"{type(exc).__name__}: {exc}"
+            log.write(f"Pipeline failed: {summary['error']}\n")
             raise
         finally:
             records = getattr(pipeline, "stage_records", [])
@@ -232,7 +192,12 @@ def process_script(argv=None):
             duration = getattr(pipeline, "duration", None)
             if isinstance(duration, (int, float)):
                 summary["duration_seconds"] = duration
-            write_run_summary(final_path.parent, summary)
+            try:
+                write_run_summary(final_path.parent, summary)
+            finally:
+                if summary["status"] == "completed":
+                    log.write(f"All tasks completed in {pipeline.duration:.1f} seconds.\n")
+                log.close()
 
     print(f'All tasks completed in {pipeline.duration:.1f} seconds.')
 

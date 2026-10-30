@@ -1,5 +1,14 @@
 # Running
 
+The console updates a single progress line for the current stage, including its
+elapsed wall time and position in the pipeline, for example `[01:23 4/18]`.
+The elapsed time updates when progress is reported. Use `--verbose` (or `-v`) to keep completed stage
+progress and messages in the output. Messages printed by the stages themselves,
+including Anki previews and prompts, remain visible in either mode. Every run
+also writes stage start and completion messages and step output to `pipeline.log`
+in its run archive, including on failure. Live percentage updates are omitted.
+The log can contain source-derived text and paths.
+
 [Contents](../usage-reference.md)
 
 
@@ -52,7 +61,9 @@ The
 Anki export is disabled by default. Setting `[anki] enabled = true` in
 `config.toml` enables the AnkiConnect step after CSV output. It reads the deck
 and reports how many notes would be added, modified (including tag changes),
-and deleted. The run archive contains `anki-plan.json` with planned additions,
+and deleted. Fetching notes, preparing the comparison, and comparing notes each
+show their own progress before the confirmation prompt. Action preparation and
+application are shown separately after approval. The run archive contains `anki-plan.json` with planned additions,
 field and tag changes, and deletions; it is written before confirmation and
 contains deck content. The preview still compares notes and checks additions with
 Anki; mutation request payloads are prepared only after approval. The plan

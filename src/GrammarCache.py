@@ -71,6 +71,7 @@ class GrammarCache:
     def process(self, step, artifact):
         stats = step.cache_stats = {'stage': 'grammar', 'unit': 'corpus', 'hits': 0,
                                     'misses': 0, 'refreshes': 0, 'write_failures': 0}
+        step.progress(0, 1, 'Preparing grammar cache')
         try:
             if len(step.rules) != len(RULES) or any(a is not b for a, b in zip(step.rules, RULES)):
                 raise ValueError('custom rules')
@@ -79,7 +80,8 @@ class GrammarCache:
             key_data = ['grammar-v1', sys.version, _fingerprint(),
                         self.dictionary_hash if step.prefer_expressions else None,
                         step.prefer_expressions, step.max_lookahead, step.max_examples,
-                        _input_key_data(artifact.data)]
+                        _input_key_data(artifact.data, progress=lambda done, total: step.progress(done, total, 'Preparing cache key'))]
+            step.progress(0, 1, 'Hashing cache key')
             key = hashlib.sha256(_bytes(key_data)).hexdigest()
         except (OSError, TypeError, ValueError, KeyError, AttributeError, RecursionError) as exc:
             stats['disabled_reason'] = str(exc) or 'cache key unavailable'
@@ -87,6 +89,7 @@ class GrammarCache:
         path = self.directory / (key + '.json')
         forced = bool(self.refresh & {'grammar', 'all'})
         if not forced:
+            step.progress(0, 1, 'Checking grammar cache')
             try:
                 entry = json.loads(path.read_text(encoding='utf-8'))
                 if entry['key'] != key or entry['checksum'] != hashlib.sha256(_bytes(entry['data'])).hexdigest():
@@ -99,8 +102,10 @@ class GrammarCache:
                 step.done(f'{sum(g.count for g in step.occurrences.values())} source-supported grammar occurrences. Cache hit.')
                 return artifact
         stats['refreshes' if forced else 'misses'] = 1
+        step.progress(0, 1, 'Matching grammar')
         result = step.process(artifact)
         temporary = None
+        step.progress(0, 1, 'Saving grammar cache')
         try:
             data = _encode(step)
             entry = {'key': key, 'checksum': hashlib.sha256(_bytes(data)).hexdigest(), 'data': data}
