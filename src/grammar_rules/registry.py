@@ -2,6 +2,7 @@
 from src.GrammarConstants import GRAMMAR_EXPRESSIONS
 from src.grammar_rules.rules.te_wa_ikenai import RULE as TE_WA_IKENAI
 from src.grammar_rules.rules.te_miru import RULE as TE_MIRU
+from src.grammar_rules.rules.koto_ni_suru import RULE as KOTO_NI_SURU
 from src.grammar_rules.rules.koto_ni_naru import RULE as KOTO_NI_NARU
 from src.grammar_rules.rules.te_oku import RULE as TE_OKU
 from src.grammar_rules.rules.te_mo_ii import RULE as TE_MO_II
@@ -21,7 +22,7 @@ from src.grammar_rules.rules.koto_ga_aru_occasional import RULE as KOTO_GA_ARU_O
 from src.grammar_rules.rules.te_kuru import RULE as TE_KURU
 from src.grammar_rules.rules.te_iku import RULE as TE_IKU
 
-RULES = (KOTO_NI_NARU, TE_WA_IKENAI, TE_MIRU, TE_OKU, TE_MO_II, OBLIGATION, TO_OMOU, YOU_NI, KOTO_GA_ARU_OCCASIONAL, KOTO_GA_ARU, TE_IKU, TARA, NAI, TE_KURU, TE_IRU, NDA, TAI, TE_SHIMAU, MONONO,)
+RULES = (KOTO_NI_SURU, KOTO_NI_NARU, TE_WA_IKENAI, TE_MIRU, TE_OKU, TE_MO_II, OBLIGATION, TO_OMOU, YOU_NI, KOTO_GA_ARU_OCCASIONAL, KOTO_GA_ARU, TE_IKU, TARA, NAI, TE_KURU, TE_IRU, NDA, TAI, TE_SHIMAU, MONONO,)
 
 if frozenset(rule.expression for rule in RULES) != GRAMMAR_EXPRESSIONS:
     raise ValueError('Registered grammar identities and Anki protections must match')

@@ -51,10 +51,18 @@ Dotted fields traverse arrays; repeated `--show` selects fields. Output is
 bounded by `--limit` and `--width`, but the whole file is scanned to count
 matches. These records can include source text and paths.
 
-Full corpus checks require an agreed input corpus. Before running, verify the
-resolved configuration disables Anki or uses output-only mode; save verbose
-output to a log and wait for completion before inspecting artifacts. The
-previously documented `scripts/check_corpus.py` wrapper is not present.
+Full corpus checks require an agreed input corpus. The wrapper below resolves
+the configuration, explicitly disables Anki, saves output to a log, waits for
+completion, and reports the resulting archive. It can optionally compare a
+completed baseline and selected candidates:
+
+```sh
+python -X utf8 scripts/check_corpus.py --input path/to/agreed-corpus --output-dir path/to/check-output --baseline runs/example-run --word candidate
+```
+
+Omit `--baseline` and `--word` when no comparison is needed; see `--help` for
+other options. Check the resolved configuration and input before any full run.
+The log and archive may contain source text and paths.
 
 Replay a registered grammar rule against an existing shadow archive without
 running the pipeline:
