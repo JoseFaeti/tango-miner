@@ -7,6 +7,15 @@
 - [Identity and review](identity-and-review.md)
 - [Additional card rules](additional-card-rules.md)
 
+## 〜ば
+
+The card matches a split conjunctive ば following an adjacent hypothetical
+verb, adjective or auxiliary when a following clause is present. The predicate
+remains lexical. Supported complete obligation forms are handled by their own
+card, and longer dictionary expressions can take precedence. Sentence-final
+uses, merged tokenizations and other analyses remain unclassified; contextual
+precision and recall have not been independently evaluated.
+
 ## 〜ことにする
 
 The card identifies a decision to do or not do something after a finite verb

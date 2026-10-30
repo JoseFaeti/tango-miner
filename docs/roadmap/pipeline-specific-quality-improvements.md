@@ -5,6 +5,9 @@
 
 ### Input and sentence preparation
 
+See the [sentence normalization findings](../sentence-normalization-findings.md)
+for source-preservation risks, Japanese examples, and proposed regressions.
+
 - Report unsupported files and decode failures individually instead of only
   reporting the final count.
 - Sort discovered input paths for deterministic corpus ordering and deterministic
