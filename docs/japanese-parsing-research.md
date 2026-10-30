@@ -32,12 +32,12 @@ selects definitions largely from JMdict and retained component evidence. It
 has source-linked occurrence diagnostics, but the normal candidate identity
 still combines different uses of the same spelling. Source spans in diagnostics
 refer to normalized sentences, and alignment can fail. `SegmentedSentence`
-stores one surface, span and component sequence per lemma per sentence, so
-multiple occurrences of the same lemma within one sentence can overwrite one
-another. Standalone proper nouns are currently filtered. These are implementation
+retains each eligible occurrence and its span and component sequence; example
+selection can use an occurrence compatible with the selected definition. Standalone proper nouns are currently filtered. These are implementation
 facts, not claims about all Japanese analyzers.
 
-On the locally configured Sudachi dictionary, a small targeted probe found that
+Before the no-user-dictionary baseline, a small targeted probe using the
+then-configured Sudachi dictionary found that
 all three split modes produced `こん / なにも` for `こんなにも多く...`,
 `ないし` as a conjunction for `自信ないし、...`, and `ごく / もん` for
 `打ち首ごくもん`. This is four example sentences, not a representative

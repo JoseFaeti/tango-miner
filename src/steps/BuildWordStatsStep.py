@@ -64,6 +64,7 @@ def build_word_stats(
         sentence_surfaces = {}
         sentence_spans = {}
         sentence_components = {}
+        sentence_occurrences = {}
         cursor = 0
         for token in tokenized_sentence.tokens:
             surface = token["surface"]
@@ -117,6 +118,7 @@ def build_word_stats(
                     and tokenized_sentence.text[span[1]:].startswith('、')):
                 components = (replace(components[0], context='initial_shikashi_comma'),)
             sentence_components[lemma] = components
+            sentence_occurrences.setdefault(lemma, []).append((surface, span, components))
             ws.component_counts[components] = ws.component_counts.get(components, 0) + 1
 
             if tokenized_sentence.tag:
@@ -131,6 +133,7 @@ def build_word_stats(
                     lemma_surfaces=sentence_surfaces,
                     lemma_spans=sentence_spans,
                     lemma_components=sentence_components,
+                    lemma_occurrences=sentence_occurrences,
                 )
             )
 

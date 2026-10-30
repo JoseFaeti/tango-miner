@@ -194,6 +194,15 @@ single `--verbose` should never be interpreted as permission to modify Anki.
 
 ### Tokenization and dictionary work
 
+The baseline is Sudachi with its full system dictionary and no user dictionary;
+JMdict remains the source for compound merging and definitions. The old user
+dictionary was generated from JMdict hits over sentence substrings with shared
+Sudachi entry parameters. A dictionary hit does not establish a contextual
+word boundary, so do not restore that dictionary as a general tokenization fix.
+Revalidate historical findings with the new baseline before deciding whether
+an old issue remains or needs repair. See the
+[run comparison and issue tracker](false-positive-analysis.md#no-user-dictionary-baseline-2026-10-30).
+
 - Configure and report the Sudachi dictionary path, split mode, and tokenizer
   fingerprint.  The cache fingerprint should derive from all tokenization-
   relevant settings and dependency versions, rather than require a manually

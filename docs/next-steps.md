@@ -5,6 +5,17 @@ colloquialisms, and uncertain candidates in scope. See the
 [roadmap](pipeline-improvement-roadmap.md) for context and the
 [issue inventory](problematic-entries.md) for example frequencies.
 
+- [ ] Investigate the no-user-dictionary baseline using source-aligned
+  occurrences. Prioritize `今日は` (greeting definition versus “today” +
+  は), `あっちい` in `あっちいけ`, and the large frequency change for
+  `だが`. Check missing useful candidates including `うさんくさい`,
+  `ありえない`, and `あっち`, and the valid-to-review change for
+  `かと思えば`. Determine where tokenization, merging, filtering, grammar,
+  or definition selection causes each change before implementing a repair.
+  Keep useful colloquial and lexical readings in regression tests. Reassess
+  older issue inventories under this baseline; do not mark an issue fixed just
+  because it disappeared from output. See the
+  [baseline comparison](false-positive-analysis.md#no-user-dictionary-baseline-2026-10-30).
 - [ ] Add independently invalidatable pipeline caches to speed up repeated
   runs. This is feasible for deterministic intermediate results, but first
   use archived stage timings and cache hit rates to identify expensive stages

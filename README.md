@@ -25,8 +25,13 @@ python tango_miner.py --input path/to/text-directory --output path/to/output.csv
 The pipeline needs Python, SudachiPy with its full dictionary and the local
 Sudachi configuration, `appdirs`, and a JMdict XML file. The dictionary path is
 configured in `config.toml`, as are the Sudachi config and dictionary; some
-resources are local and ignored by Git. A reproducible dependency and setup
-specification is still needed. Check the current configuration before a run.
+resources are local and ignored by Git. The current baseline uses Sudachi
+with the full system dictionary and an empty `userDict` in
+`sudachi.config.json`; JMdict is still used for merging and definitions. The
+previously generated user dictionary is not part of the baseline. See
+[baseline findings and follow-up](docs/false-positive-analysis.md#no-user-dictionary-baseline-2026-10-30).
+A reproducible dependency and setup specification is still needed. Check the
+current configuration before a run.
 
 Each run writes the requested CSV and its `.dropped.csv` and `.sentence.csv`
 companions under `runs/<local-date>_<time>_<git-revision>/` beside the

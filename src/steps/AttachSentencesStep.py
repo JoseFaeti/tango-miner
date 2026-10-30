@@ -64,6 +64,18 @@ def _percentile(values, p=0.9):
     return s[min(int(len(s) * p), len(s) - 1)]
 
 
+def _supported_occurrence(seg, lemma, stats):
+    """Select an occurrence compatible with the definition, preserving legacy inputs."""
+    occurrences = seg.lemma_occurrences.get(lemma)
+    if occurrences is None:
+        occurrences = [(seg.lemma_surfaces[lemma], seg.lemma_spans.get(lemma),
+                        seg.lemma_components.get(lemma))]
+    for surface, span, components in occurrences:
+        if stats.definition_components is None or components in stats.definition_components:
+            return surface, span
+    return None
+
+
 # ---------------------------------------------------------------------------
 # Core pipeline
 # ---------------------------------------------------------------------------
@@ -154,8 +166,10 @@ def attach_sentences(word_data, segmented_sentences, progress_handler=None, conf
             ws = word_get(lemma)
             if ws is None:
                 continue
-            if ws.definition_components is not None and seg.lemma_components.get(lemma) not in ws.definition_components:
+            occurrence = _supported_occurrence(seg, lemma, ws)
+            if occurrence is None:
                 continue
+            surface, span = occurrence
 
             # Fraction of sentence words that score harder than this word [0, 1]
             too_hard = len(sorted_scores) - bisect_right(sorted_scores, ws.score)
@@ -175,7 +189,7 @@ def attach_sentences(word_data, segmented_sentences, progress_handler=None, conf
                 origin = seg.origin,
                 surface_form = surface,
                 score = round(mean, 2),
-                span = seg.lemma_spans.get(lemma)
+                span = span
             )
 
             key = _sentence_dedupe_key_fast(text)
@@ -226,8 +240,10 @@ def attach_sentences(word_data, segmented_sentences, progress_handler=None, conf
                 ws = word_get(lemma)
                 if ws is None:
                     continue
-                if ws.definition_components is not None and seg.lemma_components.get(lemma) not in ws.definition_components:
+                occurrence = _supported_occurrence(seg, lemma, ws)
+                if occurrence is None:
                     continue
+                surface, span = occurrence
 
                 sentence = Sentence(
                     text = seg.text,
@@ -235,7 +251,7 @@ def attach_sentences(word_data, segmented_sentences, progress_handler=None, conf
                     origin = seg.origin,
                     surface_form = surface,
                     score = ws.score * -1,
-                    span = seg.lemma_spans.get(lemma)
+                    span = span
                 )
 
                 # skip exact duplicates already attached

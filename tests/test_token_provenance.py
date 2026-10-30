@@ -96,6 +96,23 @@ class ProvenanceTests(unittest.TestCase):
         self.assertEqual(words['ないで'].pos[0], 'exp')
         self.assertEqual(words['ないで'].tags, {'tag'})
 
+    def test_repeated_lemma_preserves_each_analysis_for_example_selection(self):
+        from src.steps.AttachSentencesStep import attach_sentences
+        raw = [token('ようやく', 'ようやく', ['副詞', '*']),
+               token('ようやく', 'ようやく', ['名詞', '*'])]
+        words, segments = build_word_stats([
+            TokenizedSentence('ようやくようやくという言葉を使いました。', 'tag', Path('a'), raw)])
+        stats = words['ようやく']
+        stats.score = 500
+        self.assertEqual(stats.frequency, 2)
+        self.assertEqual(len(segments[0].lemma_occurrences['ようやく']), 2)
+        adverb = next(c for c in stats.component_counts if c[0].pos[0] == '副詞')
+        stats.definition_components = {adverb}
+        attach_sentences(words, segments)
+        self.assertEqual(len(stats.sentences), 1)
+        self.assertEqual(stats.sentences[0].span, (0, 4))
+        self.assertIn("<span class='highlight'>ようやく</span>ようやく", stats.sentences[0].to_html())
+
     def test_unmerged_token_keeps_original_evidence(self):
         raw = token('風花', '風花', ['名詞', '固有名詞'])
         merged = combine_tokens_jmdict([raw], Dictionary())
