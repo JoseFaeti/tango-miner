@@ -51,22 +51,10 @@ Dotted fields traverse arrays; repeated `--show` selects fields. Output is
 bounded by `--limit` and `--width`, but the whole file is scanned to count
 matches. These records can include source text and paths.
 
-To check a corpus with Anki disabled and save the verbose progress to a log:
-
-```sh
-python -X utf8 scripts/check_corpus.py --input path/to/corpus --output-dir checks --baseline runs/example-run --word する
-```
-
-Use an actual completed run directory for `--baseline`; omit it to skip the
-comparison. Pass `--no-grammar` to omit grammar cards from the check. The wrapper
-loads the normal configuration, forces Anki off in a
-temporary resolved configuration, and writes the run archive and a uniquely
-named log under the output directory. Use `--config` to select another config,
-`--retokenize` to refresh the cache, or `--occurrence-diagnostics` when that
-evidence is needed. The compact comparison reports config equality; disabling
-Anki can itself make configurations differ. The wrapper still runs the full
-pipeline and may take significant time and disk space, but does not print its
-progress log into the conversation.
+Full corpus checks require an agreed input corpus. Before running, verify the
+resolved configuration disables Anki or uses output-only mode; save verbose
+output to a log and wait for completion before inspecting artifacts. The
+previously documented `scripts/check_corpus.py` wrapper is not present.
 
 Replay a registered grammar rule against an existing shadow archive without
 running the pipeline:

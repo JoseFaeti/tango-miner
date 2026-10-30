@@ -1,5 +1,5 @@
 ---
-name: tango-grammar
+name: grammar
 description: Implement or extend a Japanese grammar card in the Tango Miner pipeline, including source-grounded matching, recall-sensitive tests, and documentation. Use for grammar point implementation in this repository.
 ---
 
@@ -13,4 +13,4 @@ Implement a focused rule under src/grammar_rules/rules/, register it in src/gram
 
 Add focused regressions for supported forms, misleading or ambiguous analyses, useful lexical controls, and grammar reservation, examples and identity integration as appropriate. Run `python -m unittest discover -s tests` without real Anki mutations. Update README.md and the grammar tracker and card documentation to reflect the actual scope and limitations. Preserve existing line endings and inspect the diff.
 
-Do not start a full corpus pipeline run unless the user explicitly asks you to run it. For an authorized run, first agree on the curated input corpus and verify the resolved configuration disables Anki or uses output-only mode; prefer scripts/check_corpus.py, which forces Anki off. Save verbose output to a log. Wait for the process completion signal or exit status before inspecting the run, log or artifacts. After completion, use the bounded inspection and comparison scripts, report failures and Anki status, and distinguish observed counts from an independent precision or recall evaluation. If the user runs the pipeline, inspect its completed archive when asked.
+Do not start a full corpus pipeline run unless the user explicitly asks you to run it. For an authorized run, first agree on the curated input corpus and verify the resolved configuration disables Anki or uses output-only mode; Save verbose output to a log. Wait for the process completion signal or exit status before inspecting the run, log or artifacts. After completion, use the bounded inspection and comparison scripts, report failures and Anki status, and distinguish observed counts from an independent precision or recall evaluation. If the user runs the pipeline, inspect its completed archive when asked.

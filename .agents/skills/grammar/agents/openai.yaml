@@ -1,0 +1,3 @@
+interface:
+  display_name: "Grammar"
+  short_description: "Implement Japanese grammar cards"
