@@ -4,12 +4,18 @@ from src.grammar_rules.base import GrammarRule
 from src.grammar_rules.helpers import adjacent
 
 
+# Precompute the complete forms and all prefixes once, rather than rebuilding
+# the same strings for each token in every sentence.
+_PREFIXES = {"なければ", "なきゃ", "なけりゃ", "なくては", "なくちゃ", "ないと"}
+_ENDINGS = {"ならない", "なりません", "いけない", "いけません",
+            "ならなかった", "いけなかった", "なりませんでした", "いけませんでした"}
+_FORMS = frozenset(prefix + ending for prefix in _PREFIXES for ending in _ENDINGS)
+_FORM_PREFIXES = frozenset(form[:i] for form in _FORMS for i in range(len(form) + 1))
+
+
 def match_obligation(tokens):
     # Match whole aligned tokens only. Some dictionary analyses label complete
     # suffixes as nouns, so surfaces are checked alongside the verbal anchor.
-    prefixes = {"なければ", "なきゃ", "なけりゃ", "なくては", "なくちゃ", "ないと"}
-    endings = {"ならない", "なりません", "いけない", "いけません",
-               "ならなかった", "いけなかった", "なりませんでした", "いけませんでした"}
     for i in range(1, len(tokens)):
         anchor = tokens[i - 1]
         pos = anchor['pos']
@@ -22,7 +28,7 @@ def match_obligation(tokens):
             if j > i and not adjacent(tokens[j - 1], tokens[j]):
                 break
             surface += tokens[j]['surface']
-            if any(surface == prefix + ending for prefix in prefixes for ending in endings):
+            if surface in _FORMS:
                 # Do not reserve a partial inflection such as なかった.
                 if j + 1 < len(tokens) and adjacent(tokens[j], tokens[j + 1]):
                     following = tokens[j + 1]
@@ -32,7 +38,7 @@ def match_obligation(tokens):
                         break
                 yield tokens[i]['span'][0], tokens[j]['span'][1]
                 break
-            if not any((prefix + ending).startswith(surface) for prefix in prefixes for ending in endings):
+            if surface not in _FORM_PREFIXES:
                 break
 
 

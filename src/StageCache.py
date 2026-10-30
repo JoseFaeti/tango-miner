@@ -51,14 +51,21 @@ def _input_key_data(sentences, progress=None):
         for token in sentence.tokens:
             # Normal tokenizer output is JSON-native apart from POS tuples.
             # Fall back to the explicit encoding for unusual token structures.
-            if "components" in token or any(not isinstance(v, (str, int, float, bool, type(None)))
-                                              for k, v in token.items() if k != "pos"):
-                raw.append([1, _pack_token(token)])
-            else:
-                pos = token["pos"]
-                if not isinstance(pos, (tuple, list)) or any(not isinstance(p, str) for p in pos):
+            pos = token["pos"]
+            if not isinstance(pos, (tuple, list)):
+                raise TypeError("Unsupported token POS")
+            for part in pos:
+                if not isinstance(part, str):
                     raise TypeError("Unsupported token POS")
-                raw.append([0, token, isinstance(pos, tuple)])
+            for key, value in token.items():
+                if key != "pos" and not isinstance(value, (str, int, float, bool, type(None))):
+                    raw.append([1, _pack_token(token)])
+                    break
+            else:
+                if "components" in token:
+                    raw.append([1, _pack_token(token)])
+                else:
+                    raw.append([0, token, isinstance(pos, tuple)])
         result.append([sentence.text, sentence.tag,
                        str(sentence.origin) if sentence.origin is not None else None, raw])
     return result

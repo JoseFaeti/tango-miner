@@ -535,6 +535,14 @@ def combine_tokens_jmdict(
                   for i, token in enumerate(token_list)]
     merged_tokens = []
     n = len(token_list)
+    # Each candidate range stops before the next reserved token. Compute that
+    # boundary once instead of scanning every overlapping candidate slice.
+    next_reserved = [n] * n
+    boundary = n
+    for index in range(n - 1, -1, -1):
+        if token_list[index].get('grammar_reserved'):
+            boundary = index
+        next_reserved[index] = boundary
     i = 0
 
     while i < n:
@@ -544,7 +552,7 @@ def combine_tokens_jmdict(
             continue
         match_found = False
         for j in range(min(n, i + max_lookahead), i + 1, -1):
-            if any(token.get('grammar_reserved') for token in token_list[i:j]):
+            if j > next_reserved[i]:
                 continue
             combined_surface = "".join(token["surface"] for token in token_list[i:j])
             # A merged card must be grounded in the text the learner will see.

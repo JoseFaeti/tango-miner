@@ -14,13 +14,13 @@ RULE = GrammarRule(
 def match_te_kuru(tokens):
     for i in range(1, len(tokens) - 1):
         verb, connective, kuru = tokens[i - 1:i + 2]
-        if (not adjacent(verb, connective) or not adjacent(connective, kuru)
-                or verb['pos'][:1] not in (['動詞'], ['助動詞'])
-                or len(verb['pos']) < 6 or not verb['pos'][5].startswith('連用形')
+        if (kuru['lemma'] not in ('くる', '来る')
+                or kuru['pos'][:2] != ['動詞', '非自立可能']
                 or connective['surface'] not in ('て', 'で')
                 or connective['pos'][:2] != ['助詞', '接続助詞']
-                or kuru['lemma'] not in ('くる', '来る')
-                or kuru['pos'][:2] != ['動詞', '非自立可能']):
+                or not adjacent(verb, connective) or not adjacent(connective, kuru)
+                or verb['pos'][:1] not in (['動詞'], ['助動詞'])
+                or len(verb['pos']) < 6 or not verb['pos'][5].startswith('連用形')):
             continue
         end = i + 1
         surface = kuru['surface']

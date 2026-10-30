@@ -7,7 +7,7 @@ from unittest.mock import patch
 
 from src.Artifact import Artifact
 from src.Pipeline import Pipeline
-from src.StageCache import StageCache, MERGE_SOURCE_DEPENDENCIES, _source_fingerprint, _pack_token, _unpack_token
+from src.StageCache import StageCache, MERGE_SOURCE_DEPENDENCIES, _source_fingerprint, _pack_token, _unpack_token, _input_key_data, _bytes
 from src.TokenProvenance import TokenComponent
 from src.TokenizedSentence import TokenizedSentence
 from src.steps.MergeTokensStep import MergeTokensStep
@@ -20,6 +20,22 @@ def sentence(name, text):
 
 
 class StageCacheTests(unittest.TestCase):
+    def test_input_key_preserves_token_fields_pos_types_and_components(self):
+        component = TokenComponent('猫', '猫', '猫', 'ねこ', ('名詞',), 'context')
+        base = {'surface': '猫', 'lemma': '猫', 'pos': ('名詞',), 'reading': 'ねこ'}
+        def key(token):
+            return _bytes(_input_key_data([TokenizedSentence('猫', 'tag', Path('a'), [token])]))
+        baseline = key(base)
+        self.assertNotEqual(baseline, key({**base, 'pos': ['名詞']}))
+        self.assertNotEqual(baseline, key({**base, 'reading': 'びょう'}))
+        self.assertNotEqual(baseline, key({**base, 'components': (component,)}))
+        self.assertNotEqual(key({**base, 'components': (component,)}),
+                            key({**base, 'components': (TokenComponent('猫', '猫', '猫', 'ねこ', ('名詞',), 'other'),)}))
+        with self.assertRaises(TypeError):
+            key({**base, 'pos': ('名詞', 1)})
+        with self.assertRaises(TypeError):
+            key({**base, 'unexpected': {'nested': 'value'}})
+
     def test_token_component_context_survives_cache_serialization(self):
         component = TokenComponent('しかし', 'しかし', 'しかし', 'しかし', ('接続詞',), 'initial_shikashi_comma')
         token = {'surface': 'しかし', 'pos': ('接続詞',), 'components': (component,)}
