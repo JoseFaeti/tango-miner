@@ -65,6 +65,8 @@ it does not distinguish these meanings. Conjunction analyses, sentence-final
 uses, and other tokenizations remain unrecognized. The rule has not undergone
 independent precision or recall evaluation.
 
+The `〜ようだ` card recognizes selected finite predicate or noun + の attachments followed by split よう + だ / です, including だった and でした. It covers inference and resemblance without distinguishing them. Negative, attributive and continuative forms, みたいだ, other tokenizations and demonstrative このようだ remain lexical; independent precision and recall evaluation remains needed.
+
 The `〜ように` card recognizes selected merged and split `ように` analyses
 after an adjacent finite verb, adjective or auxiliary, with following text. It
 can express purpose, manner, resemblance or instruction; morphology does not

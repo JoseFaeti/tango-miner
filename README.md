@@ -3,7 +3,7 @@
 Tango Miner extracts Japanese learning candidates from your reading material and
 produces CSV files for review or use with Anki. It aims to retain useful words,
 expressions, grammar, colloquialisms and names. Grammar cards include selected
-〜ことにする decision forms; see the [grammar card details](docs/grammar/card-details.md)
+〜ことにする decision and 〜ようだ inference or resemblance forms; see the [grammar card details](docs/grammar/card-details.md)
 for coverage and limitations. The [priority grammar tracker](docs/grammar-priorities.md)
 and [remaining candidates](docs/grammar/remaining-candidates.md) guide future work.
 

@@ -102,7 +102,7 @@ and need independent precision and recall evaluation. See the
 - [ ] 〜なら — conditional or topic-based supposition.
 - [ ] 〜ても — concession, “even if”.
 - [ ] 〜そうだ — appearance and hearsay; treat as distinct constructions.
-- [ ] 〜ようだ / 〜みたいだ — resemblance or inference; distinguish uses.
+- [~] 〜ようだ / 〜みたいだ — resemblance or inference. Covered: 〜ようだ with selected predicate and noun attachments and present or past plain/polite copulas. 〜みたいだ, negative, attributive and continuative forms and other analyses remain unsupported; evaluate contextual meanings and recall.
 - [ ] 〜はずだ — expectation or inference.
 - [ ] 〜わけだ / 〜わけではない — explanation and partial negation; distinguish uses.
 - [ ] 〜たがる — apparent desire of another person.
