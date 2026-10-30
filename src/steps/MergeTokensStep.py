@@ -4,6 +4,7 @@ import json
 from src.Artifact import Artifact
 from src.JMDict import JMDict
 from src.PipelineStep import PipelineStep
+from src.RunConfig import resolve_config
 from src.TokenizedSentence import TokenizedSentence
 from src.TokenProvenance import token_components
 from src.steps.ProcessingStep import ProcessingStep
@@ -25,9 +26,12 @@ _jmdict_path = None
 
 
 def get_jmdict(path: str | Path | None = None) -> JMDict:
-    """Load the dictionary for the requested path, reusing the last instance."""
+    """Load the requested dictionary, or the default configuration's dictionary."""
     global _jmdict, _jmdict_path
-    resolved_path = (Path(path).expanduser() if path is not None else Path.home() / "JMdict_e.xml").resolve()
+    if path is None:
+        config_path = Path("config.toml")
+        path = resolve_config(config_path if config_path.is_file() else None).dictionary.jmdict_path
+    resolved_path = Path(path).expanduser().resolve()
     if _jmdict is None or _jmdict_path != resolved_path:
         dictionary = JMDict(resolved_path)
         _jmdict, _jmdict_path = dictionary, resolved_path
