@@ -161,7 +161,11 @@ pipeline test suite and record remaining ambiguity and partial coverage.
     contextual meanings and independent precision and recall. Longer JMdict
     expressions beginning at おく take precedence; effects on output frequencies
     need a same-input corpus comparison.
-- [ ] 〜てみる — try doing something.
+- [~] 〜てみる — try doing something.
+  - Covered: adjacent continuative verb + て/で + non-independent みる,
+    including selected past, negative and polite forms.
+  - Remaining: other tokenizations and inflections; distinguish literal “see”
+    readings and evaluate precision and recall independently.
 - [ ] 〜ことになる — decided outcome or consequence.
 - [ ] 〜ことにする — decision to do something.
 - [ ] 〜ば — conditional; distinguish other uses.

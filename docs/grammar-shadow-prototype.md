@@ -97,6 +97,8 @@ resolve every contextual ambiguity, and precision and recall have not been
 independently evaluated.
 
 
+The `〜てみる` card recognizes an adjacent continuative verb + connective て/で + non-independent みる. It includes the supported present form and selected past, negative and polite forms. Standalone 見る and noun + てみる do not match. These token and POS cues do not prove that the meaning is “try doing”; a literal see reading can remain ambiguous, and unsupported forms stay lexical. The rule requires an eligible example and has not been independently evaluated for precision or recall.
+
 The shared grammar stage runs by default. Pass `--no-grammar` to disable it.
 The stage checks the registered rules and adds separate
 grammar candidates to
