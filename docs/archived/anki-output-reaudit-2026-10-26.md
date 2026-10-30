@@ -96,4 +96,4 @@ definition selection, not reduce the candidate set.
 ## Related documents
 
 - [Initial output audit](anki-output-audit-2026-10-26.md)
-- [Candidate-quality and recall policy](false-positive-analysis.md)
+- [Candidate-quality and recall policy](../false-positive-analysis.md)
