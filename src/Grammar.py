@@ -1,6 +1,7 @@
 """Shared stages for collecting and scoring registered grammar rules."""
 from dataclasses import dataclass, field
 from bisect import bisect_right
+from time import perf_counter
 
 from src.GrammarShadow import aligned_tokens
 from src.TokenizedSentence import TokenizedSentence
@@ -29,7 +30,7 @@ class GrammarOccurrences:
 
 
 class GrammarStep(PipelineStep):
-    def __init__(self, max_examples=3, rules=RULES, dictionary_path=None, prefer_expressions=False, max_lookahead=10):
+    def __init__(self, max_examples=3, rules=RULES, dictionary_path=None, prefer_expressions=False, max_lookahead=10, profile_rules=False, profiling=True):
         self._processing_step = ProcessingStep.GRAMMAR_SHADOW
         self.start_time = None
         self.max_examples = max_examples
@@ -40,8 +41,14 @@ class GrammarStep(PipelineStep):
         if len({r.id for r in self.rules}) != len(self.rules) or len({r.expression for r in self.rules}) != len(self.rules):
             raise ValueError('Grammar rules must have unique identities and expressions')
         self.occurrences = {}
+        self._performance_enabled = profiling
+        self._performance_entries = {}
+        self.profiling = profiling
+        self.profile_rules = profile_rules
+        self.performance = {'per_rule_requested': profile_rules}
 
     def process(self, artifact):
+        rule_times = self.performance.setdefault('rules_seconds', {}) if self.profile_rules else None
         self.occurrences = {rule.id: GrammarOccurrences() for rule in self.rules}
         self.matches = {}
         self.spans = {}
@@ -50,15 +57,23 @@ class GrammarStep(PipelineStep):
         for sentence_index, sentence in enumerate(artifact.data):
             if sentence_index % interval == 0:
                 self.progress(sentence_index, total, 'Matching grammar')
+            started = (perf_counter() if self._performance_enabled else 0.0)
             tokens, error = aligned_tokens(sentence.text, sentence.tokens)
+            self.add_performance_time('alignment', (perf_counter() if self._performance_enabled else 0.0) - started)
             if error:
                 continue
             proposals = []
+            started = (perf_counter() if self._performance_enabled else 0.0)
             for rule in self.rules:
+                rule_started = (perf_counter() if self._performance_enabled else 0.0) if rule_times is not None else None
                 for start, end in rule.match(tokens):
                     if not 0 <= start < end <= len(sentence.text):
                         raise ValueError(f'Invalid source span for grammar rule {rule.id}')
                     proposals.append((rule, start, end))
+                if rule_times is not None:
+                    rule_times[rule.id] = rule_times.get(rule.id, 0.0) + (perf_counter() if self._performance_enabled else 0.0) - rule_started
+            self.add_performance_time('matching', (perf_counter() if self._performance_enabled else 0.0) - started)
+            started = (perf_counter() if self._performance_enabled else 0.0)
             expression_spans = []
             if proposals and self.prefer_expressions:
                 # Use the established dictionary merger as evidence of a complete
@@ -72,6 +87,8 @@ class GrammarStep(PipelineStep):
                                          merged[t['index']].get('dictionary_expression', False))
                                         for t in aligned
                                         if merged[t['index']].get('analysis_rule') == 'jmdict_surface_merge']
+            self.add_performance_time('expression_precedence', (perf_counter() if self._performance_enabled else 0.0) - started)
+            started = (perf_counter() if self._performance_enabled else 0.0)
             for rule, start, end in proposals:
                 # A copular な immediately before explanatory んだ is part of
                 # the predicate, not interrogative 何だ. An exact JMdict
@@ -102,6 +119,7 @@ class GrammarStep(PipelineStep):
                     group.examples.append(Sentence(sentence.text, sentence.tag or '', str(sentence.origin or ''),
                                                    sentence.text[start:end], 0.0, (start, end)))
                     group.example_texts.add(sentence.text)
+            self.add_performance_time('aggregation', (perf_counter() if self._performance_enabled else 0.0) - started)
         self.done(f'{sum(g.count for g in self.occurrences.values())} source-supported grammar occurrences.')
         return artifact
 

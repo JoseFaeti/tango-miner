@@ -5,7 +5,9 @@ from src.PipelineStep import PipelineStep, ProgressEvent
 
 
 class Pipeline:
-    def __init__(self, steps: Iterable[PipelineStep], on_progress=None, cache=None, on_stage_record=None):
+    def __init__(self, steps: Iterable[PipelineStep], on_progress=None, cache=None, on_stage_record=None, profiling=False):
+        self.profiling = profiling
+        self.performance = {}
         self.steps: List[PipelineStep] = list(steps)
         self.on_progress = on_progress
         self.cache = cache
@@ -24,6 +26,7 @@ class Pipeline:
         tmpdir = data.tmpdir
 
         self.stage_records = []
+        self.performance = {}
         self.wait_seconds = 0.0
         try:
             for index, step in enumerate(self.steps, 1):
@@ -35,6 +38,8 @@ class Pipeline:
                 self._current_record = record
                 if self.on_stage_record:
                     self.on_stage_record(index, step, record)
+                step._performance_enabled = self.profiling
+                step._performance_entries = {}
                 try:
                     data = self.cache.process(step, data) if self.cache is not None else step.process(data)
                     data.tmpdir = tmpdir
@@ -59,6 +64,8 @@ class Pipeline:
                     wait_seconds = getattr(step, "wait_seconds", 0.0)
                     self.wait_seconds += wait_seconds
                     record["duration_seconds"] = max(0.0, wall_seconds - wait_seconds)
+                    if self.profiling:
+                        self.performance[str(index)] = {'entries_seconds': {'total': record["duration_seconds"], **step._performance_entries}}
                     if hasattr(step, "cache_stats"):
                         record["cache"] = dict(step.cache_stats)
                     if self.cache is not None and type(step).__name__ == "MergeTokensStep" and self.cache.stats is not None:

@@ -124,7 +124,8 @@ def process_script(argv=None):
         print_debug(f'Output path: {final_path.resolve()}')
 
         grammar_step = GrammarStep(max_examples=config.sentences.max_sentences, dictionary_path=config.dictionary.jmdict_path,
-                                   prefer_expressions=True, max_lookahead=config.merge.max_lookahead) if args.grammar else None
+                                   prefer_expressions=True, max_lookahead=config.merge.max_lookahead,
+                                   profile_rules=False, profiling=config.profiling.enabled) if args.grammar else None
         steps = [
             GatherInputFilesStep(input_path_obj, include_subdirectories=recursive, extensions=config.input.extensions,
                                  excluded_directory=final_path.parent.parent,
@@ -161,6 +162,9 @@ def process_script(argv=None):
                    "cache_refresh_requested": args.refresh_cache,
                    "anki": {"status": "not_started" if config.anki.enabled else "disabled"}}
         write_run_summary(final_path.parent, summary)
+        from src.RunArchive import write_performance
+        if config.profiling.enabled:
+            write_performance(final_path.parent, {})
         stage_cache = StageCache(appdirs.user_cache_dir("tango_miner"), dependencies, args.refresh_cache)
         active_steps = [step for step in steps if step is not None]
         log_path = final_path.parent / "pipeline.log"
@@ -170,10 +174,12 @@ def process_script(argv=None):
 
         def record_stage(index, step, record):
             write_stage_record(final_path.parent, index, step, record)
+            if config.profiling.enabled and record["status"] != "running":
+                write_performance(final_path.parent, pipeline.performance)
             display.stage(index, step, record)
 
         pipeline = Pipeline(steps=active_steps, on_progress=display.progress,
-                            cache=stage_cache, on_stage_record=record_stage)
+                            cache=stage_cache, on_stage_record=record_stage, profiling=config.profiling.enabled)
         try:
             with display.capture_step_output():
                 pipeline.run(Artifact(input_path, tmpdir=tmpdir))

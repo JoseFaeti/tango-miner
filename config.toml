@@ -17,6 +17,10 @@ path = "."
 [debug]
 enabled = false
 
+[profiling]
+# Collect named phase timings for pipeline steps.
+enabled = true
+
 [tokenizer]
 # Sudachi JSON configuration and installed system dictionary name or path.
 # Relative paths are resolved from the current working directory.

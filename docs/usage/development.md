@@ -138,3 +138,25 @@ examples can represent different senses, so they are not automatically added
 to Anki and existing notes are protected from pruning. This review path can
 retain additional expressions beyond the examples motivating it.
 
+
+## Pipeline performance measurements
+
+Set `[profiling] enabled = true` in `config.toml` to collect named phase
+measurements in `performance.json`. Each executed step has a `total` in the
+report and in `performance.json`, matching the duration in its existing
+`steps/*.json` record. Total is elapsed wall time excluding recorded user
+waits and includes cache handling. Named phases use elapsed wall time; they
+can overlap or omit work, so they need not sum to the total. Failed steps may
+have partial measurements. Phases not executed, such as matching on a grammar
+cache hit, are absent rather than zero. Profiling is disabled by default.
+
+Steps can use `with self.performance_phase("name"):` around work, or
+`self.add_performance_time(name, seconds)` for accumulated intervals. Repeated
+names accumulate; `total` is reserved. The grammar step currently records
+alignment, matching, expression-precedence preparation, aggregation, and
+cache key/read/write phases. Older profiling archives remain readable.
+
+Use `python scripts/report_performance.py RUN_DIR [RUN_DIR ...]` to combine
+named timings with stage and cache records. Compare runs only after checking
+inputs, configuration, revision, dependencies, cache state and measurement
+settings. Timer overhead has not yet been quantified.

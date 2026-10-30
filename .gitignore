@@ -5,6 +5,7 @@ resources/*
 scripts/*
 checks/*
 !scripts/inspect_run.py
+!scripts/report_performance.py
 !scripts/query_jsonl.py
 !scripts/replay_grammar.py
 !scripts/compare_runs.py

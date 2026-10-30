@@ -163,3 +163,12 @@ def write_stage_record(directory, index, step, record):
     temporary = target.with_suffix(".json.tmp")
     temporary.write_text(json.dumps(report, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
     temporary.replace(target)
+
+
+def write_performance(directory, steps):
+    """Write new measurements without duplicating stage records."""
+    target = Path(directory) / "performance.json"
+    temporary = target.with_suffix(".json.tmp")
+    report = {"schema_version": 3, "steps": steps}
+    temporary.write_text(json.dumps(report, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
+    temporary.replace(target)

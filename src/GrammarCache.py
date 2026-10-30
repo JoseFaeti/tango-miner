@@ -3,6 +3,7 @@ import hashlib
 import json
 import sys
 import tempfile
+from time import perf_counter
 from dataclasses import asdict
 from pathlib import Path
 
@@ -72,6 +73,10 @@ class GrammarCache:
         stats = step.cache_stats = {'stage': 'grammar', 'unit': 'corpus', 'hits': 0,
                                     'misses': 0, 'refreshes': 0, 'write_failures': 0}
         step.progress(0, 1, 'Preparing grammar cache')
+        step.performance = {'per_rule_requested': step.profile_rules}
+        step._performance_entries = {}
+        clock = perf_counter if step._performance_enabled else lambda: 0.0
+        started = clock()
         try:
             if len(step.rules) != len(RULES) or any(a is not b for a, b in zip(step.rules, RULES)):
                 raise ValueError('custom rules')
@@ -85,19 +90,25 @@ class GrammarCache:
             key = hashlib.sha256(_bytes(key_data)).hexdigest()
         except (OSError, TypeError, ValueError, KeyError, AttributeError, RecursionError) as exc:
             stats['disabled_reason'] = str(exc) or 'cache key unavailable'
+            key = None
+        finally:
+            step.add_performance_time('cache_key', clock() - started)
+        if key is None:
             return step.process(artifact)
         path = self.directory / (key + '.json')
         forced = bool(self.refresh & {'grammar', 'all'})
         if not forced:
             step.progress(0, 1, 'Checking grammar cache')
+            started = clock()
             try:
                 entry = json.loads(path.read_text(encoding='utf-8'))
                 if entry['key'] != key or entry['checksum'] != hashlib.sha256(_bytes(entry['data'])).hexdigest():
                     raise ValueError('Invalid cache checksum')
                 _restore(step, entry['data'], artifact.data)
             except (OSError, ValueError, TypeError, KeyError, IndexError, AttributeError, RecursionError):
-                pass
+                step.add_performance_time('cache_read', clock() - started)
             else:
+                step.add_performance_time('cache_read', clock() - started)
                 stats['hits'] = 1
                 step.done(f'{sum(g.count for g in step.occurrences.values())} source-supported grammar occurrences. Cache hit.')
                 return artifact
@@ -106,6 +117,7 @@ class GrammarCache:
         result = step.process(artifact)
         temporary = None
         step.progress(0, 1, 'Saving grammar cache')
+        started = clock()
         try:
             data = _encode(step)
             entry = {'key': key, 'checksum': hashlib.sha256(_bytes(data)).hexdigest(), 'data': data}
@@ -117,6 +129,7 @@ class GrammarCache:
         except (OSError, TypeError, ValueError, KeyError, AttributeError, RecursionError):
             stats['write_failures'] += 1
         finally:
+            step.add_performance_time('cache_write', clock() - started)
             if temporary is not None:
                 try:
                     temporary.unlink(missing_ok=True)

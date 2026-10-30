@@ -84,6 +84,11 @@ class DebugConfig:
 
 
 @dataclass(frozen=True)
+class ProfilingConfig:
+    enabled: bool = False
+
+
+@dataclass(frozen=True)
 class RunConfig:
     config_version: int = 1
     input: InputConfig = InputConfig()
@@ -95,6 +100,7 @@ class RunConfig:
     sentences: SentencesConfig = SentencesConfig()
     output: OutputConfig = OutputConfig()
     debug: DebugConfig = DebugConfig()
+    profiling: ProfilingConfig = ProfilingConfig()
     anki: AnkiConfig = AnkiConfig()
 
     def to_json(self) -> str:
@@ -112,7 +118,7 @@ def resolve_config(path=None, overrides=None) -> RunConfig:
         version = data.get("config_version", 1)
         if type(version) is not int or version != 1:
             raise ValueError(f"Unsupported config_version: {version!r}")
-        for section in ("input", "tokenizer", "merge", "dictionary", "filter", "scoring", "sentences", "output", "debug", "anki"):
+        for section in ("input", "tokenizer", "merge", "dictionary", "filter", "scoring", "sentences", "output", "debug", "profiling", "anki"):
             values = data.get(section, {})
             if not isinstance(values, dict):
                 raise ValueError(f"[{section}] must be a table")
@@ -195,7 +201,7 @@ def _update_section(name, section, values):
                            "too_hard_word_penalty": (int, float), "difficulty_weight": (int, float),
                            "short_sentence_penalty": (int, float), "min_word_count": (int,),
                            "variance_divisor": (int, float)},
-             "debug": {"enabled": (bool,)}, "anki": {"enabled": (bool,), "output_only": (bool,), "prune": (bool,), "endpoint": (str,), "deck": (str,), "model": (str,),
+             "debug": {"enabled": (bool,)}, "profiling": {"enabled": (bool,)}, "anki": {"enabled": (bool,), "output_only": (bool,), "prune": (bool,), "endpoint": (str,), "deck": (str,), "model": (str,),
                       "timeout_seconds": (int, float), "batch_size": (int,), "note_fetch_batch_size": (int,)}}
     for key, value in values.items():
         if type(value) not in types[name][key]:
