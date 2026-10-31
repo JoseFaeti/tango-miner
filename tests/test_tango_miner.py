@@ -4,7 +4,7 @@ import json
 from pathlib import Path
 from unittest.mock import patch
 
-from tango_miner import MIN_FREQUENCY_DEFAULT, process_script, resolve_directory_output_path
+from tango_miner import MIN_FREQUENCY_DEFAULT, process_script, resolve_directory_output_path, notify_run
 from src.steps.AddWordsToAnkiStep import AddWordsToAnkiStep
 from src.steps.AddDefinitionsStep import AddDefinitionsStep
 from src.steps.WriteOutputStep import WriteOutputStep
@@ -142,6 +142,45 @@ class TangoMinerTests(unittest.TestCase):
                     self.assertIsInstance(steps[-3], WriteOutputStep)
                     self.assertIsInstance(steps[-1], AddWordsToAnkiStep)
                     self.assertEqual(steps[-1].config.deck, "Test Deck")
+
+    def test_ntfy_notification_is_optional_and_reports_status(self):
+        with patch.dict("os.environ", {}, clear=True), patch("tango_miner.urlopen") as send:
+            notify_run({"status": "completed"}, Path("runs/example"))
+            send.assert_not_called()
+        with patch.dict("os.environ", {"NTFY_URL": "https://ntfy.sh/private-topic"}), patch("tango_miner.urlopen") as send:
+            notify_run({"status": "failed", "duration_seconds": 2.0}, Path("runs/example"))
+            request = send.call_args.args[0]
+            self.assertEqual(request.full_url, "https://ntfy.sh/private-topic")
+            self.assertIn(b"failed", request.data)
+            self.assertIn(b"example", request.data)
+            self.assertEqual(send.call_args.kwargs["timeout"], 10)
+
+    def test_ntfy_rejects_topic_id_without_full_url(self):
+        with patch.dict("os.environ", {"NTFY_URL": "topic-only"}), patch("tango_miner.urlopen") as send, patch("sys.stderr") as stderr:
+            notify_run({"status": "completed"}, Path("runs/example"))
+            send.assert_not_called()
+            self.assertIn("full HTTP(S) topic URL", stderr.write.call_args_list[0].args[0])
+
+    def test_ntfy_failure_does_not_raise(self):
+        with patch.dict("os.environ", {"NTFY_URL": "https://ntfy.sh/private-topic"}), patch("tango_miner.urlopen", side_effect=OSError("offline")), patch("sys.stderr") as stderr:
+            notify_run({"status": "completed"}, Path("runs/example"))
+            self.assertIn("notification failed", stderr.write.call_args_list[0].args[0])
+
+    def test_pipeline_notifies_on_success_and_failure(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            config = Path(tmp) / "config.toml"
+            config.write_text("", encoding="utf-8")
+            for failure in (False, True):
+                with self.subTest(failure=failure), patch("tango_miner.Pipeline") as factory, patch("tango_miner.notify_run") as notify:
+                    factory.return_value.duration = 1.0
+                    factory.return_value.stage_records = []
+                    if failure:
+                        factory.return_value.run.side_effect = RuntimeError("failed")
+                        with self.assertRaises(RuntimeError):
+                            process_script(["--config", str(config), "--input", tmp])
+                    else:
+                        process_script(["--config", str(config), "--input", tmp])
+                    self.assertEqual(notify.call_args.args[0]["status"], "failed" if failure else "completed")
 
     def test_default_minimum_frequency_is_positive(self):
         self.assertGreater(MIN_FREQUENCY_DEFAULT, 0)

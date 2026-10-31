@@ -6,6 +6,10 @@ import sys
 import appdirs
 from tempfile import TemporaryDirectory
 from os import path
+import os
+from urllib.request import Request, urlopen
+from urllib.parse import urlsplit
+from urllib.error import HTTPError
 
 from src.Artifact import Artifact
 from src.Column import Column
@@ -205,9 +209,43 @@ def process_script(argv=None):
             finally:
                 if summary["status"] == "completed":
                     log.write(f"All tasks completed in {pipeline.duration:.1f} seconds.\n")
-                log.close()
+                try:
+                    notification_result = notify_run(summary, final_path.parent)
+                    log.write(f"ntfy: {notification_result}\n")
+                finally:
+                    log.close()
 
     print(f'All tasks completed in {pipeline.duration:.1f} seconds.')
+
+
+def notify_run(summary, run_dir):
+    """Send an optional notification without changing the pipeline result."""
+    url = os.environ.get("NTFY_URL", "").strip()
+    if not url:
+        return "not configured"
+    status = summary["status"]
+    message = f"Tango Miner {status}\nRun: {run_dir.name}"
+    if isinstance(summary.get("duration_seconds"), (int, float)):
+        message += f"\nDuration: {summary['duration_seconds']:.1f} seconds"
+    try:
+        parsed = urlsplit(url)
+        if parsed.scheme not in ("http", "https") or not parsed.hostname or parsed.path in ("", "/"):
+            raise ValueError("NTFY_URL must be a full HTTP(S) topic URL")
+        request = Request(url, data=message.encode("utf-8"), method="POST",
+                          headers={"Title": f"Tango Miner {status}", "Content-Type": "text/plain; charset=utf-8"})
+        with urlopen(request, timeout=10) as response:
+            response.read()
+        print("ntfy notification accepted by server.")
+        return "accepted by server"
+    except HTTPError as exc:
+        print(f"Warning: ntfy notification failed (HTTP {exc.code}).", file=sys.stderr)
+        return f"failed (HTTP {exc.code})"
+    except ValueError:
+        print("Warning: ntfy notification failed: NTFY_URL must be a full HTTP(S) topic URL.", file=sys.stderr)
+        return "failed (invalid topic URL)"
+    except Exception as exc:
+        print(f"Warning: ntfy notification failed ({type(exc).__name__}).", file=sys.stderr)
+        return f"failed ({type(exc).__name__})"
 
 
 def resolve_directory_output_path(input_path: Path, output_arg: str | None) -> Path:

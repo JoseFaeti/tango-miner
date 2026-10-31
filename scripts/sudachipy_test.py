@@ -1,3 +1,8 @@
+import argparse
+
+if __name__ == "__main__":
+    argparse.ArgumentParser(description="Write a sample Sudachi tokenization to sudachipy_test_output.txt.").parse_args()
+
 from sudachipy import tokenizer, dictionary
 
 tokenizer_obj = dictionary.Dictionary(dict="full").tokenizer()

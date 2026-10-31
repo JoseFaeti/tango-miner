@@ -1,8 +1,10 @@
+import argparse
 from pathlib import Path
-from src.JMDict import JMDict
 
 
 def main():
+    argparse.ArgumentParser(description="Look up sample words in JMdict.").parse_args()
+    from src.JMDict import JMDict
     # Initialize JMdict with the XML file
     xml_file = Path.home() / "JMdict_e.xml"
     jmdict = JMDict(xml_file)

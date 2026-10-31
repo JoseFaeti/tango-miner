@@ -1,4 +1,5 @@
 """Check the configured JMdict against the tested dictionary snapshot."""
+import argparse
 import hashlib
 from pathlib import Path
 import sys
@@ -28,6 +29,7 @@ def check_dictionary():
 
 
 def main():
+    argparse.ArgumentParser(description=__doc__).parse_args()
     matches, message = check_dictionary()
     print(message)
     return 0 if matches else 1

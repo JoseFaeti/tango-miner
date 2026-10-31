@@ -16,6 +16,9 @@ sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 
 
 def main():
+    if any(arg in ("-h", "--help") for arg in sys.argv[1:]):
+        unittest.main(module=None, argv=sys.argv, exit=False)
+        return 0
     output = io.StringIO()
     # Capture import-time warnings and output as well as test output. unittest's
     # buffer retains each failing test's stdout and stderr in its traceback.
