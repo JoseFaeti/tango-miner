@@ -1,4 +1,6 @@
 import unittest
+import os
+import tempfile
 from unittest.mock import patch
 from pathlib import Path
 
@@ -55,6 +57,22 @@ class ProvenanceTests(unittest.TestCase):
             self.assertEqual(dictionary.call_count, 2)
             self.assertEqual(dictionary.call_args_list[0].args[0], Path("first.xml").resolve())
             self.assertEqual(dictionary.call_args_list[1].args[0], Path("second.xml").resolve())
+
+    def test_default_dictionary_uses_current_configuration(self):
+        original = Path.cwd()
+        with tempfile.TemporaryDirectory() as directory:
+            try:
+                os.chdir(directory)
+                Path("config.toml").write_text('[dictionary]\njmdict_path = "data/custom.xml"\n')
+                with patch("src.steps.MergeTokensStep._jmdict", None), \
+                     patch("src.steps.MergeTokensStep._jmdict_path", None), \
+                     patch("src.steps.MergeTokensStep.JMDict") as dictionary:
+                    get_jmdict()
+                    dictionary.assert_called_once_with(Path("data/custom.xml").resolve())
+                    get_jmdict("explicit.xml")
+                    self.assertEqual(dictionary.call_args.args[0], Path("explicit.xml").resolve())
+            finally:
+                os.chdir(original)
 
     def test_configured_lookahead_keeps_source_and_component_evidence(self):
         class ThreeTokenDictionary(Dictionary):

@@ -32,6 +32,10 @@ Run archives record the actual dictionary hash.
 
 ## Tests
 
+Dictionary-dependent tests use `[dictionary].jmdict_path` from `config.toml` in
+the current directory. If there is no configuration file, they use the default
+`~/JMdict_e.xml`. Install the Sudachi full dictionary as described in the README.
+
 Run the test suite from the repository root:
 
 ```sh
