@@ -84,7 +84,7 @@ revisit the ranking after each measured change.
 - [ ] For each accepted optimization compare complete token streams, component
   evidence and rejection events against baseline, then check downstream
   candidates, spans, examples, ordering and cache invalidation as applicable.
-  Run `python -m unittest discover -s tests`, investigate failures and report
+  Run `python scripts/run_tests.py`, investigate failures and report
   unavailable integration dependencies. Measure repeated before/after timing
   and memory on the same inputs and configuration; state limitations, analyze
   remaining bottlenecks and identify the most useful next step.

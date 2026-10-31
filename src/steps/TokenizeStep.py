@@ -93,9 +93,11 @@ def get_tokenizer(settings: TokenizerConfig | None = None, identity: str | None 
     settings = settings if settings is not None else TokenizerConfig()
     identity = identity or tokenizer_fingerprint(settings)
     if _tokenizer is None or _tokenizer_identity != identity:
-        new_tokenizer = dictionary.Dictionary(
+        sudachi_dictionary = dictionary.Dictionary(
             config_path=str(Path(settings.config_path).expanduser()), dict=settings.dictionary
-        ).create()
+        )
+        make_tokenizer = getattr(sudachi_dictionary, "tokenizer", None)
+        new_tokenizer = make_tokenizer() if make_tokenizer is not None else sudachi_dictionary.create()
         _tokenizer = new_tokenizer
         _tokenizer_identity = identity
         _lemma_reading_cache.clear()
@@ -306,10 +308,10 @@ def is_useless(token: dict) -> bool:
 
     pos1, pos2, *_ = token["pos"]
 
-    if pos1 in SKIP_POS1:
+    if pos1 in SKIP_POS1 and not (lemma == 'こら' and pos1 == '感動詞'):
         return True
 
-    if (pos1, pos2) in SKIP_POS1_POS2:
+    if (pos1, pos2) in SKIP_POS1_POS2 and token.get('analysis_rule') != 'rise_name_boundary':
         return True
 
     if RE_SMALL_KANA_END.search(lemma):

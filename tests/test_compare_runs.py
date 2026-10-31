@@ -6,7 +6,7 @@ import tempfile
 import unittest
 from pathlib import Path
 
-from scripts.compare_runs import compact_report, completed_runs, load_run, report
+from scripts.compare_runs import compact_report, completed_runs, load_run, overview_report, sentence_coverage, report
 
 
 def make_run(root, name, valid, dropped=(), status="completed"):
@@ -54,6 +54,25 @@ class CompareRunsTests(unittest.TestCase):
             self.assertIn('猫: valid, frequency 3 -> absent', text)
             self.assertNotIn('definition', text)
             self.assertNotIn('example', text)
+
+    def test_overview_reports_sentence_coverage_and_run_status(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            first = make_run(root, '2026-10-27_1200_a', [('猫', 4)], [('犬', 3)])
+            second = make_run(root, '2026-10-27_1201_b', [('猫', 4)], [('犬', 3)])
+            before, after = load_run(first), load_run(second)
+            before['rows']['猫']['sentence_count'] = 'sentences: 0'
+            after['rows']['猫']['sentence_count'] = 'sentences: 2'
+            self.assertEqual(sentence_coverage(before)['valid'], {'0': 1})
+            self.assertEqual(sentence_coverage(after)['dropped/review'], {'unavailable': 1})
+            output = io.StringIO()
+            with contextlib.redirect_stdout(output):
+                overview_report(before, after, ['猫'], 0)
+            text = output.getvalue()
+            self.assertIn('Sentence counts', text)
+            self.assertIn('"2": 1', text)
+            self.assertIn('Anki status: preview_only', text)
+            self.assertIn('Compatibility:', text)
 
     def test_missing_or_duplicate_outputs_fail_instead_of_silent_comparison(self):
         with tempfile.TemporaryDirectory() as tmp:

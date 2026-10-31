@@ -19,6 +19,12 @@ current options. For example, from the repository root:
 python tango_miner.py --input path/to/text-directory --output path/to/output.csv
 ```
 
+For the established full corpus on the configured machine, run
+`./scripts/run_full_corpus.ps1` from the project root in PowerShell. It uses
+recursive discovery and checks that Anki is disabled or output-only. When
+asked to start a full pipeline run, launch the script in the background and
+return without waiting for it to finish.
+
 The pipeline needs Python, SudachiPy with its full dictionary and the local
 Sudachi configuration, `appdirs`, and a JMdict XML file. The dictionary path is
 configured in `config.toml`, as are the Sudachi config and dictionary; some
@@ -27,8 +33,12 @@ with the full system dictionary and an empty `userDict` in
 `sudachi.config.json`; JMdict is still used for merging and definitions. The
 previously generated user dictionary is not part of the baseline. See
 [baseline findings and follow-up](../false-positive-analysis.md#no-user-dictionary-baseline-2026-10-30).
-A reproducible dependency and setup specification is still needed. Check the
-current configuration before a run.
+For the tested JMdict snapshot and a hash check, see
+[development setup](development.md#jmdict-test-baseline). Other dependencies
+still need a reproducible setup specification. Check the current configuration
+before a run.
+
+Each completed or failed pipeline run writes `report.md`, a concise overview of available candidate counts, grammar occurrences, Anki status and plan, and the five slowest stages. Read it first; use `summary.json`, stage records and other detailed artifacts when investigating. Counts at the definition stage precede grammar card addition. Grammar rule occurrences can overlap. Planned Anki changes are not necessarily applied changes. Timings exclude recorded user wait and are not directly comparable without checking inputs, configuration and cache state. An interrupted process may not write a final report.
 
 Each run writes the requested CSV and its `.dropped.csv` and `.sentence.csv`
 companions under `runs/<local-date>_<time>_<git-revision>/` beside the

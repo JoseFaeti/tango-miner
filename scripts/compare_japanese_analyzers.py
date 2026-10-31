@@ -231,7 +231,9 @@ def main(argv=None):
                 if Path.cwd().resolve() != ROOT:
                     raise ValueError('Run Sudachi analysis from the project root so relative user dictionary paths match the configuration')
                 mode = getattr(tokenizer.Tokenizer.SplitMode, args.analyzer[-1].upper())
-                engine = dictionary.Dictionary(config_path=str(ROOT / 'sudachi.config.json'), dict='full').create()
+                sudachi_dictionary = dictionary.Dictionary(config_path=str(ROOT / 'sudachi.config.json'), dict='full')
+                make_tokenizer = getattr(sudachi_dictionary, 'tokenizer', None)
+                engine = make_tokenizer() if make_tokenizer is not None else sudachi_dictionary.create()
                 spec = importlib.util.find_spec('sudachidict_full')
                 dictionary_path = Path(spec.origin).parent / 'resources' / 'system.dic'
                 config = json.loads((ROOT / 'sudachi.config.json').read_text(encoding='utf-8'))

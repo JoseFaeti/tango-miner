@@ -72,6 +72,41 @@ class FilterFrequencyStepTests(unittest.TestCase):
         base.dictionary_expression_occurrences = 0
         self.assertNotIn('目に見えて', filter_useful_words(words, min_frequency=4, keep_percent=100))
 
+    def test_excludes_vocal_sounds_but_preserves_words_and_ambiguous_analyses(self):
+        from src.steps.TokenizeStep import tokenize
+        text = ['はぁはぁ、疲れた。', 'ははは、面白いね。', 'ぐふふ、やったぞ。',
+                '母は笑う。', '彼はすきっと爽やかな表情だ。']
+        words, _ = tokenize(text, tag='fixture')
+        for stats in words.values():
+            stats.frequency = 5
+        kept = filter_useful_words(words, min_frequency=1, keep_percent=100)
+        for sound in ['はぁはぁ', 'ぐふふ']:
+            self.assertIn(sound, words)
+            self.assertNotIn(sound, kept)
+        self.assertIn('母', kept)
+        self.assertIn('笑う', kept)
+        self.assertIn('すきっと', kept)
+        laughter = make_stats(frequency=5, tags={'fixture'})
+        laughter.component_counts = {(TokenComponent('ははは', 'ははは', 'ははは', 'ははは', ('感動詞',)),): 1}
+        self.assertNotIn('ははは', filter_useful_words(OrderedDict([('ははは', laughter)]), min_frequency=1))
+        split = make_stats(frequency=5, tags={'fixture'})
+        split.component_counts = {
+            (TokenComponent('は', 'は', 'は', 'は', ('助詞',)),
+             TokenComponent('はは', 'はは', 'はは', 'はは', ('感動詞',))): 3,
+            (TokenComponent('はは', 'はは', 'はは', 'はは', ('副詞',)),): 1,
+        }
+        self.assertNotIn('ははは', filter_useful_words(OrderedDict([('ははは', split)]), min_frequency=1))
+        panting = make_stats(frequency=5, tags={'fixture'})
+        panting.component_counts = {
+            (TokenComponent('はぁ', 'はぁ', 'はぁ', 'はぁ', ('感動詞',)),
+             TokenComponent('はぁ', 'はぁ', 'はぁ', 'はぁ', ('感動詞',))): 1,
+            (TokenComponent('はぁ', 'はぁ', 'はぁ', 'はぁ', ('副詞',)),): 1,
+        }
+        self.assertNotIn('はぁはぁ', filter_useful_words(OrderedDict([('はぁはぁ', panting)]), min_frequency=1))
+        ambiguous = make_stats(frequency=5, tags={'fixture'})
+        ambiguous.component_counts = {(TokenComponent('ははは', 'ははは', 'ははは', 'ははは', ('名詞',)),): 1}
+        self.assertIn('ははは', filter_useful_words(OrderedDict([('ははは', ambiguous)]), min_frequency=1))
+
     def test_filter_empty_input_returns_empty_ordered_dict(self):
         kept = filter_useful_words(OrderedDict(), min_frequency=4)
 

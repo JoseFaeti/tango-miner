@@ -15,7 +15,13 @@ The current code and tests determine actual behavior when a document is stale.
 - Existing behavior does not always meet the intended policy: standalone
   proper nouns are currently filtered. Identify such gaps explicitly and add
   focused regressions when changing them.
-- Run `python -m unittest discover -s tests` for pipeline changes. A passing
+- For environment setup, follow the JMdict baseline instructions in
+  `docs/usage/development.md`; run `python scripts/check_jmdict.py` and report
+  a missing or mismatched snapshot. Do not claim a reproducible setup when
+  only a newer daily download is available.
+- Run `python scripts/run_tests.py` for pipeline changes. Run all tests through
+  this quiet runner, passing unittest names or discovery arguments for focused
+  runs; it prints failure details only and signals success through its exit code. A passing
   full suite is required: investigate and fix failures rather than accepting
   them as a baseline. Preserve meaningful regression coverage and report any
   unavailable integration dependencies. Avoid real Anki mutations during

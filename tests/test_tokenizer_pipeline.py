@@ -119,6 +119,17 @@ class TokenizerPipelineTests(unittest.TestCase):
                 self.assertEqual(factory.call_count, 2)
                 self.assertEqual(factory.call_args.kwargs, {"config_path": str(path), "dict": "small"})
 
+    def test_tokenizer_supports_older_sudachi_dictionary_api(self):
+        from types import SimpleNamespace
+
+        analyzer = Mock()
+        old_dictionary = SimpleNamespace(create=Mock(return_value=analyzer))
+        with patch("src.steps.TokenizeStep._tokenizer", None), \
+             patch("src.steps.TokenizeStep._tokenizer_identity", None), \
+             patch("src.steps.TokenizeStep.dictionary.Dictionary", return_value=old_dictionary):
+            self.assertIs(get_tokenizer(identity="older-sudachi"), analyzer)
+        old_dictionary.create.assert_called_once_with()
+
     def test_changed_tokenizer_settings_do_not_reuse_prior_cache(self):
         with tempfile.TemporaryDirectory() as tmp:
             source = Path(tmp) / "source.txt"

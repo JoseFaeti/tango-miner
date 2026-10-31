@@ -13,6 +13,7 @@ from src.Pipeline import Pipeline
 from src.ConsoleProgress import ConsoleProgress
 from src.RunConfig import resolve_config
 from src.RunArchive import write_stage_record, create_run_archive, collect_dependencies, write_run_summary
+from src.RunReport import write_run_report
 from src.steps.CompareOutputStep import CompareOutputStep
 from src.StageCache import StageCache
 
@@ -200,6 +201,7 @@ def process_script(argv=None):
                 summary["duration_seconds"] = duration
             try:
                 write_run_summary(final_path.parent, summary)
+                write_run_report(final_path.parent, summary)
             finally:
                 if summary["status"] == "completed":
                     log.write(f"All tasks completed in {pipeline.duration:.1f} seconds.\n")
@@ -228,4 +230,7 @@ def resolve_directory_output_path(input_path: Path, output_arg: str | None) -> P
 
 
 if __name__ == '__main__':
+    if len(sys.argv) > 1 and sys.argv[1] == "report":
+        from src.ReportCLI import main
+        sys.exit(main(sys.argv[2:]))
     process_script()

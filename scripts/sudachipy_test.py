@@ -1,6 +1,6 @@
 from sudachipy import tokenizer, dictionary
 
-tokenizer_obj = dictionary.Dictionary(dict="full").create()
+tokenizer_obj = dictionary.Dictionary(dict="full").tokenizer()
 
 input = [
 	'(奈々)どこまでホントで　どこから　ウソなのか分からなくて',

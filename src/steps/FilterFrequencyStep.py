@@ -22,6 +22,32 @@ class FilterFrequencyStep(PipelineStep):
         return Artifact(data, sentences=artifact.sentences)
 
 
+# Pure vocal imitations only; ordinary lexical onomatopoeia and words such as
+# 母, 笑う, and はは (mother) remain eligible when evidence is ambiguous.
+_VOCALIZATION = re.compile(r'^(?:[あアわワ]?[はハ]{2,}|[ぐグうウ]?[ふフ]{2,}|[えエ]?[へヘ]{2,}|[ひヒ]{3,}|[はハ][ぁァあアー][はハ][ぁァあアー])$')
+
+
+def _is_pure_vocalization(word, stats):
+    if not _VOCALIZATION.fullmatch(word) or not stats.component_counts:
+        return False
+    analyses = [parts for parts, count in stats.component_counts.items() if count > 0]
+    # A candidate aggregates multiple analyzer readings. One malformed split
+    # should not keep a clearly evidenced sound, but a genuine lexical noun
+    # analysis of the same form remains an ambiguity and must be retained.
+    if any(len(parts) == 1 and parts[0].pos and parts[0].pos[0] == '名詞'
+           and parts[0].surface == word for parts in analyses):
+        return False
+    return any(
+        parts and ''.join(part.surface for part in parts) == word
+        and any(part.pos and part.pos[0] == '感動詞' for part in parts)
+        and all(part.pos and (part.pos[0] == '感動詞'
+                or len(parts) > 1 and part.surface in {'ぐ', 'グ'} and part.pos[0] == '名詞'
+                or len(parts) > 1 and part.surface in {'は', 'ハ'} and part.pos[0] == '助詞')
+                for part in parts)
+        for parts in analyses
+    )
+
+
 def _has_supported_base_expression(stats, candidates, threshold):
     """Retain an inflected expression for review when its base also occurs."""
     if not stats.dictionary_expression_occurrences:
@@ -59,6 +85,9 @@ def filter_useful_words(input: OrderedDict, min_frequency: int, keep_percent: in
     kept_set = kept.__setitem__
 
     for i, (word, stats) in enumerate(input.items(), 1):
+        if _is_pure_vocalization(word, stats):
+            continue
+
         # Corrected imperative occurrences can keep a genuine potential candidate
         # eligible, but do not inflate its recorded frequency or examples.
         eligibility_frequency = stats.frequency + stats.reassigned_occurrences

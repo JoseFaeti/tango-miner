@@ -99,7 +99,7 @@ def main():
     valid_entries = []
     checked_sequences = []
 
-    tokenizer_obj = dictionary.Dictionary().create()
+    tokenizer_obj = dictionary.Dictionary().tokenizer()
     mode = tokenizer.Tokenizer.SplitMode.C
 
     word_data = {}

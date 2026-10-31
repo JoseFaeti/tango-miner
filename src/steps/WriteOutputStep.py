@@ -31,6 +31,7 @@ def write_candidate_diagnostics(words, path):
                    'review_reasons': ([
                        *(['expression_frequency_or_source_coverage'] if stats.coverage_review else []),
                        *(['missing_definition'] if not stats.definition else []),
+                       *(['no_definition_compatible_example'] if stats.example_review else []),
                    ] if stats.needs_review else []),
                    'selected_dictionary_entry': stats.selected_dictionary_entry,
                    'definition_supported_occurrences': (sum(stats.component_counts.get(c, 0) for c in stats.definition_components)

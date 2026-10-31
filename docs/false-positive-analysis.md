@@ -82,6 +82,54 @@ The system dictionary also splits concessive ものの into nominal もの + の
 that ambiguous analysis remains lexical rather than being reserved as grammar.
 These targeted regressions are not a corpus-wide precision or recall estimate.
 
+## Updated dictionary boundary follow-up
+
+The newer dictionary has lexical entries for past-looking expressions such as
+`来た` and `できた`. When Sudachi supplies a verb stem and past auxiliary,
+the merger now retains the verb rather than selecting an interjection in a
+non-isolated predicate. Isolated interjections and entries with a prenominal
+sense before a noun remain eligible. This is a conservative heuristic: a
+prenominal past clause and a lexical prenominal expression can still be
+ambiguous, and standalone interjections can also have verbal readings. A
+case-marked argument, preceding verbal noun, or following grammatical noun can
+now retain the verb in examples such as `理解できた気がする`. For `できた`
+and `出来た`, definition selection uses source-supported `人` prenominal or
+standalone exclamation evidence; unclassified occurrences stay available for
+review and do not supply examples for those senses. The `人` cue is still
+ambiguous when a person is created or obtained. Utterance-initial `参ったな、...`
+can remain an interjection, while a relative or quoted past predicate remains
+`参る`. The particle exception is limited to `参る`/`まいる`; other conversational
+interjections and noun contexts remain incompletely classified.
+
+The merger also preserves the case particle boundary in `からは` and the
+comparative `ときより` immediately after a past relative clause, while retaining
+causal `からは` and adverbial `ときより`. These focused examples do not establish
+corpus-wide precision or recall. Expectation `はず` now selects the JMdict
+auxiliary sense when a source-aligned predicate and following copula or sentence
+ending support it; example selection uses only supported occurrences. Nominal
+homophones without that cue remain unresolved, and the heuristic can still
+confuse a noun modified by a predicate. The standalone proper-noun filtering
+gap remains separate.
+
+## Vocalizations and sampled boundary follow-up
+
+The output excludes source-evidenced repeated laughter and panting vocalizations
+such as `ははは`, `ぐふふ`, and `はぁはぁ` at frequency filtering. It retains
+ordinary words, descriptive onomatopoeia, and ambiguous analyses; other sound
+spellings are not comprehensively covered. The meaningful scolding `こら`
+remains a candidate. Other standalone proper nouns are still filtered, except
+for the narrowly repaired `りせ` name context below.
+
+Source-aligned `です` + `きっと` is recovered in the observed contexts where
+Sudachi reads `すきっと`; genuine adverbial `すきっと` remains eligible. The
+observed `りせ` followed by name-compatible particles, copula, or `ちゃん`
+no longer becomes the unrelated verb `りする`; genuine `利する` and its negative
+inflection remain eligible. Original token evidence is
+retained. These boundary cues are not comprehensive. The lost `招き` and
+`ほくほく` examples still tokenize as useful candidates in focused checks;
+their archive disappearance may involve frequency or source coverage and
+requires occurrence-level evidence before claiming recovery.
+
 ## Topic index
 
 - [Scope](quality/scope.md)

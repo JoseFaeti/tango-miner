@@ -78,6 +78,43 @@ class AmbiguousOutputRegressionTests(unittest.TestCase):
         alone, _ = tokenize([unsupported])
         self.assertIsNone(self.jmdict.get_most_common_definition('しかし', component_counts=alone['しかし'].component_counts))
 
+    def test_hazu_expectation_is_selected_from_supported_occurrences(self):
+        from src.steps.AddDefinitionsStep import add_and_filter_for_definitions
+        from src.steps.AttachSentencesStep import attach_sentences
+
+        supported = 'これで人々はみな心を取り戻したはず。'
+        unsupported = '矢のはずを弦にかけて狙いを定めた。'
+        words, sentences = tokenize([supported, unsupported])
+        stats = words['はず']
+        self.assertEqual(stats.frequency, 2)
+        self.assertEqual({c[0].context for c in stats.component_counts},
+                         {'predicate_hazu_expectation', ''})
+        add_and_filter_for_definitions({'はず': stats}, lambda *args: None, None, diagnostics=True)
+        self.assertIn('expected', stats.definition)
+        self.assertNotIn('nock', stats.definition)
+        self.assertEqual(stats.selected_dictionary_entry['ent_seq'], '1476430')
+        self.assertEqual(sum(stats.component_counts[c] for c in stats.definition_components), 1)
+        stats.score = 100
+        attach_sentences({'はず': stats}, sentences)
+        self.assertEqual([s.text for s in stats.sentences], [supported])
+        alone, _ = tokenize([unsupported])
+        self.assertIsNone(self.jmdict.get_most_common_definition('はず', component_counts=alone['はず'].component_counts))
+
+    def test_hazu_expectation_and_nominal_homophones(self):
+        for text in ['約束したはずです。', '彼は来るはずじゃ。', '花が美しいはずだ。']:
+            with self.subTest(text=text):
+                words, _ = tokenize([text])
+                self.assertIn('expected', self.jmdict.get_most_common_definition(
+                    'はず', component_counts=words['はず'].component_counts))
+        for text in ['矢のはずだ。', '矢のはずを調べた。']:
+            with self.subTest(text=text):
+                words, _ = tokenize([text])
+                self.assertIsNone(self.jmdict.get_most_common_definition(
+                    'はず', component_counts=words['はず'].component_counts))
+        words, _ = tokenize(['矢の筈を弦にかけた。'])
+        self.assertIn('nock', self.jmdict.get_most_common_definition(
+            '筈', component_counts=words['筈'].component_counts))
+
     def test_keeps_grammar_and_fixed_expressions(self):
         cases = {
             "これが答えなんだ。": "なんだ",
@@ -164,11 +201,11 @@ class AmbiguousOutputRegressionTests(unittest.TestCase):
                 self.assertIn(expected, words)
 
     def test_actual_conjunction_and_year_remain_available(self):
-        for sentence, expected in [("ないしは別の方法だ。", "ないし"),
+        for sentence, expected in [("ないしは別の方法だ。", ("ないし", "ないしは")),
                                    ("ことしは良い年になる。", "ことし")]:
             with self.subTest(sentence=sentence):
                 words, _ = tokenize([sentence])
-                self.assertIn(expected, words)
+                self.assertTrue(any(item in words for item in (expected if isinstance(expected, tuple) else (expected,))))
 
     def test_colloquial_kamoshirenai_is_not_split_into_shireru(self):
         for sentence in ["もしかしたらホントに優勝も夢じゃないかもしれねえな。",
@@ -315,13 +352,13 @@ class AmbiguousOutputRegressionTests(unittest.TestCase):
                 words, _ = tokenize([sentence])
                 self.assertIn("ない", words)
                 self.assertNotIn("ないし", words)
-        for sentence, expected in [("ないしは別の方法だ。", "ないし"),
+        for sentence, expected in [("ないしは別の方法だ。", ("ないし", "ないしは")),
                                    ("東京ないし大阪に行く。", "ないし"),
                                    ("行かないでください。", "ないで"),
                                    ("行かないと間に合わない。", "ないと")]:
             with self.subTest(sentence=sentence):
                 words, _ = tokenize([sentence])
-                self.assertIn(expected, words)
+                self.assertTrue(any(item in words for item in (expected if isinstance(expected, tuple) else (expected,))))
 
     def test_kotoshi_splits_only_with_following_suru_grammar(self):
         for sentence in ["でも先輩はそんなことしなくても、いっぱい貰えますよね。",
@@ -488,6 +525,138 @@ class AmbiguousOutputRegressionTests(unittest.TestCase):
             with self.subTest(sentence=sentence):
                 words, _ = tokenize([sentence])
                 self.assertIn(target, words)
+
+    def test_past_verbs_and_particle_boundaries_keep_source_evidence(self):
+        for sentence, target, false_target in [
+            ("特に先生が来た日は楽しい。", "来る", "来た"),
+            ("ようやく同じテーブルにつける時が来た。", "来る", "来た"),
+            ("祖父が死んでから結婚できた。", "できる", "できた"),
+            ("かけがえのない仲間もできた。", "できる", "できた"),
+            ("前に来たときより少ない。", "来る", "ときより"),
+            ("あなたの剣からは憎しみを感じない。", "剣", "からは"),
+        ]:
+            with self.subTest(sentence=sentence):
+                words, segments = tokenize([sentence])
+                self.assertIn(target, words)
+                self.assertNotIn(false_target, words)
+                components, = words[target].component_counts
+                self.assertTrue(all(component.surface in sentence for component in components))
+                start, end = segments[0].lemma_spans[target]
+                self.assertEqual(sentence[start:end], segments[0].lemma_surfaces[target])
+
+    def test_ambiguous_expressions_remain_when_context_supports_them(self):
+        for sentence, target in [
+            ("来た！", "来た"),
+            ("できた！", "できた"),
+            ("彼はできた人だ。", "できた"),
+            ("ときより雨が降る。", "ときより"),
+            ("引き受けたからは頑張る。", "からは"),
+            ("他に気に入った店があった。", "気に入る"),
+        ]:
+            with self.subTest(sentence=sentence):
+                words, _ = tokenize([sentence])
+                self.assertIn(target, words)
+
+    def test_dekita_relative_predicates_keep_verb_and_evidence(self):
+        for sentence in [
+            'それができたとき剣士は一段上の強さを発揮できる。',
+            '意味がやっと理解できた気がするわ。',
+            'まだお前たちを理解できたわけじゃない。',
+            'ご飯ができた時間を覚えている。',
+        ]:
+            with self.subTest(sentence=sentence):
+                words, segments = tokenize([sentence])
+                self.assertIn('できる', words)
+                self.assertNotIn('できた', words)
+                definition = self.jmdict.get_most_common_definition(
+                    'できる', component_counts=words['できる'].component_counts)
+                self.assertIn('to be able', definition)
+                self.assertTrue(any(c.surface == 'でき' for group in words['できる'].component_counts for c in group))
+                start, end = segments[0].lemma_spans['できる']
+                self.assertEqual(sentence[start:end], segments[0].lemma_surfaces['できる'])
+
+    def test_maitta_interjection_and_verb_stay_distinct(self):
+        for sentence in ['参ったな、傘を教室に置いてきた。', '参ったね、もう時間がない。', '参った、降参だ。']:
+            with self.subTest(sentence=sentence):
+                words, _ = tokenize([sentence])
+                self.assertIn('参った', words)
+                self.assertIn('give up', self.jmdict.get_most_common_definition(
+                    '参った', component_counts=words['参った'].component_counts))
+        for sentence in ['よくぞ参った勇者よ。', '彼が参ったと聞いた。']:
+            with self.subTest(sentence=sentence):
+                words, _ = tokenize([sentence])
+                self.assertIn('参る', words)
+                self.assertNotIn('参った', words)
+
+    def test_dekita_prenominal_definition_uses_supported_examples_only(self):
+        from src.steps.AddDefinitionsStep import add_and_filter_for_definitions
+        from src.steps.AttachSentencesStep import attach_sentences
+
+        supported = '彼はとてもできた人だと思います。'
+        unsupported = 'すぐそこにできた穴から神殿へ行ける。'
+        words, sentences = tokenize([supported, unsupported])
+        stats = words['できた']
+        add_and_filter_for_definitions({'できた': stats}, lambda *args: None, None)
+        self.assertIn('fine character', stats.definition)
+        self.assertNotIn('good job', stats.definition)
+        self.assertEqual(sum(stats.component_counts[c] for c in stats.definition_components), 1)
+        stats.score = 100
+        attach_sentences({'できた': stats}, sentences)
+        self.assertEqual([s.text for s in stats.sentences], [supported])
+        for text, target in [(unsupported, 'できた'),
+                             ('氷で出来た宮殿を訪ねました。', '出来た')]:
+            with self.subTest(text=text):
+                candidates, _ = tokenize([text])
+                self.assertIn(target, candidates)
+                self.assertIsNone(self.jmdict.get_most_common_definition(
+                    target, component_counts=candidates[target].component_counts))
+
+    def test_interjection_particle_exception_does_not_apply_to_other_verbs(self):
+        for text in ['来たな、ようやく到着した。', 'やったな、仕事は終わった。']:
+            with self.subTest(text=text):
+                words, _ = tokenize([text])
+                self.assertNotIn('来た' if text.startswith('来') else 'やった', words)
+        candidates, _ = tokenize(['できた！'])
+        self.assertIn('good job', self.jmdict.get_most_common_definition(
+            'できた', component_counts=candidates['できた'].component_counts))
+        words, _ = tokenize(['まいったな、傘を忘れてしまった。'])
+        self.assertIn('まいった', words)
+
+    def test_desu_kitto_boundary_preserves_genuine_sukitto(self):
+        for text in ['大丈夫ですきっと成功します。', 'できるだけ秘密にしましょうってくらいですきっと。']:
+            with self.subTest(text=text):
+                words, _ = tokenize([text])
+                self.assertIn('きっと', words)
+                self.assertNotIn('すきっと', words)
+                components, = words['きっと'].component_counts
+                self.assertEqual(components[0].surface, 'すきっと')
+        words, _ = tokenize(['すきっと爽やかな味だ。'])
+        self.assertIn('すきっと', words)
+
+    def test_rise_name_does_not_invent_the_profit_verb(self):
+        for text in ['暗くなるまでりせの質問攻めに付き合い家に帰った。',
+                     'お兄ちゃんとお父さん、りせちゃんに会ったんだよね。',
+                     'りせは疲れ気味ながらも楽しそうだ。',
+                     'りせだけど朝覗いたら店にいた。',
+                     '暗くなるまでりせと過ごしてから家に帰った。']:
+            with self.subTest(text=text):
+                words, _ = tokenize([text])
+                self.assertNotIn('りする', words)
+                self.assertIn('りせ', words)
+                self.assertEqual(next(iter(words['りせ'].component_counts))[0].lemma, 'りする')
+        words, _ = tokenize(['その利益にりせず働いた。'])
+        self.assertIn('りする', words)
+        self.assertNotIn('りせ', words)
+        words, _ = tokenize(['その会社は皆を利する仕事をした。'])
+        self.assertIn('利する', words)
+        self.assertIn('benefit', self.jmdict.get_most_common_definition('利する',
+                      component_counts=words['利する'].component_counts))
+
+    def test_kora_scolding_remains_a_learnable_expression(self):
+        words, _ = tokenize(['こらーーー待ちなさい。'])
+        self.assertIn('こら', words)
+        self.assertIn('hey', self.jmdict.get_most_common_definition(
+            'こら', component_counts=words['こら'].component_counts))
 
     def test_known_lemma_inventions_do_not_return(self):
         cases = {

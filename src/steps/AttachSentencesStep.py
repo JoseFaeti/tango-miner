@@ -2,6 +2,7 @@ from src.Artifact import Artifact
 from src.PipelineStep import PipelineStep
 from src.RunConfig import SentencesConfig
 from src.steps.ProcessingStep import ProcessingStep
+from src.steps.TokenizeStep import is_valid_sentence
 from src.SegmentedSentence import SegmentedSentence
 from src.WordStats import Sentence, WordStats
 
@@ -131,6 +132,7 @@ def attach_sentences(word_data, segmented_sentences, progress_handler=None, conf
         # ------------------------------------------------------------
         text = seg.text
         text_len = len(text)
+        low_quality = not is_valid_sentence(text)
 
         penalty = _sentence_penalty_fast(
             text,
@@ -184,9 +186,9 @@ def attach_sentences(word_data, segmented_sentences, progress_handler=None, conf
             bucket = candidates[lemma]
 
             existing = bucket.get(key)
-            item = (fitness, next(counter), sentence)
+            item = ((low_quality, fitness), next(counter), sentence)
 
-            if existing is None or fitness < existing[0]:
+            if existing is None or item[0] < existing[0]:
                 bucket[key] = item
 
     # ------------------------------------------------------------
@@ -264,6 +266,29 @@ def attach_sentences(word_data, segmented_sentences, progress_handler=None, conf
                     ws.sentences.append(sentence)
                     already.add(sentence.text)
                     needed -= 1
+
+
+    # Only when no definition-compatible source line survived, retain one
+    # conflicting occurrence for human review instead of silently exporting a
+    # sentence-less valid candidate with a potentially misleading definition.
+    missing = {lemma for lemma, ws in word_data.items()
+               if not ws.sentences and ws.definition_components is not None}
+    if missing:
+        for seg in segmented_sentences:
+            for lemma in missing.intersection(seg.lemma_surfaces):
+                ws = word_get(lemma)
+                occurrences = seg.lemma_occurrences.get(lemma)
+                if occurrences:
+                    surface, span, _ = occurrences[0]
+                else:
+                    surface = seg.lemma_surfaces[lemma]
+                    span = seg.lemma_spans.get(lemma)
+                ws.sentences = [Sentence(seg.text, seg.tag, seg.origin, surface, -ws.score, span)]
+                ws.needs_review = True
+                ws.example_review = True
+                missing.remove(lemma)
+            if not missing:
+                break
 
 
 # ---------------------------------------------------------------------------

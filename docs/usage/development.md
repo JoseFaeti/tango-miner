@@ -3,11 +3,67 @@
 [Contents](../usage-reference.md)
 
 
+Example selection ranks sentences that meet the normal quality checks ahead of
+short, long, or otherwise low-quality source lines, but retains those lines as
+fallbacks. It prefers occurrences supporting the selected definition. If no
+compatible source example is available, one conflicting occurrence is attached
+and the candidate is marked for review (`no_definition_compatible_example` in
+candidate diagnostics). Repeated identical lines do not create distinct examples;
+frequency therefore need not equal the number of available examples.
+
+## JMdict test baseline
+
+Integration tests use the configured English-only legacy `JMdict_e` XML. The
+tested snapshot was generated **2026-10-31**; the SHA-256 of the uncompressed
+XML is `3214e9b77728d3d0e67a8bf5609d25b3bc8922e0103f1c5538fb74b078e81f41`.
+This is a data dependency: different editions can change token merging and
+definitions. It is not the `JMdict_e_NG` format.
+
+Set `[dictionary].jmdict_path` in `config.toml` to the uncompressed XML, then
+run `python scripts/check_jmdict.py` from the repository root. The check returns
+nonzero for a missing file or hash mismatch. Obtain the matching snapshot from
+a trusted retained copy if available. [EDRDG's distribution](https://www.edrdg.org/pub/Nihongo/00INDEX.html)
+provides the current `JMdict_e.gz`, but its daily download may no longer match
+the tested snapshot; decompress it before use and check the hash. If the exact
+snapshot is unavailable, report that limitation and the actual hash when using
+a different edition. Users may choose another edition; evaluate resulting
+test failures and behavioral differences before updating this baseline.
+Run archives record the actual dictionary hash.
+
+## Tests
+
 Run the test suite from the repository root:
 
 ```sh
-python -m unittest discover -s tests
+python scripts/run_tests.py
 ```
+
+The runner emits failure details only and returns a nonzero exit status on failure.
+Pass unittest test names or discovery arguments for focused runs. On failure,
+the runner also reports a missing or mismatched JMdict baseline; it does not
+require the baseline for ordinary use or otherwise passing tests.
+
+Query one part of an archive with `python tango_miner.py report summary`,
+`warnings`, `diff --previous`, `anki --changes-only`, or
+`performance --regressions`. Add `--run RUN` to select an archive,
+`--runs-dir DIR` to select an archive root, and `--json` for structured output.
+The diff uses the recorded CSV comparison baseline; performance and warnings
+use the preceding completed run or `--baseline RUN`, with `--threshold PERCENT`
+(default 25). Timings are single-run signals, not sustained regressions; compare
+input, configuration, dependencies, cache state and machine load. Anki counts
+are plans and the status indicates whether they were applied. Missing records
+are unavailable, not zero. These commands never mine or contact Anki.
+
+For a single bounded check of the two latest completed archives, including
+sentence coverage, compatibility, warnings, timings, and the Anki plan, run:
+
+```sh
+python -X utf8 scripts/compare_runs.py --overview --word できた
+```
+
+Repeat `--word` for candidate frequency and status comparisons. Omit it for a
+general overview; pass two run directories to compare specific completed runs.
+Sentence counts describe exported examples, not occurrence-level accuracy.
 
 Compare the two most recent completed run archives without rerunning the
 pipeline or contacting Anki:

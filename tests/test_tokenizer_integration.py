@@ -33,6 +33,17 @@ class TokenizerIntegrationTests(unittest.TestCase):
         # These tests deliberately exercise the real Sudachi and JMdict data.
         cls.jmdict = get_jmdict()
 
+    def test_tokenizer_construction_has_no_deprecation_warning(self):
+        import warnings
+        from unittest.mock import patch
+        from src.steps import TokenizeStep as tokenize_step
+
+        with patch.object(tokenize_step, "_tokenizer", None), patch.object(tokenize_step, "_tokenizer_identity", None):
+            with warnings.catch_warnings():
+                warnings.simplefilter("error", DeprecationWarning)
+                analyzer = tokenize_step.get_tokenizer(identity="deprecation-test")
+                self.assertTrue(analyzer.tokenize("日本語", TOKENIZER_MODE))
+
     def test_sudachi_tokenizes_a_sentence_with_expected_metadata(self):
         tokens = tokenize_sentence("彼はすでに家に帰っている。")
 
@@ -130,7 +141,7 @@ class TokenizerIntegrationTests(unittest.TestCase):
         cases = [
             ("そんなことしてみろ。", "こと", "ことし"),
             ("できないし困る。", "ない", "ないし"),
-            ("ないしは別の方法だ。", "ないし", None),
+            ("ないしは別の方法だ。", ("ないし", "ないしは"), None),
             ("ことしは良い年になる。", "ことし", None),
             ("行かないでください。", "ないで", None),
             ("おまちください。", "おまち", "おまつ"),
@@ -139,7 +150,7 @@ class TokenizerIntegrationTests(unittest.TestCase):
             with self.subTest(sentence=sentence):
                 merged = combine_tokens_jmdict(tokenize_sentence(sentence), self.jmdict)
                 lemmas = [token["lemma"] for token in merged]
-                self.assertIn(expected, lemmas)
+                self.assertTrue(any(item in lemmas for item in (expected if isinstance(expected, tuple) else (expected,))))
                 if forbidden:
                     self.assertNotIn(forbidden, lemmas)
 

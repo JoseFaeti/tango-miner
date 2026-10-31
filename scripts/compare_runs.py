@@ -12,6 +12,7 @@ from pathlib import Path
 if __package__ in (None, ""):
     sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 from src.RunComparison import completed_runs, load_run, build_change_report, write_change_report
+from src.ReportCLI import query
 
 def describe(candidate):
     if candidate is None:
@@ -79,6 +80,33 @@ def compact_report(before, after, words, limit=5):
     print('Dropped/review combines invalid and unresolved; candidate changes do not prove Anki changes.')
 
 
+def sentence_coverage(run):
+    """Count exported sentence totals by status; expose malformed or missing counts."""
+    counts = {status: {} for status in ('valid', 'dropped/review')}
+    for row in run['rows'].values():
+        match = re.fullmatch(r'sentences:\s*(\d+)', row['sentence_count'].strip())
+        key = match.group(1) if match else 'unavailable'
+        bucket = counts[row['status']]
+        bucket[key] = bucket.get(key, 0) + 1
+    return counts
+
+
+def overview_report(before, after, words, limit=5):
+    """Summarize routine run checks without verbose examples or mining."""
+    compact_report(before, after, words, limit)
+    print('Sentence counts (valid / dropped-review):')
+    for label, run in [('before', before), ('after', after)]:
+        print(f"  {label}: {json.dumps(sentence_coverage(run), ensure_ascii=False, sort_keys=True)}")
+    warnings = query('warnings', after['path'], baseline=before['path'])
+    performance = query('performance', after['path'], baseline=before['path'], regressions=True)
+    anki = query('anki', after['path'], changes_only=True)
+    print(f"Compatibility: {json.dumps(warnings['compatibility'], ensure_ascii=False)}")
+    print(f"Warnings: {json.dumps(warnings['warnings'], ensure_ascii=False)}")
+    print(f"Timing regressions (single run): {json.dumps(performance['timings'], ensure_ascii=False)}")
+    print(f"Anki status: {anki['anki_status']}; planned changes: {json.dumps(anki['planned_changes'], ensure_ascii=False)}")
+    print('Sentence counts are exported examples; frequency is occurrence count, not unique examples.')
+
+
 def main(argv=None):
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("before", nargs="?", type=Path, help="older run directory")
@@ -87,6 +115,7 @@ def main(argv=None):
     parser.add_argument("--word", action="append", default=[], help="inspect a candidate; repeat as needed")
     parser.add_argument("--limit", type=int, default=20, help="maximum entries displayed per summary list")
     parser.add_argument("--compact", action="store_true", help="bounded summary without definitions or examples")
+    parser.add_argument("--overview", action="store_true", help="compact run checks and sentence-coverage comparison")
     parser.add_argument("--json-output", type=Path, help="write the complete structured change report")
     args = parser.parse_args(argv)
     if (args.before is None) != (args.after is None):
@@ -103,7 +132,7 @@ def main(argv=None):
         if args.json_output:
             write_change_report(args.json_output, build_change_report(before, after))
         else:
-            (compact_report if args.compact else report)(before, after, args.word, args.limit)
+            (overview_report if args.overview else compact_report if args.compact else report)(before, after, args.word, args.limit)
     except (OSError, ValueError, KeyError, csv.Error) as exc:
         print(f"Error: {exc}", file=sys.stderr)
         return 1

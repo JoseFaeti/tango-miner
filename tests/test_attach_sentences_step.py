@@ -53,8 +53,40 @@ class AttachSentencesStepTests(unittest.TestCase):
         attach_sentences({"ようやく": target}, examples)
         self.assertEqual([s.text for s in target.sentences], ["ようやく着いた。"])
 
+    def test_source_lines_rejected_by_quality_checks_are_available_as_fallback(self):
+        from src.steps.TokenizeStep import tokenize
+        words, sentences = tokenize(['猫。', '猫が静かに眠っている。'])
+        self.assertEqual(words['猫'].frequency, 2)
+        attach_sentences(words, sentences)
+        self.assertEqual(len(words['猫'].sentences), 2)
+        self.assertEqual(words['猫'].sentences[0].text, '猫が静かに眠っている。')
+        self.assertEqual(words['猫'].sentences[1].text, '猫。')
+
+    def test_short_source_can_support_a_selected_definition(self):
+        from src.steps.TokenizeStep import tokenize
+        from src.steps.AddDefinitionsStep import add_and_filter_for_definitions
+        words, sentences = tokenize(['できた！'])
+        stats = words['できた']
+        add_and_filter_for_definitions({'できた': stats}, lambda *args: None, None)
+        attach_sentences({'できた': stats}, sentences)
+        self.assertIn('good job', stats.definition)
+        self.assertEqual([s.text for s in stats.sentences], ['できた！'])
+        self.assertFalse(stats.needs_review)
+
+    def test_only_conflicting_source_example_is_attached_for_review(self):
+        from src.steps.TokenizeStep import tokenize
+        from src.steps.AddDefinitionsStep import add_and_filter_for_definitions
+        words, sentences = tokenize(['彼はできた人だ。', 'すぐそこにできた穴から神殿へ行ける。'])
+        stats = words['できた']
+        add_and_filter_for_definitions({'できた': stats}, lambda *args: None, None)
+        conflicting = [s for s in sentences if 'できた穴' in s.text]
+        attach_sentences({'できた': stats}, conflicting)
+        self.assertEqual([s.text for s in stats.sentences], [conflicting[0].text])
+        self.assertTrue(stats.needs_review)
+        self.assertTrue(stats.example_review)
+
     def test_configured_example_limit_and_length_affect_selection(self):
-        short = "目標です。"
+        short = "目標を皆で決めました。"
         long = "目標について皆で詳しく話しました。"
         examples = [seg(short, {"目標": "目標"}), seg(long, {"目標": "目標"})]
         def selected(ideal):

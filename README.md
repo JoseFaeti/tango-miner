@@ -9,8 +9,10 @@ and [remaining candidates](docs/grammar/remaining-candidates.md) guide future wo
 
 ## Getting started
 
-1. Install Python, SudachiPy, the Sudachi full dictionary and `appdirs`, and
-   obtain a JMdict XML file. Configure its path in `config.toml`.
+1. Install Python, SudachiPy 0.7.0 or newer, the Sudachi full dictionary and `appdirs`, and
+   obtain a JMdict XML file. Configure its path in `config.toml`. For the
+   tested dictionary snapshot and environment setup, see
+   [development setup](docs/usage/development.md#jmdict-test-baseline).
 2. Check `config.toml` and `sudachi.config.json`. The current baseline uses the
    full Sudachi system dictionary without a user dictionary. Set `[anki]`
    `enabled = false` for a CSV-only run, or `output_only = true` for a preview.
@@ -21,6 +23,7 @@ and [remaining candidates](docs/grammar/remaining-candidates.md) guide future wo
    ```
 
 Results are saved in a timestamped `runs` directory alongside the output path.
+Read the archive’s `report.md` for a concise run overview; detailed JSON is available for investigation.
 Use `python tango_miner.py --help` to see the available options.
 
 For configuration, output, diagnostics and development tools, see the

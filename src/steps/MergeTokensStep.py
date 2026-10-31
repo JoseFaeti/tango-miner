@@ -158,6 +158,58 @@ def _crosses_incompatible_grammar(tokens: list[dict], entry) -> bool:
     return False
 
 
+def _is_past_predicate_misread_as_expression(tokens, start, end, entry):
+    """Keep verb evidence when a past form only resembles an interjection."""
+    if end - start != 2 or not isinstance(entry, dict):
+        return False
+    verb, past = tokens[start:end]
+    if (verb['pos'][0] != '動詞' or past['pos'][0] != '助動詞'
+            or past['lemma'] != 'た' or verb['surface'] == verb['lemma']):
+        return False
+    tags = [tag.lower() for sense in entry.get('senses', []) for tag in sense.get('pos', [])]
+    if (not tags or not any(tag.startswith('interjection') for tag in tags)
+            or any(not (tag.startswith('interjection') or tag.startswith('expression')
+                        or tag.startswith('noun or verb acting prenominally')) for tag in tags)):
+        return False
+    # A prenominal entry can describe a person, but a case-marked subject,
+    # verbal noun, or following grammatical noun supports a past predicate.
+    if (any('prenominally' in tag for tag in tags) and end < len(tokens)
+            and tokens[end]['pos'][0] == '名詞'):
+        following = tokens[end]
+        previous = tokens[start - 1] if start else None
+        case_subject = (previous and previous['surface'] in {'が', 'を'}
+                        and previous['pos'][0] == '助詞')
+        verbal_noun = (previous and previous['pos'][0] == '名詞'
+                       and len(previous['pos']) > 2 and 'サ変' in previous['pos'][2])
+        grammatical_noun = following['lemma'] in {'とき', '時', '気', 'わけ', '訳'}
+        return bool(case_subject or verbal_noun or grammatical_noun)
+    # An isolated utterance can genuinely be an interjection (来た！).
+    at_start = start == 0 or tokens[start - 1]['pos'][0] == '補助記号'
+    at_end = end == len(tokens) or tokens[end]['pos'][0] == '補助記号'
+    # Utterance-initial interjections can carry a final particle before a pause:
+    # 参ったな、... . Do not treat a following relative clause as an utterance.
+    if (verb['lemma'] in {'参る', 'まいる'} and at_start and end < len(tokens) and tokens[end]['surface'] in {'な', 'ね', 'よ'}
+            and tuple(tokens[end]['pos'][:2]) == ('助詞', '終助詞')
+            and (end + 1 == len(tokens) or tokens[end + 1]['pos'][0] == '補助記号')):
+        return False
+    return not (at_start and at_end)
+
+
+def _is_particle_boundary_misread(tokens, start, end):
+    """Keep source-supported case particles distinct from similar expressions."""
+    if end - start != 2:
+        return False
+    first, second = tokens[start:end]
+    if (first['surface'] == 'から' and tuple(first['pos'][:2]) == ('助詞', '格助詞')
+            and second['surface'] == 'は' and second['pos'][0] == '助詞'):
+        return True
+    # A past relative clause before ときより supplies a comparative time anchor.
+    return (first['surface'] == 'とき' and second['surface'] == 'より'
+            and first['pos'][0] == '名詞' and second['pos'][0] == '助詞'
+            and start > 0 and tokens[start - 1]['lemma'] == 'た'
+            and tokens[start - 1]['pos'][0] == '助動詞')
+
+
 def _is_inflection_misread_as_noun(tokens, start, end, entry):
     """Keep a verb and passive auxiliary when a following inflection confirms it."""
     if end - start != 2 or end >= len(tokens) or not isinstance(entry, dict):
@@ -307,6 +359,42 @@ def _repair_chigee_boundary(tokens: list[dict]) -> list[dict]:
         else:
             result.append(tokens[i])
             i += 1
+    return result
+
+
+def _repair_sukitto_and_rise(tokens: list[dict]) -> list[dict]:
+    """Recover source-supported boundaries without discarding analyzer evidence."""
+    result = []
+    for index, token in enumerate(tokens):
+        previous = tokens[index - 1] if index else None
+        following = tokens[index + 1] if index + 1 < len(tokens) else None
+        if (token['surface'] == token['lemma'] == 'すきっと' and previous
+                and previous['surface'] == 'で'
+                and ((previous['lemma'] == 'だ' and previous['pos'][0] == '助動詞')
+                     or (index >= 2 and tokens[index - 2]['surface'] == 'くらい'
+                         and previous['pos'][0] == '助詞')) and following
+                and (following['pos'][0] == '補助記号'
+                     or (following['pos'][0] == '名詞' and len(following['pos']) > 2
+                         and 'サ変' in following['pos'][2]))):
+            evidence = token_components(token)
+            result.extend([
+                {'surface': 'す', 'lemma': 'です', 'base_form': 'です', 'reading': 'です',
+                 'pos': ('助動詞', '*', '*', '*', '*', '*'), 'components': evidence,
+                 'analysis_rule': 'desu_kitto_boundary'},
+                {'surface': 'きっと', 'lemma': 'きっと', 'base_form': 'きっと', 'reading': 'きっと',
+                 'pos': ('副詞', '*', '*', '*', '*', '*'), 'components': evidence,
+                 'analysis_rule': 'desu_kitto_boundary'},
+            ])
+        elif (token['surface'] == 'りせ' and token['lemma'] == 'りする' and following
+              and (following['surface'] in {'の', 'は', 'が', 'を', 'に', 'と', 'も', 'から', 'だけ'}
+                   and following['pos'][0] == '助詞'
+                   or following['surface'] == 'ちゃん' and following['pos'][0] == '接尾辞'
+                   or following['surface'] == 'だ' and following['pos'][0] == '助動詞')):
+            result.append({**token, 'lemma': 'りせ', 'base_form': 'りせ', 'reading': 'りせ',
+                           'pos': ('名詞', '固有名詞', '人名', '*', '*', '*'),
+                           'components': token_components(token), 'analysis_rule': 'rise_name_boundary'})
+        else:
+            result.append(token)
     return result
 
 
@@ -516,7 +604,7 @@ def combine_tokens_jmdict(
     # Boundary repairs operate on lexical runs, while the merge guards below
     # can still inspect adjacent reserved tokens as context.
     def repair_run(run):
-        return _repair_grammatical_constructions(_repair_kotoshi_boundaries(_repair_warui_koto_boundary(_repair_chigee_boundary(_repair_komatta_koto_boundary(run)))))
+        return _repair_sukitto_and_rise(_repair_grammatical_constructions(_repair_kotoshi_boundaries(_repair_warui_koto_boundary(_repair_chigee_boundary(_repair_komatta_koto_boundary(run))))))
 
     if any(token.get('grammar_reserved') for token in token_list):
         repaired, start = [], 0
@@ -554,6 +642,10 @@ def combine_tokens_jmdict(
         match_found = False
         for j in range(min(n, i + max_lookahead), i + 1, -1):
             if j > next_reserved[i]:
+                continue
+            # Do not immediately undo a source-supported split by merging
+            # its synthetic す and きっと back into the original false target.
+            if any(t.get('analysis_rule') == 'desu_kitto_boundary' for t in token_list[i:j]):
                 continue
             combined_surface = "".join(surfaces[i:j])
             # A merged card must be grounded in the text the learner will see.
@@ -594,7 +686,9 @@ def combine_tokens_jmdict(
                     and tuple(token_list[j]['pos'][:2]) == ('動詞', '非自立可能')):
                 reject('te_oku_verb_not_adverb')
                 continue
-            if (_is_inflection_misread_as_noun(token_list, i, j, match_word)
+            if (_is_past_predicate_misread_as_expression(token_list, i, j, match_word)
+                    or _is_particle_boundary_misread(token_list, i, j)
+                    or _is_inflection_misread_as_noun(token_list, i, j, match_word)
                     or _is_auxiliary_oru_misread(token_list, i, j)
                     or (any(t.get('analysis_rule') == 'object_tsureru_motion' for t in token_list[i:j])
                         and not (token_list[i].get('analysis_rule') == 'object_tsureru_motion'

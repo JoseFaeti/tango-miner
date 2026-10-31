@@ -5,7 +5,7 @@ from src.TokenizedSentence import TokenizedSentence
 from src.TokenProvenance import token_components
 from src.WordStats import WordStats
 from src.steps.ProcessingStep import ProcessingStep
-from src.steps.TokenizeStep import is_useless, kata_to_hira, is_valid_sentence
+from src.steps.TokenizeStep import is_useless, kata_to_hira
 from dataclasses import replace
 
 
@@ -66,7 +66,7 @@ def build_word_stats(
         sentence_components = {}
         sentence_occurrences = {}
         cursor = 0
-        for token in tokenized_sentence.tokens:
+        for token_position, token in enumerate(tokenized_sentence.tokens):
             surface = token["surface"]
             # Align in order, allowing whitespace gaps but never guessing after failure.
             start = tokenized_sentence.text.find(surface, cursor) if cursor is not None and surface else -1
@@ -123,6 +123,42 @@ def build_word_stats(
                     and span[0] >= 0
                     and not tokenized_sentence.text[:span[0]].strip(' 「『（(\t')):
                 components = (replace(components[0], context='initial_nda'), components[1])
+            # Predicate + はず + copula or sentence ending supports expectation,
+            # unlike nominal uses such as 矢のはず. Preserve this per occurrence.
+            if (lemma == surface == 'はず' and len(components) == 1
+                    and components[0].pos and components[0].pos[0] == '名詞'
+                    and span[0] >= 0 and token_position > 0):
+                previous = tokenized_sentence.tokens[token_position - 1]
+                following = (tokenized_sentence.tokens[token_position + 1]
+                             if token_position + 1 < len(tokenized_sentence.tokens) else None)
+                previous_pos = previous.get('pos', ())
+                next_pos = following.get('pos', ()) if following else ()
+                predicate = (previous_pos and (previous_pos[0] in {'動詞', '形容詞'}
+                             or (previous_pos[0] == '助動詞' and previous.get('lemma') in {'た', 'ない', 'だ'})))
+                ending = (following is None or (next_pos and next_pos[0] == '補助記号')
+                          or (next_pos and next_pos[0] == '助動詞'
+                              and following.get('lemma') in {'だ', 'です', 'じゃ'}))
+                previous_surface = previous.get('surface', '')
+                following_surface = following.get('surface', '') if following else ''
+                source_aligned = (bool(previous_surface)
+                                  and tokenized_sentence.text[:span[0]].rstrip().endswith(previous_surface)
+                                  and (not following or bool(following_surface) and
+                                       tokenized_sentence.text[span[1]:].lstrip().startswith(following_surface)))
+                if predicate and ending and source_aligned:
+                    components = (replace(components[0], context='predicate_hazu_expectation'),)
+            # A lexical できた before 人 has source support for its
+            # prenominal "fine character" sense. Other noun heads can be
+            # ordinary past predicates and must not share its examples.
+            if (lemma in {'できた', '出来た'} and len(components) == 2
+                    and span[0] >= 0 and token_position + 1 < len(tokenized_sentence.tokens)):
+                following = tokenized_sentence.tokens[token_position + 1]
+                if (following.get('surface') == '人' and following.get('pos', ())[0] == '名詞'
+                        and tokenized_sentence.text[span[1]:].lstrip().startswith('人')):
+                    components = (replace(components[0], context='dekita_person'), components[1])
+                elif (following.get('surface') in {'！', '!'}
+                      and not tokenized_sentence.text[:span[0]].strip(' 「『（(\t')
+                      and tokenized_sentence.text[span[1]:].lstrip().startswith(following['surface'])):
+                    components = (replace(components[0], context='dekita_exclamation'), components[1])
             sentence_components[lemma] = components
             sentence_occurrences.setdefault(lemma, []).append((surface, span, components))
             ws.component_counts[components] = ws.component_counts.get(components, 0) + 1
@@ -130,19 +166,20 @@ def build_word_stats(
             if tokenized_sentence.tag:
                 ws.tags.add(tokenized_sentence.tag)
 
-        if is_valid_sentence(tokenized_sentence.text):
-            segmented_out.append(
-                SegmentedSentence(
-                    text=tokenized_sentence.text,
-                    tag=tokenized_sentence.tag,
-                    origin=tokenized_sentence.origin,
-                    lemma_surfaces=sentence_surfaces,
-                    lemma_spans=sentence_spans,
-                    lemma_components=sentence_components,
-                    lemma_occurrences=sentence_occurrences,
-                    source_index=index - 1,
-                )
+        # Keep every source line for low-quality fallback. Attachment ranks
+        # lines passing the normal sentence checks ahead of these alternatives.
+        segmented_out.append(
+            SegmentedSentence(
+                text=tokenized_sentence.text,
+                tag=tokenized_sentence.tag,
+                origin=tokenized_sentence.origin,
+                lemma_surfaces=sentence_surfaces,
+                lemma_spans=sentence_spans,
+                lemma_components=sentence_components,
+                lemma_occurrences=sentence_occurrences,
+                source_index=index - 1,
             )
+        )
 
         if progress_handler and index % progress_interval == 0 and index < len(tokenized_sentences):
             progress_handler(index, len(tokenized_sentences))

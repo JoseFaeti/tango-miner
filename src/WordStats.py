@@ -53,3 +53,4 @@ class WordStats:
     scoring_tag_count: int | None = None
     dictionary_expression_occurrences: int = 0
     coverage_review: bool = False
+    example_review: bool = False

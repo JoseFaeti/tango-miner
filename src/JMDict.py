@@ -260,13 +260,30 @@ class JMDict:
         frequency ranks supported entries, never unresolved homophones.
         """
         entries = self.lookup_word(word)
-        if len(entries) < 2 or not component_counts:
+        if (len(entries) < 2 and word not in {'できた', '出来た'}) or not component_counts:
             return None
         scores = {}
         supported = {}
         selected_senses = {}
         for components, count in component_counts.items():
             if count <= 0:
+                continue
+            if word in {'できた', '出来た'} and len(components) == 2:
+                verb, past = components
+                if (verb.context in {'dekita_person', 'dekita_exclamation'} and verb.pos and verb.pos[0] == '動詞'
+                        and past.pos and past.pos[0] == '助動詞' and past.lemma == 'た'):
+                    matches = []
+                    for index, entry in enumerate(entries):
+                        senses = [sense for sense in entry['senses'] if sense['gloss']
+                                  and any((('prenominally' in tag.lower()) if verb.context == 'dekita_person'
+                                           else tag.lower().startswith('interjection')) for tag in sense['pos'])]
+                        if senses:
+                            matches.append((index, senses))
+                    if len(matches) == 1:
+                        index, senses = matches[0]
+                        scores[index] = scores.get(index, 0) + count
+                        supported.setdefault(index, set()).add(components)
+                        selected_senses.setdefault(index, {})[tuple(id(s) for s in senses)] = senses
                 continue
             # The explanatory んだ is supported by the explicit nominalizing
             # particle + copula analysis. Single-token んだ can also be an
@@ -298,10 +315,27 @@ class JMDict:
             token = components[0]
             if token.lemma != word or not token.pos or not token.reading:
                 continue
+            if word == 'はず' and token.context == 'predicate_hazu_expectation':
+                matches = []
+                for index, entry in enumerate(entries):
+                    if not any(r['form'] == token.reading for r in entry['reading']):
+                        continue
+                    senses = [sense for sense in entry['senses'] if sense['gloss']
+                              and any(tag.lower().startswith('auxiliary') for tag in sense['pos'])]
+                    if senses:
+                        matches.append((index, senses))
+                if len(matches) == 1:
+                    index, senses = matches[0]
+                    scores[index] = scores.get(index, 0) + count
+                    supported.setdefault(index, set()).add(components)
+                    selected_senses.setdefault(index, {})[tuple(id(s) for s in senses)] = senses
+                continue
             pos = token.pos[0]
             category = {"動詞": "verb", "形容詞": "adjective (keiyoushi)",
                         "副詞": "adverb", "名詞": "noun",
                         "助動詞": "auxiliary", "連体詞": "pre-noun adjectival"}.get(pos)
+            if word == "こら" and pos == "感動詞":
+                category = "interjection"
             if (word == 'しかし' and pos == '接続詞'
                     and token.context == 'initial_shikashi_comma'):
                 category = 'conjunction'
@@ -357,7 +391,7 @@ class JMDict:
 
     def select_definition_entry(self, word, component_counts=None):
         selection = self.select_contextual_entry(word, component_counts)
-        if selection is None and component_counts and len(self.lookup_word(word)) > 1:
+        if selection is None and component_counts and (len(self.lookup_word(word)) > 1 or word in {'できた', '出来た'}):
             return None
         best_entry = selection[0] if selection else self.get_best_entry(word)
         contextual_entry = self.get_contextual_modifier_entry(word, component_counts, best_entry)

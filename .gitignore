@@ -4,6 +4,9 @@ debug/*
 resources/*
 scripts/*
 checks/*
+!scripts/check_jmdict.py
+!scripts/run_tests.py
+!scripts/run_full_corpus.ps1
 !scripts/inspect_run.py
 !scripts/report_performance.py
 !scripts/benchmark_snapshot_payload.py

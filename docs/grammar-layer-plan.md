@@ -158,7 +158,7 @@ source sentence + normalization mapping
    corrected false positives and useful retained forms. Compare full-corpus
    output with Anki disabled, then separately review note migration and safety.
 
-Run `python -m unittest discover -s tests` for pipeline changes and report any
+Run `python scripts/run_tests.py` for pipeline changes and report any
 missing integration dependencies. Success for the pilot means demonstrably useful
 source-grounded proposals, preserved components and ambiguity, no unexplained
 loss of useful lexical candidates, and a reviewable comparison—not universal
