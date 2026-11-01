@@ -1,6 +1,6 @@
 """Explicit registry of grammar rules."""
-from src.grammar_rules.rules.sou_da import APPEARANCE, HEARSAY
 from src.GrammarConstants import GRAMMAR_EXPRESSIONS
+from src.grammar_rules.rules.sou_da import APPEARANCE, HEARSAY
 from src.grammar_rules.rules.te_wa_ikenai import RULE as TE_WA_IKENAI
 from src.grammar_rules.rules.te_miru import RULE as TE_MIRU
 from src.grammar_rules.rules.koto_ni_suru import RULE as KOTO_NI_SURU

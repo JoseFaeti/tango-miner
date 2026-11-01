@@ -17,11 +17,15 @@ class SouDaTests(unittest.TestCase):
         cases = {
             '雨が降りそうだ。': ('そうだ', None),
             'おいしそうです。': ('そうです', None),
+            '美味しそうです。': ('そうです', None),
             '元気そうだった。': ('そうだった', None),
             '良さそうだ。': ('そうだ', None),
             '雨が降るそうだ。': (None, 'そうだ'),
             '雨が降ったそうです。': (None, 'そうです'),
             '彼は学生だそうです。': (None, 'そうです'),
+            '彼は学生だそうだ。': (None, 'そうだ'),
+            'そうだ。': (None, None), 'そうですね。': (None, None),
+            'そういう話だ。': (None, None), '高そうな本。': (None, None),
             'そうだね。': (None, None), 'そうだと思う。': (None, None),
             '雨が降りそうにない。': (None, None),
             '雨が降りそうな空だ。': (None, None),
@@ -53,6 +57,7 @@ class SouDaTests(unittest.TestCase):
         self.assertEqual(words[APPEARANCE.expression].sentences[0].surface_form, 'そうだ')
         self.assertIn('降る', words)
         self.assertNotEqual(APPEARANCE.expression, HEARSAY.expression)
+        self.assertNotIn(HEARSAY.expression, words)
 
 
 if __name__ == '__main__':
