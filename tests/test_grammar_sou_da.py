@@ -16,14 +16,19 @@ class SouDaTests(unittest.TestCase):
             self.skipTest(f'Sudachi full dictionary unavailable: {exc}')
         cases = {
             '雨が降りそうだ。': ('そうだ', None),
+            'おいしそうです。': ('そうです', None),
             '美味しそうです。': ('そうです', None),
             '元気そうだった。': ('そうだった', None),
+            '良さそうだ。': ('そうだ', None),
             '雨が降るそうだ。': (None, 'そうだ'),
             '雨が降ったそうです。': (None, 'そうです'),
+            '彼は学生だそうです。': (None, 'そうです'),
             '彼は学生だそうだ。': (None, 'そうだ'),
             'そうだ。': (None, None), 'そうですね。': (None, None),
             'そういう話だ。': (None, None), '高そうな本。': (None, None),
+            'そうだね。': (None, None), 'そうだと思う。': (None, None),
             '雨が降りそうにない。': (None, None),
+            '雨が降りそうな空だ。': (None, None),
             '雨が降りそう だ。': (None, None),
         }
         for text, expected in cases.items():
@@ -32,15 +37,15 @@ class SouDaTests(unittest.TestCase):
                        for m in analyzer.tokenize(text, tokenizer.Tokenizer.SplitMode.C)]
                 aligned, error = aligned_tokens(text, raw)
                 self.assertIsNone(error)
-                for rule, value in zip((APPEARANCE, HEARSAY), expected):
+                for rule, want in zip((APPEARANCE, HEARSAY), expected):
                     self.assertEqual([text[a:b] for a, b in rule.match(aligned)],
-                                     [] if value is None else [value])
+                                     [] if want is None else [want])
 
-    def test_reservation_and_card(self):
+    def test_reservation_and_examples(self):
         source = sentence('明日は雨が降りそうだよ。', [
             tok('明日は雨が', '雨', ('名詞',)),
             tok('降り', '降る', ('動詞', '一般', '*', '*', '五段', '連用形-一般')),
-            tok('そう', 'そう', ('形状詞', '助動詞語幹', '*', '*', '*', '*')),
+            tok('そう', 'そう', ('形状詞', '助動詞語幹')),
             tok('だ', 'だ', ('助動詞', '*', '*', '*', '助動詞-ダ', '終止形-一般')),
             tok('よ。', 'よ', ('助詞',))])
         stage = GrammarStep(rules=(APPEARANCE, HEARSAY))
@@ -51,6 +56,7 @@ class SouDaTests(unittest.TestCase):
         stage.add_cards(words)
         self.assertEqual(words[APPEARANCE.expression].sentences[0].surface_form, 'そうだ')
         self.assertIn('降る', words)
+        self.assertNotEqual(APPEARANCE.expression, HEARSAY.expression)
         self.assertNotIn(HEARSAY.expression, words)
 
 
