@@ -7,6 +7,15 @@
 - [Identity and review](identity-and-review.md)
 - [Additional card rules](additional-card-rules.md)
 
+## 〜なら
+
+The card matches split hypothetical copular なら after an adjacent finite
+predicate, noun, pronoun, na-adjective or supported predicate + の, when a
+following clause is present. The antecedent remains lexical; longer dictionary
+expressions can take precedence. Sentence-final uses, merged tokenizations and
+other analyses remain unclassified. Topic and conditional readings are context
+dependent; precision and recall have not been independently evaluated.
+
 ## 〜ば
 
 The card matches a split conjunctive ば following an adjacent hypothetical
