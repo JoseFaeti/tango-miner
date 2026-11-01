@@ -2,6 +2,10 @@
 
 [Grammar shadow prototype](../grammar-shadow-prototype.md)
 
+## 〜ても (concession)
+
+Split て/で + も following a continuative verb, adjective or auxiliary and a following clause can yield “even if; even though”. The attached predicate remains available as vocabulary. Supported 〜てもいい permission forms use their own card. Copular でも, merged and sentence-final analyses are not covered; other meanings and contextual ambiguity remain, and precision and recall have not been independently evaluated. Dictionary expression precedence can suppress a match and reservation can affect lexical frequencies.
+
 - [Stage and precedence](stage-and-precedence.md)
 - [Card rules: explanatory and aspectual](early-card-rules.md)
 - [Identity and review](identity-and-review.md)
