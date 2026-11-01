@@ -1,16 +1,117 @@
 ---
 name: grammar
-description: Implement or extend a Japanese grammar card in the Tango Miner pipeline, including source-grounded matching, recall-sensitive tests, and documentation. Use for grammar point implementation in this repository.
+description: Implement or extend a Japanese grammar card in Tango Miner with focused matching, regression tests, and documentation.
 ---
 
 # Tango Miner grammar cards
 
-Follow the repository's AGENTS.md. Read README.md and docs/false-positive-analysis.md before changing mining behavior; consult docs/grammar-priorities.md for the priority tracker and docs/grammar/remaining-candidates.md for the broader backlog. For an unspecified next point, select the first unchecked entry in the priority tracker; use current code and tests when documentation is stale. When the priority queue is exhausted, reassess the backlog and source evidence before choosing the next point.
+Follow AGENTS.md. Implement one grammar point per task unless explicitly requested otherwise.
 
-Inspect existing rules, tests, scripts and archive evidence before choosing a scope. Prefer the existing bounded scripts, including scripts/replay_grammar.py, scripts/query_jsonl.py, scripts/inspect_run.py and scripts/compare_runs.py. Examine actual source-aligned Sudachi tokenizations and semantic ambiguity. Decide what the grammar card means and which evidence supports it; preserve useful lexical readings and retain attached words and component evidence. Avoid broad filters. Dictionary expression precedence and grammar reservation can change lexical candidates and frequencies, so assess their effects rather than equating a larger match count with improved recall.
+## 1. Select the grammar point
 
-Implement a focused rule under src/grammar_rules/rules/, register it in src/grammar_rules/registry.py, and add its stable identity to src/GrammarConstants.py so Anki protection and legacy migration remain consistent. Use existing shared helpers where appropriate; inspect grammar caching dependencies if adding project dependencies. Match complete source-aligned token boundaries and account for supported inflections and contractions when evidence warrants them. Describe uncertain meanings honestly; unsupported forms should remain available for lexical processing.
+If the task specifies a grammar point, use it.
 
-Add focused regressions for supported forms, misleading or ambiguous analyses, useful lexical controls, and grammar reservation, examples and identity integration as appropriate. Run `python scripts/run_tests.py` without real Anki mutations. Update README.md and the grammar tracker and card documentation to reflect the actual scope and limitations. Preserve existing line endings and inspect the diff.
+Otherwise, find the first unchecked entry in "docs/grammar-priorities.md". Read only the relevant section initially.
 
-Do not start a full corpus pipeline run unless the user explicitly asks you to run it. For an authorized run, first agree on the curated input corpus and verify the resolved configuration disables Anki or uses output-only mode; Save verbose output to a log. Wait for the process completion signal or exit status before inspecting the run, log or artifacts. After completion, use the bounded inspection and comparison scripts, report failures and Anki status, and distinguish observed counts from an independent precision or recall evaluation. If the user runs the pipeline, inspect its completed archive when asked.
+Consult "docs/grammar/remaining-candidates.md" only when the priority queue is exhausted or the selected point requires clarification.
+
+## 2. Inspect relevant context
+
+Use targeted searches and bounded file reads. Avoid dumping entire documentation files, directories, or test suites.
+
+Initially inspect only:
+
+- The relevant grammar rule interface and registry.
+- One or two similar existing rules.
+- Their corresponding tests.
+- Relevant sections of README.md and docs/false-positive-analysis.md.
+
+Expand investigation only when required by ambiguity, unexpected tokenization, failed tests, or a potential regression.
+
+Prefer bounded scripts such as "scripts/replay_grammar.py", "scripts/query_jsonl.py", "scripts/inspect_run.py", and "scripts/compare_runs.py" when source evidence is needed.
+
+Avoid repeatedly reading files whose relevant contents are already available in context.
+
+## 3. Define matching behavior
+
+Determine the intended grammatical meaning, supported forms, and likely false positives.
+
+Use actual source-aligned Sudachi tokenizations when necessary to establish matching behavior.
+
+Preserve useful lexical readings and attached-word evidence. Match complete token boundaries and account for supported inflections and contractions.
+
+Avoid broad filters and unsupported assumptions.
+
+Investigate dictionary precedence, grammar reservation, and lexical frequency effects when the proposed implementation could affect them.
+
+Do not equate a higher match count with improved precision or recall.
+
+## 4. Implement
+
+- Add the focused rule under "src/grammar_rules/rules/".
+- Register it in "src/grammar_rules/registry.py".
+- Add its stable identity to "src/GrammarConstants.py".
+- Reuse existing shared helpers where appropriate.
+- Inspect grammar caching dependencies only when adding or changing dependencies.
+
+Prefer the smallest implementation consistent with the established architecture.
+
+## 5. Test
+
+Add focused regression tests covering:
+
+- Supported grammatical forms.
+- Known ambiguous or misleading forms.
+- Relevant lexical controls.
+- Grammar reservation, examples, and identity integration where applicable.
+
+Run focused tests first.
+
+Fix failures and rerun the affected tests.
+
+Run "python scripts/run_tests.py" once after focused tests pass. Rerun the full suite only if subsequent changes could affect it.
+
+Do not mutate real Anki data.
+
+Keep successful test output concise. Inspect detailed output only for failures.
+
+## 6. Documentation and verification
+
+Update only the relevant portions of:
+
+- README.md
+- "docs/grammar-priorities.md"
+- The grammar card documentation
+
+Describe actual supported forms, limitations, and uncertain interpretations.
+
+Preserve existing line endings.
+
+Inspect the final diff and report the files changed, tests run, and any remaining limitations.
+
+## 7. Corpus pipeline safety
+
+Do not start a full corpus pipeline run without explicit user authorization.
+
+For an authorized run:
+
+- Agree on the curated input corpus.
+- Verify that Anki is disabled or output-only mode is configured.
+- Save verbose output to a log.
+- Wait for process completion before inspecting results.
+- Use bounded inspection and comparison scripts.
+- Report failures, Anki status, and observed counts separately from independent precision or recall estimates.
+
+If the user runs the pipeline, inspect its completed archive when requested.
+
+## 8. Efficiency
+
+Minimize unnecessary context consumption without compromising correctness.
+
+- Prefer targeted searches over full-file reads.
+- Avoid redundant repository exploration.
+- Do not inspect unrelated grammar rules or historical archives without a concrete reason.
+- Avoid repeated full-suite test runs.
+- Keep command output bounded.
+- Do not perform speculative refactoring or unrelated cleanup.
+- Expand investigation when evidence suggests the initial scope is insufficient.
