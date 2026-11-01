@@ -99,7 +99,7 @@ and need independent precision and recall evaluation. See the
 - [~] 〜ことになる — decided outcome or consequence. Covered: finite verb and verbal negative + merged or split construction, including selected past and polite forms. Other inflections and noun readings remain lexical; precision and recall need evaluation.
 - [~] 〜ことにする — decision to do something. Covered: finite verb and verbal negative + merged or split construction, with selected present, past and polite positive forms. Continuing and negative endings, other tokenizations and ambiguous readings remain to be evaluated.
 - [~] 〜ば — conditional. Covered: split ば after hypothetical verbs, adjectives and auxiliaries with a following clause. Complete supported obligation forms use their own card. Sentence-final, merged and other analyses remain unsupported; expression precedence and independent precision and recall need evaluation.
-- [ ] 〜なら — conditional or topic-based supposition.
+- [~] 〜なら — conditional or topic-based supposition. Covered: split copular なら after selected finite predicates, nouns, pronouns, na-adjectives and predicate + の, with a following clause. Other analyses and independent precision and recall evaluation remain.
 - [ ] 〜ても — concession, “even if”.
 - [ ] 〜そうだ — appearance and hearsay; treat as distinct constructions.
 - [~] 〜ようだ / 〜みたいだ — resemblance or inference. Covered: 〜ようだ with selected predicate and noun attachments and present or past plain/polite copulas. 〜みたいだ, negative, attributive and continuative forms and other analyses remain unsupported; evaluate contextual meanings and recall.
