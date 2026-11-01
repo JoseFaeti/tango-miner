@@ -103,7 +103,7 @@ and need independent precision and recall evaluation. See the
 - [~] 〜ても — concession, “even if”. Covered: split て/で + も after continuative verbs, adjectives and auxiliaries with a following clause; supported 〜てもいい permission forms are excluded. Copular, merged and sentence-final forms and contextual ambiguity remain; precision and recall require independent evaluation.
 - [~] 〜そうだ — distinct appearance and hearsay cards. Covered: selected source-aligned finite split forms; negative, attributive and other analyses remain unsupported. Contextual ambiguity and independent evaluation remain.
 - [~] 〜ようだ / 〜みたいだ — resemblance or inference. Covered: 〜ようだ with selected predicate and noun attachments and present or past plain/polite copulas. 〜みたいだ, negative, attributive and continuative forms and other analyses remain unsupported; evaluate contextual meanings and recall.
-- [ ] 〜はずだ — expectation or inference.
+- [~] 〜はずだ — expectation or inference. Covered: predicate-attached split はず with selected present and past plain or polite copulas. Noun + の, bare, negative, attributive and other forms remain lexical; contextual ambiguity and independent precision and recall evaluation remain.
 - [ ] 〜わけだ / 〜わけではない — explanation and partial negation; distinguish uses.
 - [ ] 〜たがる — apparent desire of another person.
 - [ ] 〜ながら — simultaneous actions; distinguish concessive uses.
