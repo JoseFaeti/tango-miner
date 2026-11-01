@@ -38,3 +38,7 @@ The predicate remains available as a lexical candidate; the matched suffix is
 reserved, subject to dictionary expression precedence. Noun-based uses,
 continuing ことにしている, negative endings and other analyses remain lexical.
 A decision reading is context dependent; precision and recall are not measured.
+
+## 〜そうだ: appearance and hearsay
+
+Separate `〜そうだ（様態）` and `〜そうだ（伝聞）` cards recognize source-aligned Sudachi auxiliary-stem analyses after selected predicate forms. Appearance includes plain, polite and past copulas; hearsay includes plain and polite present copulas. The attached predicate remains available as vocabulary. Adverbial `そうだ`, negative and attributive forms and other analyses are not covered. Morphology does not prove the intended meaning; independent precision and recall evaluation remains necessary. Grammar reservation can change lexical frequencies, subject to dictionary expression precedence.
