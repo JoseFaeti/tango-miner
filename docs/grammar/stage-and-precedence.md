@@ -2,8 +2,10 @@
 
 [Grammar documentation](README.md)
 
-The shared grammar stage runs by default; pass `--no-grammar` to disable it.
-It checks registered rules and adds grammar candidates to CSV output and, if
+Grammar is a standard part of the pipeline and runs by default; pass
+`--no-grammar` to disable it. The optional `--grammar-shadow` diagnostic
+writes separate tentative proposals and does not enable the normal stage.
+The normal stage checks registered rules and adds grammar candidates to CSV output and, if
 Anki is enabled, to the normal plan. Grammar meanings use short dictionary-style
 glosses; new cards and CSV output use the current glosses, and existing grammar
 note meanings and metrics can be refreshed under the [identity policy](identity-and-review.md).

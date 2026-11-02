@@ -159,7 +159,7 @@ text and paths. The rules are preliminary, all proposals remain ambiguous, and
 the option does not disable Anki: use an Anki-disabled configuration for safe
 offline checks. See [grammar shadow prototype](../grammar-shadow-prototype.md).
 
-The normal pipeline includes experimental grammar cards by default; pass
+The normal pipeline includes grammar cards by default; pass
 `--no-grammar` to disable them. Rules create separate grammar candidates when
 narrowly supported source examples are found. See the [grammar documentation](../grammar/README.md)
 for the individual rules and their supported forms. If Anki is enabled, each

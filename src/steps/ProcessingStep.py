@@ -15,3 +15,4 @@ class ProcessingStep(IntEnum):
     WORD_COLLECTION = 11
     OCCURRENCE_DIAGNOSTICS = 12
     GRAMMAR_SHADOW = 13
+    GRAMMAR = 14

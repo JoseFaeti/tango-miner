@@ -43,7 +43,7 @@ class GrammarOccurrences:
 
 class GrammarStep(PipelineStep):
     def __init__(self, max_examples=3, rules=RULES, dictionary_path=None, prefer_expressions=False, max_lookahead=10, profile_rules=False, profiling=True):
-        self._processing_step = ProcessingStep.GRAMMAR_SHADOW
+        self._processing_step = ProcessingStep.GRAMMAR
         self.start_time = None
         self.max_examples = max_examples
         self.dictionary_path = dictionary_path
@@ -165,7 +165,7 @@ class ExcludeGrammarTokensStep(PipelineStep):
     """Reserve complete matched tokens for active grammar cards before merging."""
     def __init__(self, grammar):
         self.grammar = grammar
-        self._processing_step = ProcessingStep.GRAMMAR_SHADOW
+        self._processing_step = ProcessingStep.GRAMMAR
         self.start_time = None
 
     def process(self, artifact):
@@ -204,7 +204,7 @@ class GrammarPositionStep(PipelineStep):
     """Map raw grammar spans onto eligible merged-token positions per source."""
     def __init__(self, grammar):
         self.grammar = grammar
-        self._processing_step = ProcessingStep.GRAMMAR_SHADOW
+        self._processing_step = ProcessingStep.GRAMMAR
         self.start_time = None
 
     def process(self, artifact):
@@ -248,7 +248,7 @@ class GrammarPositionStep(PipelineStep):
 class AddGrammarCardsStep(PipelineStep):
     def __init__(self, grammar):
         self.grammar = grammar
-        self._processing_step = ProcessingStep.GRAMMAR_SHADOW
+        self._processing_step = ProcessingStep.GRAMMAR
         self.start_time = None
 
     def process(self, artifact):

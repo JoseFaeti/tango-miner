@@ -17,7 +17,7 @@ class GrammarProgressTests(unittest.TestCase):
                             on_progress=lambda *args, **kwargs: events.append((args, kwargs)))
         pipeline.run(Artifact([sentence] * 3))
         self.assertEqual([args[1:3] for args, _ in events], [(0, 3), (1, 3), (2, 3), (1, 1)])
-        self.assertTrue(all(args[0] == ProcessingStep.GRAMMAR_SHADOW for args, _ in events))
+        self.assertTrue(all(args[0] == ProcessingStep.GRAMMAR for args, _ in events))
         self.assertIn('source-supported grammar occurrences', events[-1][1]['additional_text'])
 
 
