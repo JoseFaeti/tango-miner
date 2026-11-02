@@ -50,3 +50,7 @@ The current code and tests determine actual behavior when a document is stale.
   avoid lengthy ad hoc code when a single script would suffice.
 - Preserve each existing file's line endings when editing. Avoid line-ending-only
   diffs, and check the diff for unintended newline changes before finishing.
+- Write and read text files with explicit UTF-8 encoding. On Windows, avoid
+  passing non-ASCII file contents through a console with uncertain encoding.
+  Read back representative text before testing. If encoding corruption occurs,
+  treat the run as invalid, repair the files, and rerun the affected checks.
