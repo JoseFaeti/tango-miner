@@ -16,6 +16,8 @@ def match_te_iru(tokens):
         if not has_next(tokens, i):
             return None
         suffix = tokens[i + 1]
+        if suffix['surface'] == 'て' and suffix['pos'][:2] == ['助詞', '接続助詞']:
+            return i + 1
         if suffix['pos'][:1] != ['助動詞']:
             return None
         if suffix['lemma'] == 'た':

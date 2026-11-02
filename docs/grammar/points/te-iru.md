@@ -28,6 +28,12 @@ inflections, such as `でいた`, `ていなかった`, `ていませんでし�
 or mislabels their components. These surface and context cues can still be
 ambiguous; other tokenizations remain unsupported. See [stage and precedence](../stage-and-precedence.md) for shared example eligibility, reservation and scoring.
 
+Source-aligned continuative `ていて` / `でいて` and contracted `てて` /
+`でて` are also recognized when Sudachi identifies the final `て` as a
+connective particle. Focused tokenizer regressions cover both forms and a
+standalone locative `いて` control; they do not establish corpus-wide
+precision or recall.
+
 A replay of the first 15,000 sentences in a full-corpus shadow archive found 25
 matching occurrences after the continuative-form restriction. A prior version
 also matched a name fragment that Sudachi analyzed as a non-continuative verb;
