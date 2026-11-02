@@ -1,4 +1,5 @@
 """Explicit registry of grammar rules."""
+from src.grammar_rules.rules.wake_da import EXPLANATION as WAKE_DA, NEGATIVE as WAKE_NEGATIVE
 from src.GrammarConstants import GRAMMAR_EXPRESSIONS
 from src.grammar_rules.rules.hazu_da import RULE as HAZU_DA
 from src.grammar_rules.rules.sou_da import APPEARANCE, HEARSAY
@@ -28,7 +29,7 @@ from src.grammar_rules.rules.koto_ga_aru_occasional import RULE as KOTO_GA_ARU_O
 from src.grammar_rules.rules.te_kuru import RULE as TE_KURU
 from src.grammar_rules.rules.te_iku import RULE as TE_IKU
 
-RULES = (HAZU_DA, APPEARANCE, HEARSAY, TE_MO, NARA, BA, YOU_DA, KOTO_NI_SURU, KOTO_NI_NARU, TE_WA_IKENAI, TE_MIRU, TE_OKU, TE_MO_II, OBLIGATION, TO_OMOU, YOU_NI, KOTO_GA_ARU_OCCASIONAL, KOTO_GA_ARU, TE_IKU, TARA, NAI, TE_KURU, TE_IRU, NDA, TAI, TE_SHIMAU, MONONO,)
+RULES = (WAKE_DA, WAKE_NEGATIVE, HAZU_DA, APPEARANCE, HEARSAY, TE_MO, NARA, BA, YOU_DA, KOTO_NI_SURU, KOTO_NI_NARU, TE_WA_IKENAI, TE_MIRU, TE_OKU, TE_MO_II, OBLIGATION, TO_OMOU, YOU_NI, KOTO_GA_ARU_OCCASIONAL, KOTO_GA_ARU, TE_IKU, TARA, NAI, TE_KURU, TE_IRU, NDA, TAI, TE_SHIMAU, MONONO,)
 
 if frozenset(rule.expression for rule in RULES) != GRAMMAR_EXPRESSIONS:
     raise ValueError('Registered grammar identities and Anki protections must match')
