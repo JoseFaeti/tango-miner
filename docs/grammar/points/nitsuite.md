@@ -1,0 +1,7 @@
+# 〜について
+
+Status: [ ]
+
+## Meaning
+
+About.

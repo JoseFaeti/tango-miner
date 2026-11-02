@@ -1,0 +1,7 @@
+# 〜わけがない
+
+Status: [ ]
+
+## Meaning
+
+Impossibility.

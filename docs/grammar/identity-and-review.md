@@ -1,6 +1,6 @@
 # Identity and review
 
-[Grammar card index](card-details.md)
+[Grammar documentation](README.md)
 
 The distinct Expression is the Anki identity. A new card participates in the
 existing preview and confirmation flow. If a note with that exact expression

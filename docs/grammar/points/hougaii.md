@@ -1,0 +1,7 @@
+# 〜ほうがいい
+
+Status: [ ]
+
+## Meaning
+
+Advice.

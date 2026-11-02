@@ -1,0 +1,7 @@
+# 〜ようではないか
+
+Status: [ ]
+
+## Meaning
+
+Invitation.

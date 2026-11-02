@@ -66,5 +66,5 @@ does not affect CSV or Anki.
 
 ## Grammar cards
 
-See [grammar card details](grammar/card-details.md) for supported forms,
+See the [grammar documentation](grammar/README.md) for supported forms,
 precedence, and note behavior.

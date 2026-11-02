@@ -1,0 +1,7 @@
+# 〜とき
+
+Status: [ ]
+
+## Meaning
+
+When.

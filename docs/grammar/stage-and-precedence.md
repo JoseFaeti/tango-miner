@@ -1,57 +1,14 @@
-# Stage and precedence
+# Grammar stage and precedence
 
-[Grammar card index](card-details.md)
+[Grammar documentation](README.md)
 
-The `〜ておく` card matches a continuative verb or auxiliary followed by
-split て/で + non-independent おく, or a Sudachi とく/どく auxiliary.
-Supported complete forms include present, past, negative, polite, て-form,
-conditional and volitional forms, including たら as a complete token. The
-conditional card can also match the same たら. Ambiguous analyses such as
-読んどいた, negative antecedents such as 忘れないでおいて and the 置く
-spelling remain lexical. The meaning can be preparation or leaving a resulting
-state; tokenization cannot establish which.
-A raw replay of the first 20,000 archived sentences found 123 matches, before
-expression precedence and example eligibility; this does not measure precision
-or recall. In the archived ほっとく example, the current dictionary merger
-leaves ほっ and とく separate. Reservation keeps the ほる component and removes
-the とく lexical occurrence; the complete expression is not emitted as a
-lexical candidate in this example. Independent おく and 置く remain eligible.
-When a longer JMdict expression starts at おく and extends beyond the
-construction, as in おけばいい or おけばよかった, it takes precedence over
-this grammar match. The attached verb remains eligible; in 従っておく, the
-merger leaves 従う as a verb rather than selecting the adverb 従って. These
-changes are validated on selected examples and have not been compared in a
-full corpus. The interpretation and wider frequency effects need further evaluation.
+The shared grammar stage runs by default; pass `--no-grammar` to disable it.
+It checks registered rules and adds grammar candidates to CSV output and, if
+Anki is enabled, to the normal plan. Grammar meanings use short dictionary-style
+glosses; new cards and CSV output use the current glosses, while existing note
+fields are retained under the [identity policy](identity-and-review.md).
 
-The obligation card `〜なければならない` recognizes selected complete verbal
-negative conditional forms followed by `ならない` or `いけない`, including
-plain and polite present and past negative endings and `なきゃ`, `なくちゃ`, and `ないと`. It reserves
-the suffix while retaining the attached verb; dictionary expression precedence
-can suppress the card. Entirely merged verb-and-suffix tokens, conditional past endings and
-elliptical obligations remain unsupported. Surface and token boundaries do not
-resolve every contextual ambiguity, and precision and recall have not been
-independently evaluated.
-
-
-The `〜てみる` card recognizes an adjacent continuative verb + connective て/で + non-independent みる. It includes the supported present form and selected past, negative and polite forms. Standalone 見る and noun + てみる do not match. These token and POS cues do not prove that the meaning is “try doing”; a literal see reading can remain ambiguous, and unsupported forms stay lexical. The rule requires an eligible example and has not been independently evaluated for precision or recall.
-
-Grammar card meanings use short dictionary-style glosses. Existing Anki grammar
-notes retain their current fields under the protection policy described below;
-new cards and CSV output use the current glosses.
-
-The shared grammar stage runs by default. Pass `--no-grammar` to disable it.
-The stage checks the registered rules and adds separate
-grammar candidates to
-the normal CSV and, when Anki is enabled, to its usual plan. Only uninflected
-source occurrences with adjacent Sudachi continuative verb/auxiliary + connective て/で +
-non-independent `いる`, or a contracted auxiliary `てる`/`でる`, are counted.
-Supported forms include plain, past, negative, polite and some contracted
-inflections, such as `でいた`, `ていなかった`, `ていませんでした`,
-`てる` and `でた`. Contracted negatives include analyses such as `でない`,
-`でなかった`, `でなく` and `でませんでした`, even when Sudachi merges
-or mislabels their components. These surface and context cues can still be
-ambiguous; other tokenizations remain unsupported. The
-example must also pass the existing sentence-validity check. No card is emitted
+An eligible source example must also pass the existing sentence-validity check. No card is emitted
 without an eligible example. Its frequency counts only the supported subset,
 and its index is the mean first occurrence position in each source, measured
 against eligible merged tokens. Grammar cards are added after lexical filtering
@@ -79,14 +36,5 @@ A replay of the first 20,000 sentences of an earlier shadow archive found
 source-biased raw-token counts, not post-merge frequency changes or a precision
 and recall evaluation. Treating a match exclusively as grammar can remove a
 useful lexical analysis when the rule is wrong; unmatched uses remain eligible.
-
-For explanatory `んだ`, a dictionary merge beginning at copular `な`
-does not override the supported `な` + `ん` + copula analysis. This avoids
-interpreting `だめなんだって` as interrogative `なんだって`. Longer
-merged expressions such as `そうなんですか` may still take precedence,
-and other ambiguous tokenizations remain unresolved by this rule. An ordered
-20,000-sentence archive replay found 218 copular matches; the former precedence
-rule preempted 141, including longer expressions, so that number is not a
-measurement of the narrowed rule or a representative accuracy estimate.
 
 Dictionary expressions can also take precedence when they start before a grammar span and end inside it, as with ではなさそう + だ and 命に代えて + も. This preserves lexical components but suppresses the overlapping grammar occurrence; the effect on other expressions remains unmeasured.

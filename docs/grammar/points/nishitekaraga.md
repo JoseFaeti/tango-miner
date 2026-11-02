@@ -1,0 +1,7 @@
+# 〜にしてからが
+
+Status: [ ]
+
+## Meaning
+
+Even.

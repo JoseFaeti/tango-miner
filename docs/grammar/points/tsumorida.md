@@ -1,0 +1,7 @@
+# 〜つもりだ
+
+Status: [ ]
+
+## Meaning
+
+Intention.

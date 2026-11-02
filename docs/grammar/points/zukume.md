@@ -1,0 +1,7 @@
+# 〜ずくめ
+
+Status: [ ]
+
+## Meaning
+
+Entirely.

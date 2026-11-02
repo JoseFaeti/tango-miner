@@ -1,0 +1,7 @@
+# 〜げ
+
+Status: [ ]
+
+## Meaning
+
+Appearance.

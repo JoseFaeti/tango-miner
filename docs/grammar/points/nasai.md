@@ -1,0 +1,7 @@
+# 〜なさい
+
+Status: [ ]
+
+## Meaning
+
+Instruction.

@@ -1,0 +1,7 @@
+# 〜とはいうものの
+
+Status: [ ]
+
+## Meaning
+
+Although.

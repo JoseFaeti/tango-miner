@@ -1,0 +1,7 @@
+# 〜にかかわって
+
+Status: [ ]
+
+## Meaning
+
+Involving.

@@ -1,0 +1,7 @@
+# より
+
+Status: [ ]
+
+## Meaning
+
+Comparison.

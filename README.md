@@ -2,10 +2,8 @@
 
 Tango Miner extracts Japanese learning candidates from your reading material and
 produces CSV files for review or use with Anki. It aims to retain useful words,
-expressions, grammar, colloquialisms and names. Grammar cards include distinct appearance and hearsay 〜そうだ, concessive 〜ても and selected
-〜ことにする decisions, 〜ようだ inference or resemblance, 〜はずだ expectation, and 〜ば and 〜なら conditions; see the [grammar card details](docs/grammar/card-details.md)
-for coverage and limitations. The [priority grammar tracker](docs/grammar-priorities.md)
-and [remaining candidates](docs/grammar/remaining-candidates.md) guide future work.
+expressions, grammar, colloquialisms and names. See the [grammar documentation](docs/grammar/README.md)
+for point-specific coverage, limitations, and implementation priorities.
 
 ## Getting started
 

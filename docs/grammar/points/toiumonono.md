@@ -1,0 +1,7 @@
+# 〜というものの
+
+Status: [ ]
+
+## Meaning
+
+Although.

@@ -1,0 +1,7 @@
+# 〜そうもない
+
+Status: [ ]
+
+## Meaning
+
+Unlikely.

@@ -1,0 +1,7 @@
+# 〜てちょうだい
+
+Status: [ ]
+
+## Meaning
+
+Request.

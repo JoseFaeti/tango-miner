@@ -1,0 +1,7 @@
+# 〜といったところだ
+
+Status: [ ]
+
+## Meaning
+
+Approximately.

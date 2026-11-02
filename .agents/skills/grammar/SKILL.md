@@ -9,11 +9,15 @@ Follow AGENTS.md. Implement one grammar point per task unless explicitly request
 
 ## 1. Select the grammar point
 
-If the task specifies a grammar point, use it.
-
-Otherwise, find the first unchecked entry in "docs/grammar-priorities.md". Read only the relevant section initially.
-
-Consult "docs/grammar/remaining-candidates.md" only when the priority queue is exhausted or the selected point requires clarification.
+Follow AGENTS.md, including its required project-wide reading and safety rules.
+If a point is explicitly specified, find its specification under
+`docs/grammar/points/` using a targeted search or the indexes. Otherwise read
+`docs/grammar/next.md` and choose its first entry marked `[ ]` or `[~]`.
+Read only that point's specification initially. `[ ]` means not implemented,
+`[~]` means partially implemented, and `[x]` means fully implemented and
+validated. When the point is partial, identify the remaining work and already
+supported behavior before changing code. Consult `docs/grammar/later.md` only
+when the queue is exhausted or relevant to the selected point.
 
 ## 2. Inspect relevant context
 
@@ -26,7 +30,7 @@ Initially inspect only:
 - Their corresponding tests.
 - Relevant sections of README.md and docs/false-positive-analysis.md.
 
-Expand investigation only when required by ambiguity, unexpected tokenization, failed tests, or a potential regression.
+Expand investigation only when required by ambiguity, missing evidence, unexpected tokenization, failed tests, or a potential regression.
 
 Prefer bounded scripts such as "scripts/replay_grammar.py", "scripts/query_jsonl.py", "scripts/inspect_run.py", and "scripts/compare_runs.py" when source evidence is needed.
 
@@ -77,17 +81,16 @@ Keep successful test output concise. Inspect detailed output only for failures.
 
 ## 6. Documentation and verification
 
-Update only the relevant portions of:
+Update the selected point's specification with verified behavior, tests,
+evidence, ambiguities and remaining limitations. Update its checklist status
+in both the specification and index. Keep `[~]` distinct from `[ ]` and `[x]`;
+if work remains, retain `[~]` in `next.md`. Move the link from `next.md` to
+`implemented.md` only after its scheduled scope is fully implemented and
+validated. Update other documentation only when shared behavior changes.
 
-- README.md
-- "docs/grammar-priorities.md"
-- The grammar card documentation
-
-Describe actual supported forms, limitations, and uncertain interpretations.
-
-Preserve existing line endings.
-
-Inspect the final diff and report the files changed, tests run, and any remaining limitations.
+Run `python scripts/check_grammar_docs.py` to check index and link consistency.
+Preserve existing line endings, inspect the final diff, and report changes,
+tests and remaining limitations.
 
 ## 7. Corpus pipeline safety
 

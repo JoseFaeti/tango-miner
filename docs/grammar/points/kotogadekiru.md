@@ -1,0 +1,7 @@
+# 〜ことができる
+
+Status: [ ]
+
+## Meaning
+
+Ability.

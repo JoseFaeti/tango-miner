@@ -1,0 +1,7 @@
+# 〜がち
+
+Status: [ ]
+
+## Meaning
+
+Tendency.

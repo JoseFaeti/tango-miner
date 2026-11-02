@@ -1,0 +1,7 @@
+# 〜かたわら
+
+Status: [ ]
+
+## Meaning
+
+Alongside.

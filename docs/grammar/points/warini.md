@@ -1,0 +1,7 @@
+# 〜わりに
+
+Status: [ ]
+
+## Meaning
+
+Considering.

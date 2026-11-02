@@ -1,0 +1,7 @@
+# 〜のだろうか
+
+Status: [ ]
+
+## Meaning
+
+Wondering.

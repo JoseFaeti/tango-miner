@@ -159,12 +159,9 @@ the option does not disable Anki: use an Anki-disabled configuration for safe
 offline checks. See [grammar shadow prototype](../grammar-shadow-prototype.md).
 
 The normal pipeline includes experimental grammar cards by default; pass
-`--no-grammar` to disable them. The rules create separate
-`〜ている`, explanatory `〜んだ` and desire
-`〜たい`, `〜てしまう`, concessive
-`〜ものの`, `〜てくる`, `〜ていく`, `〜ない`, `〜たら`, and
-`〜たことがある`, `〜ておく`, permission `〜てもいい`, prohibition `〜てはいけない`, obligation `〜なければならない`, occasional `〜ことがある`, `〜ように`, `〜と思う`, and `〜てみる` candidates when
-narrowly supported source examples are found. If Anki is enabled, each
+`--no-grammar` to disable them. Rules create separate grammar candidates when
+narrowly supported source examples are found. See the [grammar documentation](../grammar/README.md)
+for the individual rules and their supported forms. If Anki is enabled, each
 card is included in its normal preview and confirmation workflow. Existing
 notes with those exact identities are retained without automatic updates or
 pruning. Existing suffix-style grammar notes are renamed in place through the
@@ -172,14 +169,12 @@ Anki plan when the new identity is unambiguous; conflicts are retained for revie
 source position, frequency and source diversity; they are added after lexical
 filtering and do not use its minimum-frequency threshold. Grammar and lexical
 cards are scored together, and eligible source-aligned grammar occurrences use
-the same sentence ranking, deduplication and fallback as lexical examples. See the [grammar shadow prototype](../grammar-shadow-prototype.md)
-for supported forms, limitations, and note behavior. Recognized grammar spans
+the same sentence ranking, deduplication and fallback as lexical examples. Recognized grammar spans
 are reserved before lexical merging and collection, unless the existing dictionary
 merger identifies a complete expression spanning the construction and its attached
-word; that occurrence is then counted as the expression. For `〜ておく`, a longer
-JMdict expression beginning at `おく`, such as `おけばいい`, also takes precedence. Other occurrences and the
-preceding verb remain eligible. For `〜と思う`, the matched 思う is reserved;
-independent lexical uses remain eligible. This can change lexical frequencies and may
+word; that occurrence is then counted as the expression. Other occurrences and
+eligible attached words remain lexical. See the point specifications for
+construction-specific precedence and reservation. This can change lexical frequencies and may
 place absent lexical notes in an Anki deletion plan when pruning is enabled.
 Existing filters, including the standalone proper-noun filter, do not fully
 match the recall-first goal and should be evaluated before changing them.

@@ -1,0 +1,7 @@
+# 〜にしては
+
+Status: [ ]
+
+## Meaning
+
+Considering.

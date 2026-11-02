@@ -1,0 +1,7 @@
+# 〜なしでは
+
+Status: [ ]
+
+## Meaning
+
+Without.

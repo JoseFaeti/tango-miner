@@ -1,0 +1,7 @@
+# 〜ことか
+
+Status: [ ]
+
+## Meaning
+
+Exclamation.

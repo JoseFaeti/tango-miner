@@ -1,0 +1,7 @@
+# 〜にもかかわらず
+
+Status: [ ]
+
+## Meaning
+
+Despite.

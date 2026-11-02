@@ -1,6 +1,6 @@
 # Shared grammar inflection improvements
 
-[Priority grammar tracker](../grammar-priorities.md)
+[Grammar implementation queue](next.md)
 
 Prioritize these cross-rule improvements using observed source tokenizations.
 Shared matching should let each construction choose applicable forms and meanings;
@@ -71,3 +71,16 @@ spans. Assess expression precedence, candidate frequencies, examples and Anki
 plans; a larger count alone is not a recall or precision evaluation. Run the
 pipeline test suite and record remaining ambiguity and partial coverage.
 
+
+## Shared matcher design
+
+The shared `positive_verb_end` helper recognizes
+only explicitly supplied verb forms; each rule must choose its own supported
+inflections and semantic constraints. The shared `negative_predicate_end`
+helper supports selected plain and polite negative forms. The shared negative
+suffix matcher is also used by verbal negation, desire, explanatory, aspect,
+direction and completion rules. Rules explicitly choose supported forms and
+continue to handle their own contractions and meanings. These rules retain
+previously recognized conditional, colloquial and dialectal negative token
+boundaries, including some partial spans; they do not claim full construction
+coverage or resolve lexical expression ambiguity.

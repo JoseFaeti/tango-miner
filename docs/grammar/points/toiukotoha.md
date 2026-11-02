@@ -1,0 +1,7 @@
+# 〜ということは
+
+Status: [ ]
+
+## Meaning
+
+Implication.

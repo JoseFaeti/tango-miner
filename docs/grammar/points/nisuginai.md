@@ -1,0 +1,7 @@
+# 〜にすぎない
+
+Status: [ ]
+
+## Meaning
+
+Merely.

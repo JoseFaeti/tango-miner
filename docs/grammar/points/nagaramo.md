@@ -1,0 +1,7 @@
+# 〜ながらも
+
+Status: [ ]
+
+## Meaning
+
+Concession.

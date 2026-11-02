@@ -1,0 +1,7 @@
+# 〜つつも
+
+Status: [ ]
+
+## Meaning
+
+Although.

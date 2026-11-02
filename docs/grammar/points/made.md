@@ -1,0 +1,7 @@
+# 〜まで
+
+Status: [ ]
+
+## Meaning
+
+Until.

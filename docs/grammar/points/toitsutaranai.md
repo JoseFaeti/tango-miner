@@ -1,0 +1,7 @@
+# 〜といったらない
+
+Status: [ ]
+
+## Meaning
+
+Indescribably.

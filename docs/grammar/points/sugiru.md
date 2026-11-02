@@ -1,0 +1,7 @@
+# 〜すぎる
+
+Status: [ ]
+
+## Meaning
+
+Excess.

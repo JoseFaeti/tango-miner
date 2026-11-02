@@ -1,0 +1,7 @@
+# 〜てたまらない
+
+Status: [ ]
+
+## Meaning
+
+Unbearably.

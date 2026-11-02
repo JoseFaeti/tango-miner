@@ -1,0 +1,7 @@
+# 〜かどうか
+
+Status: [ ]
+
+## Meaning
+
+Whether.

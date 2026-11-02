@@ -1,0 +1,7 @@
+# 〜なくして
+
+Status: [ ]
+
+## Meaning
+
+Without.

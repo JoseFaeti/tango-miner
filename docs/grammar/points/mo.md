@@ -1,0 +1,7 @@
+# も
+
+Status: [ ]
+
+## Meaning
+
+Inclusion.
