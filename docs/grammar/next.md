@@ -31,7 +31,7 @@ measured corpus counts:
 - [~] [〜ようだ / 〜みたいだ](points/you-da.md)
 - [~] [〜はずだ](points/hazu-da.md)
 - [~] [〜わけだ / 〜わけではない](points/wake-da.md)
-- [ ] [〜たがる](points/tagaru.md)
+- [~] [〜たがる](points/tagaru.md)
 - [ ] [〜ながら](points/nagara.md)
 - [ ] [〜ために](points/tame-ni.md)
 - [ ] [〜のに](points/noni.md)
