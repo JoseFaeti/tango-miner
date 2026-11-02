@@ -28,6 +28,13 @@ inflections, such as `でいた`, `ていなかった`, `ていませんでし�
 or mislabels their components. These surface and context cues can still be
 ambiguous; other tokenizations remain unsupported. See [stage and precedence](../stage-and-precedence.md) for shared example eligibility, reservation and scoring.
 
+Volitional and imperative forms `ていよう` / `でいよう`, `ていろ` /
+`でいろ`, their `居` spellings, and contracted `てよう` / `でよう` and
+`てろ` / `でろ` are recognized with the same preceding verb and token
+boundary requirements. Focused Sudachi tests include locative `いよう` /
+`いろ` and lexical `出よう` controls; these do not measure corpus-wide
+precision or recall. Conditional forms such as `ていれば` remain unsupported.
+
 Source-aligned continuative `ていて` / `でいて` and contracted `てて` /
 `でて` are also recognized when Sudachi identifies the final `て` as a
 connective particle. Focused tokenizer regressions cover both forms and a

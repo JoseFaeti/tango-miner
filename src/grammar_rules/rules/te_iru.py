@@ -40,7 +40,7 @@ def match_te_iru(tokens):
             # Sudachi can merge the contracted connective and negative.
             end = i
         elif token['pos'][:1] == ['助動詞'] and token['lemma'] in ('てる', 'でる'):
-            if token['surface'] in ('てる', 'でる'):
+            if token['surface'] in ('てる', 'でる', 'てよう', 'でよう', 'てろ', 'でろ'):
                 end = i
             elif token['surface'] in ('て', 'で'):
                 end = suffix_end(i)
@@ -50,7 +50,7 @@ def match_te_iru(tokens):
                        and token['pos'][:1] == ['助動詞'])) and has_next(tokens, i)):
             iru = tokens[i + 1]
             if iru['lemma'] in ('いる', '居る') and iru['pos'][:2] == ['動詞', '非自立可能']:
-                if iru['surface'] in ('いる', '居る'):
+                if iru['surface'] in ('いる', '居る', 'いよう', '居よう', 'いろ', '居ろ'):
                     end = i + 1
                 elif iru['surface'] in ('い', '居'):
                     end = suffix_end(i + 1)
