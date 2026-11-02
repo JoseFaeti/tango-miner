@@ -12,6 +12,12 @@ RULE = GrammarRule(
 
 
 def match_te_iru(tokens):
+    def conditional_end(i):
+        if (has_next(tokens, i) and tokens[i + 1]['surface'] == 'ば'
+                and tokens[i + 1]['pos'][:2] == ['助詞', '接続助詞']):
+            return i + 1
+        return None
+
     def suffix_end(i):
         if not has_next(tokens, i):
             return None
@@ -42,6 +48,8 @@ def match_te_iru(tokens):
         elif token['pos'][:1] == ['助動詞'] and token['lemma'] in ('てる', 'でる'):
             if token['surface'] in ('てる', 'でる', 'てよう', 'でよう', 'てろ', 'でろ'):
                 end = i
+            elif token['surface'] in ('てれ', 'でれ'):
+                end = conditional_end(i)
             elif token['surface'] in ('て', 'で'):
                 end = suffix_end(i)
         elif (token['surface'] in ('て', 'で')
@@ -52,6 +60,8 @@ def match_te_iru(tokens):
             if iru['lemma'] in ('いる', '居る') and iru['pos'][:2] == ['動詞', '非自立可能']:
                 if iru['surface'] in ('いる', '居る', 'いよう', '居よう', 'いろ', '居ろ'):
                     end = i + 1
+                elif iru['surface'] in ('いれ', '居れ'):
+                    end = conditional_end(i + 1)
                 elif iru['surface'] in ('い', '居'):
                     end = suffix_end(i + 1)
             elif (iru['lemma'] == 'ない' and iru['pos'][:2] == ['形容詞', '非自立可能']):
