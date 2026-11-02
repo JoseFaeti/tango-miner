@@ -62,7 +62,8 @@ revisit the ranking after each measured change.
   warmup and initialization from steady-state measurements. Repeat equivalent
   runs, report variation and instrumentation overhead, and compare outputs.
   Bounded stage fixtures do not require a full pipeline run. Agree a curated
-  corpus before any full run, verify Anki is disabled or output-only, save the
+  corpus and configure it in the private `.env` (see [Running](../usage/running.md))
+  before any full run; verify Anki is disabled or output-only, save the
   verbose log and wait for completion before inspection.
 - [ ] If diagnostics I/O is material, open the temporary stream once and close
   it before replacement. Test no events, multiple sentences and ordered events,

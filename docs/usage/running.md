@@ -19,11 +19,20 @@ current options. For example, from the repository root:
 python tango_miner.py --input path/to/text-directory --output path/to/output.csv
 ```
 
-For the established full corpus on the configured machine, run
-`./scripts/run_full_corpus.ps1` from the project root in PowerShell. It uses
-recursive discovery and checks that Anki is disabled or output-only. When
-asked to start a full pipeline run, launch the script in the background and
-return without waiting for it to finish.
+Set the agreed full corpus directory in the Git-ignored `.env` at the project
+root, using an absolute path (quotes are optional):
+
+```dotenv
+TANGO_CORPUS_PATH="path/to/agreed-corpus"
+```
+
+Replace the example with the absolute path on your machine. This file is private
+local configuration; do not commit it. Update the value when the agreed corpus
+changes. Run `./scripts/run_full_corpus.ps1` from the project root in
+PowerShell. It reads that value, uses recursive discovery, and checks that Anki
+is disabled or output-only. Save the console output to a log and wait for the
+process to finish before inspecting the log or run artifacts; check its exit
+status and report failures. Logs and archives can contain source text and paths.
 
 The pipeline needs Python, SudachiPy with its full dictionary and the local
 Sudachi configuration, `appdirs`, and a JMdict XML file. The dictionary path is

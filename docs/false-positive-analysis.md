@@ -63,7 +63,8 @@ They remain evidence and regression seeds, not a current defect count. Recheck
 each relevant case with the no-user-dictionary baseline; an absent candidate
 may reflect lost recall rather than a fix. No historical issue has yet been
 verified as unnecessary solely by this comparison. Full corpus comparisons
-require an agreed corpus and Anki disabled or output-only.
+use the agreed corpus configured in the private `.env` (see [Running](usage/running.md))
+and require Anki disabled or output-only.
 
 ## System-dictionary regression follow-up
 

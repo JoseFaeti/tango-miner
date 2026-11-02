@@ -36,8 +36,9 @@ The current code and tests determine actual behavior when a document is stale.
   outputs when they reduce repeated work. Prefer targeted archive queries and
   compact reports, and save verbose corpus-run logs to files. Do not sacrifice
   necessary validation or recall assessment solely to save resources.
-- Full pipeline runs require a curated input corpus agreed with the user in
-  advance; source files may be outside the project directory. Before starting,
+- Full pipeline runs use the curated input corpus agreed with the user and
+  configured in the private `.env` as described in `docs/usage/running.md`;
+  source files may be outside the project directory. Before starting,
   verify the resolved configuration has Anki disabled or in output-only mode.
   Save verbose output to a log and wait for the process completion signal or
   exit status before inspecting the run, its log, or its artifacts. Then check

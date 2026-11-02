@@ -111,7 +111,8 @@ Dotted fields traverse arrays; repeated `--show` selects fields. Output is
 bounded by `--limit` and `--width`, but the whole file is scanned to count
 matches. These records can include source text and paths.
 
-Full corpus checks require an agreed input corpus. The wrapper below resolves
+Full corpus checks use the agreed input corpus in the private `.env` described
+in [Running](running.md). The wrapper below accepts that path explicitly, resolves
 the configuration, explicitly disables Anki, saves output to a log, waits for
 completion, and reports the resulting archive. It can optionally compare a
 completed baseline and selected candidates:
