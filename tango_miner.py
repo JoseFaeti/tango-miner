@@ -1,6 +1,8 @@
 #!/usr/bin/env python3
 
 import argparse
+from contextlib import redirect_stderr, redirect_stdout
+import traceback
 from dataclasses import replace
 from pathlib import Path
 import sys
@@ -47,6 +49,7 @@ MIN_FREQUENCY_DEFAULT = 4
 
 
 print_debug = lambda *a: None
+silent_archive_ready = False
 
 
 def corpus_path_from_env(env_file):
@@ -74,6 +77,8 @@ def enable_debug_logging():
 
 
 def process_script(argv=None):
+    global silent_archive_ready
+    silent_archive_ready = False
     # Define command-line arguments
     parser = argparse.ArgumentParser(description="Process a Japanese text and extract word frequencies.", allow_abbrev=False)
 
@@ -82,6 +87,7 @@ def process_script(argv=None):
 
     parser.add_argument("--tags", "-t", required=False, help="Tags to add to every word")
     parser.add_argument("--min-frequency", "--minFrequency", "-f", dest="min_frequency", type=int, required=False, help="Min amount of times a word needs to appear in the text to be included")
+    parser.add_argument("--silent", action="store_true", help="Suppress run output; inspect pipeline.log and exit status")
     parser.add_argument("--verbose", "-v", action="store_true", help="Keep progress for completed pipeline steps")
     parser.add_argument("--debug", "-d", action='store_true', default=None)
     parser.add_argument("--recursive", "-r", required=False, action='store_true', default=None)
@@ -126,6 +132,8 @@ def process_script(argv=None):
     if args.show_config:
         print(config.to_json())
         return
+    if args.silent and config.anki.enabled and not config.anki.output_only:
+        parser.error("--silent requires Anki disabled or output-only")
     input_path = config.input.path
     if input_path is None:
         parser.error("an input path is required (--input, [input] path, or TANGO_INPUT_PATH in .env)")
@@ -133,7 +141,7 @@ def process_script(argv=None):
     debug = config.debug.enabled
     recursive = config.input.recursive
 
-    if debug:
+    if debug and not args.silent:
         enable_debug_logging()
 
     print_debug('debug = true')
@@ -198,8 +206,10 @@ def process_script(argv=None):
         active_steps = [step for step in steps if step is not None]
         log_path = final_path.parent / "pipeline.log"
         log = log_path.open("w", encoding="utf-8", newline="\n")
+        silent_archive_ready = True
         log.write(f"Min frequency: {min_frequency}\nInput: {input_path_obj}\nOutput: {final_path}\n")
-        display = ConsoleProgress(sys.stdout, len(active_steps), verbose=args.verbose, log=log)
+        silent_stream = open(os.devnull, "w", encoding="utf-8") if args.silent else None
+        display = ConsoleProgress(silent_stream or sys.stdout, len(active_steps), verbose=args.verbose, log=log)
 
         def record_stage(index, step, record):
             write_stage_record(final_path.parent, index, step, record)
@@ -211,12 +221,17 @@ def process_script(argv=None):
                             cache=stage_cache, on_stage_record=record_stage, profiling=config.profiling.enabled)
         try:
             with display.capture_step_output():
-                pipeline.run(Artifact(input_path, tmpdir=tmpdir))
+                if args.silent:
+                    with redirect_stderr(log):
+                        pipeline.run(Artifact(input_path, tmpdir=tmpdir))
+                else:
+                    pipeline.run(Artifact(input_path, tmpdir=tmpdir))
             summary["status"] = "completed"
         except BaseException as exc:
             summary["status"] = "failed"
             summary["error"] = f"{type(exc).__name__}: {exc}"
             log.write(f"Pipeline failed: {summary['error']}\n")
+            traceback.print_exc(file=log)
             raise
         finally:
             records = getattr(pipeline, "stage_records", [])
@@ -234,12 +249,19 @@ def process_script(argv=None):
                 if summary["status"] == "completed":
                     log.write(f"All tasks completed in {pipeline.duration:.1f} seconds.\n")
                 try:
-                    notification_result = notify_run(summary, final_path.parent)
+                    if args.silent:
+                        with redirect_stdout(log), redirect_stderr(log):
+                            notification_result = notify_run(summary, final_path.parent)
+                    else:
+                        notification_result = notify_run(summary, final_path.parent)
                     log.write(f"ntfy: {notification_result}\n")
                 finally:
                     log.close()
+                    if silent_stream is not None:
+                        silent_stream.close()
 
-    print(f'All tasks completed in {pipeline.duration:.1f} seconds.')
+    if not args.silent:
+        print(f'All tasks completed in {pipeline.duration:.1f} seconds.')
 
 
 def notify_run(summary, run_dir):
@@ -295,4 +317,9 @@ if __name__ == '__main__':
     if len(sys.argv) > 1 and sys.argv[1] == "report":
         from src.ReportCLI import main
         sys.exit(main(sys.argv[2:]))
-    process_script()
+    try:
+        process_script()
+    except Exception:
+        if "--silent" not in sys.argv[1:] or not silent_archive_ready:
+            raise
+        sys.exit(1)

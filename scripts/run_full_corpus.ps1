@@ -42,7 +42,7 @@ if ($env:NTFY_URL) {
     Write-Warning 'NTFY_URL is not set; this run will not send an ntfy notification.'
 }
 Write-Host 'Running full corpus.'
-& python -X utf8 tango_miner.py --input $inputPath -r
+& python -X utf8 tango_miner.py --input $inputPath -r --silent
 $pipelineExit = $LASTEXITCODE
 if ($pipelineExit -ne 0) {
     Write-Host "Pipeline failed with exit code $pipelineExit."

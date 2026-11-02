@@ -9,6 +9,14 @@ also writes stage start and completion messages and step output to `pipeline.log
 in its run archive, including on failure. Live percentage updates are omitted.
 The log can contain source-derived text and paths.
 
+For unattended runs, pass `--silent`. It suppresses pipeline progress, step
+output, notifications and completion messages on the console; inspect the run's
+`pipeline.log` and process exit status after completion. Pipeline exceptions and
+their tracebacks are recorded in the log. Argument, configuration, or startup
+errors before the archive exists are still reported on standard error. Silent
+mode requires Anki disabled or output-only, so it cannot wait for confirmation.
+Use this mode for pipeline runs initiated by scripts and agents.
+
 [Contents](../usage-reference.md)
 
 
@@ -29,8 +37,8 @@ TANGO_INPUT_PATH="path/to/agreed-corpus"
 Replace the example with the absolute path on your machine. This file is private
 local configuration; do not commit it. Update the value when the agreed corpus
 changes. Run `./scripts/run_full_corpus.ps1` from the project root in
-PowerShell. It reads that value, uses recursive discovery, and checks that Anki
-is disabled or output-only. Save the console output to a log and wait for the
+PowerShell. It reads that value, uses recursive discovery and silent mode, and checks that Anki
+is disabled or output-only. Save the wrapper output to a log and wait for the
 process to finish before inspecting the log or run artifacts; check its exit
 status and report failures. Logs and archives can contain source text and paths.
 

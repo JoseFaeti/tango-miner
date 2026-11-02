@@ -1,6 +1,8 @@
 import unittest
 import tempfile
 import json
+import io
+from contextlib import redirect_stdout, redirect_stderr
 from pathlib import Path
 from unittest.mock import patch
 
@@ -18,6 +20,46 @@ from src.steps.OccurrenceDiagnosticsStep import OccurrenceDiagnosticsStep
 
 
 class TangoMinerTests(unittest.TestCase):
+    def test_silent_run_logs_output_and_failure_without_console_output(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            config = Path(tmp) / 'config.toml'
+            config.write_text('', encoding='utf-8')
+            for failure in (False, True):
+                with self.subTest(failure=failure), patch('tango_miner.Pipeline') as factory:
+                    pipeline = factory.return_value
+                    pipeline.duration = 1.0
+                    pipeline.stage_records = []
+                    def run(artifact):
+                        step = factory.call_args.kwargs['steps'][0]
+                        factory.call_args.kwargs['on_stage_record'](1, step, {'name': type(step).__name__, 'status': 'running'})
+                        print('step output')
+                        print('step error', file=__import__('sys').stderr)
+                        if failure:
+                            raise RuntimeError('example failure')
+                    pipeline.run.side_effect = run
+                    out, err = io.StringIO(), io.StringIO()
+                    with redirect_stdout(out), redirect_stderr(err):
+                        if failure:
+                            with self.assertRaisesRegex(RuntimeError, 'example failure'):
+                                process_script(['--config', str(config), '--input', tmp, '--silent'])
+                        else:
+                            process_script(['--config', str(config), '--input', tmp, '--silent'])
+                    self.assertEqual((out.getvalue(), err.getvalue()), ('', ''))
+                    logs = sorted((Path(tmp) / 'runs').glob('*/pipeline.log'), key=lambda p: p.stat().st_mtime_ns)
+                    log = logs[-1].read_text(encoding='utf-8')
+                    self.assertIn('Finding input files', log)
+                    self.assertIn('step output', log)
+                    self.assertIn('step error', log)
+                    if failure:
+                        self.assertIn('RuntimeError: example failure', log)
+
+    def test_silent_rejects_interactive_anki(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            config = Path(tmp) / 'config.toml'
+            config.write_text('[anki]\nenabled = true\noutput_only = false\n', encoding='utf-8')
+            with redirect_stderr(io.StringIO()), self.assertRaises(SystemExit):
+                process_script(['--config', str(config), '--input', tmp, '--silent'])
+
     def test_occurrence_diagnostics_are_opt_in_and_configure_both_outputs(self):
         with tempfile.TemporaryDirectory() as tmp:
             config = Path(tmp) / 'config.toml'
