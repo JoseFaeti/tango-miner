@@ -55,11 +55,3 @@ it. Follow AGENTS.md for integration dependencies and Anki safety.
 Keep `[ ]`, `[~]` and `[x]` distinct and consistent in the specification and
 index. Run `python scripts/check_grammar_docs.py`; it checks structure, not
 linguistic correctness. Inspect the final diff and report tests and limitations.
-
-## Corpus runs
-
-Do not start a full corpus pipeline run without explicit user authorization.
-For an authorized run, follow AGENTS.md: agree on the curated corpus, verify
-Anki is disabled or output-only, log verbose output and wait for completion
-before bounded inspection. Report failures, Anki status and counts separately
-from independent precision or recall estimates.

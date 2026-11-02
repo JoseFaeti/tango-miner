@@ -43,13 +43,15 @@ tests determine actual behavior when documentation is stale.
   outputs when they reduce repeated work. Prefer targeted archive queries and
   compact reports, and save verbose corpus-run logs to files. Do not sacrifice
   necessary validation or recall assessment solely to save resources.
-- Full pipeline runs use the curated input corpus agreed with the user and
-  configured in the private `.env` as described in `docs/usage/running.md`;
-  source files may be outside the project directory. Before starting,
-  verify the resolved configuration has Anki disabled or in output-only mode.
-  Save verbose output to a log and wait for the process completion signal or
-  exit status before inspecting the run, its log, or its artifacts. Then check
-  the result and report failures. Do not mutate Anki during these runs.
+- Do not start a full corpus pipeline run without explicit user authorization.
+  Use the curated input corpus agreed with the user and configured in the private
+  `.env` as described in `docs/usage/running.md`; source files may be outside
+  the project directory. Before starting, verify the resolved configuration has
+  Anki disabled or in output-only mode. Save verbose output to a log and wait
+  for the process completion signal or exit status before inspecting the run,
+  its log, or its artifacts. Then inspect results using bounded tools, report
+  failures and Anki status, and distinguish observed counts from independent
+  precision or recall estimates. Do not mutate Anki during these runs.
 - Before a task, check whether a script in `scripts/` can perform it. If none
   exists, strongly consider creating a reusable script. In particular, prefer
   reusable scripts for querying and inspecting output, such as searching for a
