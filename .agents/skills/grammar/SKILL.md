@@ -81,9 +81,13 @@ Keep successful test output concise. Inspect detailed output only for failures.
 
 ## 6. Documentation and verification
 
-Update the selected point's specification with verified behavior, tests,
-evidence, ambiguities and remaining limitations. Update its checklist status
-in both the specification and index. Keep `[~]` distinct from `[ ]` and `[x]`;
+For every grammar addition or extension, update the selected point's specification
+in the same task with the verified behavior, supported forms, tests, evidence,
+ambiguities and remaining limitations. Check the relevant indexes and shared
+grammar documentation against the change; update each affected document even
+when the point remains partial and its checklist status does not change. Do not
+claim documentation is current based on the structural checker alone. Update
+the checklist status in both the specification and index. Keep `[~]` distinct from `[ ]` and `[x]`;
 if work remains, retain `[~]` in `next.md`. Move the link from `next.md` to
 `implemented.md` only after its scheduled scope is fully implemented and
 validated. Update other documentation only when shared behavior changes.
