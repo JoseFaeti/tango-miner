@@ -12,7 +12,8 @@ Follow AGENTS.md. Implement one grammar point per task unless explicitly request
 Follow AGENTS.md, including its required project-wide reading and safety rules.
 If a point is explicitly specified, find its specification under
 `docs/grammar/points/` using a targeted search or the indexes. Otherwise read
-`docs/grammar/next.md` and choose its first entry marked `[ ]` or `[~]`.
+`docs/grammar/next.md` and choose its first entry marked `[ ]`. Only when
+no `[ ]` entries remain, choose the first entry marked `[~]`.
 Read only that point's specification initially. `[ ]` means not implemented,
 `[~]` means partially implemented, and `[x]` means fully implemented and
 validated. When the point is partial, identify the remaining work and already

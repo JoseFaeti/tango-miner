@@ -1,7 +1,8 @@
 # Next grammar points
 
-Implement in this order, estimated from usefulness and frequency rather than
-measured corpus counts. Both `[ ]` and `[~]` entries are eligible:
+Prioritize `[ ]` entries over `[~]` entries, preserving the order within each
+status. The order is estimated from usefulness and frequency rather than
+measured corpus counts:
 
 - [~] [〜ている](points/te-iru.md)
 - [~] [〜んだ / 〜のだ](points/nda.md)
