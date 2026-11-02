@@ -33,7 +33,11 @@ Volitional and imperative forms `ていよう` / `でいよう`, `ていろ` /
 `てろ` / `でろ` are recognized with the same preceding verb and token
 boundary requirements. Focused Sudachi tests include locative `いよう` /
 `いろ` and lexical `出よう` controls; these do not measure corpus-wide
-precision or recall. Conditional forms such as `ていれば` remain unsupported.
+precision or recall. Source-aligned conditional `ていれば` / `でいれば`, `居` spellings, and
+contracted `てれば` / `でれば` are recognized when followed by connective
+`ば`. Focused tokenizer tests cover locative `いれば` and lexical `出れば`
+controls; other conditional tokenizations and corpus-wide precision and recall
+remain unevaluated.
 
 Source-aligned continuative `ていて` / `でいて` and contracted `てて` /
 `でて` are also recognized when Sudachi identifies the final `て` as a

@@ -32,6 +32,13 @@ class TeIruCardTests(unittest.TestCase):
         except (ImportError, OSError, RuntimeError) as exc:
             self.skipTest(f'Sudachi full dictionary unavailable: {exc}')
         cases = {
+            '本を読んでいれば楽しい。': 'でいれば',
+            '本を見ていれば分かる。': 'ていれば',
+            '本を読んで居ればいい。': 'で居れば',
+            '本を読んでれば分かる。': 'でれば',
+            '本を見てれば分かる。': 'てれば',
+            '公園にいればいい。': None,
+            '外に出ればいい。': None,
             '本を読んでいよう。': 'でいよう',
             '本を読んでいろ。': 'でいろ',
             '本を見て居よう。': 'て居よう',
