@@ -10,9 +10,35 @@ from src.RunConfig import RunConfig, resolve_config
 
 class RunConfigTests(unittest.TestCase):
     def test_default_config_is_loaded_by_cli(self):
+        from dataclasses import replace
+        from tango_miner import corpus_path_from_env
         config = resolve_config('config.toml')
+        if config.input.path is None:
+            config = replace(config, input=replace(config.input, path=corpus_path_from_env(Path('.env'))))
         result = subprocess.run([sys.executable, 'tango_miner.py', '--show-config'], capture_output=True, text=True, check=True)
         self.assertEqual(json.loads(config.to_json()), json.loads(result.stdout))
+
+    def test_env_input_fallback_and_explicit_precedence(self):
+        from unittest.mock import patch
+        from tango_miner import process_script
+        import contextlib
+        import io
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            config = root / 'config.toml'
+            config.write_text('', encoding='utf-8')
+            (root / '.env').write_text(f'TANGO_INPUT_PATH="{root}"\n', encoding='utf-8')
+            with patch('tango_miner.__file__', str(root / 'tango_miner.py')):
+                for extra, expected in (([], str(root)), (['--input', 'explicit'], 'explicit')):
+                    output = io.StringIO()
+                    with contextlib.redirect_stdout(output):
+                        process_script(['--config', str(config), '--show-config', *extra])
+                    self.assertEqual(expected, json.loads(output.getvalue())['input']['path'])
+                config.write_text('[input]\npath = "configured"\n', encoding='utf-8')
+                output = io.StringIO()
+                with contextlib.redirect_stdout(output):
+                    process_script(['--config', str(config), '--show-config'])
+                self.assertEqual('configured', json.loads(output.getvalue())['input']['path'])
 
     def test_file_and_explicit_overrides(self):
         with tempfile.TemporaryDirectory() as directory:

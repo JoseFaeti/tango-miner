@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 
 import argparse
+from dataclasses import replace
 from pathlib import Path
 import sys
 import appdirs
@@ -46,6 +47,25 @@ MIN_FREQUENCY_DEFAULT = 4
 
 
 print_debug = lambda *a: None
+
+
+def corpus_path_from_env(env_file):
+    """Read the optional local corpus path without loading shell commands."""
+    if not env_file.exists():
+        return None
+    entries = []
+    for line in env_file.read_text(encoding="utf-8-sig").splitlines():
+        key, separator, value = line.partition("=")
+        if separator and key.strip() == "TANGO_INPUT_PATH":
+            entries.append(value.strip())
+    if len(entries) != 1:
+        raise ValueError(".env must contain exactly one TANGO_INPUT_PATH entry")
+    value = entries[0]
+    if len(value) >= 2 and value[0] == value[-1] and value[0] in "\"'":
+        value = value[1:-1]
+    if not value or not Path(value).is_absolute():
+        raise ValueError("TANGO_INPUT_PATH must be an absolute directory path")
+    return value
 
 
 def enable_debug_logging():
@@ -97,6 +117,10 @@ def process_script(argv=None):
             overrides.setdefault(section, {})[key] = value
     try:
         config = resolve_config(args.config, overrides)
+        if config.input.path is None:
+            default_input = corpus_path_from_env(Path(__file__).resolve().parent / ".env")
+            if default_input is not None:
+                config = replace(config, input=replace(config.input, path=default_input))
     except (OSError, ValueError) as exc:
         parser.error(str(exc))
     if args.show_config:
@@ -104,7 +128,7 @@ def process_script(argv=None):
         return
     input_path = config.input.path
     if input_path is None:
-        parser.error("an input path is required (--input or [input] path)")
+        parser.error("an input path is required (--input, [input] path, or TANGO_INPUT_PATH in .env)")
     min_frequency = config.filter.min_frequency
     debug = config.debug.enabled
     recursive = config.input.recursive

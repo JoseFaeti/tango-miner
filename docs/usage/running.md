@@ -23,7 +23,7 @@ Set the agreed full corpus directory in the Git-ignored `.env` at the project
 root, using an absolute path (quotes are optional):
 
 ```dotenv
-TANGO_CORPUS_PATH="path/to/agreed-corpus"
+TANGO_INPUT_PATH="path/to/agreed-corpus"
 ```
 
 Replace the example with the absolute path on your machine. This file is private
@@ -33,6 +33,12 @@ PowerShell. It reads that value, uses recursive discovery, and checks that Anki
 is disabled or output-only. Save the console output to a log and wait for the
 process to finish before inspecting the log or run artifacts; check its exit
 status and report failures. Logs and archives can contain source text and paths.
+
+The main `tango_miner.py` command also uses `TANGO_INPUT_PATH` from `.env`
+when neither `--input` nor `[input] path` is set. Explicit command-line input
+takes precedence over the configuration file, which takes precedence over `.env`.
+The main command still uses its configured recursion and Anki settings; check
+`--show-config` before a full run.
 
 The pipeline needs Python, SudachiPy with its full dictionary and the local
 Sudachi configuration, `appdirs`, and a JMdict XML file. The dictionary path is

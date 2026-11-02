@@ -12,15 +12,15 @@ if ((Get-Location).ProviderPath -ne $projectRoot) {
 
 $envFile = Join-Path $projectRoot '.env'
 if (-not (Test-Path -LiteralPath $envFile -PathType Leaf)) {
-    throw 'Create .env with TANGO_CORPUS_PATH set to the agreed corpus directory.'
+    throw 'Create .env with TANGO_INPUT_PATH set to the agreed corpus directory.'
 }
-$entries = @(Get-Content -LiteralPath $envFile -Encoding UTF8 | Where-Object { $_ -match '^\s*TANGO_CORPUS_PATH\s*=' })
-if ($entries.Count -ne 1) { throw '.env must contain exactly one TANGO_CORPUS_PATH entry.' }
-$inputPath = ($entries[0] -replace '^\s*TANGO_CORPUS_PATH\s*=\s*', '').Trim()
+$entries = @(Get-Content -LiteralPath $envFile -Encoding UTF8 | Where-Object { $_ -match '^\s*TANGO_INPUT_PATH\s*=' })
+if ($entries.Count -ne 1) { throw '.env must contain exactly one TANGO_INPUT_PATH entry.' }
+$inputPath = ($entries[0] -replace '^\s*TANGO_INPUT_PATH\s*=\s*', '').Trim()
 if ($inputPath.Length -ge 2 -and (($inputPath[0] -eq '"' -and $inputPath[-1] -eq '"') -or ($inputPath[0] -eq "'" -and $inputPath[-1] -eq "'"))) {
     $inputPath = $inputPath.Substring(1, $inputPath.Length - 2)
 }
-if (-not [System.IO.Path]::IsPathRooted($inputPath)) { throw 'TANGO_CORPUS_PATH must be an absolute directory path.' }
+if (-not [System.IO.Path]::IsPathRooted($inputPath)) { throw 'TANGO_INPUT_PATH must be an absolute directory path.' }
 if (-not (Test-Path -LiteralPath $inputPath -PathType Container)) {
     throw "Corpus directory not found: $inputPath"
 }
