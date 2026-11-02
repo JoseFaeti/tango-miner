@@ -123,6 +123,34 @@ class GrammarReservationTests(unittest.TestCase):
             return stage.occurrences, stage.spans, stage.matches, reserved.data
         self.assertEqual(run(True), run(False))
 
+    def test_archived_expressions_overlap_start_of_grammar(self):
+        from pathlib import Path
+        from src.TokenizedSentence import TokenizedSentence
+        from src.steps.TokenizeStep import tokenize_raw_sentences
+        from src.steps.MergeTokensStep import combine_tokens_jmdict, get_jmdict
+        from src.steps.BuildWordStatsStep import build_word_stats
+        from src.grammar_rules.rules.sou_da import APPEARANCE
+        from src.grammar_rules.rules.te_mo import RULE as TE_MO
+
+        try:
+            dictionary = get_jmdict()
+            texts = ['どうもただごとではなさそうだ。',
+                     'これからは命に代えてもあなたをお守りいたします。',
+                     '雨が降りそうだ。', '雨が降っても行く。']
+            raw = tokenize_raw_sentences(texts, tag='source', source_path=Path('source.txt'))
+        except (ImportError, OSError, RuntimeError) as exc:
+            self.skipTest(f'Sudachi or JMdict unavailable: {exc}')
+        stage = GrammarStep(rules=(APPEARANCE, TE_MO), prefer_expressions=True)
+        reserved = ExcludeGrammarTokensStep(stage).process(stage.process(Artifact(raw))).data
+        merged = [TokenizedSentence(s.text, s.tag, s.origin, combine_tokens_jmdict(s.tokens, dictionary))
+                  for s in reserved]
+        words, _ = build_word_stats(merged)
+        for expression in ('ではなさそう', '命に代えて'):
+            self.assertIn(expression, words)
+            self.assertTrue(next(iter(words[expression].component_counts)))
+        self.assertEqual(stage.occurrences[APPEARANCE.id].count, 1)
+        self.assertEqual(stage.occurrences[TE_MO.id].count, 1)
+
     def test_complete_dictionary_expression_takes_precedence(self):
         source = sentence('私はいってきますね。', [
             tok('私は', '私', ('名詞', '普通名詞')),

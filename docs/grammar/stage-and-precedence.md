@@ -89,3 +89,4 @@ and other ambiguous tokenizations remain unresolved by this rule. An ordered
 rule preempted 141, including longer expressions, so that number is not a
 measurement of the narrowed rule or a representative accuracy estimate.
 
+Dictionary expressions can also take precedence when they start before a grammar span and end inside it, as with ではなさそう + だ and 命に代えて + も. This preserves lexical components but suppresses the overlapping grammar occurrence; the effect on other expressions remains unmeasured.

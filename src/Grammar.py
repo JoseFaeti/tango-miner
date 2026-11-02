@@ -123,9 +123,11 @@ class GrammarStep(PipelineStep):
                 connective_ends = {t['span'][1] for t in tokens
                                    if rule.id == 'te_oku' and t['span'][0] == start
                                    and t['surface'] in ('て', 'で')}
+                # A dictionary expression may end inside the grammar span.
                 if any((a <= start and end <= b and (a < start or end < b)
                         and a not in copular_starts)
                        or (is_expression and a in connective_ends and a < end < b)
+                       or (is_expression and a < start < b < end)
                        for a, b, is_expression in expression_spans):
                     continue
                 group = self.occurrences[rule.id]
