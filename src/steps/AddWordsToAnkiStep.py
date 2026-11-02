@@ -197,21 +197,31 @@ def export_words_to_anki(
                         'legacy_note_ids': legacy_ids, 'current_note_ids': current_ids})
                     continue
                 note = existing_words[legacy]
+                fields = grammar_field_changes(note, stats)
+                fields['Expression'] = {'before': legacy, 'after': word}
                 total_notes_to_update += 1
                 update_details.append({'expression': word, 'note_id': note['noteId'],
-                                       'fields': {'Expression': {'before': legacy, 'after': word}},
+                                       'fields': fields,
                                        'tags_added': [],
                                        'tags_removed': ['grammar'] if 'grammar' in note['tags'] and 'grammar' not in stats.tags else []})
                 continue
 
-        # Preserve existing grammar fields and other tags, but remove the old
-        # synthetic tag unless it is also a tag of a current input source.
+            if len(current_ids) > 1:
+                grammar_migration_conflicts.append({
+                    'expression': word, 'legacy_expression': legacy,
+                    'legacy_note_ids': [], 'current_note_ids': current_ids})
+                continue
+
+        # Refresh generated meaning and metrics while preserving user-managed
+        # fields and tags. Remove only the old synthetic grammar tag.
         if word in GRAMMAR_EXPRESSIONS and word in existing_words:
             note = existing_words[word]
-            if 'grammar' in note['tags'] and 'grammar' not in stats.tags:
+            fields = grammar_field_changes(note, stats)
+            removed = ['grammar'] if 'grammar' in note['tags'] and 'grammar' not in stats.tags else []
+            if fields or removed:
                 total_notes_to_update += 1
                 update_details.append({'expression': word, 'note_id': note['noteId'],
-                                       'fields': {}, 'tags_added': [], 'tags_removed': ['grammar']})
+                                       'fields': fields, 'tags_added': [], 'tags_removed': removed})
             continue
 
         new_tags = set(stats.tags)
@@ -359,13 +369,22 @@ def build_mutation_actions(deck_name, model_name, additions, update_details, dir
         if item["expression"] in dirty_updates:
             update_actions.append({"action": "updateNoteFields", "params": {"note": {
                 "id": note_id, "fields": word_to_anki_fields(item["expression"], words[item["expression"]])}}})
-        elif 'Expression' in item['fields']:
+        elif item['fields']:
             update_actions.append({"action": "updateNoteFields", "params": {"note": {
-                "id": note_id, "fields": {"Expression": item['fields']['Expression']['after']}}}})
+                "id": note_id, "fields": {name: change['after'] for name, change in item['fields'].items()}}}})
         for action, tags in (("addTags", item["tags_added"]), ("removeTags", item["tags_removed"])):
             if tags:
                 update_actions.append({"action": action, "params": {"notes": [note_id], "tags": " ".join(tags)}})
     return notes_to_add, update_actions
+
+
+def grammar_field_changes(note, stats):
+    """Refresh only generated grammar meaning and metrics, retaining other fields."""
+    values = {'Meaning': stats.definition, 'Frequency': str(int(stats.frequency)),
+              'Score': str(stats.score)}
+    return {name: {'before': note['fields'][name]['value'], 'after': value}
+            for name, value in values.items()
+            if note['fields'][name]['value'] != value}
 
 
 def word_to_anki_fields(word: str, stats):

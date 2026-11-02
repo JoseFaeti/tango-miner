@@ -23,17 +23,23 @@ class GrammarIdentityMigrationTests(unittest.TestCase):
                                           details_handler=plans.append)
         return plans[0], calls, result
 
-    def test_each_legacy_note_is_renamed_in_place_preserving_other_fields(self):
+    def test_each_legacy_note_is_renamed_and_refreshes_meaning_and_metrics(self):
         for expression in GRAMMAR_EXPRESSIONS:
             with self.subTest(expression=expression):
                 old = expression + ' (grammar)'
                 existing = note(123, old, tags=['custom'], fields={'Meaning': 'user edit'})
                 plan, calls, result = self.run_export([existing], {expression: make_stats()}, apply=True)
                 self.assertEqual(result, (0, 1, 0))
-                self.assertEqual(plan['modify'][0]['fields'], {'Expression': {'before': old, 'after': expression}})
+                self.assertEqual(plan['modify'][0]['fields'], {
+                    'Expression': {'before': old, 'after': expression},
+                    'Meaning': {'before': 'user edit', 'after': 'definition'},
+                    'Frequency': {'before': '2', 'after': '1'},
+                    'Score': {'before': '123.45', 'after': '0.0'},
+                })
                 actions = next(params['actions'] for action, params in calls if action == 'multi')
                 self.assertEqual(actions, [{'action': 'updateNoteFields', 'params': {'note': {
-                    'id': 123, 'fields': {'Expression': expression}}}}])
+                    'id': 123, 'fields': {'Expression': expression, 'Meaning': 'definition',
+                                          'Frequency': '1', 'Score': '0.0'}}}}])
                 self.assertEqual(plan['add'], [])
                 self.assertEqual(plan['delete'], [])
 
@@ -61,3 +67,29 @@ class GrammarIdentityMigrationTests(unittest.TestCase):
             plan, _, _ = self.run_export([note(1, old, tags=['grammar', 'custom'])],
                                          {expression: make_stats(tags=tags)})
             self.assertEqual(plan['modify'][0]['tags_removed'], expected)
+
+    def test_existing_grammar_refreshes_only_selected_fields(self):
+        expression = next(iter(GRAMMAR_EXPRESSIONS))
+        existing = note(123, expression, tags=['custom'], fields={
+            'Meaning': 'old', 'Reading': 'custom reading', 'Index': '99',
+            'Frequency': '4', 'Score': '5', 'Sentence': 'custom example'})
+        plan, calls, _ = self.run_export([existing], {
+            expression: make_stats(definition='new', frequency=7, score=8)}, apply=True)
+        self.assertEqual(plan['modify'][0]['fields'], {
+            'Meaning': {'before': 'old', 'after': 'new'},
+            'Frequency': {'before': '4', 'after': '7'},
+            'Score': {'before': '5', 'after': '8'},
+        })
+        actions = next(params['actions'] for action, params in calls if action == 'multi')
+        self.assertEqual(actions, [{'action': 'updateNoteFields', 'params': {'note': {
+            'id': 123, 'fields': {'Meaning': 'new', 'Frequency': '7', 'Score': '8'}}}}])
+        self.assertEqual(plan['delete'], [])
+
+    def test_duplicate_current_grammar_notes_are_reported_not_updated_or_deleted(self):
+        expression = next(iter(GRAMMAR_EXPRESSIONS))
+        plan, calls, _ = self.run_export([note(1, expression), note(2, expression)],
+                                         {expression: make_stats()}, apply=True)
+        self.assertEqual(plan['modify'], [])
+        self.assertEqual(plan['delete'], [])
+        self.assertEqual(plan['grammar_migration_conflicts'][0]['current_note_ids'], [1, 2])
+        self.assertNotIn('multi', [action for action, _ in calls])

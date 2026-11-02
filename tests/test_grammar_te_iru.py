@@ -172,7 +172,7 @@ class TeIruCardTests(unittest.TestCase):
         self.assertIsNone(error)
         self.assertEqual(list(match_te_iru(aligned)), [])
 
-    def test_existing_grammar_note_is_neither_overwritten_nor_pruned(self):
+    def test_existing_grammar_note_refreshes_only_meaning_and_metrics_and_is_not_pruned(self):
         existing = note(123, EXPRESSION, fields={'Meaning': 'user edited'})
         for words in ({}, {EXPRESSION: make_stats()}):
             actions, plans = [], []
@@ -184,7 +184,14 @@ class TeIruCardTests(unittest.TestCase):
                 raise AssertionError(action)
             export_words_to_anki('Deck', words, 'Custom', invoke=invoke,
                                  prune=True, output_only=True, details_handler=plans.append)
-            self.assertEqual(plans[0]['modify'], [])
+            if words:
+                self.assertEqual(plans[0]['modify'][0]['fields'], {
+                    'Meaning': {'before': 'user edited', 'after': 'definition'},
+                    'Frequency': {'before': '2', 'after': '1'},
+                    'Score': {'before': '123.45', 'after': '0.0'},
+                })
+            else:
+                self.assertEqual(plans[0]['modify'], [])
             self.assertEqual(plans[0]['delete'], [])
             self.assertEqual(plans[0]['retained_existing_grammar'][0]['note_id'], 123)
             self.assertFalse(set(actions) & {'addNotes', 'deleteNotes', 'multi'})
@@ -200,7 +207,8 @@ class TeIruCardTests(unittest.TestCase):
                     if action == 'findNotes': return [123]
                     if action == 'notesInfo': return [existing]
                     raise AssertionError(action)
-                export_words_to_anki('Deck', {EXPRESSION: make_stats(tags=source_tags)},
+                export_words_to_anki('Deck', {EXPRESSION: make_stats(
+                    tags=source_tags, definition='user edit', frequency=2, score=123.45)},
                                      'Custom', invoke=invoke, output_only=True,
                                      details_handler=plans.append)
                 modifications = plans[0]['modify']

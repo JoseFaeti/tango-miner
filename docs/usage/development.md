@@ -163,8 +163,9 @@ The normal pipeline includes experimental grammar cards by default; pass
 narrowly supported source examples are found. See the [grammar documentation](../grammar/README.md)
 for the individual rules and their supported forms. If Anki is enabled, each
 card is included in its normal preview and confirmation workflow. Existing
-notes with those exact identities are retained without automatic updates or
-pruning. Existing suffix-style grammar notes are renamed in place through the
+notes with those exact identities are protected from pruning; the plan refreshes
+their meanings, frequencies and scores while preserving other fields. Existing
+suffix-style grammar notes are renamed in place through the
 Anki plan when the new identity is unambiguous; conflicts are retained for review. Grammar cards use the same scoring formula as vocabulary, including
 source position, frequency and source diversity; they are added after lexical
 filtering and do not use its minimum-frequency threshold. Grammar and lexical

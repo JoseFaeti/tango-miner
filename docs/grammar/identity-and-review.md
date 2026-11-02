@@ -4,8 +4,11 @@
 
 The distinct Expression is the Anki identity. A new card participates in the
 existing preview and confirmation flow. If a note with that exact expression
-already exists in the configured deck/model, its fields and other tags are preserved;
-its frequency and examples do not refresh automatically. When the card is present
+already exists in the configured deck/model, the normal plan refreshes its
+Meaning, Frequency and Score from the current grammar card. This overwrites any
+manual edits in those three fields; Reading, Index, Sentence and other tags are
+preserved. A duplicate current identity is reported as a conflict and left
+untouched. When the card is present
 in the current output, the plan removes the old synthetic `grammar` tag unless
 `grammar` is an actual input source tag. New cards receive only source tags. The plan lists it under `retained_existing_grammar`.
 The identity is also protected from pruning in later runs where the stage is
@@ -17,8 +20,9 @@ Grammar identities use `〜` as an attachment marker, for example `〜ている`
 The marker does not guarantee uniqueness against vocabulary expressions; the
 pipeline rejects collisions. For an existing suffix-style note, an Anki plan
 renames its Expression in place when the current card exists, there is exactly
-one old note, and no note already has the new identity. Other fields, custom
-tags and scheduling remain intact; the existing synthetic-tag cleanup applies.
+one old note, and no note already has the new identity. Meaning, Frequency and
+Score are refreshed in the same plan; other fields, custom tags and scheduling
+remain intact. The existing synthetic-tag cleanup applies.
 When both identities exist or multiple old notes share an identity, the plan
 records `grammar_migration_conflicts` and leaves them untouched. Both old and
 new identities are protected from pruning, including when grammar is disabled.

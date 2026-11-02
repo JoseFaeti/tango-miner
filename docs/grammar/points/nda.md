@@ -30,8 +30,8 @@ and some negative constructions can still be ambiguous. Other tokenizations,
 including some where the nominalizer is merged with the preceding word, bare
 explanatory questions, and unaligned streams can be missed. As with 〜ている,
 a valid source example is required; other occurrences remain available as lexical candidates.
-Existing notes with this exact identity are protected from automatic updates
-and pruning, so their examples do not refresh automatically. Corpus diagnostics
+Existing notes with this exact identity are protected from pruning; their
+examples do not refresh automatically. Corpus diagnostics
 recorded 10,894 split んだ analyses, but they were not independently evaluated
 as grammar matches and do not measure this expanded rule's precision or recall.
 

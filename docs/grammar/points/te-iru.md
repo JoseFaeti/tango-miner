@@ -42,7 +42,8 @@ archive found 1,621 supported occurrences, including 755 `てる`, 403 `てた`,
 first sources and is not a precision or recall evaluation. The latest completed
 full run before this expansion counted 15,372 occurrences under the old rule;
 it does not measure the expanded rule. A future run will produce new counts,
-but existing Anki grammar notes retain their prior examples and frequency.
+and existing Anki grammar notes retained their prior examples and frequency
+under the policy in effect at that time.
 The later contracted-negative extension found six `でない` and one
 `でなかった` in the same 20,000-sentence replay. The observed examples
 support those matches, but this small, ordered check does not establish

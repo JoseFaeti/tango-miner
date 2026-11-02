@@ -5,8 +5,8 @@
 The shared grammar stage runs by default; pass `--no-grammar` to disable it.
 It checks registered rules and adds grammar candidates to CSV output and, if
 Anki is enabled, to the normal plan. Grammar meanings use short dictionary-style
-glosses; new cards and CSV output use the current glosses, while existing note
-fields are retained under the [identity policy](identity-and-review.md).
+glosses; new cards and CSV output use the current glosses, and existing grammar
+note meanings and metrics can be refreshed under the [identity policy](identity-and-review.md).
 
 An eligible source example must also pass the existing sentence-validity check. No card is emitted
 without an eligible example. Its frequency counts only the supported subset,

@@ -24,7 +24,7 @@ regrettable result, depending on context. The rule recognizes an adjacent
 continuative verb plus connective て/で and non-independent しまう, as well
 as the auxiliary contractions ちゃう/じゃう. Supported forms include plain,
 past, common negative and polite inflections. Matched grammar tokens are excluded from lexical processing; the grammar card requires an eligible source example and
-its Anki identity is protected from updates and pruning. Other tokenizations,
+its Anki identity is protected from pruning. Other tokenizations,
 inflections and nuances may be missed, and the morphology alone cannot decide
 the intended nuance. In an ordered replay of the first 20,000 archived
 sentences the rule found 197 occurrences, including 77 `ちゃった` and 75
