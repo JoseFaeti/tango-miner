@@ -1,0 +1,31 @@
+"""Verb continuative + nagara, including its ambiguous concessive reading."""
+from src.GrammarConstants import NAGARA_GRAMMAR_EXPRESSION
+from src.grammar_rules.base import GrammarRule
+from src.grammar_rules.helpers import adjacent
+
+
+def match_nagara(tokens):
+    for i in range(1, len(tokens) - 1):
+        verb, particle, following = tokens[i - 1:i + 2]
+        if (verb['pos'][:1] != ['動詞'] or len(verb['pos']) < 6
+                or not verb['pos'][5].startswith('連用形')
+                or not adjacent(verb, particle)
+                or particle['surface'] != 'ながら' or particle['lemma'] != 'ながら'
+                or particle['pos'][:2] != ['助詞', '接続助詞']
+                or following['surface'] == 'の'):
+            continue
+        # Do not infer a following clause across sentence-ending punctuation.
+        clause = []
+        for token in tokens[i + 1:]:
+            if token['surface'] in ('。', '！', '？', '!', '?'):
+                break
+            clause.append(token)
+        if not any(t['pos'][:1] != ['補助記号'] for t in clause):
+            continue
+        yield tuple(particle['span'])
+
+
+RULE = GrammarRule(
+    id='nagara', expression=NAGARA_GRAMMAR_EXPRESSION, reading='ながら',
+    meaning='while doing; although (depending on context)', match=match_nagara,
+)
