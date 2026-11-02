@@ -4,8 +4,7 @@ Evidence snapshot: completed run `2026-10-27_1701_8ef69e9-dirty`.
 Frequency is the candidate's total recorded corpus count, **not** the number
 of incorrect occurrences or cards. Findings below concern displayed examples;
 other occurrences may be valid. Some fixes were made after this run, as noted.
-Use frequency to prioritize investigation, not to filter candidates. See the
-[false-positive analysis](false-positive-analysis.md) for context.
+Use frequency to prioritize investigation, not to filter candidates.
 
 ## Incorrect or context-mismatched definitions
 

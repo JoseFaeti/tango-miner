@@ -187,12 +187,9 @@ review examples. The [review evaluation workflow](../review-evaluation.md)
 describes how to sample examples and compare independently labeled predictions.
 The [analyzer shadow benchmark](../analyzer-shadow-benchmark.md) compares
 raw-source token spans without changing mining output.
-See [false-positive analysis](../false-positive-analysis.md) for the current
-quality policy, known issues, and next steps, [Japanese parsing research](../japanese-parsing-research.md)
-for analyzer and evaluation options, and the [pipeline improvement
-roadmap](../pipeline-improvement-roadmap.md) for broader work. The
-[initial audit](../archived/anki-output-audit-2026-10-26.md) and
-[re-audit](../archived/anki-output-reaudit-2026-10-26.md) record output evidence.
+See [Japanese parsing research](../japanese-parsing-research.md) for analyzer
+and evaluation options, and the [pipeline improvement roadmap](../pipeline-improvement-roadmap.md)
+for broader work.
 
 Dictionary-backed multi-token expressions that meet the frequency cutoff but
 fail the per-source coverage rule are retained in the review CSV. An inflected

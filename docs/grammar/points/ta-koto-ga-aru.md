@@ -40,5 +40,3 @@ to lexical processing; other ambiguous
 readings, including experience uses of `困る`, remain possible.
 
 See [stage and precedence](../stage-and-precedence.md) and [identity and review](../identity-and-review.md) for shared behavior.
-
-Evidence: [Past-experience grammar boundary](../../quality/past-experience-grammar-boundary-2026-10-29.md).

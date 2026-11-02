@@ -54,8 +54,7 @@ configured in `config.toml`, as are the Sudachi config and dictionary; some
 resources are local and ignored by Git. The current baseline uses Sudachi
 with the full system dictionary and an empty `userDict` in
 `sudachi.config.json`; JMdict is still used for merging and definitions. The
-previously generated user dictionary is not part of the baseline. See
-[baseline findings and follow-up](../false-positive-analysis.md#no-user-dictionary-baseline-2026-10-30).
+previously generated user dictionary is not part of the baseline.
 For the tested JMdict snapshot and a hash check, see
 [development setup](development.md#jmdict-test-baseline). Other dependencies
 still need a reproducible setup specification. Check the current configuration

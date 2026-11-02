@@ -1,12 +1,19 @@
 # Working on Tango Miner
 
-Read `README.md` and `docs/false-positive-analysis.md` before changing mining
-behavior; consult `docs/pipeline-improvement-roadmap.md` for broader context.
-The current code and tests determine actual behavior when a document is stale.
+Read `README.md` for project context. Start documentation research in the active
+area relevant to the task; for grammar tasks use `docs/grammar/`. `AGENTS.md`,
+`README.md`, and applicable skills are also accessible. Inspect relevant source,
+tests, scripts and source evidence as needed. Expand to another active
+documentation area only when a specific cross-topic dependency requires it;
+state the reason before expanding. Prefer targeted searches within that scope.
+Never read or search `docs/archived/`, including in repository-wide searches;
+exclude it explicitly if a broader search is necessary. The current code and
+tests determine actual behavior when documentation is stale.
 
 - Preserve the project's recall-first goal: useful vocabulary, grammar,
   expressions, colloquialisms, names, and uncertain candidates are in scope.
-  Do not turn suspended examples into a blacklist or introduce broad filters
+  Treat suspicious candidates as review signals and regression seeds, not a
+  blacklist or automatic removal queue. Do not introduce broad filters
   based on kana, POS, length, or frequency without assessing recall loss.
 - When improving a target or definition, ground it in the source and retain
   relevant component evidence. Test both corrected false positives and useful

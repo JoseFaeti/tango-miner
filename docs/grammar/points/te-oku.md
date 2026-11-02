@@ -45,5 +45,3 @@ changes are validated on selected examples and have not been compared in a
 full corpus. The interpretation and wider frequency effects need further evaluation.
 
 See [stage and precedence](../stage-and-precedence.md) and [identity and review](../identity-and-review.md) for shared behavior.
-
-Evidence: [ておく and overlapping expressions](../../quality/and-overlapping-expressions-2026-10-29.md).

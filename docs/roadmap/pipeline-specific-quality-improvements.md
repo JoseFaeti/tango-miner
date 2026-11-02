@@ -29,9 +29,8 @@ JMdict remains the source for compound merging and definitions. The old user
 dictionary was generated from JMdict hits over sentence substrings with shared
 Sudachi entry parameters. A dictionary hit does not establish a contextual
 word boundary, so do not restore that dictionary as a general tokenization fix.
-Revalidate historical findings with the new baseline before deciding whether
-an old issue remains or needs repair. See the
-[run comparison and issue tracker](../false-positive-analysis.md#no-user-dictionary-baseline-2026-10-30).
+Revalidate historical findings with the current baseline before deciding whether
+an old issue remains or needs repair.
 
 - Configure and report the Sudachi dictionary path, split mode, and tokenizer
   fingerprint.  The cache fingerprint should derive from all tokenization-

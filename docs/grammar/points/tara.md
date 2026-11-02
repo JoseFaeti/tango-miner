@@ -28,5 +28,3 @@ uses, and other tokenizations remain unrecognized. The rule has not undergone
 independent precision or recall evaluation.
 
 See [stage and precedence](../stage-and-precedence.md) and [identity and review](../identity-and-review.md) for shared behavior.
-
-Evidence: [Conditional grammar and lexical boundaries](../../quality/conditional-grammar-and-lexical-boundaries-2026-10-29.md).

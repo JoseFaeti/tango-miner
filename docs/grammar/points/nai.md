@@ -28,5 +28,3 @@ remain lexical, and adjective negation, polite negatives and merged analyses
 are not covered. Precision and recall have not been evaluated across a corpus.
 
 See [stage and precedence](../stage-and-precedence.md) and [identity and review](../identity-and-review.md) for shared behavior.
-
-Evidence: [Negative grammar and expression boundaries](../../quality/negative-grammar-and-expression-boundaries-2026-10-29.md).

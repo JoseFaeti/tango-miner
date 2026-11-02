@@ -5,6 +5,14 @@ colloquialisms, and uncertain candidates in scope. See the
 [roadmap](pipeline-improvement-roadmap.md) for context and the
 [issue inventory](problematic-entries.md) for example frequencies.
 
+- [ ] Evaluate the revised grammar workflow on representative unimplemented,
+  partial and ambiguous-overlap tasks. Where comparable session data is available,
+  record input tokens, files and tool-output bytes read, test outcomes, and
+  evidence quality, with measurement limits. Consider a bounded read-only task
+  helper only if repeated file discovery remains a meaningful cost.
+- [ ] After grammar implementation is complete, conduct a new false-positive
+  analysis using current pipeline behavior and source evidence; assess recall
+  as well as misleading candidates, and independently evaluate where practical.
 - [ ] Investigate the no-user-dictionary baseline using source-aligned
   occurrences. Prioritize `今日は` (greeting definition versus “today” +
   は), `あっちい` in `あっちいけ`, and the large frequency change for
@@ -14,8 +22,7 @@ colloquialisms, and uncertain candidates in scope. See the
   or definition selection causes each change before implementing a repair.
   Keep useful colloquial and lexical readings in regression tests. Reassess
   older issue inventories under this baseline; do not mark an issue fixed just
-  because it disappeared from output. See the
-  [baseline comparison](false-positive-analysis.md#no-user-dictionary-baseline-2026-10-30).
+  because it disappeared from output.
 - [ ] Add independently invalidatable pipeline caches to speed up repeated
   runs. This is feasible for deterministic intermediate results, but first
   use archived stage timings and cache hit rates to identify expensive stages
@@ -131,7 +138,7 @@ colloquialisms, and uncertain candidates in scope. See the
   add recall regressions before changing eligibility.
 - [x] Improve occurrence diagnostics to capture rejected merges and selected
   dictionary entries; make mixed analyses and unresolved candidates easier to
-  review. See [false-positive analysis](false-positive-analysis.md).
+  review.
 - [ ] Improve Anki safety and planning: track applied operations or partial failure. Pruning now requires the separate
   `[anki] prune` opt-in. The detailed plan already exists; see
   the [roadmap](pipeline-improvement-roadmap.md).
