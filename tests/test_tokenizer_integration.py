@@ -154,6 +154,20 @@ class TokenizerIntegrationTests(unittest.TestCase):
                 if forbidden:
                     self.assertNotIn(forbidden, lemmas)
 
+    def test_mixed_spelling_of_ikkoku_wo_arasou(self):
+        sentence = '関係のないものを巻き込みたくはないが今は姫さまの命がかかる一刻をあらそう事態…'
+        merged = combine_tokens_jmdict(tokenize_sentence(sentence), self.jmdict)
+        expression = next(t for t in merged if t['lemma'] == '一刻を争う')
+        self.assertEqual(expression['surface'], '一刻をあらそう')
+        self.assertEqual(''.join(c.surface for c in expression['components']), expression['surface'])
+        self.assertEqual(expression['reading'], 'いっこくをあらそう')
+        self.assertNotIn('あらそう', [t['lemma'] for t in merged])
+        self.assertIn('事態', [t['lemma'] for t in merged])
+        for text, expected in [('一刻を争う。', '一刻を争う'),
+                               ('優勝をあらそう。', 'あらそう')]:
+            with self.subTest(text=text):
+                self.assertIn(expected, [t['lemma'] for t in combine_tokens_jmdict(tokenize_sentence(text), self.jmdict)])
+
     def test_does_not_turn_negative_grammar_into_the_unrelated_word_nushi(self):
         raw_tokens = tokenize_sentence("少なくとも歓迎できる事態ではありませんし。")
         merged_tokens = combine_tokens_jmdict(raw_tokens, self.jmdict)
