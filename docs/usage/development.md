@@ -30,6 +30,22 @@ a different edition. Users may choose another edition; evaluate resulting
 test failures and behavioral differences before updating this baseline.
 Run archives record the actual dictionary hash.
 
+## Agent command modules
+
+From the repository root, invoke agent-facing tools as
+`python -m tango_miner.COMMAND` with the same arguments and behavior as the
+corresponding script. Available commands:
+
+- Grammar: `next_grammar`, `check_grammar_docs`, `replay_grammar`, `profile_grammar_rules`.
+- Archive inspection: `inspect_run`, `compare_runs`, `query_jsonl`, `inspect_anki_plan`, `report_performance`.
+- Evaluation: `evaluate_review`, `score_sentence_candidates`, `compare_japanese_analyzers`.
+- Development checks: `check_jmdict`, `run_tests`.
+
+For example, `python -m tango_miner.next_grammar` returns the next queued point,
+and `python -m tango_miner.inspect_run --help` lists inspection options. Consult
+the sections below for inputs, output, and limitations. Corpus execution and
+dictionary modification scripts are not exposed through this interface.
+
 ## Tests
 
 Dictionary-dependent tests use `[dictionary].jmdict_path` from `config.toml` in

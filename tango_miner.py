@@ -5,6 +5,9 @@ from contextlib import redirect_stderr, redirect_stdout
 import traceback
 from dataclasses import replace
 from pathlib import Path
+
+# Allow selected agent commands to run as python -m tango_miner.<command>.
+__path__ = [str(Path(__file__).resolve().parent / 'agent_commands')]
 import sys
 import appdirs
 from tempfile import TemporaryDirectory
