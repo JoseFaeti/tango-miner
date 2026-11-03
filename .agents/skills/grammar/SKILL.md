@@ -11,9 +11,10 @@ rules. Implement one point per task unless explicitly requested otherwise.
 ## Select and inspect
 
 For an explicit point, find its specification in `docs/grammar/points/`.
-Otherwise select the first `[ ]` in `docs/grammar/next.md`, or the first `[~]`
-only if no `[ ]` remains. Read that specification; for a partial point identify
-supported behavior and remaining work. Consult `later.md` only when the queue
+Otherwise run `python scripts/next_grammar.py` and read the returned specification.
+If it returns `null`, select the first `[~]` in `docs/grammar/next.md`.
+For a partial point identify supported behavior and remaining work. Consult
+`later.md` only when the queue
 is exhausted or it is relevant to the point.
 
 Initially inspect `src/grammar_rules/base.py`, `src/grammar_rules/registry.py`,
