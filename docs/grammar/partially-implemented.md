@@ -4,6 +4,7 @@ These points have existing implementations with remaining work described in thei
 linked specifications. Their order retains the previous queue order and does not
 indicate measured frequency.
 
+- [~] [〜てください / 〜てくれ](points/tekudasai-tekure.md)
 - [~] [〜ている](points/te-iru.md)
 - [~] [〜んだ / 〜のだ](points/nda.md)
 - [~] [〜たい](points/tai.md)
