@@ -37,3 +37,4 @@ indicate measured frequency.
 - [~] [〜ために](points/tame-ni.md)
 - [~] [〜のに](points/noni.md)
 - [~] [〜かもしれない](points/kamoshirenai.md)
+- [~] [〜ないでください / 〜ないで](points/naidekudasai-naide.md)
