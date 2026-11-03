@@ -49,8 +49,9 @@ Add focused regressions for supported forms, ambiguous or misleading forms,
 lexical controls, and reservation, examples and identity integration when
 applicable. Run focused tests through `python scripts/run_tests.py` first; fix
 failures, then run the full suite once. Repeat it when later changes could affect
-it. Allow long-running tests a suitable initial wait (for example, 60 seconds
-for the full suite) and avoid repeated short polls; wait for their exit status.
+it. Wait for the test process to finish and check its exit status; do not poll
+while a blocking wait is available. If the tool imposes a timeout, resume
+waiting only after it expires, using the longest permitted wait.
 Follow AGENTS.md for integration dependencies and Anki safety.
 
 | Document | Action |
