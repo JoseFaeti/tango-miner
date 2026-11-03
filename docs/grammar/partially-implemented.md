@@ -20,6 +20,7 @@ indicate measured frequency.
 - [~] [〜ことがある](points/koto-ga-aru.md)
 - [~] [〜ように](points/you-ni.md)
 - [~] [〜と思う](points/to-omou.md)
+- [~] [〜なくてもいい](points/nakutemoii.md)
 - [~] [〜なければならない / 〜なくてはいけない](points/obligation.md)
 - [~] [〜てもいい](points/te-mo-ii.md)
 - [~] [〜てはいけない](points/te-wa-ikenai.md)
