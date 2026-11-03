@@ -2,11 +2,15 @@
 from src.GrammarConstants import TE_MO_II_GRAMMAR_EXPRESSION
 from src.grammar_rules.base import GrammarRule
 from src.grammar_rules.helpers import adjacent, next_matches
+from src.grammar_rules.rules.nakutemoii import match_nakutemoii
 
 
 def match_te_mo_ii(tokens):
+    no_obligation = list(match_nakutemoii(tokens))
     for i in range(1, len(tokens)):
         previous, token = tokens[i - 1:i + 1]
+        if any(start <= token['span'][0] < end for start, end in no_obligation):
+            continue
         if (not adjacent(previous, token) or previous['pos'][:1] not in (['動詞'], ['助動詞'])
                 or len(previous['pos']) < 6 or not previous['pos'][5].startswith('連用形')):
             continue

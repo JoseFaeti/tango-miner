@@ -2,6 +2,7 @@
 from src.GrammarConstants import NAI_GRAMMAR_EXPRESSION
 from src.grammar_rules.base import GrammarRule
 from src.grammar_rules.helpers import adjacent, negative_suffix_end
+from src.grammar_rules.rules.nakutemoii import match_nakutemoii
 
 
 RULE = GrammarRule(
@@ -12,8 +13,11 @@ RULE = GrammarRule(
 
 
 def match_nai(tokens):
+    no_obligation_starts = {start for start, _ in match_nakutemoii(tokens)}
     for i in range(1, len(tokens)):
         previous, negative = tokens[i - 1:i + 1]
+        if negative['span'][0] in no_obligation_starts:
+            continue
         if (not adjacent(previous, negative) or negative['lemma'] != 'ない'
                 or negative['pos'][:1] != ['助動詞']
                 or len(previous['pos']) < 6
