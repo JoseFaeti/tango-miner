@@ -21,6 +21,7 @@ from src.grammar_rules.rules.te_mo_ii import RULE as TE_MO_II
 from src.grammar_rules.rules.obligation import RULE as OBLIGATION
 from src.grammar_rules.rules.to_omou import RULE as TO_OMOU
 from src.grammar_rules.rules.te_iru import RULE as TE_IRU
+from src.grammar_rules.rules.te_hoshii import RULE as TE_HOSHII
 from src.grammar_rules.rules.nda import RULE as NDA
 from src.grammar_rules.rules.tagaru import RULE as TAGARU
 from src.grammar_rules.rules.tai import RULE as TAI
@@ -40,7 +41,7 @@ from src.grammar_rules.rules.te_iku import RULE as TE_IKU
 
 RULES = (NAGARA, TAGARU, WAKE_DA, WAKE_NEGATIVE, HAZU_DA, APPEARANCE, HEARSAY, TE_MO, NARA, BA, YOU_DA, KOTO_NI_SURU, KOTO_NI_NARU, TE_WA_IKENAI, TE_MIRU, TE_OKU, TE_MO_II, OBLIGATION, TO_OMOU, YOU_NI, KOTO_GA_ARU_OCCASIONAL, KOTO_GA_ARU, TE_IKU, TARA, NAI, TE_KURU, TE_IRU, NDA, TAI, TE_SHIMAU, MONONO,)
 
-RULES = (TE_BENEFACTIVE, NAIDE, TE_KUDASAI, KAMOSHIRENAI, NONI, TAME_NI, TE_ARU,) + RULES
+RULES = (TE_HOSHII, TE_BENEFACTIVE, NAIDE, TE_KUDASAI, KAMOSHIRENAI, NONI, TAME_NI, TE_ARU,) + RULES
 
 if frozenset(rule.expression for rule in RULES) != GRAMMAR_EXPRESSIONS:
     raise ValueError('Registered grammar identities and Anki protections must match')
