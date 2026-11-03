@@ -660,6 +660,12 @@ def combine_tokens_jmdict(
             # おまもり, while leaving non-exact sequences as their original
             # tokens for high-recall mining.
             token_string = combined_surface
+            # This attested mixed spelling uses kana for the final verb.
+            # Keep the source surface while resolving the dictionary identity.
+            if (combined_surface == '一刻をあらそう'
+                    and [t['surface'] for t in token_list[i:j]] == ['一刻', 'を', 'あらそう']
+                    and token_list[j - 1]['pos'][0] == '動詞'):
+                token_string = '一刻を争う'
             definitions = jmdict.lookup_word(token_string)
             if not definitions:
                 continue
