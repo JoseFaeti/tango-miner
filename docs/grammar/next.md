@@ -34,5 +34,5 @@ measured corpus counts:
 - [~] [〜たがる](points/tagaru.md)
 - [~] [〜ながら](points/nagara.md)
 - [~] [〜ために](points/tame-ni.md)
-- [ ] [〜のに](points/noni.md)
+- [~] [〜のに](points/noni.md)
 - [ ] [〜かもしれない](points/kamoshirenai.md)
