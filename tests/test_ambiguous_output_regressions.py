@@ -563,6 +563,7 @@ class AmbiguousOutputRegressionTests(unittest.TestCase):
             '意味がやっと理解できた気がするわ。',
             'まだお前たちを理解できたわけじゃない。',
             'ご飯ができた時間を覚えている。',
+            'すぐそこにできた穴から神殿へ行ける。',
         ]:
             with self.subTest(sentence=sentence):
                 words, segments = tokenize([sentence])
@@ -574,6 +575,19 @@ class AmbiguousOutputRegressionTests(unittest.TestCase):
                 self.assertTrue(any(c.surface == 'でき' for group in words['できる'].component_counts for c in group))
                 start, end = segments[0].lemma_spans['できる']
                 self.assertEqual(sentence[start:end], segments[0].lemma_surfaces['できる'])
+
+    def test_dekita_locative_example_attaches_to_verb(self):
+        from src.steps.AddDefinitionsStep import add_and_filter_for_definitions
+        from src.steps.AttachSentencesStep import attach_sentences
+
+        text = 'すぐそこにできた穴から神殿へ行ける。'
+        words, sentences = tokenize([text, '彼はできた人だ。', 'できた！'])
+        verb = words['できる']
+        add_and_filter_for_definitions({'できる': verb}, lambda *args: None, None)
+        attach_sentences({'できる': verb}, sentences)
+        self.assertIn('to be able', verb.definition)
+        self.assertEqual([example.text for example in verb.sentences], [text])
+        self.assertEqual(words['できた'].frequency, 2)
 
     def test_maitta_interjection_and_verb_stay_distinct(self):
         for sentence in ['参ったな、傘を教室に置いてきた。', '参ったね、もう時間がない。', '参った、降参だ。']:
@@ -593,7 +607,7 @@ class AmbiguousOutputRegressionTests(unittest.TestCase):
         from src.steps.AttachSentencesStep import attach_sentences
 
         supported = '彼はとてもできた人だと思います。'
-        unsupported = 'すぐそこにできた穴から神殿へ行ける。'
+        unsupported = 'できた作品を見せてください。'
         words, sentences = tokenize([supported, unsupported])
         stats = words['できた']
         add_and_filter_for_definitions({'できた': stats}, lambda *args: None, None)

@@ -10,6 +10,9 @@ compatible source example is available, one conflicting occurrence is attached
 and the candidate is marked for review (`no_definition_compatible_example` in
 candidate diagnostics). Repeated identical lines do not create distinct examples;
 frequency therefore need not equal the number of available examples.
+For example, past-tense occurrences of できる can be assigned to that verb,
+while the separate できた candidate can retain a supported prenominal or
+interjection meaning. Ambiguous occurrences can still inflate its frequency.
 
 ## JMdict test baseline
 

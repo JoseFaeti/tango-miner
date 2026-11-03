@@ -186,7 +186,12 @@ def _is_past_predicate_misread_as_expression(tokens, start, end, entry):
         verbal_noun = (previous and previous['pos'][0] == '名詞'
                        and len(previous['pos']) > 2 and 'サ変' in previous['pos'][2])
         grammatical_noun = following['lemma'] in {'とき', '時', '気', 'わけ', '訳'}
-        return bool(case_subject or verbal_noun or grammatical_noun)
+        # A locative に before できた describes something formed at that
+        # location, rather than the fine-character modifier できた人.
+        locative_dekiru = (verb['lemma'] in {'できる', '出来る'} and previous
+                           and previous['surface'] == 'に' and tuple(previous['pos'][:2]) == ('助詞', '格助詞')
+                           and start >= 2 and tokens[start - 2]['pos'][0] in {'名詞', '代名詞'})
+        return bool(case_subject or verbal_noun or grammatical_noun or locative_dekiru)
     # An isolated utterance can genuinely be an interjection (来た！).
     at_start = start == 0 or tokens[start - 1]['pos'][0] == '補助記号'
     at_end = end == len(tokens) or tokens[end]['pos'][0] == '補助記号'

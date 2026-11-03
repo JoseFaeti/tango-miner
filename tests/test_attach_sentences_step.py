@@ -76,10 +76,10 @@ class AttachSentencesStepTests(unittest.TestCase):
     def test_only_conflicting_source_example_is_attached_for_review(self):
         from src.steps.TokenizeStep import tokenize
         from src.steps.AddDefinitionsStep import add_and_filter_for_definitions
-        words, sentences = tokenize(['彼はできた人だ。', 'すぐそこにできた穴から神殿へ行ける。'])
+        words, sentences = tokenize(['彼はできた人だ。', 'できた作品を見せてください。'])
         stats = words['できた']
         add_and_filter_for_definitions({'できた': stats}, lambda *args: None, None)
-        conflicting = [s for s in sentences if 'できた穴' in s.text]
+        conflicting = [s for s in sentences if 'できた作品' in s.text]
         attach_sentences({'できた': stats}, conflicting)
         self.assertEqual([s.text for s in stats.sentences], [conflicting[0].text])
         self.assertTrue(stats.needs_review)
