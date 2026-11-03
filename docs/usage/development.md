@@ -45,6 +45,10 @@ For example, `python -m tango_miner.next_grammar` returns the next queued point,
 and `python -m tango_miner.inspect_run --help` lists inspection options. Consult
 the sections below for inputs, output, and limitations. Corpus execution and
 dictionary modification scripts are not exposed through this interface.
+Every module accepts `--help` for usage and `--silent` to suppress standard
+output and standard error, including error messages. Silent mode preserves
+exit status and file output; check the status to detect failures. Both options
+apply to the module interface; the original scripts keep their own options.
 
 ## Tests
 

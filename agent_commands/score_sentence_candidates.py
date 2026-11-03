@@ -1,4 +1,4 @@
 """Run the corresponding repository script as a module."""
-from runpy import run_module
+from agent_commands.runner import run
 
-run_module("scripts.score_sentence_candidates", run_name="__main__")
+run("score_sentence_candidates")

@@ -1,4 +1,4 @@
 """Run the corresponding repository script as a module."""
-from runpy import run_module
+from agent_commands.runner import run
 
-run_module("scripts.next_grammar", run_name="__main__")
+run("next_grammar")

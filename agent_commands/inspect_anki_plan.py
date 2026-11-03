@@ -1,4 +1,4 @@
 """Run the corresponding repository script as a module."""
-from runpy import run_module
+from agent_commands.runner import run
 
-run_module("scripts.inspect_anki_plan", run_name="__main__")
+run("inspect_anki_plan")
