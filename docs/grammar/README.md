@@ -1,6 +1,7 @@
 # Grammar documentation
 
 - [Next points](next.md): ordered implementation queue.
+- [Partially implemented points](partially-implemented.md): existing scopes with remaining work.
 - [Implemented points](implemented.md): completed and validated scopes.
 - [Later candidates](later.md): unordered candidates, grouped by existing backlog category.
 
@@ -15,8 +16,9 @@ UTF-8 JSON containing its `name` and repository-relative `path`. It returns
 JSON `null` when no unchecked entry remains.
 
 The checklist states are `[ ]` not implemented, `[~]` partially implemented,
-and `[x]` fully implemented and validated. Partial work stays in the queue when
-scheduled. A rule's existence alone does not establish complete coverage.
+and `[x]` fully implemented and validated. Move a point to the partial index
+when implementation begins; a rule's existence alone does not establish complete
+coverage.
 
 For implementation, follow the [grammar skill](../../.agents/skills/grammar/SKILL.md)
 and [AGENTS.md](../../AGENTS.md). Shared behavior is documented in

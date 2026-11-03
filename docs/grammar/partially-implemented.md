@@ -1,0 +1,38 @@
+# Partially implemented grammar points
+
+These points have existing implementations with remaining work described in their
+linked specifications. Their order retains the previous queue order and does not
+indicate measured frequency.
+
+- [~] [〜ている](points/te-iru.md)
+- [~] [〜んだ / 〜のだ](points/nda.md)
+- [~] [〜たい](points/tai.md)
+- [~] [〜てしまう](points/te-shimau.md)
+- [~] [〜てくる](points/te-kuru.md)
+- [~] [〜ものの](points/monono.md)
+- [~] [〜ない](points/nai.md)
+- [~] [〜たら](points/tara.md)
+- [~] [〜ていく](points/te-iku.md)
+- [~] [〜たことがある](points/ta-koto-ga-aru.md)
+- [~] [〜ことがある](points/koto-ga-aru.md)
+- [~] [〜ように](points/you-ni.md)
+- [~] [〜と思う](points/to-omou.md)
+- [~] [〜なければならない / 〜なくてはいけない](points/obligation.md)
+- [~] [〜てもいい](points/te-mo-ii.md)
+- [~] [〜てはいけない](points/te-wa-ikenai.md)
+- [~] [〜ておく](points/te-oku.md)
+- [~] [〜てみる](points/te-miru.md)
+- [~] [〜ことになる](points/koto-ni-naru.md)
+- [~] [〜ことにする](points/koto-ni-suru.md)
+- [~] [〜ば](points/ba.md)
+- [~] [〜なら](points/nara.md)
+- [~] [〜ても](points/te-mo.md)
+- [~] [〜そうだ](points/sou-da.md)
+- [~] [〜ようだ / 〜みたいだ](points/you-da.md)
+- [~] [〜はずだ](points/hazu-da.md)
+- [~] [〜わけだ / 〜わけではない](points/wake-da.md)
+- [~] [〜たがる](points/tagaru.md)
+- [~] [〜ながら](points/nagara.md)
+- [~] [〜ために](points/tame-ni.md)
+- [~] [〜のに](points/noni.md)
+- [~] [〜かもしれない](points/kamoshirenai.md)

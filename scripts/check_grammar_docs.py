@@ -20,7 +20,7 @@ def check() -> list[str]:
     entries: dict[str, list[tuple[str, str, str]]] = {}
     paths: list[str] = []
     names: list[str] = []
-    for index in ('next', 'implemented', 'later'):
+    for index in ('next', 'partially-implemented', 'implemented', 'later'):
         path = GRAMMAR / f'{index}.md'
         text = path.read_text(encoding='utf-8')
         rows = ENTRY.findall(text)
@@ -33,7 +33,11 @@ def check() -> list[str]:
             names.append(name)
             if index == 'implemented' and status != 'x':
                 errors.append(f'{path}: incomplete entry {name}')
-            if index in {'next', 'later'} and status == 'x':
+            if index == 'partially-implemented' and status != '~':
+                errors.append(f'{path}: non-partial entry {name}')
+            if index == 'next' and status != ' ':
+                errors.append(f'{path}: already started entry {name}')
+            if index == 'later' and status == 'x':
                 errors.append(f'{path}: complete entry {name}')
             point = GRAMMAR / relative
             if not re.fullmatch(r'[a-z0-9-]+\.md', point.name):
