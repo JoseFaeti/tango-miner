@@ -10,6 +10,10 @@ point. Update that specification when behavior or evidence changes; change its
 index status and move its link only when its scheduling or completeness changes.
 Run `python scripts/check_grammar_docs.py` after changing the indexes or points.
 
+Run `python scripts/next_grammar.py` to get the first unchecked queue entry as
+UTF-8 JSON containing its `name` and repository-relative `path`. It returns
+JSON `null` when no unchecked entry remains.
+
 The checklist states are `[ ]` not implemented, `[~]` partially implemented,
 and `[x]` fully implemented and validated. Partial work stays in the queue when
 scheduled. A rule's existence alone does not establish complete coverage.
