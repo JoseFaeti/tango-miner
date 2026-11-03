@@ -1,4 +1,5 @@
 """Explicit registry of grammar rules."""
+from src.grammar_rules.rules.kamoshirenai import RULE as KAMOSHIRENAI
 from src.grammar_rules.rules.noni import RULE as NONI
 from src.grammar_rules.rules.tame_ni import RULE as TAME_NI
 from src.grammar_rules.rules.nagara import RULE as NAGARA
@@ -35,7 +36,7 @@ from src.grammar_rules.rules.te_iku import RULE as TE_IKU
 
 RULES = (NAGARA, TAGARU, WAKE_DA, WAKE_NEGATIVE, HAZU_DA, APPEARANCE, HEARSAY, TE_MO, NARA, BA, YOU_DA, KOTO_NI_SURU, KOTO_NI_NARU, TE_WA_IKENAI, TE_MIRU, TE_OKU, TE_MO_II, OBLIGATION, TO_OMOU, YOU_NI, KOTO_GA_ARU_OCCASIONAL, KOTO_GA_ARU, TE_IKU, TARA, NAI, TE_KURU, TE_IRU, NDA, TAI, TE_SHIMAU, MONONO,)
 
-RULES = (NONI, TAME_NI,) + RULES
+RULES = (KAMOSHIRENAI, NONI, TAME_NI,) + RULES
 
 if frozenset(rule.expression for rule in RULES) != GRAMMAR_EXPRESSIONS:
     raise ValueError('Registered grammar identities and Anki protections must match')

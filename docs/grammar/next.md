@@ -35,4 +35,4 @@ measured corpus counts:
 - [~] [〜ながら](points/nagara.md)
 - [~] [〜ために](points/tame-ni.md)
 - [~] [〜のに](points/noni.md)
-- [ ] [〜かもしれない](points/kamoshirenai.md)
+- [~] [〜かもしれない](points/kamoshirenai.md)
