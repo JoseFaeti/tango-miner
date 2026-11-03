@@ -12,13 +12,17 @@ rules. Implement one point per task unless explicitly requested otherwise.
 
 For an explicit point, find its specification in `docs/grammar/points/`.
 Otherwise run `python scripts/next_grammar.py` and read the returned specification.
-If it returns `null`, select the first `[~]` in `docs/grammar/next.md`.
+If it returns `null`, select the first `[~]` in
+`docs/grammar/partially-implemented.md` when further work is appropriate.
 For a partial point identify supported behavior and remaining work. Consult
 `later.md` only when the queue
 is exhausted or it is relevant to the point.
 
-Initially inspect `src/grammar_rules/base.py`, `src/grammar_rules/registry.py`,
-`src/GrammarConstants.py`, and the closest rule and its test. If no closer
+Initially inspect the relevant sections of `src/grammar_rules/base.py`,
+`src/grammar_rules/registry.py`, `src/GrammarConstants.py`, and the closest rule
+and its test. Find symbols with targeted searches and read bounded sections;
+avoid printing whole large files or the complete development guide when a
+relevant section or command reference will suffice. If no closer
 example is apparent, start with `src/grammar_rules/rules/tai.py` and
 `tests/test_grammar_tai.py`; choose another when its behavior better fits the
 point. Expand only for a concrete reason, such as ambiguity, missing evidence,
@@ -45,12 +49,14 @@ Add focused regressions for supported forms, ambiguous or misleading forms,
 lexical controls, and reservation, examples and identity integration when
 applicable. Run focused tests through `python scripts/run_tests.py` first; fix
 failures, then run the full suite once. Repeat it when later changes could affect
-it. Follow AGENTS.md for integration dependencies and Anki safety.
+it. Allow long-running tests a suitable initial wait (for example, 60 seconds
+for the full suite) and avoid repeated short polls; wait for their exit status.
+Follow AGENTS.md for integration dependencies and Anki safety.
 
 | Document | Action |
 | --- | --- |
 | Point specification | Always record verified behavior, forms, tests, evidence, ambiguities and remaining limitations; use one canonical description. |
-| Point index | Always verify and update status when needed; keep partial points in `next.md`, and move to `implemented.md` only when scheduled scope is fully implemented and validated. |
+| Point index | Keep unstarted `[ ]` entries in `next.md`. When work makes a point partial, change its specification to `[~]`, remove its entry from `next.md`, and add it once as `[~]` in `partially-implemented.md`, preserving the existing order convention. Move it to `implemented.md` as `[x]` only when the scheduled scope is fully implemented and validated; keep the specification and index statuses consistent. |
 | Shared grammar pages | Inspect and update the relevant page when its stated precedence, identity, inflection or other shared behavior is affected. |
 
 Keep `[ ]`, `[~]` and `[x]` distinct and consistent in the specification and
