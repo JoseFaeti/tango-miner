@@ -45,6 +45,13 @@ connective particle. Focused tokenizer regressions cover both forms and a
 standalone locative `いて` control; they do not establish corpus-wide
 precision or recall.
 
+Source-aligned listing forms `ていたり` / `でいたり`, `居` spelling, and
+contracted `てたり` / `でたり` are recognized when Sudachi analyzes
+`たり` as an adverbial particle. Focused tokenizer tests include locative
+`いたり` and lexical `出たり` controls. The particle is included in the
+matched and reserved span; other analyses and corpus-wide accuracy remain
+unevaluated.
+
 A replay of the first 15,000 sentences in a full-corpus shadow archive found 25
 matching occurrences after the continuative-form restriction. A prior version
 also matched a name fragment that Sudachi analyzed as a non-continuative verb;
