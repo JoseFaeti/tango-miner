@@ -22,6 +22,7 @@ indicate measured frequency.
 - [~] [〜てもいい](points/te-mo-ii.md)
 - [~] [〜てはいけない](points/te-wa-ikenai.md)
 - [~] [〜ておく](points/te-oku.md)
+- [~] [〜てある](points/tearu.md)
 - [~] [〜てみる](points/te-miru.md)
 - [~] [〜ことになる](points/koto-ni-naru.md)
 - [~] [〜ことにする](points/koto-ni-suru.md)
