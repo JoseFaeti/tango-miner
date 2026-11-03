@@ -1,4 +1,5 @@
 """Check the module bridges against their original script entry points."""
+import json
 import subprocess
 import sys
 import tempfile
@@ -40,6 +41,27 @@ class AgentCommandTests(unittest.TestCase):
                                      str(output), '--silent'], cwd=ROOT, capture_output=True)
             self.assertEqual((result.returncode, result.stdout, result.stderr), (0, b'', b''))
             self.assertIn('猫', output.read_text(encoding='utf-8'))
+
+    def test_inspect_anki_plan_delegates_to_script(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            plan = Path(tmp) / 'anki-plan.json'
+            plan.write_text(json.dumps({
+                'add': [{'expression': '犬'}],
+                'modify': [{'expression': '猫', 'fields': {
+                    'Meaning': {'before': 'old', 'after': 'new'}},
+                    'tags_added': ['review']}],
+                'delete': [],
+            }, ensure_ascii=False), encoding='utf-8')
+            args = [str(plan), '--examples', '1']
+            script = subprocess.run([sys.executable, 'scripts/inspect_anki_plan.py', *args],
+                                    cwd=ROOT, capture_output=True)
+            module = subprocess.run([sys.executable, '-m', 'tango_miner.inspect_anki_plan', *args],
+                                    cwd=ROOT, capture_output=True)
+            self.assertEqual(script.returncode, 0, script.stderr)
+            self.assertEqual((module.returncode, module.stdout, module.stderr),
+                             (script.returncode, script.stdout, script.stderr))
+            self.assertIn(b'Added: 1; modified: 1; deleted: 0', module.stdout)
+            self.assertIn(b'Meaning: 1', module.stdout)
 
     def test_module_matches_script(self):
         for command, args in (
