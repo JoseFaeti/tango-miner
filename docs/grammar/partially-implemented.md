@@ -22,6 +22,7 @@ indicate measured frequency.
 - [~] [〜と思う](points/to-omou.md)
 - [~] [〜なくてもいい](points/nakutemoii.md)
 - [~] [〜なければならない / 〜なくてはいけない](points/obligation.md)
+- [~] [〜ないと / 〜なくちゃ / 〜なきゃ](points/naito-nakuchiya-nakiya.md)
 - [~] [〜てもいい](points/te-mo-ii.md)
 - [~] [〜てはいけない](points/te-wa-ikenai.md)
 - [~] [〜ておく](points/te-oku.md)

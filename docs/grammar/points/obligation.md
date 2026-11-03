@@ -4,7 +4,7 @@ Status: [~]
 
 ## Meaning and tracked scope
 
-obligation. Covered: selected complete present and past, plain and polite negative endings, including なきゃ, なくちゃ and ないと. Merged verb-plus-suffix analyses, conditional past endings and elliptical forms remain unsupported; independent precision and recall evaluation remains needed.
+obligation. Covered: selected complete present and past, plain and polite negative endings, including なきゃ, なくちゃ and ないと. Merged verb-plus-suffix analyses and conditional past endings remain unsupported by this rule; elliptical forms are tracked separately. Independent precision and recall evaluation remains needed.
 
 ## Implementation
 
@@ -20,7 +20,7 @@ negative conditional forms followed by `ならない` or `いけない`, includi
 plain and polite present and past negative endings and `なきゃ`, `なくちゃ`, and `ないと`. It reserves
 the suffix while retaining the attached verb; dictionary expression precedence
 can suppress the card. Entirely merged verb-and-suffix tokens, conditional past endings and
-elliptical obligations remain unsupported. Surface and token boundaries do not
+elliptical obligations are tracked separately in [〜ないと / 〜なくちゃ / 〜なきゃ](naito-nakuchiya-nakiya.md). Surface and token boundaries do not
 resolve every contextual ambiguity, and precision and recall have not been
 independently evaluated.
 
