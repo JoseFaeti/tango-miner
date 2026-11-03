@@ -51,5 +51,6 @@ network error is reported without changing the pipeline result. The topic URL is
 not saved in the run archive. Without `NTFY_URL`, notifications are disabled.
 
 For configuration, output, diagnostics and development tools, see the
-[usage reference](docs/usage-reference.md). For ongoing work and issue tracking,
+[usage reference](docs/usage-reference.md). For agent-facing command modules,
+see the [agent command reference](agent_commands/README.md). For ongoing work and issue tracking,
 see [next steps](docs/next-steps.md).
