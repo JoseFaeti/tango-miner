@@ -37,14 +37,14 @@ from src.grammar_rules.rules.ba.index import RULE as BA
 from src.grammar_rules.rules.tara.index import RULE as TARA
 from src.grammar_rules.rules.koto_ga_aru.index import RULE as KOTO_GA_ARU
 from src.grammar_rules.rules.koto_ga_aru_occasional.index import RULE as KOTO_GA_ARU_OCCASIONAL
-
 from src.grammar_rules.rules.te_kuru.index import RULE as TE_KURU
 from src.grammar_rules.rules.te_iku.index import RULE as TE_IKU
 from src.grammar_rules.rules.ta_hou_ga_ii.index import RULE as TA_HOU_GA_II
+from src.grammar_rules.rules.koto_ga_dekiru.index import RULE as KOTO_GA_DEKIRU
 
 RULES = (NAGARA, TAGARU, WAKE_DA, WAKE_NEGATIVE, HAZU_DA, APPEARANCE, HEARSAY, TE_MO, NARA, BA, YOU_DA, KOTO_NI_SURU, KOTO_NI_NARU, TE_WA_IKENAI, TE_MIRU, TE_OKU, TE_MO_II, OBLIGATION, TO_OMOU, YOU_NI, KOTO_GA_ARU_OCCASIONAL, KOTO_GA_ARU, TE_IKU, TARA, NAI, TE_KURU, TE_IRU, NDA, TAI, TE_SHIMAU, MONONO,)
 
-RULES = (TA_HOU_GA_II, ELLIPTICAL_OBLIGATION, NAKUTEMOII, TE_HOSHII, TE_BENEFACTIVE, NAIDE, TE_KUDASAI, KAMOSHIRENAI, NONI, TAME_NI, TE_ARU,) + RULES
+RULES = (KOTO_GA_DEKIRU, TA_HOU_GA_II, ELLIPTICAL_OBLIGATION, NAKUTEMOII, TE_HOSHII, TE_BENEFACTIVE, NAIDE, TE_KUDASAI, KAMOSHIRENAI, NONI, TAME_NI, TE_ARU,) + RULES
 
 if frozenset(rule.expression for rule in RULES) != GRAMMAR_EXPRESSIONS:
     raise ValueError('Registered grammar identities and Anki protections must match')

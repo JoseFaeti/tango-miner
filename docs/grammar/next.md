@@ -4,7 +4,6 @@ Ordered implementation queue for points not yet implemented. The order is an
 estimate of usefulness and frequency, not a measurement of corpus occurrences.
 Check each specification for overlap and source evidence before implementation.
 
-- [ ] [〜ことができる](points/kotogadekiru.md)
 - [ ] [〜やすい / 〜にくい](points/yasui-nikui.md)
 - [ ] [〜たり〜たりする](points/taritarisuru.md)
 - [ ] [〜から / 〜ので](points/kara-node.md)
