@@ -4,6 +4,7 @@ These points have existing implementations with remaining work described in thei
 linked specifications. Their order retains the previous queue order and does not
 indicate measured frequency.
 
+- [~] [〜やすい / 〜にくい](points/yasui-nikui.md)
 - [~] [〜ことができる](points/kotogadekiru.md)
 - [~] [〜たほうがいい / 〜ないほうがいい](points/tahougaii-naihougaii.md)
 - [~] [〜てほしい](points/tehoshii.md)
