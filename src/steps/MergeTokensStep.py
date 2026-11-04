@@ -789,6 +789,29 @@ def combine_tokens_jmdict(
             match_found = True
             break
 
+        if not match_found and i + 1 < n and next_reserved[i] > i + 1:
+            noun, verb = token_list[i:i + 2]
+            if (noun['pos'][0] == '名詞' and verb['pos'][0] == '動詞'
+                    and noun['surface'] == noun['lemma']):
+                word = noun['surface'] + 'を' + verb['lemma']
+                entries = jmdict.lookup_word(word)
+                entry = jmdict.get_best_entry(word) if entries else None
+                if isinstance(entry, dict) and any(
+                        'expression' in tag.lower() for sense in entry.get('senses', [])
+                        for tag in sense.get('pos', [])):
+                    merged_tokens.append({
+                        'surface': noun['surface'] + verb['surface'],
+                        'lemma': word, 'base_form': word,
+                        'reading': jmdict.get_reading(entry, word),
+                        'pos': ['exp', '*', '*', '*', '*', '*'],
+                        'dictionary_expression': True,
+                        'analysis_rule': 'jmdict_omitted_object_particle',
+                        'components': tuple(c for token in (noun, verb)
+                                            for c in token_components(token)),
+                    })
+                    i += 2
+                    continue
+
         if not match_found:
             merged_tokens.append(token_list[i])
             i += 1

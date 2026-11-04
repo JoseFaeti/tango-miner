@@ -211,6 +211,13 @@ examples can represent different senses, so they are not automatically added
 to Anki and existing notes are protected from pruning. This review path can
 retain additional expressions beyond the examples motivating it.
 
+The lexical merger also looks up adjacent noun and verb tokens as a JMdict
+expression with an omitted を, using the verb's dictionary form. The candidate
+keeps the actual source surface and component evidence. Exact dictionary merges
+take precedence and reserved grammar tokens are not crossed. These matches can
+be ambiguous with literal object-verb usage; dictionary evidence alone does not
+establish the intended sense.
+
 
 ## Pipeline performance measurements
 

@@ -33,6 +33,33 @@ class TokenizerIntegrationTests(unittest.TestCase):
         # These tests deliberately exercise the real Sudachi and JMdict data.
         cls.jmdict = get_jmdict()
 
+    def test_omitted_object_particle_in_dictionary_expressions(self):
+        for sentence, word, surface in [
+            ('そうか男友達だから腹割んなきゃいけないんだ', '腹を割る', '腹割ん'),
+            ('彼は口開いた。', '口を開く', '口開い'),
+        ]:
+            with self.subTest(sentence=sentence):
+                merged = combine_tokens_jmdict(tokenize_sentence(sentence), self.jmdict)
+                expression = next(t for t in merged if t['lemma'] == word)
+                self.assertEqual(expression['surface'], surface)
+                self.assertEqual(''.join(c.surface for c in expression['components']), surface)
+                self.assertEqual(expression['analysis_rule'], 'jmdict_omitted_object_particle')
+
+    def test_omitted_particle_does_not_cross_boundaries_or_invent_entries(self):
+        for sentence, forbidden in [('腹を割る。', '腹割る'),
+                                    ('腹が割れた。', '腹を割る'),
+                                    ('猫走った。', '猫を走る')]:
+            with self.subTest(sentence=sentence):
+                merged = combine_tokens_jmdict(tokenize_sentence(sentence), self.jmdict)
+                self.assertNotIn(forbidden, [t['lemma'] for t in merged])
+
+        tokens = tokenize_sentence('口開いた。')
+        tokens[1]['grammar_reserved'] = True
+        merged = combine_tokens_jmdict(tokens, self.jmdict)
+        self.assertNotIn('口を開く', [t['lemma'] for t in merged])
+        self.assertIn('口を開く', [t['lemma'] for t in
+                                  combine_tokens_jmdict(tokenize_sentence('口を開く。'), self.jmdict)])
+
     def test_tokenizer_construction_has_no_deprecation_warning(self):
         import warnings
         from unittest.mock import patch
