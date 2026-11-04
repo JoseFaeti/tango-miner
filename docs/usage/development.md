@@ -36,6 +36,12 @@ a different edition. Users may choose another edition; evaluate resulting
 test failures and behavioral differences before updating this baseline.
 Run archives record the actual dictionary hash.
 
+## Performance optimization
+
+After each optimization, analyze the remaining bottlenecks and propose the
+most useful next step. Report measurement limitations, including differences in
+inputs, configuration, dependencies, cache state and machine load where relevant.
+
 ## Agent command modules
 
 See the [agent command reference](../../agent_commands/README.md) for the

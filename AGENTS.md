@@ -1,6 +1,7 @@
 # Working on Tango Miner
 
-Read `README.md` for project context. Start documentation research in the active
+Read the project overview in `README.md` for context; consult its remaining
+sections when relevant. Start documentation research in the active
 area relevant to the task; for grammar tasks use `docs/grammar/`. `AGENTS.md`,
 `README.md`, and applicable skills are also accessible. Inspect relevant source,
 tests, scripts and source evidence as needed. Expand to another active
@@ -23,9 +24,7 @@ tests determine actual behavior when documentation is stale.
   proper nouns are currently filtered. Identify such gaps explicitly and add
   focused regressions when changing them.
 - For environment setup, follow the JMdict baseline instructions in
-  `docs/usage/development.md`; run `python scripts/check_jmdict.py` and report
-  a missing or mismatched snapshot. Do not claim a reproducible setup when
-  only a newer daily download is available.
+  `docs/usage/development.md` and report a missing or mismatched snapshot.
 - Run `python scripts/run_tests.py` for pipeline changes. Run all tests through
   this quiet runner, passing unittest names or discovery arguments for focused
   runs; it prints failure details only and signals success through its exit code. A passing
@@ -36,22 +35,16 @@ tests determine actual behavior when documentation is stale.
 - Keep documentation free of absolute local paths and personal machine details.
   Preserve the user's existing changes and update relevant documentation when
   behavior or priorities change.
-- After each performance optimization, analyze the remaining bottlenecks and
-  propose the most useful next step, noting measurement limits.
+- For performance optimization, follow the measurement and follow-up guidance
+  in `docs/usage/development.md`.
 - Work pragmatically and conserve time, compute, and context. Reuse existing
   code and scripts where practical; create focused reusable helpers or bounded
   outputs when they reduce repeated work. Prefer targeted archive queries and
   compact reports, and save verbose corpus-run logs to files. Do not sacrifice
   necessary validation or recall assessment solely to save resources.
-- Do not start a full corpus pipeline run without explicit user authorization.
-  Use the curated input corpus agreed with the user and configured in the private
-  `.env` as described in `docs/usage/running.md`; source files may be outside
-  the project directory. Before starting, verify the resolved configuration has
-  Anki disabled or in output-only mode. Save verbose output to a log and wait
-  for the process completion signal or exit status before inspecting the run,
-  its log, or its artifacts. Then inspect results using bounded tools, report
-  failures and Anki status, and distinguish observed counts from independent
-  precision or recall estimates. Do not mutate Anki during these runs.
+- Do not start a full corpus pipeline run without explicit user authorization
+  or mutate Anki during these runs. Follow the agent run procedure in
+  `docs/usage/running.md`.
 - Before a task, check whether a script in `scripts/` can perform it. If none
   exists, strongly consider creating a reusable script. In particular, prefer
   reusable scripts for querying and inspecting output, such as searching for a
