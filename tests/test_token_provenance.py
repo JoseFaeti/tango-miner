@@ -28,6 +28,26 @@ class Dictionary:
 
 
 class ProvenanceTests(unittest.TestCase):
+    def test_karai_source_boundaries_and_adjective_controls(self):
+        from src.steps.TokenizeStep import get_tokenizer, TOKENIZER_MODE, sudachi_node_to_dict
+
+        cases = [
+            ('さっさと虹色の枝ってのをいただいてこの暑い国からズラかろうぜ。', False, 'ズラかる'),
+            ('新しい花、何か買ってくっからさ。', False, None),
+            ('たったう、カルバナイルからさエリカに大変です。', False, None),
+            ('この料理はからい。', True, None),
+            ('この料理はからかった。', True, None),
+            ('この料理のからさが好きだ。', True, None),
+        ]
+        for sentence, expected, recovered in cases:
+            with self.subTest(sentence=sentence):
+                raw = [sudachi_node_to_dict(n) for n in get_tokenizer().tokenize(sentence, TOKENIZER_MODE)]
+                result = combine_tokens_jmdict(raw, Dictionary())
+                self.assertEqual(any(t['lemma'] == 'からい' for t in result), expected)
+                if recovered:
+                    item = next(t for t in result if t['lemma'] == recovered)
+                    self.assertEqual([c.surface for c in item['components']], ['ズラ', 'かろう'])
+
     def test_split_noun_rule_requires_surface_and_pos_evidence(self):
         noun = [{'senses': [{'pos': ['noun (common) (futsuumeishi)']}]}]
         first = token('さい', 'さい', ['名詞', '普通名詞'])

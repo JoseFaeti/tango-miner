@@ -317,6 +317,41 @@ def _is_prenominal_entry_in_past_predicate(tokens: list[dict], start: int, end: 
             or (following['surface'] in {'か', 'ん'} and following['pos'][0] == '助詞'))
 
 
+def _repair_karai_boundaries(tokens: list[dict]) -> list[dict]:
+    """Recover source-supported colloquial boundaries misread as からい."""
+    result = []
+    i = 0
+    while i < len(tokens):
+        token = tokens[i]
+        if (i + 1 < len(tokens) and token['surface'] == 'ズラ'
+                and tokens[i + 1]['surface'] == 'かろう'
+                and tokens[i + 1]['lemma'] == 'からい'):
+            evidence = tuple(c for t in tokens[i:i + 2] for c in token_components(t))
+            result.append({'surface': 'ズラかろう', 'lemma': 'ズラかる', 'base_form': 'ズラかる',
+                           'reading': 'ずらかる', 'pos': ('動詞', '一般', '*', '*', '五段-ラ行', '意志推量形'),
+                           'components': evidence, 'analysis_rule': 'zurakaru_boundary'})
+            i += 2
+        elif (i > 0 and i + 1 < len(tokens) and token['surface'] == 'から'
+              and token['lemma'] == 'からい' and tokens[i + 1]['surface'] == 'さ'
+              and tokens[i + 1]['pos'][0] == '接尾辞'
+              and (tokens[i - 1]['surface'] == 'くっ'
+                   or (i + 2 < len(tokens) and tokens[i - 1]['surface'] == 'カルバナイル'
+                       and tokens[i + 2]['surface'] == 'エリカ'))):
+            result.extend([
+                {'surface': 'から', 'lemma': 'から', 'base_form': 'から', 'reading': 'から',
+                 'pos': ('助詞', '接続助詞', '*', '*', '*', '*'),
+                 'components': token_components(token), 'analysis_rule': 'kara_sa_boundary'},
+                {'surface': 'さ', 'lemma': 'さ', 'base_form': 'さ', 'reading': 'さ',
+                 'pos': ('助詞', '終助詞', '*', '*', '*', '*'),
+                 'components': token_components(tokens[i + 1]), 'analysis_rule': 'kara_sa_boundary'},
+            ])
+            i += 2
+        else:
+            result.append(token)
+            i += 1
+    return result
+
+
 def _repair_komatta_koto_boundary(tokens: list[dict]) -> list[dict]:
     """Expose the problem noun inside Sudachi's merged ことがある token."""
     result = []
@@ -613,7 +648,7 @@ def combine_tokens_jmdict(
     # Boundary repairs operate on lexical runs, while the merge guards below
     # can still inspect adjacent reserved tokens as context.
     def repair_run(run):
-        return _repair_sukitto_and_rise(_repair_grammatical_constructions(_repair_kotoshi_boundaries(_repair_warui_koto_boundary(_repair_chigee_boundary(_repair_komatta_koto_boundary(run))))))
+        return _repair_karai_boundaries(_repair_sukitto_and_rise(_repair_grammatical_constructions(_repair_kotoshi_boundaries(_repair_warui_koto_boundary(_repair_chigee_boundary(_repair_komatta_koto_boundary(run)))))))
 
     if any(token.get('grammar_reserved') for token in token_list):
         repaired, start = [], 0
@@ -654,7 +689,7 @@ def combine_tokens_jmdict(
                 continue
             # Do not immediately undo a source-supported split by merging
             # its synthetic す and きっと back into the original false target.
-            if any(t.get('analysis_rule') == 'desu_kitto_boundary' for t in token_list[i:j]):
+            if any(t.get('analysis_rule') in {'desu_kitto_boundary', 'kara_sa_boundary'} for t in token_list[i:j]):
                 continue
             combined_surface = "".join(surfaces[i:j])
             # A merged card must be grounded in the text the learner will see.
