@@ -14,8 +14,8 @@ Ability or possibility: can do; be able to do.
 
 ## Implementation
 
-- Rule: [koto_ga_dekiru.py](../../../src/grammar_rules/rules/koto_ga_dekiru.py)
-- Tests: [test_grammar_koto_ga_dekiru.py](../../../tests/test_grammar_koto_ga_dekiru.py)
+- Rule: [index.py](../../../src/grammar_rules/rules/koto_ga_dekiru/index.py)
+- Tests: [test_index.py](../../../src/grammar_rules/rules/koto_ga_dekiru/test_index.py)
 - Registry identity: `koto_ga_dekiru`; stable expression: `〜ことができる`.
 
 ## Existing implementation notes

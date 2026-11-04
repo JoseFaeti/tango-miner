@@ -3,9 +3,9 @@ import unittest
 from src.Artifact import Artifact
 from src.Grammar import GrammarStep
 from src.GrammarConstants import KOTO_GA_DEKIRU_EXPRESSION
-from src.GrammarShadow import aligned_tokens
-from src.grammar_rules.rules.koto_ga_dekiru import match_koto_ga_dekiru
-from tests.test_grammar_te_iru import sentence, tok
+from src.grammar_rules.alignment import aligned_tokens
+from src.grammar_rules.rules.koto_ga_dekiru.index import match_koto_ga_dekiru
+from src.grammar_rules.rules.te_iru.test_index import sentence, tok
 
 
 class KotoGaDekiruTests(unittest.TestCase):
