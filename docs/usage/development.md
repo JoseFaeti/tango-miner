@@ -60,8 +60,8 @@ python scripts/run_tests.py
 ```
 
 The runner emits failure details only and returns a nonzero exit status on failure.
-Tests for steps, grammar rules, core modules, and scripts live in `tests` folders
-alongside those areas; cross-component tests and shared helpers remain in the
+Tests for steps, core modules, and scripts live in `tests` folders
+alongside those areas; grammar rule tests live in each rule folder; cross-component tests and shared helpers remain in the
 top-level `tests` folder. Pass a full unittest module name such as
 `src.tests.test_run_report`, or discovery arguments, for focused runs. On failure,
 the runner also reports a missing or mismatched JMdict baseline; it does not

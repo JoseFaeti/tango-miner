@@ -13,8 +13,8 @@ occasional occurrence.
 
 ## Implementation
 
-- Rule: [src/grammar_rules/rules/koto_ga_aru_occasional.py](../../../src/grammar_rules/rules/koto_ga_aru_occasional.py)
-- Tests: [tests/test_grammar_koto_ga_aru_occasional.py](../../../src/grammar_rules/rules/tests/test_grammar_koto_ga_aru_occasional.py)
+- Rule: [src/grammar_rules/rules/koto_ga_aru_occasional/index.py](../../../src/grammar_rules/rules/koto_ga_aru_occasional/index.py)
+- Tests: [tests/test_grammar_koto_ga_aru_occasional.py](../../../src/grammar_rules/rules/koto_ga_aru_occasional/test_index.py)
 - Registry identity: `koto_ga_aru_occasional`
 - Registry and stable identities: [registry.py](../../../src/grammar_rules/registry.py), [GrammarConstants.py](../../../src/GrammarConstants.py).
 

@@ -1,7 +1,7 @@
 import unittest
 
 from src.grammar_rules.helpers import polite_suffix_end, positive_verb_end, negative_predicate_end
-from src.grammar_rules.rules.te_iku import match_te_iku
+from src.grammar_rules.rules.te_iku.index import match_te_iku
 
 
 def tokens(parts):

@@ -8,8 +8,8 @@ prohibition. Covered: verb continuative + ては / では / ちゃ / じゃ + se
 
 ## Implementation
 
-- Rule: [src/grammar_rules/rules/te_wa_ikenai.py](../../../src/grammar_rules/rules/te_wa_ikenai.py)
-- Tests: [tests/test_grammar_te_wa_ikenai.py](../../../src/grammar_rules/rules/tests/test_grammar_te_wa_ikenai.py)
+- Rule: [src/grammar_rules/rules/te_wa_ikenai/index.py](../../../src/grammar_rules/rules/te_wa_ikenai/index.py)
+- Tests: [tests/test_grammar_te_wa_ikenai.py](../../../src/grammar_rules/rules/te_wa_ikenai/test_index.py)
 - Registry identity: `te_wa_ikenai`
 - Registry and stable identities: [registry.py](../../../src/grammar_rules/registry.py), [GrammarConstants.py](../../../src/GrammarConstants.py).
 

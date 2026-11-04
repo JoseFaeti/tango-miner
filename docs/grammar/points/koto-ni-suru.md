@@ -8,8 +8,8 @@ decision to do something. Covered: finite verb and verbal negative + merged or s
 
 ## Implementation
 
-- Rule: [src/grammar_rules/rules/koto_ni_suru.py](../../../src/grammar_rules/rules/koto_ni_suru.py)
-- Tests: [tests/test_grammar_koto_ni_suru.py](../../../src/grammar_rules/rules/tests/test_grammar_koto_ni_suru.py)
+- Rule: [src/grammar_rules/rules/koto_ni_suru/index.py](../../../src/grammar_rules/rules/koto_ni_suru/index.py)
+- Tests: [tests/test_grammar_koto_ni_suru.py](../../../src/grammar_rules/rules/koto_ni_suru/test_index.py)
 - Registry identity: `koto_ni_suru`
 - Registry and stable identities: [registry.py](../../../src/grammar_rules/registry.py), [GrammarConstants.py](../../../src/GrammarConstants.py).
 

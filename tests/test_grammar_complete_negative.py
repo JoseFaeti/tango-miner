@@ -2,11 +2,11 @@ import unittest
 
 from src.grammar_rules.alignment import aligned_tokens
 from src.grammar_rules.helpers import negative_suffix_end
-from src.grammar_rules.rules.te_iru import match_te_iru
-from src.grammar_rules.rules.te_iku import match_te_iku
-from src.grammar_rules.rules.te_kuru import match_te_kuru
-from src.grammar_rules.rules.tai import match_tai
-from src.grammar_rules.rules.nda import match_nda
+from src.grammar_rules.rules.te_iru.index import match_te_iru
+from src.grammar_rules.rules.te_iku.index import match_te_iku
+from src.grammar_rules.rules.te_kuru.index import match_te_kuru
+from src.grammar_rules.rules.tai.index import match_tai
+from src.grammar_rules.rules.nda.index import match_nda
 
 
 class CompleteNegativeTests(unittest.TestCase):

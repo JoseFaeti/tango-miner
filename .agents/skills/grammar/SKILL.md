@@ -23,8 +23,8 @@ Initially inspect the relevant sections of `src/grammar_rules/base.py`,
 and its test. Find symbols with targeted searches and read bounded sections;
 avoid printing whole large files or the complete development guide when a
 relevant section or command reference will suffice. If no closer
-example is apparent, start with `src/grammar_rules/rules/tai.py` and
-`tests/test_grammar_tai.py`; choose another when its behavior better fits the
+example is apparent, start with `src/grammar_rules/rules/tai/index.py` and
+`src/grammar_rules/rules/tai/test_index.py`; choose another when its behavior better fits the
 point. Expand only for a concrete reason, such as ambiguity, missing evidence,
 unexpected tokenization, a failed test, or a potential regression. Use bounded
 reads and existing scripts such as `scripts/replay_grammar.py` when useful.

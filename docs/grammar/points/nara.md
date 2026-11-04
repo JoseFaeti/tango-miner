@@ -8,8 +8,8 @@ conditional or topic-based supposition. Covered: split copular なら after sele
 
 ## Implementation
 
-- Rule: [src/grammar_rules/rules/nara.py](../../../src/grammar_rules/rules/nara.py)
-- Tests: [tests/test_grammar_nara.py](../../../src/grammar_rules/rules/tests/test_grammar_nara.py)
+- Rule: [src/grammar_rules/rules/nara/index.py](../../../src/grammar_rules/rules/nara/index.py)
+- Tests: [tests/test_grammar_nara.py](../../../src/grammar_rules/rules/nara/test_index.py)
 - Registry identity: `conditional_nara`
 - Registry and stable identities: [registry.py](../../../src/grammar_rules/registry.py), [GrammarConstants.py](../../../src/GrammarConstants.py).
 

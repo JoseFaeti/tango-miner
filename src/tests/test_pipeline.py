@@ -43,7 +43,7 @@ class PipelineTests(unittest.TestCase):
 
     def test_grammar_report_records_each_rule(self):
         from src.Grammar import GrammarStep
-        from src.grammar_rules.rules.tests.test_grammar_te_iru import TeIruCardTests
+        from src.grammar_rules.rules.te_iru.test_index import TeIruCardTests
         source = TeIruCardTests().valid()
         with tempfile.TemporaryDirectory() as temp:
             pipeline = Pipeline([GrammarStep()],

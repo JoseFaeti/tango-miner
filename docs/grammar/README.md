@@ -20,6 +20,9 @@ and `[x]` fully implemented and validated. Move a point to the partial index
 when implementation begins; a rule's existence alone does not establish complete
 coverage.
 
+Each implemented rule has `index.py` and `test_index.py` in its own folder under
+`src/grammar_rules/rules/`. Shared alignment tests remain in `rules/tests/`.
+
 For implementation, follow the [grammar skill](../../.agents/skills/grammar/SKILL.md)
 and [AGENTS.md](../../AGENTS.md). Shared behavior is documented in
 [stage and precedence](stage-and-precedence.md), [identity and review](identity-and-review.md),

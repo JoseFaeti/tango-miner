@@ -13,11 +13,11 @@ from src.steps.TokenizeStep import is_valid_sentence, is_useless
 from src.grammar_rules.base import GrammarRule
 from src.grammar_rules.registry import RULES
 # Preserve existing imports for callers of the former single-module API.
-from src.grammar_rules.rules.te_iru import match_te_iru
-from src.grammar_rules.rules.nda import match_nda
-from src.grammar_rules.rules.tai import match_tai
-from src.grammar_rules.rules.te_shimau import match_te_shimau
-from src.grammar_rules.rules.monono import match_monono
+from src.grammar_rules.rules.te_iru.index import match_te_iru
+from src.grammar_rules.rules.nda.index import match_nda
+from src.grammar_rules.rules.tai.index import match_tai
+from src.grammar_rules.rules.te_shimau.index import match_te_shimau
+from src.grammar_rules.rules.monono.index import match_monono
 
 
 class _PrecedenceDictionary:

@@ -12,8 +12,8 @@ concession.
 
 ## Implementation
 
-- Rule: [src/grammar_rules/rules/monono.py](../../../src/grammar_rules/rules/monono.py)
-- Tests: [tests/test_grammar_monono.py](../../../src/grammar_rules/rules/tests/test_grammar_monono.py)
+- Rule: [src/grammar_rules/rules/monono/index.py](../../../src/grammar_rules/rules/monono/index.py)
+- Tests: [tests/test_grammar_monono.py](../../../src/grammar_rules/rules/monono/test_index.py)
 - Registry identity: `concessive_monono`
 - Registry and stable identities: [registry.py](../../../src/grammar_rules/registry.py), [GrammarConstants.py](../../../src/GrammarConstants.py).
 

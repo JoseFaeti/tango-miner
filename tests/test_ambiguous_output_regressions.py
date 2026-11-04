@@ -274,8 +274,8 @@ class AmbiguousOutputRegressionTests(unittest.TestCase):
     def test_kigahen_repair_uses_reserved_conditional_as_context(self):
         from src.Artifact import Artifact
         from src.Grammar import GrammarStep, ExcludeGrammarTokensStep
-        from src.grammar_rules.rules.tara import RULE
-        from src.grammar_rules.rules.tests.test_grammar_te_iru import sentence
+        from src.grammar_rules.rules.tara.index import RULE
+        from src.grammar_rules.rules.te_iru.test_index import sentence
 
         for text in ['じゃあ気が変わったらまた声をかけてちょうだいね。',
                      'やめとくうか…気が変わったらいつでも来る。']:

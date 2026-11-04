@@ -8,8 +8,8 @@ expectation or inference. Covered: predicate-attached split はず with selected
 
 ## Implementation
 
-- Rule: [src/grammar_rules/rules/hazu_da.py](../../../src/grammar_rules/rules/hazu_da.py)
-- Tests: [tests/test_grammar_hazu_da.py](../../../src/grammar_rules/rules/tests/test_grammar_hazu_da.py)
+- Rule: [src/grammar_rules/rules/hazu_da/index.py](../../../src/grammar_rules/rules/hazu_da/index.py)
+- Tests: [tests/test_grammar_hazu_da.py](../../../src/grammar_rules/rules/hazu_da/test_index.py)
 - Registry identity: `hazu_da`
 - Registry and stable identities: [registry.py](../../../src/grammar_rules/registry.py), [GrammarConstants.py](../../../src/GrammarConstants.py).
 

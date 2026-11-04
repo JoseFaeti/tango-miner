@@ -3,11 +3,11 @@ from unittest.mock import patch
 
 from src.Artifact import Artifact
 from src.Grammar import GrammarStep, ExcludeGrammarTokensStep, GrammarRule
-from src.grammar_rules.rules.te_kuru import RULE
-from src.grammar_rules.rules.nda import RULE as NDA_RULE
+from src.grammar_rules.rules.te_kuru.index import RULE
+from src.grammar_rules.rules.nda.index import RULE as NDA_RULE
 from src.steps.MergeTokensStep import combine_tokens_jmdict
 from src.steps.BuildWordStatsStep import build_word_stats
-from src.grammar_rules.rules.tests.test_grammar_te_iru import sentence, tok
+from src.grammar_rules.rules.te_iru.test_index import sentence, tok
 
 
 class Dictionary:
@@ -129,8 +129,8 @@ class GrammarReservationTests(unittest.TestCase):
         from src.steps.TokenizeStep import tokenize_raw_sentences
         from src.steps.MergeTokensStep import combine_tokens_jmdict, get_jmdict
         from src.steps.BuildWordStatsStep import build_word_stats
-        from src.grammar_rules.rules.sou_da import APPEARANCE
-        from src.grammar_rules.rules.te_mo import RULE as TE_MO
+        from src.grammar_rules.rules.sou_da.index import APPEARANCE
+        from src.grammar_rules.rules.te_mo.index import RULE as TE_MO
 
         try:
             dictionary = get_jmdict()
@@ -169,7 +169,7 @@ class GrammarReservationTests(unittest.TestCase):
         self.assertEqual(stage.spans, {})
 
     def test_negative_at_expression_start_preserves_expression_and_other_negatives(self):
-        from src.grammar_rules.rules.nai import RULE as NAI_RULE
+        from src.grammar_rules.rules.nai.index import RULE as NAI_RULE
         source = sentence('本を読まないといけないが遊ばない。', [
             tok('本を', '本', ('名詞', '普通名詞')),
             tok('読ま', '読む', ('動詞', '一般', '*', '*', '五段', '未然形-一般')),
@@ -257,7 +257,7 @@ class GrammarReservationTests(unittest.TestCase):
             tok('いる', 'いる', ('動詞', '非自立可能')), tok('よ。', 'よ', ('助詞', '*'))])
         for token in source.tokens:
             token.update(base_form=token['lemma'], reading='ヨミ')
-        from src.grammar_rules.rules.te_iru import RULE as IRU_RULE
+        from src.grammar_rules.rules.te_iru.index import RULE as IRU_RULE
         stage = GrammarStep(rules=(IRU_RULE,))
         art = stage.process(Artifact([source]))
         tokens = ExcludeGrammarTokensStep(stage).process(art).data[0].tokens

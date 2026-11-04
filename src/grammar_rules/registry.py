@@ -1,46 +1,46 @@
 """Explicit registry of grammar rules."""
-from src.grammar_rules.rules.te_benefactive import RULE as TE_BENEFACTIVE
-from src.grammar_rules.rules.naide import RULE as NAIDE
-from src.grammar_rules.rules.kamoshirenai import RULE as KAMOSHIRENAI
-from src.grammar_rules.rules.te_kudasai import RULE as TE_KUDASAI
-from src.grammar_rules.rules.noni import RULE as NONI
-from src.grammar_rules.rules.tame_ni import RULE as TAME_NI
-from src.grammar_rules.rules.nagara import RULE as NAGARA
-from src.grammar_rules.rules.wake_da import EXPLANATION as WAKE_DA, NEGATIVE as WAKE_NEGATIVE
+from src.grammar_rules.rules.te_benefactive.index import RULE as TE_BENEFACTIVE
+from src.grammar_rules.rules.naide.index import RULE as NAIDE
+from src.grammar_rules.rules.kamoshirenai.index import RULE as KAMOSHIRENAI
+from src.grammar_rules.rules.te_kudasai.index import RULE as TE_KUDASAI
+from src.grammar_rules.rules.noni.index import RULE as NONI
+from src.grammar_rules.rules.tame_ni.index import RULE as TAME_NI
+from src.grammar_rules.rules.nagara.index import RULE as NAGARA
+from src.grammar_rules.rules.wake_da.index import EXPLANATION as WAKE_DA, NEGATIVE as WAKE_NEGATIVE
 from src.GrammarConstants import GRAMMAR_EXPRESSIONS
-from src.grammar_rules.rules.hazu_da import RULE as HAZU_DA
-from src.grammar_rules.rules.sou_da import APPEARANCE, HEARSAY
-from src.grammar_rules.rules.te_wa_ikenai import RULE as TE_WA_IKENAI
-from src.grammar_rules.rules.te_miru import RULE as TE_MIRU
-from src.grammar_rules.rules.koto_ni_suru import RULE as KOTO_NI_SURU
-from src.grammar_rules.rules.koto_ni_naru import RULE as KOTO_NI_NARU
-from src.grammar_rules.rules.te_oku import RULE as TE_OKU
-from src.grammar_rules.rules.te_aru import RULE as TE_ARU
-from src.grammar_rules.rules.te_mo import RULE as TE_MO
-from src.grammar_rules.rules.nakutemoii import RULE as NAKUTEMOII
-from src.grammar_rules.rules.te_mo_ii import RULE as TE_MO_II
-from src.grammar_rules.rules.obligation import RULE as OBLIGATION
-from src.grammar_rules.rules.elliptical_obligation import RULE as ELLIPTICAL_OBLIGATION
-from src.grammar_rules.rules.to_omou import RULE as TO_OMOU
-from src.grammar_rules.rules.te_iru import RULE as TE_IRU
-from src.grammar_rules.rules.te_hoshii import RULE as TE_HOSHII
-from src.grammar_rules.rules.nda import RULE as NDA
-from src.grammar_rules.rules.tagaru import RULE as TAGARU
-from src.grammar_rules.rules.tai import RULE as TAI
-from src.grammar_rules.rules.te_shimau import RULE as TE_SHIMAU
-from src.grammar_rules.rules.monono import RULE as MONONO
-from src.grammar_rules.rules.nai import RULE as NAI
-from src.grammar_rules.rules.you_da import RULE as YOU_DA
-from src.grammar_rules.rules.you_ni import RULE as YOU_NI
-from src.grammar_rules.rules.nara import RULE as NARA
-from src.grammar_rules.rules.ba import RULE as BA
-from src.grammar_rules.rules.tara import RULE as TARA
-from src.grammar_rules.rules.koto_ga_aru import RULE as KOTO_GA_ARU
-from src.grammar_rules.rules.koto_ga_aru_occasional import RULE as KOTO_GA_ARU_OCCASIONAL
+from src.grammar_rules.rules.hazu_da.index import RULE as HAZU_DA
+from src.grammar_rules.rules.sou_da.index import APPEARANCE, HEARSAY
+from src.grammar_rules.rules.te_wa_ikenai.index import RULE as TE_WA_IKENAI
+from src.grammar_rules.rules.te_miru.index import RULE as TE_MIRU
+from src.grammar_rules.rules.koto_ni_suru.index import RULE as KOTO_NI_SURU
+from src.grammar_rules.rules.koto_ni_naru.index import RULE as KOTO_NI_NARU
+from src.grammar_rules.rules.te_oku.index import RULE as TE_OKU
+from src.grammar_rules.rules.te_aru.index import RULE as TE_ARU
+from src.grammar_rules.rules.te_mo.index import RULE as TE_MO
+from src.grammar_rules.rules.nakutemoii.index import RULE as NAKUTEMOII
+from src.grammar_rules.rules.te_mo_ii.index import RULE as TE_MO_II
+from src.grammar_rules.rules.obligation.index import RULE as OBLIGATION
+from src.grammar_rules.rules.elliptical_obligation.index import RULE as ELLIPTICAL_OBLIGATION
+from src.grammar_rules.rules.to_omou.index import RULE as TO_OMOU
+from src.grammar_rules.rules.te_iru.index import RULE as TE_IRU
+from src.grammar_rules.rules.te_hoshii.index import RULE as TE_HOSHII
+from src.grammar_rules.rules.nda.index import RULE as NDA
+from src.grammar_rules.rules.tagaru.index import RULE as TAGARU
+from src.grammar_rules.rules.tai.index import RULE as TAI
+from src.grammar_rules.rules.te_shimau.index import RULE as TE_SHIMAU
+from src.grammar_rules.rules.monono.index import RULE as MONONO
+from src.grammar_rules.rules.nai.index import RULE as NAI
+from src.grammar_rules.rules.you_da.index import RULE as YOU_DA
+from src.grammar_rules.rules.you_ni.index import RULE as YOU_NI
+from src.grammar_rules.rules.nara.index import RULE as NARA
+from src.grammar_rules.rules.ba.index import RULE as BA
+from src.grammar_rules.rules.tara.index import RULE as TARA
+from src.grammar_rules.rules.koto_ga_aru.index import RULE as KOTO_GA_ARU
+from src.grammar_rules.rules.koto_ga_aru_occasional.index import RULE as KOTO_GA_ARU_OCCASIONAL
 
-from src.grammar_rules.rules.te_kuru import RULE as TE_KURU
-from src.grammar_rules.rules.te_iku import RULE as TE_IKU
-from src.grammar_rules.rules.ta_hou_ga_ii import RULE as TA_HOU_GA_II
+from src.grammar_rules.rules.te_kuru.index import RULE as TE_KURU
+from src.grammar_rules.rules.te_iku.index import RULE as TE_IKU
+from src.grammar_rules.rules.ta_hou_ga_ii.index import RULE as TA_HOU_GA_II
 
 RULES = (NAGARA, TAGARU, WAKE_DA, WAKE_NEGATIVE, HAZU_DA, APPEARANCE, HEARSAY, TE_MO, NARA, BA, YOU_DA, KOTO_NI_SURU, KOTO_NI_NARU, TE_WA_IKENAI, TE_MIRU, TE_OKU, TE_MO_II, OBLIGATION, TO_OMOU, YOU_NI, KOTO_GA_ARU_OCCASIONAL, KOTO_GA_ARU, TE_IKU, TARA, NAI, TE_KURU, TE_IRU, NDA, TAI, TE_SHIMAU, MONONO,)
 
