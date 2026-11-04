@@ -22,6 +22,6 @@ non-final elliptical uses are not covered. Independent precision and recall
 have not been measured.
 
 The implementation is in [elliptical_obligation.py](../../../src/grammar_rules/rules/elliptical_obligation.py),
-with focused cases in [test_grammar_elliptical_obligation.py](../../../tests/test_grammar_elliptical_obligation.py).
+with focused cases in [test_grammar_elliptical_obligation.py](../../../src/grammar_rules/rules/tests/test_grammar_elliptical_obligation.py).
 These cases include analyzer tokenizations, controls, reservation and card
 identity; they have not been run for this change.

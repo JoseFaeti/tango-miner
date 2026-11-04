@@ -13,7 +13,7 @@ ongoing action or resulting state.
 ## Implementation
 
 - Rule: [src/grammar_rules/rules/te_iru.py](../../../src/grammar_rules/rules/te_iru.py)
-- Tests: [tests/test_grammar_te_iru.py](../../../tests/test_grammar_te_iru.py)
+- Tests: [tests/test_grammar_te_iru.py](../../../src/grammar_rules/rules/tests/test_grammar_te_iru.py)
 - Registry identity: `te_iru`
 - Registry and stable identities: [registry.py](../../../src/grammar_rules/registry.py), [GrammarConstants.py](../../../src/GrammarConstants.py).
 
@@ -52,7 +52,7 @@ contracted `てたり` / `でたり` are recognized when Sudachi analyzes
 matched and reserved span; other analyses and corpus-wide accuracy remain
 unevaluated.
 
-A replay of the first 15,000 sentences in a full-corpus shadow archive found 25
+A replay of the first 15,000 sentences in a full-corpus diagnostic archive found 25
 matching occurrences after the continuative-form restriction. A prior version
 also matched a name fragment that Sudachi analyzed as a non-continuative verb;
 the restriction excludes that observed case. This bounded, ordered probe and

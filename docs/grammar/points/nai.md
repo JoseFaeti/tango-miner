@@ -14,7 +14,7 @@ verbal negation.
 ## Implementation
 
 - Rule: [src/grammar_rules/rules/nai.py](../../../src/grammar_rules/rules/nai.py)
-- Tests: [tests/test_grammar_nai.py](../../../tests/test_grammar_nai.py)
+- Tests: [tests/test_grammar_nai.py](../../../src/grammar_rules/rules/tests/test_grammar_nai.py)
 - Registry identity: `verbal_nai`
 - Registry and stable identities: [registry.py](../../../src/grammar_rules/registry.py), [GrammarConstants.py](../../../src/GrammarConstants.py).
 

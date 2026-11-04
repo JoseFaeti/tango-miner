@@ -75,7 +75,7 @@ deck. A candidate snapshot immediately after sentence attachment could skip
 mining while allowing these three stages to execute normally. It must preserve
 all `WordStats` fields, insertion order, example spans, component counts,
 selected-entry evidence and review status. Occurrence diagnostics, rejected
-merges, grammar-shadow and debug output depend on earlier stages and need
+merges and debug output depend on earlier stages and need
 equivalent replay or a fallback; do not silently omit them.
 
 `scripts/benchmark_snapshot_payload.py` measures JSON round-tripping the

@@ -3,9 +3,7 @@
 [Grammar documentation](README.md)
 
 Grammar is a standard part of the pipeline and runs by default; pass
-`--no-grammar` to disable it. The optional `--grammar-shadow` diagnostic
-writes separate tentative proposals and does not enable the normal stage.
-The normal stage checks registered rules and adds grammar candidates to CSV output and, if
+`--no-grammar` to disable it. The stage checks registered rules and adds grammar candidates to CSV output and, if
 Anki is enabled, to the normal plan. Grammar meanings use short dictionary-style
 glosses; new cards and CSV output use the current glosses, and existing grammar
 note meanings and metrics can be refreshed under the [identity policy](identity-and-review.md).
@@ -32,7 +30,7 @@ These decisions change lexical frequencies, examples and potentially output stat
 the same tokens. This is a narrow evidence rule, not a guarantee
 that every occurrence has a single unambiguous aspectual meaning.
 
-A replay of the first 20,000 sentences of an earlier shadow archive found
+A replay of the first 20,000 sentences of an earlier diagnostic archive found
 214 `〜てくる` matches and 206 reserved raw `くる` tokens, alongside
 1,627 `〜ている` and 1,043 `〜んだ` matches. These are ordered,
 source-biased raw-token counts, not post-merge frequency changes or a precision

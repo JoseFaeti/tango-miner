@@ -1,6 +1,6 @@
 import unittest
 
-from src.GrammarShadow import aligned_tokens
+from src.grammar_rules.alignment import aligned_tokens
 from src.grammar_rules.helpers import negative_suffix_end
 from src.grammar_rules.rules.te_iru import match_te_iru
 from src.grammar_rules.rules.te_iku import match_te_iku

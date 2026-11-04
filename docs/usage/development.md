@@ -118,7 +118,6 @@ the file into memory or running the pipeline:
 
 ```sh
 python -X utf8 scripts/query_jsonl.py runs/example-run/occurrences.jsonl --field sentence --contains ないし --show candidate --show sentence
-python -X utf8 scripts/query_jsonl.py runs/example-run/grammar-shadow.jsonl --field proposals.construction_id --exact te_iru --show normalized_sentence --show proposals --limit 5
 ```
 
 Dotted fields traverse arrays; repeated `--show` selects fields. Output is
@@ -139,8 +138,8 @@ Omit `--baseline` and `--word` when no comparison is needed; see `--help` for
 other options. Check the resolved configuration and input before any full run.
 The log and archive may contain source text and paths.
 
-Replay a registered grammar rule against an existing shadow archive without
-running the pipeline:
+Replay a registered grammar rule against an existing historical diagnostic
+archive without running the pipeline (new runs do not create these archives):
 
 ```sh
 python -X utf8 scripts/replay_grammar.py runs/example-run/grammar-shadow.jsonl --rule koto_ga_aru_occasional --limit 10
@@ -164,14 +163,6 @@ Some integration tests require the installed Sudachi dictionary and local
 JMdict data. Candidate component provenance is retained in memory for eligible
 candidates and supports some definition and parsing corrections; it does not
 yet appear in exported CSVs.
-
-For experimental, review-only grammar proposals, use `--grammar-shadow`.
-This writes `grammar-shadow.jsonl` in the run archive before token merging;
-it does not itself alter candidate or Anki decisions; the separate normal grammar
-stage remains enabled unless `--no-grammar` is passed. The file contains source-derived
-text and paths. The rules are preliminary, all proposals remain ambiguous, and
-the option does not disable Anki: use an Anki-disabled configuration for safe
-offline checks. See [grammar shadow prototype](../grammar-shadow-prototype.md).
 
 The normal pipeline includes grammar cards by default; pass
 `--no-grammar` to disable them. Rules create separate grammar candidates when

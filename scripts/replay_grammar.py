@@ -1,4 +1,4 @@
-"""Replay one registered grammar rule against a shadow JSONL archive."""
+"""Replay one registered grammar rule against a historical aligned-token JSONL archive."""
 import argparse
 import json
 import sys

@@ -4,7 +4,7 @@ from src.Artifact import Artifact
 from src.Grammar import GrammarStep
 from src.grammar_rules.rules.monono import match_monono
 from src.GrammarConstants import MONONO_GRAMMAR_EXPRESSION as EXPRESSION
-from src.GrammarShadow import aligned_tokens
+from src.grammar_rules.alignment import aligned_tokens
 from src.grammar_rules.rules.tests.test_grammar_te_iru import sentence, tok
 
 

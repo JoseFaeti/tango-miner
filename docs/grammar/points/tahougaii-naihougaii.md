@@ -21,7 +21,7 @@ other particles, and alternative tokenizations remain unsupported.
 
 - Rule: [ta_hou_ga_ii.py](../../../src/grammar_rules/rules/ta_hou_ga_ii.py),
   registry identity `ta_hou_ga_ii`.
-- Tests: [test_grammar_ta_hou_ga_ii.py](../../../tests/test_grammar_ta_hou_ga_ii.py)
+- Tests: [test_grammar_ta_hou_ga_ii.py](../../../src/grammar_rules/rules/tests/test_grammar_ta_hou_ga_ii.py)
   cover Sudachi-analyzed positive and negative examples, lexical controls,
   boundaries, reservation and card creation.
 - Shared behavior: [stage and precedence](../stage-and-precedence.md) and

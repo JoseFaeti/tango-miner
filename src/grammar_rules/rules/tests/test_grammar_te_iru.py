@@ -7,7 +7,7 @@ from unittest.mock import patch
 from src.Artifact import Artifact
 from src.Grammar import GrammarStep, GrammarRule, GrammarPositionStep, AddGrammarCardsStep
 from src.grammar_rules.rules.te_iru import match_te_iru
-from src.GrammarShadow import aligned_tokens
+from src.grammar_rules.alignment import aligned_tokens
 from src.GrammarConstants import TE_IRU_GRAMMAR_EXPRESSION as EXPRESSION
 from src.TokenizedSentence import TokenizedSentence
 from src.steps.AddWordsToAnkiStep import export_words_to_anki

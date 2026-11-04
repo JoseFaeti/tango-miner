@@ -12,6 +12,6 @@ Supported 〜てる / 〜でる forms are covered under 〜ている. Other cont
 
 ## Implementation
 
-See [te-iru](./te-iru.md), its [rule](../../../src/grammar_rules/rules/te_iru.py), and [tests](../../../tests/test_grammar_te_iru.py).
+See [te-iru](./te-iru.md), its [rule](../../../src/grammar_rules/rules/te_iru.py), and [tests](../../../src/grammar_rules/rules/tests/test_grammar_te_iru.py).
 
 Registry identity: `te_iru`.

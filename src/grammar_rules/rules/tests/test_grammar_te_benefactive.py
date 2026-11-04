@@ -4,7 +4,7 @@ from pathlib import Path
 from src.Artifact import Artifact
 from src.Grammar import GrammarStep, ExcludeGrammarTokensStep
 from src.GrammarConstants import TE_BENEFACTIVE_EXPRESSION
-from src.GrammarShadow import aligned_tokens
+from src.grammar_rules.alignment import aligned_tokens
 from src.TokenizedSentence import TokenizedSentence
 from src.grammar_rules.rules.te_benefactive import match_te_benefactive
 

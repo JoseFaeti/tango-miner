@@ -2,7 +2,7 @@ import unittest
 
 from src.Artifact import Artifact
 from src.Grammar import GrammarStep, ExcludeGrammarTokensStep
-from src.GrammarShadow import aligned_tokens
+from src.grammar_rules.alignment import aligned_tokens
 from src.grammar_rules.rules.to_omou import RULE, match_to_omou
 from src.steps.BuildWordStatsStep import build_word_stats
 from src.steps.MergeTokensStep import combine_tokens_jmdict

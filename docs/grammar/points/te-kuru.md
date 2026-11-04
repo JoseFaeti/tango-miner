@@ -14,7 +14,7 @@ movement toward, return or emerging change.
 ## Implementation
 
 - Rule: [src/grammar_rules/rules/te_kuru.py](../../../src/grammar_rules/rules/te_kuru.py)
-- Tests: [tests/test_grammar_te_kuru.py](../../../tests/test_grammar_te_kuru.py)
+- Tests: [tests/test_grammar_te_kuru.py](../../../src/grammar_rules/rules/tests/test_grammar_te_kuru.py)
 - Registry identity: `te_kuru`
 - Registry and stable identities: [registry.py](../../../src/grammar_rules/registry.py), [GrammarConstants.py](../../../src/GrammarConstants.py).
 

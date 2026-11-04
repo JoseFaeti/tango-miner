@@ -17,5 +17,5 @@ whole family is complete.
 ## Implementation
 
 - Rule: [te_kuru.py](../../../src/grammar_rules/rules/te_kuru.py)
-- Tests: [test_grammar_te_kuru.py](../../../tests/test_grammar_te_kuru.py)
+- Tests: [test_grammar_te_kuru.py](../../../src/grammar_rules/rules/tests/test_grammar_te_kuru.py)
 - Registry identity: `te_kuru`

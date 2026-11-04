@@ -9,7 +9,7 @@ conditional or topic-based supposition. Covered: split copular なら after sele
 ## Implementation
 
 - Rule: [src/grammar_rules/rules/nara.py](../../../src/grammar_rules/rules/nara.py)
-- Tests: [tests/test_grammar_nara.py](../../../tests/test_grammar_nara.py)
+- Tests: [tests/test_grammar_nara.py](../../../src/grammar_rules/rules/tests/test_grammar_nara.py)
 - Registry identity: `conditional_nara`
 - Registry and stable identities: [registry.py](../../../src/grammar_rules/registry.py), [GrammarConstants.py](../../../src/GrammarConstants.py).
 

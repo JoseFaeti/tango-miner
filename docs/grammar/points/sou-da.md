@@ -9,7 +9,7 @@ distinct appearance and hearsay cards. Covered: selected source-aligned finite s
 ## Implementation
 
 - Rule: [src/grammar_rules/rules/sou_da.py](../../../src/grammar_rules/rules/sou_da.py)
-- Tests: [tests/test_grammar_sou_da.py](../../../tests/test_grammar_sou_da.py)
+- Tests: [tests/test_grammar_sou_da.py](../../../src/grammar_rules/rules/tests/test_grammar_sou_da.py)
 - Registry identities: `sou_da_appearance`, `sou_da_hearsay`
 - Registry and stable identities: [registry.py](../../../src/grammar_rules/registry.py), [GrammarConstants.py](../../../src/GrammarConstants.py).
 

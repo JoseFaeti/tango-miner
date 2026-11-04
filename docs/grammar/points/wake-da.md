@@ -13,7 +13,7 @@ The plain negative forms also accept following です.
 ## Implementation and evidence
 
 - Rules: [wake_da.py](../../../src/grammar_rules/rules/wake_da.py)
-- Tests: [test_grammar_wake_da.py](../../../tests/test_grammar_wake_da.py)
+- Tests: [test_grammar_wake_da.py](../../../src/grammar_rules/rules/tests/test_grammar_wake_da.py)
 - Registry identities: `wake_da` and `wake_dewa_nai`.
 - Stable card identities: `〜わけだ` and `〜わけではない`.
 

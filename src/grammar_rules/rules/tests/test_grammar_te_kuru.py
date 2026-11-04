@@ -3,7 +3,7 @@ import unittest
 from src.Artifact import Artifact
 from src.Grammar import GrammarStep
 from src.GrammarConstants import TE_KURU_GRAMMAR_EXPRESSION as EXPRESSION
-from src.GrammarShadow import aligned_tokens
+from src.grammar_rules.alignment import aligned_tokens
 from src.grammar_rules.rules.te_kuru import match_te_kuru
 from src.grammar_rules.rules.tests.test_grammar_te_iru import sentence, tok
 

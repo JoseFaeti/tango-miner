@@ -20,6 +20,11 @@ from src.steps.OccurrenceDiagnosticsStep import OccurrenceDiagnosticsStep
 
 
 class TangoMinerTests(unittest.TestCase):
+    def test_removed_grammar_diagnostic_option_is_rejected(self):
+        with redirect_stderr(io.StringIO()), self.assertRaises(SystemExit) as result:
+            process_script(['--grammar-shadow'])
+        self.assertEqual(result.exception.code, 2)
+
     def test_silent_run_logs_output_and_failure_without_console_output(self):
         with tempfile.TemporaryDirectory() as tmp:
             config = Path(tmp) / 'config.toml'

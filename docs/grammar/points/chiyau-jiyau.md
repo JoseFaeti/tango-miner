@@ -12,6 +12,6 @@ Supported auxiliary contractions are covered under 〜てしまう. Other tokeni
 
 ## Implementation
 
-See [te-shimau](./te-shimau.md), its [rule](../../../src/grammar_rules/rules/te_shimau.py), and [tests](../../../tests/test_grammar_te_shimau.py).
+See [te-shimau](./te-shimau.md), its [rule](../../../src/grammar_rules/rules/te_shimau.py), and [tests](../../../src/grammar_rules/rules/tests/test_grammar_te_shimau.py).
 
 Registry identity: `te_shimau`.

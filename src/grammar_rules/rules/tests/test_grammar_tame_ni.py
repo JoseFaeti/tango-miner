@@ -2,7 +2,7 @@ import unittest
 
 from src.Artifact import Artifact
 from src.Grammar import ExcludeGrammarTokensStep, GrammarStep
-from src.GrammarShadow import aligned_tokens
+from src.grammar_rules.alignment import aligned_tokens
 from src.grammar_rules.rules.tame_ni import RULE, match_tame_ni
 from src.grammar_rules.rules.tests.test_grammar_te_iru import sentence, tok
 

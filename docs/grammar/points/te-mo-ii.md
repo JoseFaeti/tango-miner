@@ -11,7 +11,7 @@ permission.
 ## Implementation
 
 - Rule: [src/grammar_rules/rules/te_mo_ii.py](../../../src/grammar_rules/rules/te_mo_ii.py)
-- Tests: [tests/test_grammar_te_mo_ii.py](../../../tests/test_grammar_te_mo_ii.py)
+- Tests: [tests/test_grammar_te_mo_ii.py](../../../src/grammar_rules/rules/tests/test_grammar_te_mo_ii.py)
 - Registry identity: `te_mo_ii`
 - Registry and stable identities: [registry.py](../../../src/grammar_rules/registry.py), [GrammarConstants.py](../../../src/GrammarConstants.py).
 

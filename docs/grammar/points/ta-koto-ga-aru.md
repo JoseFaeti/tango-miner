@@ -16,7 +16,7 @@ past experience.
 ## Implementation
 
 - Rule: [src/grammar_rules/rules/koto_ga_aru.py](../../../src/grammar_rules/rules/koto_ga_aru.py)
-- Tests: [tests/test_grammar_koto_ga_aru.py](../../../tests/test_grammar_koto_ga_aru.py)
+- Tests: [tests/test_grammar_koto_ga_aru.py](../../../src/grammar_rules/rules/tests/test_grammar_koto_ga_aru.py)
 - Registry identity: `koto_ga_aru_experience`
 - Registry and stable identities: [registry.py](../../../src/grammar_rules/registry.py), [GrammarConstants.py](../../../src/GrammarConstants.py).
 

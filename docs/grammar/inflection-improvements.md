@@ -24,7 +24,7 @@ interpretation.
    These rules already cover many common past and polite forms; moving existing
    logic alone is a refactor, not evidence of improved coverage.
    `〜てしまって`, `〜ちゃって` and `〜じゃって` now include an
-   adjacent separate connective `て`. A raw replay of one shadow archive
+   adjacent separate connective `て`. A raw replay of one diagnostic archive
    found 1,049 such matches, up from zero. A same-input run increased the
    grammar frequency by 1,049, with corresponding decreases in `しまう`,
    `ちゃう` and `じゃう`. `ても`, `ては` and `てもいい` also fell;
@@ -35,8 +35,7 @@ interpretation.
    `ました`, `ません` and `ませんでした` tokenizations. A shared matcher
    handles selected split and whole-suffix analyses, with callers choosing
    positive, negative, connective or volitional forms. It rejects incomplete stems and
-   incomplete `ませんでし`; tentative shadow proposals retain their previous
-   incomplete-span behavior. In the first 20,000 archived sentences, raw rule
+   incomplete `ませんでし`. In the first 20,000 archived sentences, raw rule
    replay includes `ていきました`, `てきます`, `てません` and `てました`.
    A same-input comparison of the initial implementation found 25 frequency
    changes, including decreases of 74 for `〜ていく`, 35 for `〜てしまう`,

@@ -9,7 +9,7 @@ resemblance or inference. Covered: 〜ようだ with selected predicate and noun
 ## Implementation
 
 - Rule: [src/grammar_rules/rules/you_da.py](../../../src/grammar_rules/rules/you_da.py)
-- Tests: [tests/test_grammar_you_da.py](../../../tests/test_grammar_you_da.py)
+- Tests: [tests/test_grammar_you_da.py](../../../src/grammar_rules/rules/tests/test_grammar_you_da.py)
 - Registry identity: `you_da`
 - Registry and stable identities: [registry.py](../../../src/grammar_rules/registry.py), [GrammarConstants.py](../../../src/GrammarConstants.py).
 

@@ -3,7 +3,7 @@ from unittest.mock import patch
 
 from src.Artifact import Artifact
 from src.Grammar import GrammarStep, ExcludeGrammarTokensStep
-from src.GrammarShadow import aligned_tokens
+from src.grammar_rules.alignment import aligned_tokens
 from src.grammar_rules.rules.ba import RULE, match_ba
 from src.grammar_rules.rules.obligation import RULE as OBLIGATION
 from src.grammar_rules.rules.tests.test_grammar_te_iru import sentence, tok

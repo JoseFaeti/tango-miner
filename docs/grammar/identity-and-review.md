@@ -30,11 +30,12 @@ Plans still require the normal approval before any Anki mutation.
 The shared grammar stage collects all registered rules in one pass; the output
 card stage adds its cards before scoring. Each matcher and its metadata live in a separate module under `src/grammar_rules/rules/`;
 `registry.py` lists the rules used by the shared stage. The corresponding
-`tests/test_grammar_*.py` files check each rule. When adding a rule, register it
+`src/grammar_rules/rules/tests/` files check each rule. When adding a rule, register it
 and its identity in the Anki protection set; startup validates that both
 registrations match.
 
-For a bounded proposal-review sample from an existing shadow archive:
+For a bounded proposal-review sample from an existing historical diagnostic archive
+(new runs no longer create these proposals):
 
     python -X utf8 -m src.GrammarReview --input runs/example-run/grammar-shadow.jsonl --output checks/grammar-review.jsonl --per-stratum 5
 

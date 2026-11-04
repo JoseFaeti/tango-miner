@@ -23,5 +23,5 @@ the beneficiary or every contextual interpretation. Expression precedence,
 frequency effects and independent precision and recall remain unevaluated.
 
 See [rule](../../../src/grammar_rules/rules/te_benefactive.py),
-[tests](../../../tests/test_grammar_te_benefactive.py) and
+[tests](../../../src/grammar_rules/rules/tests/test_grammar_te_benefactive.py) and
 [stage and precedence](../stage-and-precedence.md).

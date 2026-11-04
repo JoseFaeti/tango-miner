@@ -1,4 +1,4 @@
-"""Sample grammar shadow proposals for local, human review without mining."""
+"""Sample historical grammar proposals for local, human review without mining."""
 import argparse
 from collections import Counter, defaultdict
 import hashlib
@@ -51,7 +51,7 @@ def sample(path, per_stratum, seed):
 
 def main(argv=None):
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument('--input', type=Path, required=True, help='run grammar-shadow.jsonl')
+    parser.add_argument('--input', type=Path, required=True, help='historical grammar proposal JSONL archive')
     parser.add_argument('--output', type=Path, required=True)
     parser.add_argument('--per-stratum', type=int, default=5)
     parser.add_argument('--seed', default='grammar-review-v1')

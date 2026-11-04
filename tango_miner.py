@@ -42,7 +42,6 @@ from src.steps.BuildWordStatsStep import BuildWordStatsStep
 from src.steps.FilterFrequencyStep import FilterFrequencyStep
 from src.steps.WriteOutputStep import WriteOutputStep
 from src.steps.OccurrenceDiagnosticsStep import OccurrenceDiagnosticsStep
-from src.steps.GrammarShadowStep import GrammarShadowStep
 from src.Grammar import GrammarStep, GrammarPositionStep, AddGrammarCardsStep, ExcludeGrammarTokensStep
 
 from src.steps.debug.DumpSentences import DumpSentences
@@ -109,9 +108,6 @@ def process_script(argv=None):
     parser.add_argument("--occurrence-diagnostics", action="store_true",
                         help="Write detailed occurrence and candidate JSONL files (can be large)")
 
-    parser.add_argument("--grammar-shadow", action="store_true",
-                        help="Write tentative grammar proposals without changing mining output")
-
     parser.add_argument("--no-grammar", dest="grammar", action="store_false",
                         help="Disable source-supported grammar cards")
 
@@ -177,7 +173,6 @@ def process_script(argv=None):
             DumpSentences("sentences-normalized.txt") if debug else None,
             RawTokenizeStep(force_retokenize=args.retokenize or "all" in args.refresh_cache, config=config.tokenizer),
             grammar_step,
-            GrammarShadowStep(final_path.parent / "grammar-shadow.jsonl") if args.grammar_shadow else None,
             ExcludeGrammarTokensStep(grammar_step) if grammar_step else None,
             MergeTokensStep(max_lookahead=config.merge.max_lookahead, dictionary_path=config.dictionary.jmdict_path,
                             diagnostics_path=final_path.parent / "rejected-merges.jsonl" if args.occurrence_diagnostics else None),
@@ -198,7 +193,7 @@ def process_script(argv=None):
 
         dependencies = collect_dependencies(config)
         summary = {"status": "running", "dependencies": dependencies,
-                   "retokenize_requested": args.retokenize, "occurrence_diagnostics": args.occurrence_diagnostics, "grammar_shadow": args.grammar_shadow, "grammar_enabled": args.grammar, "grammar_te_iru": args.grammar, "stages": [],
+                   "retokenize_requested": args.retokenize, "occurrence_diagnostics": args.occurrence_diagnostics, "grammar_enabled": args.grammar, "grammar_te_iru": args.grammar, "stages": [],
                    "cache_refresh_requested": args.refresh_cache,
                    "anki": {"status": "not_started" if config.anki.enabled else "disabled"}}
         write_run_summary(final_path.parent, summary)

@@ -14,7 +14,7 @@ try doing something.
 ## Implementation
 
 - Rule: [src/grammar_rules/rules/te_miru.py](../../../src/grammar_rules/rules/te_miru.py)
-- Tests: [tests/test_grammar_te_miru.py](../../../tests/test_grammar_te_miru.py)
+- Tests: [tests/test_grammar_te_miru.py](../../../src/grammar_rules/rules/tests/test_grammar_te_miru.py)
 - Registry identity: `te_miru`
 - Registry and stable identities: [registry.py](../../../src/grammar_rules/registry.py), [GrammarConstants.py](../../../src/GrammarConstants.py).
 

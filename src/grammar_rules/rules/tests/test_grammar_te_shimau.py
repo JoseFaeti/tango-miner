@@ -4,7 +4,7 @@ from src.Artifact import Artifact
 from src.Grammar import GrammarStep, ExcludeGrammarTokensStep
 from src.grammar_rules.rules.te_shimau import match_te_shimau
 from src.GrammarConstants import TE_SHIMAU_GRAMMAR_EXPRESSION as EXPRESSION
-from src.GrammarShadow import aligned_tokens
+from src.grammar_rules.alignment import aligned_tokens
 from src.steps.AddWordsToAnkiStep import export_words_to_anki
 from src.steps.tests.test_add_words_to_anki_step import note
 from src.grammar_rules.rules.tests.test_grammar_te_iru import sentence, tok

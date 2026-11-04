@@ -4,7 +4,7 @@ from bisect import bisect_right
 from functools import lru_cache
 from time import perf_counter
 
-from src.GrammarShadow import aligned_tokens
+from src.grammar_rules.alignment import aligned_tokens
 from src.TokenizedSentence import TokenizedSentence
 from src.PipelineStep import PipelineStep
 from src.WordStats import Sentence, WordStats

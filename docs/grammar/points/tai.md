@@ -13,7 +13,7 @@ desire to perform an action.
 ## Implementation
 
 - Rule: [src/grammar_rules/rules/tai.py](../../../src/grammar_rules/rules/tai.py)
-- Tests: [tests/test_grammar_tai.py](../../../tests/test_grammar_tai.py)
+- Tests: [tests/test_grammar_tai.py](../../../src/grammar_rules/rules/tests/test_grammar_tai.py)
 - Registry identity: `tai`
 - Registry and stable identities: [registry.py](../../../src/grammar_rules/registry.py), [GrammarConstants.py](../../../src/GrammarConstants.py).
 

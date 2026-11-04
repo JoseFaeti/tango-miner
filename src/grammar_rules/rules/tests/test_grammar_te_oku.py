@@ -4,7 +4,7 @@ from unittest.mock import patch
 
 from src.Artifact import Artifact
 from src.Grammar import GrammarStep, ExcludeGrammarTokensStep
-from src.GrammarShadow import aligned_tokens
+from src.grammar_rules.alignment import aligned_tokens
 from src.grammar_rules.rules.te_oku import RULE, match_te_oku
 from src.grammar_rules.rules.tara import RULE as TARA_RULE
 from src.grammar_rules.rules.tests.test_grammar_te_iru import sentence, tok

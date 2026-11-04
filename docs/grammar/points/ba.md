@@ -14,7 +14,7 @@ precision and recall have not been independently evaluated.
 ## Implementation
 
 - Rule: [src/grammar_rules/rules/ba.py](../../../src/grammar_rules/rules/ba.py)
-- Tests: [tests/test_grammar_ba.py](../../../tests/test_grammar_ba.py)
+- Tests: [tests/test_grammar_ba.py](../../../src/grammar_rules/rules/tests/test_grammar_ba.py)
 - Registry identity: `conditional_ba`
 - Registry and stable identities: [registry.py](../../../src/grammar_rules/registry.py), [GrammarConstants.py](../../../src/GrammarConstants.py).
 

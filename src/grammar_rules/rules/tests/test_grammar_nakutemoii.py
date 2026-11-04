@@ -2,7 +2,7 @@ import unittest
 
 from src.Artifact import Artifact
 from src.Grammar import GrammarStep, ExcludeGrammarTokensStep
-from src.GrammarShadow import aligned_tokens
+from src.grammar_rules.alignment import aligned_tokens
 from src.grammar_rules.rules.nakutemoii import RULE, match_nakutemoii
 from src.grammar_rules.rules.nai import match_nai
 from src.grammar_rules.rules.te_mo import match_te_mo

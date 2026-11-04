@@ -3,7 +3,7 @@ import unittest
 from src.Artifact import Artifact
 from src.Grammar import GrammarStep, ExcludeGrammarTokensStep
 from src.GrammarConstants import GRAMMAR_EXPRESSIONS, LEGACY_GRAMMAR_EXPRESSIONS
-from src.GrammarShadow import aligned_tokens
+from src.grammar_rules.alignment import aligned_tokens
 from src.grammar_rules.rules.te_mo import RULE, match_te_mo
 from src.grammar_rules.rules.te_mo_ii import RULE as PERMISSION
 from src.grammar_rules.rules.tests.test_grammar_te_iru import sentence, tok

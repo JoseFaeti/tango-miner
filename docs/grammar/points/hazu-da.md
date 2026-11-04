@@ -9,7 +9,7 @@ expectation or inference. Covered: predicate-attached split はず with selected
 ## Implementation
 
 - Rule: [src/grammar_rules/rules/hazu_da.py](../../../src/grammar_rules/rules/hazu_da.py)
-- Tests: [tests/test_grammar_hazu_da.py](../../../tests/test_grammar_hazu_da.py)
+- Tests: [tests/test_grammar_hazu_da.py](../../../src/grammar_rules/rules/tests/test_grammar_hazu_da.py)
 - Registry identity: `hazu_da`
 - Registry and stable identities: [registry.py](../../../src/grammar_rules/registry.py), [GrammarConstants.py](../../../src/GrammarConstants.py).
 

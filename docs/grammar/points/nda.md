@@ -13,7 +13,7 @@ explanatory construction.
 ## Implementation
 
 - Rule: [src/grammar_rules/rules/nda.py](../../../src/grammar_rules/rules/nda.py)
-- Tests: [tests/test_grammar_nda.py](../../../tests/test_grammar_nda.py)
+- Tests: [tests/test_grammar_nda.py](../../../src/grammar_rules/rules/tests/test_grammar_nda.py)
 - Registry identity: `explanatory_nda`
 - Registry and stable identities: [registry.py](../../../src/grammar_rules/registry.py), [GrammarConstants.py](../../../src/GrammarConstants.py).
 

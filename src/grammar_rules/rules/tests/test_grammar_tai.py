@@ -4,7 +4,7 @@ from src.Artifact import Artifact
 from src.Grammar import GrammarStep
 from src.grammar_rules.rules.tai import match_tai
 from src.GrammarConstants import TAI_GRAMMAR_EXPRESSION as EXPRESSION
-from src.GrammarShadow import aligned_tokens
+from src.grammar_rules.alignment import aligned_tokens
 from src.steps.AddWordsToAnkiStep import export_words_to_anki
 from src.steps.tests.test_add_words_to_anki_step import note
 from src.grammar_rules.rules.tests.test_grammar_te_iru import sentence, tok

@@ -13,7 +13,7 @@ movement away or change continuing onward.
 ## Implementation
 
 - Rule: [src/grammar_rules/rules/te_iku.py](../../../src/grammar_rules/rules/te_iku.py)
-- Tests: [tests/test_grammar_te_iku.py](../../../tests/test_grammar_te_iku.py)
+- Tests: [tests/test_grammar_te_iku.py](../../../src/grammar_rules/rules/tests/test_grammar_te_iku.py)
 - Registry identity: `te_iku`
 - Registry and stable identities: [registry.py](../../../src/grammar_rules/registry.py), [GrammarConstants.py](../../../src/GrammarConstants.py).
 

@@ -13,7 +13,7 @@ completion or unintended result.
 ## Implementation
 
 - Rule: [src/grammar_rules/rules/te_shimau.py](../../../src/grammar_rules/rules/te_shimau.py)
-- Tests: [tests/test_grammar_te_shimau.py](../../../tests/test_grammar_te_shimau.py)
+- Tests: [tests/test_grammar_te_shimau.py](../../../src/grammar_rules/rules/tests/test_grammar_te_shimau.py)
 - Registry identity: `te_shimau`
 - Registry and stable identities: [registry.py](../../../src/grammar_rules/registry.py), [GrammarConstants.py](../../../src/GrammarConstants.py).
 

@@ -17,5 +17,5 @@ warrants `[~]` without implying that this semantic scope is complete.
 ## Implementation
 
 - Rule: [hazu_da.py](../../../src/grammar_rules/rules/hazu_da.py)
-- Tests: [test_grammar_hazu_da.py](../../../tests/test_grammar_hazu_da.py)
+- Tests: [test_grammar_hazu_da.py](../../../src/grammar_rules/rules/tests/test_grammar_hazu_da.py)
 - Registry identity: `hazu_da`

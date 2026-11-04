@@ -9,7 +9,7 @@ obligation. Covered: selected complete present and past, plain and polite negati
 ## Implementation
 
 - Rule: [src/grammar_rules/rules/obligation.py](../../../src/grammar_rules/rules/obligation.py)
-- Tests: [tests/test_grammar_obligation.py](../../../tests/test_grammar_obligation.py)
+- Tests: [tests/test_grammar_obligation.py](../../../src/grammar_rules/rules/tests/test_grammar_obligation.py)
 - Registry identity: `obligation`
 - Registry and stable identities: [registry.py](../../../src/grammar_rules/registry.py), [GrammarConstants.py](../../../src/GrammarConstants.py).
 

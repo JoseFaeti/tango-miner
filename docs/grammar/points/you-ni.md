@@ -12,7 +12,7 @@ predicate-attached purpose, manner, resemblance or instruction.
 ## Implementation
 
 - Rule: [src/grammar_rules/rules/you_ni.py](../../../src/grammar_rules/rules/you_ni.py)
-- Tests: [tests/test_grammar_you_ni.py](../../../tests/test_grammar_you_ni.py)
+- Tests: [tests/test_grammar_you_ni.py](../../../src/grammar_rules/rules/tests/test_grammar_you_ni.py)
 - Registry identity: `you_ni`
 - Registry and stable identities: [registry.py](../../../src/grammar_rules/registry.py), [GrammarConstants.py](../../../src/GrammarConstants.py).
 

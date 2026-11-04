@@ -3,7 +3,7 @@ import unittest
 from src.Artifact import Artifact
 from src.Grammar import ExcludeGrammarTokensStep, GrammarStep
 from src.GrammarConstants import NAGARA_GRAMMAR_EXPRESSION as EXPRESSION
-from src.GrammarShadow import aligned_tokens
+from src.grammar_rules.alignment import aligned_tokens
 from src.grammar_rules.rules.nagara import match_nagara
 from src.steps.AddWordsToAnkiStep import export_words_to_anki
 from src.steps.tests.test_add_words_to_anki_step import note
