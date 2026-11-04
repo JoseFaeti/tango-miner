@@ -1,4 +1,5 @@
 """Explicit registry of grammar rules."""
+from src.grammar_rules.rules.kedo_keredomo.index import RULE as KEDO
 from src.grammar_rules.rules.taritarisuru.index import RULE as TARITARISURU
 from src.grammar_rules.rules.kara_node.index import RULE as KARA_NODE
 from src.grammar_rules.rules.te_benefactive.index import RULE as TE_BENEFACTIVE
@@ -47,7 +48,7 @@ from src.grammar_rules.rules.yasui_nikui.index import RULE as YASUI_NIKUI
 
 RULES = (NAGARA, TAGARU, WAKE_DA, WAKE_NEGATIVE, HAZU_DA, APPEARANCE, HEARSAY, TE_MO, NARA, BA, YOU_DA, KOTO_NI_SURU, KOTO_NI_NARU, TE_WA_IKENAI, TE_MIRU, TE_OKU, TE_MO_II, OBLIGATION, TO_OMOU, YOU_NI, KOTO_GA_ARU_OCCASIONAL, KOTO_GA_ARU, TE_IKU, TARA, NAI, TE_KURU, TE_IRU, NDA, TAI, TE_SHIMAU, MONONO,)
 
-RULES = (KARA_NODE, TARITARISURU, YASUI_NIKUI, KOTO_GA_DEKIRU, TA_HOU_GA_II, ELLIPTICAL_OBLIGATION, NAKUTEMOII, TE_HOSHII, TE_BENEFACTIVE, NAIDE, TE_KUDASAI, KAMOSHIRENAI, NONI, TAME_NI, TE_ARU,) + RULES
+RULES = (KEDO, KARA_NODE, TARITARISURU, YASUI_NIKUI, KOTO_GA_DEKIRU, TA_HOU_GA_II, ELLIPTICAL_OBLIGATION, NAKUTEMOII, TE_HOSHII, TE_BENEFACTIVE, NAIDE, TE_KUDASAI, KAMOSHIRENAI, NONI, TAME_NI, TE_ARU,) + RULES
 
 if frozenset(rule.expression for rule in RULES) != GRAMMAR_EXPRESSIONS:
     raise ValueError('Registered grammar identities and Anki protections must match')

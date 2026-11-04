@@ -4,6 +4,7 @@ These points have existing implementations with remaining work described in thei
 linked specifications. Their order retains the previous queue order and does not
 indicate measured frequency.
 
+- [~] [〜けど / 〜けれども](points/kedo-keredomo.md)
 - [~] [〜から / 〜ので](points/kara-node.md)
 - [~] [〜たり〜たりする](points/taritarisuru.md)
 - [~] [〜やすい / 〜にくい](points/yasui-nikui.md)
