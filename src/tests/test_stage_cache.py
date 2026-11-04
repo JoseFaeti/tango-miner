@@ -10,9 +10,9 @@ from src.Pipeline import Pipeline
 from src.StageCache import StageCache, MERGE_SOURCE_DEPENDENCIES, _source_fingerprint, _pack_token, _unpack_token, _input_key_data, _bytes
 from src.TokenProvenance import TokenComponent
 from src.TokenizedSentence import TokenizedSentence
-from src.steps.MergeTokensStep import MergeTokensStep
-from src.steps.TokenizeStep import RawTokenizeStep
-from src.steps.BuildWordStatsStep import BuildWordStatsStep
+from src.steps.MergeTokensStep.index import MergeTokensStep
+from src.steps.TokenizeStep.index import RawTokenizeStep
+from src.steps.BuildWordStatsStep.index import BuildWordStatsStep
 
 
 def sentence(name, text):
@@ -81,7 +81,7 @@ class StageCacheTests(unittest.TestCase):
                 cache.process(step, Artifact(inputs))
                 self.assertEqual(cache.stats['hits'], 1)
                 self.assertEqual(process.call_count, 1)
-                (root / 'steps' / 'MergeTokensStep.py').write_text('changed', encoding='utf8')
+                (root / 'steps' / 'MergeTokensStep' / 'index.py').write_text('changed', encoding='utf8')
                 cache = StageCache(Path(tmp) / 'cache', dependencies)
                 cache.process(step, Artifact(inputs))
                 self.assertEqual(cache.stats['misses'], 1)

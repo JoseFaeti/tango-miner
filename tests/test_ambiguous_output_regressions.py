@@ -8,9 +8,9 @@ silently changes the displayed source form into an unrelated dictionary word.
 
 import unittest
 
-from src.steps.MergeTokensStep import combine_tokens_jmdict, get_jmdict
-from src.steps.FilterFrequencyStep import filter_useful_words
-from src.steps.TokenizeStep import (
+from src.steps.MergeTokensStep.index import combine_tokens_jmdict, get_jmdict
+from src.steps.FilterFrequencyStep.index import filter_useful_words
+from src.steps.TokenizeStep.index import (
     TOKENIZER_MODE,
     get_tokenizer,
     sudachi_node_to_dict,
@@ -59,8 +59,8 @@ class AmbiguousOutputRegressionTests(unittest.TestCase):
                 self.assertIsNone(self.jmdict.get_most_common_definition(word, component_counts=good[word].component_counts))
 
     def test_sentence_initial_shikashi_uses_only_source_supported_examples(self):
-        from src.steps.AddDefinitionsStep import add_and_filter_for_definitions
-        from src.steps.AttachSentencesStep import attach_sentences
+        from src.steps.AddDefinitionsStep.index import add_and_filter_for_definitions
+        from src.steps.AttachSentencesStep.index import attach_sentences
 
         supported = 'しかし、そういえば昔、悪い夢を見たことがあるな。'
         unsupported = 'しかしその塔からもすでに逃げてしまったかも知れんな。'
@@ -79,8 +79,8 @@ class AmbiguousOutputRegressionTests(unittest.TestCase):
         self.assertIsNone(self.jmdict.get_most_common_definition('しかし', component_counts=alone['しかし'].component_counts))
 
     def test_hazu_expectation_is_selected_from_supported_occurrences(self):
-        from src.steps.AddDefinitionsStep import add_and_filter_for_definitions
-        from src.steps.AttachSentencesStep import attach_sentences
+        from src.steps.AddDefinitionsStep.index import add_and_filter_for_definitions
+        from src.steps.AttachSentencesStep.index import attach_sentences
 
         supported = 'これで人々はみな心を取り戻したはず。'
         unsupported = '矢のはずを弦にかけて狙いを定めた。'
@@ -151,7 +151,7 @@ class AmbiguousOutputRegressionTests(unittest.TestCase):
                 self.assertIn(expected, words)
 
     def test_boundary_repairs_preserve_original_components_and_controls(self):
-        from src.steps.MergeTokensStep import _repair_chigee_boundary, _repair_warui_koto_boundary
+        from src.steps.MergeTokensStep.index import _repair_chigee_boundary, _repair_warui_koto_boundary
         colloquial = raw_tokens('それはちげぇよ。')
         repaired = _repair_chigee_boundary(colloquial)
         candidate = next(t for t in repaired if t['lemma'] == 'ちげぇ')
@@ -448,8 +448,8 @@ class AmbiguousOutputRegressionTests(unittest.TestCase):
                 self.assertIn(expected, result)
 
     def test_explanatory_nda_uses_only_supported_occurrences_as_examples(self):
-        from src.steps.AddDefinitionsStep import add_and_filter_for_definitions
-        from src.steps.AttachSentencesStep import attach_sentences
+        from src.steps.AddDefinitionsStep.index import add_and_filter_for_definitions
+        from src.steps.AttachSentencesStep.index import attach_sentences
         sentences = ['ここに入ってたんだ。', 'あの人は昨日の夜に死んだ。', 'んだ、そうだと思うよ。']
         words, segments = tokenize(sentences, tag='fixture')
         self.assertIn('んだ', words)
@@ -577,8 +577,8 @@ class AmbiguousOutputRegressionTests(unittest.TestCase):
                 self.assertEqual(sentence[start:end], segments[0].lemma_surfaces['できる'])
 
     def test_dekita_locative_example_attaches_to_verb(self):
-        from src.steps.AddDefinitionsStep import add_and_filter_for_definitions
-        from src.steps.AttachSentencesStep import attach_sentences
+        from src.steps.AddDefinitionsStep.index import add_and_filter_for_definitions
+        from src.steps.AttachSentencesStep.index import attach_sentences
 
         text = 'すぐそこにできた穴から神殿へ行ける。'
         words, sentences = tokenize([text, '彼はできた人だ。', 'できた！'])
@@ -603,8 +603,8 @@ class AmbiguousOutputRegressionTests(unittest.TestCase):
                 self.assertNotIn('参った', words)
 
     def test_dekita_prenominal_definition_uses_supported_examples_only(self):
-        from src.steps.AddDefinitionsStep import add_and_filter_for_definitions
-        from src.steps.AttachSentencesStep import attach_sentences
+        from src.steps.AddDefinitionsStep.index import add_and_filter_for_definitions
+        from src.steps.AttachSentencesStep.index import attach_sentences
 
         supported = '彼はとてもできた人だと思います。'
         unsupported = 'できた作品を見せてください。'

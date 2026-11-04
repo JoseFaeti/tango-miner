@@ -24,27 +24,27 @@ from src.ConsoleProgress import ConsoleProgress
 from src.RunConfig import resolve_config
 from src.RunArchive import write_stage_record, create_run_archive, collect_dependencies, write_run_summary
 from src.RunReport import write_run_report
-from src.steps.CompareOutputStep import CompareOutputStep
+from src.steps.CompareOutputStep.index import CompareOutputStep
 from src.StageCache import StageCache
 
-from src.steps.AddDefinitionsStep import AddDefinitionsStep
-from src.steps.AddWordsToAnkiStep import AddWordsToAnkiStep
-from src.steps.AttachSentencesStep import AttachSentencesStep
-from src.steps.GatherInputFilesStep import GatherInputFilesStep
-from src.steps.ExtractSentencesStep import ExtractSentencesStep
-from src.steps.NormalizeSentences import NormalizeSentences
-from src.steps.ProcessingStep import ProcessingStep
-from src.steps.ReadFilesStep import ReadFilesStep
-from src.steps.ScoreWordStep import ScoreWordStep
-from src.steps.TokenizeStep import RawTokenizeStep
-from src.steps.MergeTokensStep import MergeTokensStep
-from src.steps.BuildWordStatsStep import BuildWordStatsStep
-from src.steps.FilterFrequencyStep import FilterFrequencyStep
-from src.steps.WriteOutputStep import WriteOutputStep
-from src.steps.OccurrenceDiagnosticsStep import OccurrenceDiagnosticsStep
+from src.steps.AddDefinitionsStep.index import AddDefinitionsStep
+from src.steps.AddWordsToAnkiStep.index import AddWordsToAnkiStep
+from src.steps.AttachSentencesStep.index import AttachSentencesStep
+from src.steps.GatherInputFilesStep.index import GatherInputFilesStep
+from src.steps.ExtractSentencesStep.index import ExtractSentencesStep
+from src.steps.NormalizeSentences.index import NormalizeSentences
+from src.steps.ProcessingStep.index import ProcessingStep
+from src.steps.ReadFilesStep.index import ReadFilesStep
+from src.steps.ScoreWordStep.index import ScoreWordStep
+from src.steps.TokenizeStep.index import RawTokenizeStep
+from src.steps.MergeTokensStep.index import MergeTokensStep
+from src.steps.BuildWordStatsStep.index import BuildWordStatsStep
+from src.steps.FilterFrequencyStep.index import FilterFrequencyStep
+from src.steps.WriteOutputStep.index import WriteOutputStep
+from src.steps.OccurrenceDiagnosticsStep.index import OccurrenceDiagnosticsStep
 from src.Grammar import GrammarStep, GrammarPositionStep, AddGrammarCardsStep, ExcludeGrammarTokensStep
 
-from src.steps.debug.DumpSentences import DumpSentences
+from src.steps.debug.DumpSentences.index import DumpSentences
 
 
 MIN_FREQUENCY_DEFAULT = 4

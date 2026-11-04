@@ -4,8 +4,8 @@ from src.Artifact import Artifact
 from src.Grammar import GrammarStep, ExcludeGrammarTokensStep
 from src.grammar_rules.alignment import aligned_tokens
 from src.grammar_rules.rules.to_omou.index import RULE, match_to_omou
-from src.steps.BuildWordStatsStep import build_word_stats
-from src.steps.MergeTokensStep import combine_tokens_jmdict
+from src.steps.BuildWordStatsStep.index import build_word_stats
+from src.steps.MergeTokensStep.index import combine_tokens_jmdict
 from unittest.mock import patch
 from src.grammar_rules.rules.te_iru.test_index import sentence, tok
 
@@ -64,8 +64,8 @@ class ToOmouTests(unittest.TestCase):
         merged = [dict(surface='行くと思う', lemma='行くと思う', pos=('exp',),
                        analysis_rule='jmdict_surface_merge'), source.tokens[-1]]
         stage = GrammarStep(rules=(RULE,), prefer_expressions=True)
-        with patch('src.steps.MergeTokensStep.get_jmdict'), \
-             patch('src.steps.MergeTokensStep.combine_tokens_jmdict', return_value=merged):
+        with patch('src.steps.MergeTokensStep.index.get_jmdict'), \
+             patch('src.steps.MergeTokensStep.index.combine_tokens_jmdict', return_value=merged):
             data = stage.process(Artifact([source]))
         data = ExcludeGrammarTokensStep(stage).process(data)
         self.assertEqual(stage.occurrences[RULE.id].count, 0)

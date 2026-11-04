@@ -2,9 +2,9 @@ import unittest
 from unittest.mock import patch
 
 from src.GrammarConstants import GRAMMAR_EXPRESSIONS
-from src.steps.AddWordsToAnkiStep import export_words_to_anki
+from src.steps.AddWordsToAnkiStep.index import export_words_to_anki
 from tests.helpers import make_stats
-from src.steps.tests.test_add_words_to_anki_step import note
+from src.steps.AddWordsToAnkiStep.test_index import note
 
 
 class GrammarIdentityMigrationTests(unittest.TestCase):

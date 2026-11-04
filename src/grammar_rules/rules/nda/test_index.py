@@ -6,8 +6,8 @@ from src.grammar_rules.rules.nda.index import match_nda
 from src.grammar_rules.alignment import aligned_tokens
 from src.GrammarConstants import NDA_GRAMMAR_EXPRESSION as EXPRESSION
 from src.grammar_rules.rules.te_iru.test_index import sentence, tok
-from src.steps.tests.test_add_words_to_anki_step import note
-from src.steps.AddWordsToAnkiStep import export_words_to_anki
+from src.steps.AddWordsToAnkiStep.test_index import note
+from src.steps.AddWordsToAnkiStep.index import export_words_to_anki
 
 
 class NdaCardTests(unittest.TestCase):

@@ -7,7 +7,7 @@ from src.Artifact import Artifact
 from src.Pipeline import Pipeline
 from src.PipelineStep import PipelineStep
 from src.RunArchive import write_stage_record
-from src.steps.ProcessingStep import ProcessingStep
+from src.steps.ProcessingStep.index import ProcessingStep
 
 
 class AppendStep(PipelineStep):

@@ -11,7 +11,7 @@ from src.RunArchive import create_run_archive, collect_dependencies, write_run_s
 from src.RunConfig import RunConfig, TokenizerConfig, DictionaryConfig
 from dataclasses import replace
 from unittest.mock import patch
-from src.steps.GatherInputFilesStep import GatherInputFilesStep
+from src.steps.GatherInputFilesStep.index import GatherInputFilesStep
 
 
 class RunArchiveTests(unittest.TestCase):

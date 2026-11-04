@@ -6,7 +6,7 @@ from pathlib import Path
 
 from src.Artifact import Artifact
 from src.RunComparison import build_change_report, load_run
-from src.steps.CompareOutputStep import CompareOutputStep
+from src.steps.CompareOutputStep.index import CompareOutputStep
 from scripts.tests.test_compare_runs import make_run
 
 

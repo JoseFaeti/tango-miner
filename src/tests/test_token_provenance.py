@@ -7,8 +7,8 @@ from pathlib import Path
 from src.TokenizedSentence import TokenizedSentence
 from src.Artifact import Artifact
 from src.Pipeline import Pipeline
-from src.steps.BuildWordStatsStep import build_word_stats
-from src.steps.MergeTokensStep import combine_tokens_jmdict, MergeTokensStep, get_jmdict, _is_split_kana_noun
+from src.steps.BuildWordStatsStep.index import build_word_stats
+from src.steps.MergeTokensStep.index import combine_tokens_jmdict, MergeTokensStep, get_jmdict, _is_split_kana_noun
 
 
 def token(surface, lemma, pos):
@@ -29,7 +29,7 @@ class Dictionary:
 
 class ProvenanceTests(unittest.TestCase):
     def test_karai_source_boundaries_and_adjective_controls(self):
-        from src.steps.TokenizeStep import get_tokenizer, TOKENIZER_MODE, sudachi_node_to_dict
+        from src.steps.TokenizeStep.index import get_tokenizer, TOKENIZER_MODE, sudachi_node_to_dict
 
         cases = [
             ('さっさと虹色の枝ってのをいただいてこの暑い国からズラかろうぜ。', False, 'ズラかる'),
@@ -68,9 +68,9 @@ class ProvenanceTests(unittest.TestCase):
                 self.assertFalse(_is_split_kana_noun(tokens, definitions))
 
     def test_dictionary_cache_uses_requested_path(self):
-        with patch("src.steps.MergeTokensStep._jmdict", None), \
-             patch("src.steps.MergeTokensStep._jmdict_path", None), \
-             patch("src.steps.MergeTokensStep.JMDict") as dictionary:
+        with patch("src.steps.MergeTokensStep.index._jmdict", None), \
+             patch("src.steps.MergeTokensStep.index._jmdict_path", None), \
+             patch("src.steps.MergeTokensStep.index.JMDict") as dictionary:
             first = get_jmdict("first.xml")
             self.assertIs(first, get_jmdict("first.xml"))
             get_jmdict("second.xml")
@@ -84,9 +84,9 @@ class ProvenanceTests(unittest.TestCase):
             try:
                 os.chdir(directory)
                 Path("config.toml").write_text('[dictionary]\njmdict_path = "data/custom.xml"\n')
-                with patch("src.steps.MergeTokensStep._jmdict", None), \
-                     patch("src.steps.MergeTokensStep._jmdict_path", None), \
-                     patch("src.steps.MergeTokensStep.JMDict") as dictionary:
+                with patch("src.steps.MergeTokensStep.index._jmdict", None), \
+                     patch("src.steps.MergeTokensStep.index._jmdict_path", None), \
+                     patch("src.steps.MergeTokensStep.index.JMDict") as dictionary:
                     get_jmdict()
                     dictionary.assert_called_once_with(Path("data/custom.xml").resolve())
                     get_jmdict("explicit.xml")
@@ -104,7 +104,7 @@ class ProvenanceTests(unittest.TestCase):
                token("で", "で", ["助詞", "*"]),
                token("ね", "ね", ["助詞", "*"])]
         sentence = TokenizedSentence("ないでね", "tag", Path("source"), raw)
-        with patch("src.steps.MergeTokensStep.get_jmdict", return_value=ThreeTokenDictionary()):
+        with patch("src.steps.MergeTokensStep.index.get_jmdict", return_value=ThreeTokenDictionary()):
             short = Pipeline([MergeTokensStep(max_lookahead=2)]).run(Artifact([sentence])).data[0].tokens
             long = Pipeline([MergeTokensStep(max_lookahead=3)]).run(Artifact([sentence])).data[0].tokens
         self.assertEqual([item["surface"] for item in short], ["ないで", "ね"])
@@ -135,7 +135,7 @@ class ProvenanceTests(unittest.TestCase):
         self.assertEqual(words['ないで'].tags, {'tag'})
 
     def test_repeated_lemma_preserves_each_analysis_for_example_selection(self):
-        from src.steps.AttachSentencesStep import attach_sentences
+        from src.steps.AttachSentencesStep.index import attach_sentences
         raw = [token('ようやく', 'ようやく', ['副詞', '*']),
                token('ようやく', 'ようやく', ['名詞', '*'])]
         words, segments = build_word_stats([

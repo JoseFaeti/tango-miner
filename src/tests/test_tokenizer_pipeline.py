@@ -8,9 +8,9 @@ from src.Pipeline import Pipeline
 from src.TokenizedSentence import TokenizedSentence
 from src.TokenCache import TokenCache
 from src.RunConfig import TokenizerConfig
-from src.steps.BuildWordStatsStep import BuildWordStatsStep
-from src.steps.MergeTokensStep import MergeTokensStep
-from src.steps.TokenizeStep import (RawTokenizeStep, tokenize_raw_sentences, tokenizer_fingerprint,
+from src.steps.BuildWordStatsStep.index import BuildWordStatsStep
+from src.steps.MergeTokensStep.index import MergeTokensStep
+from src.steps.TokenizeStep.index import (RawTokenizeStep, tokenize_raw_sentences, tokenizer_fingerprint,
                                     tokenizer_source_fingerprint, TOKENIZER_SOURCE_DEPENDENCIES, get_tokenizer)
 
 
@@ -46,10 +46,10 @@ class TokenizerPipelineTests(unittest.TestCase):
             token = {"surface": "猫", "lemma": "猫", "base_form": "猫", "reading": "ねこ", "pos": ("名詞",)}
             tokenizer = Mock()
             tokenizer.tokenize.return_value = [object()]
-            with patch("src.steps.TokenizeStep.tokenizer_source_fingerprint", side_effect=["first", "first", "changed"]), \
-                 patch("src.steps.TokenizeStep.appdirs.user_cache_dir", return_value=tmp), \
-                 patch("src.steps.TokenizeStep.get_tokenizer", return_value=tokenizer), \
-                 patch("src.steps.TokenizeStep.sudachi_node_to_dict", return_value=token):
+            with patch("src.steps.TokenizeStep.index.tokenizer_source_fingerprint", side_effect=["first", "first", "changed"]), \
+                 patch("src.steps.TokenizeStep.index.appdirs.user_cache_dir", return_value=tmp), \
+                 patch("src.steps.TokenizeStep.index.get_tokenizer", return_value=tokenizer), \
+                 patch("src.steps.TokenizeStep.index.sudachi_node_to_dict", return_value=token):
                 for _ in range(3):
                     Pipeline([RawTokenizeStep(config=settings)]).run(Artifact([(source, ["猫"])], tmpdir=root))
             self.assertEqual(tokenizer.tokenize.call_count, 2)
@@ -91,8 +91,8 @@ class TokenizerPipelineTests(unittest.TestCase):
             token = {"surface": "猫", "lemma": "猫", "base_form": "猫", "reading": "ねこ", "pos": ("名詞",)}
             tokenizer = Mock()
             tokenizer.tokenize.return_value = [object()]
-            with patch("src.steps.TokenizeStep.get_tokenizer", return_value=tokenizer), \
-                 patch("src.steps.TokenizeStep.sudachi_node_to_dict", return_value=token):
+            with patch("src.steps.TokenizeStep.index.get_tokenizer", return_value=tokenizer), \
+                 patch("src.steps.TokenizeStep.index.sudachi_node_to_dict", return_value=token):
                 tokenize_raw_sentences(["猫"], tag="a", source_path=source, cache=cache)
                 result = tokenize_raw_sentences(["犬", "猫"], tag="b", source_path=source, cache=cache)
                 cached = tokenize_raw_sentences(["犬", "猫"], tag="c", source_path=source, cache=cache)
@@ -107,11 +107,11 @@ class TokenizerPipelineTests(unittest.TestCase):
             path.write_text("{}", encoding="utf-8")
             first_config = TokenizerConfig(config_path=str(path), dictionary="full")
             second_config = TokenizerConfig(config_path=str(path), dictionary="small")
-            with patch("src.steps.TokenizeStep._tokenizer", None), \
-                 patch("src.steps.TokenizeStep._tokenizer_identity", None), \
-                 patch("src.steps.TokenizeStep._lemma_reading_cache", {"old": "reading"}) as readings, \
-                 patch("src.steps.TokenizeStep.tokenizer_fingerprint", side_effect=lambda config: config.dictionary), \
-                 patch("src.steps.TokenizeStep.dictionary.Dictionary") as factory:
+            with patch("src.steps.TokenizeStep.index._tokenizer", None), \
+                 patch("src.steps.TokenizeStep.index._tokenizer_identity", None), \
+                 patch("src.steps.TokenizeStep.index._lemma_reading_cache", {"old": "reading"}) as readings, \
+                 patch("src.steps.TokenizeStep.index.tokenizer_fingerprint", side_effect=lambda config: config.dictionary), \
+                 patch("src.steps.TokenizeStep.index.dictionary.Dictionary") as factory:
                 first = get_tokenizer(first_config)
                 self.assertIs(first, get_tokenizer(first_config))
                 self.assertEqual(readings, {})
@@ -124,9 +124,9 @@ class TokenizerPipelineTests(unittest.TestCase):
 
         analyzer = Mock()
         old_dictionary = SimpleNamespace(create=Mock(return_value=analyzer))
-        with patch("src.steps.TokenizeStep._tokenizer", None), \
-             patch("src.steps.TokenizeStep._tokenizer_identity", None), \
-             patch("src.steps.TokenizeStep.dictionary.Dictionary", return_value=old_dictionary):
+        with patch("src.steps.TokenizeStep.index._tokenizer", None), \
+             patch("src.steps.TokenizeStep.index._tokenizer_identity", None), \
+             patch("src.steps.TokenizeStep.index.dictionary.Dictionary", return_value=old_dictionary):
             self.assertIs(get_tokenizer(identity="older-sudachi"), analyzer)
         old_dictionary.create.assert_called_once_with()
 
@@ -141,10 +141,10 @@ class TokenizerPipelineTests(unittest.TestCase):
             config_b = TokenizerConfig(config_path=str(config_path), dictionary="small")
             tokenizer = Mock()
             tokenizer.tokenize.return_value = [object()]
-            with patch("src.steps.TokenizeStep.tokenizer_fingerprint", side_effect=lambda config: config.dictionary), \
-                 patch("src.steps.TokenizeStep.appdirs.user_cache_dir", return_value=str(cache_dir)), \
-                 patch("src.steps.TokenizeStep.get_tokenizer", return_value=tokenizer), \
-                 patch("src.steps.TokenizeStep.sudachi_node_to_dict", return_value={"surface": "猫", "lemma": "猫", "base_form": "猫", "reading": "ねこ", "pos": ("名詞",)}):
+            with patch("src.steps.TokenizeStep.index.tokenizer_fingerprint", side_effect=lambda config: config.dictionary), \
+                 patch("src.steps.TokenizeStep.index.appdirs.user_cache_dir", return_value=str(cache_dir)), \
+                 patch("src.steps.TokenizeStep.index.get_tokenizer", return_value=tokenizer), \
+                 patch("src.steps.TokenizeStep.index.sudachi_node_to_dict", return_value={"surface": "猫", "lemma": "猫", "base_form": "猫", "reading": "ねこ", "pos": ("名詞",)}):
                 for config in (config_a, config_a, config_b):
                     Pipeline([RawTokenizeStep(config=config)]).run(Artifact([(source, ["猫"])], tmpdir=Path(tmp)))
             self.assertEqual(tokenizer.tokenize.call_count, 2)
@@ -161,8 +161,8 @@ class TokenizerPipelineTests(unittest.TestCase):
             tokenizer = Mock()
             tokenizer.tokenize.return_value = [object()]
             cache_stats = {"hits": 0, "misses": 0, "disabled": 0}
-            with patch("src.steps.TokenizeStep.get_tokenizer", return_value=tokenizer), \
-                 patch("src.steps.TokenizeStep.sudachi_node_to_dict", return_value=new):
+            with patch("src.steps.TokenizeStep.index.get_tokenizer", return_value=tokenizer), \
+                 patch("src.steps.TokenizeStep.index.sudachi_node_to_dict", return_value=new):
                 cached = tokenize_raw_sentences(["猫"], tag="tag", source_path=source, cache=cache, cache_stats=cache_stats)
                 self.assertEqual(cached[0].tokens, [old])
                 tokenizer.tokenize.assert_not_called()
@@ -171,7 +171,7 @@ class TokenizerPipelineTests(unittest.TestCase):
                 tokenizer.tokenize.assert_called_once()
                 self.assertEqual(cache_stats, {"hits": 1, "misses": 1, "disabled": 0})
             reloaded = TokenCache(cache_dir, "version")
-            with patch("src.steps.TokenizeStep.get_tokenizer") as get_tokenizer:
+            with patch("src.steps.TokenizeStep.index.get_tokenizer") as get_tokenizer:
                 result = tokenize_raw_sentences(["猫"], tag="tag", source_path=source, cache=reloaded)
             self.assertEqual(result[0].tokens, [new])
             get_tokenizer.assert_not_called()
@@ -184,10 +184,10 @@ class TokenizerPipelineTests(unittest.TestCase):
             tokenizer = Mock()
             tokenizer.tokenize.return_value = [object()]
             events = []
-            with patch("src.steps.TokenizeStep.tokenizer_fingerprint", return_value="version"), \
-                 patch("src.steps.TokenizeStep.appdirs.user_cache_dir", return_value=tmp), \
-                 patch("src.steps.TokenizeStep.get_tokenizer", return_value=tokenizer), \
-                 patch("src.steps.TokenizeStep.sudachi_node_to_dict", return_value=token):
+            with patch("src.steps.TokenizeStep.index.tokenizer_fingerprint", return_value="version"), \
+                 patch("src.steps.TokenizeStep.index.appdirs.user_cache_dir", return_value=tmp), \
+                 patch("src.steps.TokenizeStep.index.get_tokenizer", return_value=tokenizer), \
+                 patch("src.steps.TokenizeStep.index.sudachi_node_to_dict", return_value=token):
                 for forced, tmpdir in ((False, Path(tmp)), (False, Path(tmp)), (True, Path(tmp)), (False, None)):
                     pipeline = Pipeline([RawTokenizeStep(force_retokenize=forced)],
                                         on_progress=lambda *a, **kw: events.append(kw["additional_text"]))

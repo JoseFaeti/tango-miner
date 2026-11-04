@@ -1,6 +1,6 @@
 import unittest
 
-from src.steps.TokenizeStep import (
+from src.steps.TokenizeStep.index import (
     contains_japanese_script,
     is_japanese_char,
     is_useless,

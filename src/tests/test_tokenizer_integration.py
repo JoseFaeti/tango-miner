@@ -2,7 +2,7 @@
 
 import unittest
 
-from src.steps.TokenizeStep import (
+from src.steps.TokenizeStep.index import (
     TOKENIZER_MODE,
     combine_tokens_jmdict,
     get_jmdict,
@@ -63,7 +63,7 @@ class TokenizerIntegrationTests(unittest.TestCase):
     def test_tokenizer_construction_has_no_deprecation_warning(self):
         import warnings
         from unittest.mock import patch
-        from src.steps import TokenizeStep as tokenize_step
+        from src.steps.TokenizeStep import index as tokenize_step
 
         with patch.object(tokenize_step, "_tokenizer", None), patch.object(tokenize_step, "_tokenizer_identity", None):
             with warnings.catch_warnings():

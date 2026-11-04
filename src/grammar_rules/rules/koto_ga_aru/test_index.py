@@ -106,7 +106,7 @@ class ExperienceTests(unittest.TestCase):
         self.assertTrue(data.data[1].tokens[3].get('grammar_reserved'))
 
     def test_problem_boundary_recovers_dictionary_expression(self):
-        from src.steps.MergeTokensStep import combine_tokens_jmdict
+        from src.steps.MergeTokensStep.index import combine_tokens_jmdict
         class Dictionary:
             def lookup_word(self, word):
                 return [{'senses': [{'pos': ['expressions (phrases, clauses, etc.)']}]}] if word == '困ったこと' else []

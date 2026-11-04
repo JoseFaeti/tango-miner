@@ -54,7 +54,7 @@ class TeIkuTests(unittest.TestCase):
         merged = [source.tokens[0], {'surface': '変わっていった', 'lemma': '変わる',
                   'pos': ('exp',), 'analysis_rule': 'jmdict_surface_merge'}, source.tokens[-1]]
         stage = GrammarStep(rules=(RULE,), prefer_expressions=True)
-        with patch('src.steps.MergeTokensStep.get_jmdict'), patch('src.steps.MergeTokensStep.combine_tokens_jmdict', return_value=merged):
+        with patch('src.steps.MergeTokensStep.index.get_jmdict'), patch('src.steps.MergeTokensStep.index.combine_tokens_jmdict', return_value=merged):
             stage.process(Artifact([source]))
         self.assertEqual(stage.occurrences[RULE.id].count, 0)
 

@@ -76,7 +76,7 @@ class TeOkuTests(unittest.TestCase):
         merged = [source.tokens[0], {'surface': '買っておいた', 'lemma': '買う',
                   'pos': ('exp',), 'analysis_rule': 'jmdict_surface_merge'}, source.tokens[-1]]
         stage = GrammarStep(rules=(RULE,), prefer_expressions=True)
-        with patch('src.steps.MergeTokensStep.get_jmdict'), patch('src.steps.MergeTokensStep.combine_tokens_jmdict', return_value=merged):
+        with patch('src.steps.MergeTokensStep.index.get_jmdict'), patch('src.steps.MergeTokensStep.index.combine_tokens_jmdict', return_value=merged):
             stage.process(Artifact([source]))
         self.assertEqual(stage.occurrences[RULE.id].count, 0)
 
@@ -116,15 +116,15 @@ class TeOkuTests(unittest.TestCase):
             with self.subTest(is_expression=is_expression):
                 overlap['dictionary_expression'] = is_expression
                 stage = GrammarStep(rules=(RULE,), prefer_expressions=True)
-                with patch('src.steps.MergeTokensStep.get_jmdict'), patch('src.steps.MergeTokensStep.combine_tokens_jmdict', return_value=merged):
+                with patch('src.steps.MergeTokensStep.index.get_jmdict'), patch('src.steps.MergeTokensStep.index.combine_tokens_jmdict', return_value=merged):
                     stage.process(Artifact([source]))
                 self.assertEqual(stage.occurrences[RULE.id].count, expected)
 
     def test_real_merger_and_lexical_component_evidence(self):
         from src.TokenizedSentence import TokenizedSentence
-        from src.steps.TokenizeStep import tokenize_raw_sentences
-        from src.steps.MergeTokensStep import combine_tokens_jmdict, get_jmdict
-        from src.steps.BuildWordStatsStep import build_word_stats
+        from src.steps.TokenizeStep.index import tokenize_raw_sentences
+        from src.steps.MergeTokensStep.index import combine_tokens_jmdict, get_jmdict
+        from src.steps.BuildWordStatsStep.index import build_word_stats
 
         try:
             dictionary = get_jmdict()
@@ -155,9 +155,9 @@ class TeOkuTests(unittest.TestCase):
 
     def test_archived_overlapping_expressions_and_verb(self):
         from src.TokenizedSentence import TokenizedSentence
-        from src.steps.TokenizeStep import tokenize_raw_sentences
-        from src.steps.MergeTokensStep import combine_tokens_jmdict, get_jmdict
-        from src.steps.BuildWordStatsStep import build_word_stats
+        from src.steps.TokenizeStep.index import tokenize_raw_sentences
+        from src.steps.MergeTokensStep.index import combine_tokens_jmdict, get_jmdict
+        from src.steps.BuildWordStatsStep.index import build_word_stats
 
         try:
             dictionary = get_jmdict()

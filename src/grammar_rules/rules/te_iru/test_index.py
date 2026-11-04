@@ -10,9 +10,9 @@ from src.grammar_rules.rules.te_iru.index import match_te_iru
 from src.grammar_rules.alignment import aligned_tokens
 from src.GrammarConstants import TE_IRU_GRAMMAR_EXPRESSION as EXPRESSION
 from src.TokenizedSentence import TokenizedSentence
-from src.steps.AddWordsToAnkiStep import export_words_to_anki
+from src.steps.AddWordsToAnkiStep.index import export_words_to_anki
 from tests.helpers import make_stats
-from src.steps.tests.test_add_words_to_anki_step import note
+from src.steps.AddWordsToAnkiStep.test_index import note
 from tango_miner import process_script
 
 
@@ -119,8 +119,8 @@ class TeIruCardTests(unittest.TestCase):
     def test_all_matched_sources_reach_shared_scoring_and_sentence_selection(self):
         from src.SegmentedSentence import SegmentedSentence
         from src.RunConfig import SentencesConfig
-        from src.steps.ScoreWordStep import score_words
-        from src.steps.AttachSentencesStep import attach_sentences
+        from src.steps.ScoreWordStep.index import score_words
+        from src.steps.AttachSentencesStep.index import attach_sentences
 
         first = self.valid()
         second_tokens = [{**token, 'surface': token['surface'].replace('今日', '明日')} for token in first.tokens]
@@ -145,9 +145,9 @@ class TeIruCardTests(unittest.TestCase):
 
     def test_grammar_spans_survive_word_collection_and_invalid_sentence_skips(self):
         from src.Grammar import ExcludeGrammarTokensStep
-        from src.steps.BuildWordStatsStep import build_word_stats
-        from src.steps.ScoreWordStep import score_words
-        from src.steps.AttachSentencesStep import attach_sentences
+        from src.steps.BuildWordStatsStep.index import build_word_stats
+        from src.steps.ScoreWordStep.index import score_words
+        from src.steps.AttachSentencesStep.index import attach_sentences
 
         source = self.valid()
         for token in source.tokens:
@@ -277,7 +277,7 @@ class TeIruCardTests(unittest.TestCase):
                     process_script(args)
                     steps = pipeline.call_args.kwargs['steps']
                     self.assertEqual(sum(isinstance(s, GrammarStep) for s in steps), int(enabled))
-                    from src.steps.ScoreWordStep import ScoreWordStep
+                    from src.steps.ScoreWordStep.index import ScoreWordStep
                     self.assertEqual(sum(isinstance(s, GrammarPositionStep) for s in steps), int(enabled))
                     self.assertEqual(sum(isinstance(s, AddGrammarCardsStep) for s in steps), int(enabled))
                     if enabled:
@@ -285,7 +285,7 @@ class TeIruCardTests(unittest.TestCase):
                                         next(i for i, s in enumerate(steps) if isinstance(s, ScoreWordStep)))
 
     def test_grammar_uses_merged_positions_and_same_scoring_as_vocabulary(self):
-        from src.steps.ScoreWordStep import score_words
+        from src.steps.ScoreWordStep.index import score_words
         def token(surface, lemma, pos):
             return {'surface': surface, 'lemma': lemma, 'base_form': lemma,
                     'reading': lemma, 'pos': pos}
@@ -316,7 +316,7 @@ class TeIruCardTests(unittest.TestCase):
         self.assertGreater(card.score, 0)
         self.assertEqual(card.score, lexical.score)
         self.assertEqual(card.sentences, [])
-        from src.steps.WriteOutputStep import WriteOutputStep
+        from src.steps.WriteOutputStep.index import WriteOutputStep
         with tempfile.TemporaryDirectory() as temp:
             path = Path(temp) / 'output.csv'
             WriteOutputStep(path).process(Artifact(words))
