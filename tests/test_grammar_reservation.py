@@ -7,7 +7,7 @@ from src.grammar_rules.rules.te_kuru import RULE
 from src.grammar_rules.rules.nda import RULE as NDA_RULE
 from src.steps.MergeTokensStep import combine_tokens_jmdict
 from src.steps.BuildWordStatsStep import build_word_stats
-from tests.test_grammar_te_iru import sentence, tok
+from src.grammar_rules.rules.tests.test_grammar_te_iru import sentence, tok
 
 
 class Dictionary:

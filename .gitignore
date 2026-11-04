@@ -30,3 +30,5 @@ runs/
 # Scripts imported by the test suite and used by development workflows
 !scripts/check_corpus.py
 !scripts/score_sentence_candidates.py
+!scripts/__init__.py
+!scripts/tests/

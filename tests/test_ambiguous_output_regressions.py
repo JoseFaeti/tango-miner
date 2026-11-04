@@ -275,7 +275,7 @@ class AmbiguousOutputRegressionTests(unittest.TestCase):
         from src.Artifact import Artifact
         from src.Grammar import GrammarStep, ExcludeGrammarTokensStep
         from src.grammar_rules.rules.tara import RULE
-        from tests.test_grammar_te_iru import sentence
+        from src.grammar_rules.rules.tests.test_grammar_te_iru import sentence
 
         for text in ['じゃあ気が変わったらまた声をかけてちょうだいね。',
                      'やめとくうか…気が変わったらいつでも来る。']:

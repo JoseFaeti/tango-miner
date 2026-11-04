@@ -4,7 +4,7 @@ from unittest.mock import patch
 from src.GrammarConstants import GRAMMAR_EXPRESSIONS
 from src.steps.AddWordsToAnkiStep import export_words_to_anki
 from tests.helpers import make_stats
-from tests.test_add_words_to_anki_step import note
+from src.steps.tests.test_add_words_to_anki_step import note
 
 
 class GrammarIdentityMigrationTests(unittest.TestCase):
