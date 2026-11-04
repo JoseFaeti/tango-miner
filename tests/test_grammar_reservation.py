@@ -3,11 +3,11 @@ from unittest.mock import patch
 
 from src.Artifact import Artifact
 from src.Grammar import GrammarStep, ExcludeGrammarTokensStep, GrammarRule
-from src.grammar_rules.rules.te_kuru import RULE
-from src.grammar_rules.rules.nda import RULE as NDA_RULE
-from src.steps.MergeTokensStep import combine_tokens_jmdict
-from src.steps.BuildWordStatsStep import build_word_stats
-from tests.test_grammar_te_iru import sentence, tok
+from src.grammar_rules.rules.te_kuru.index import RULE
+from src.grammar_rules.rules.nda.index import RULE as NDA_RULE
+from src.steps.MergeTokensStep.index import combine_tokens_jmdict
+from src.steps.BuildWordStatsStep.index import build_word_stats
+from src.grammar_rules.rules.te_iru.test_index import sentence, tok
 
 
 class Dictionary:
@@ -58,8 +58,8 @@ class GrammarReservationTests(unittest.TestCase):
         merged = [source.tokens[0], {'surface': 'いってきます', 'lemma': 'いってきます',
                   'pos': ('exp', '*'), 'analysis_rule': 'jmdict_surface_merge'}, source.tokens[-1]]
         stage = GrammarStep(rules=(RULE,), prefer_expressions=True)
-        with patch('src.steps.MergeTokensStep.get_jmdict') as get_dictionary, \
-             patch('src.steps.MergeTokensStep.combine_tokens_jmdict', return_value=merged) as merge:
+        with patch('src.steps.MergeTokensStep.index.get_jmdict') as get_dictionary, \
+             patch('src.steps.MergeTokensStep.index.combine_tokens_jmdict', return_value=merged) as merge:
             stage.process(Artifact([source, source, source]))
             self.assertEqual(get_dictionary.call_count, 1)
             self.assertEqual(merge.call_count, 3)
@@ -69,7 +69,7 @@ class GrammarReservationTests(unittest.TestCase):
                             <= stage._performance_entries.keys())
             stage.process(Artifact([source]))
             self.assertEqual(get_dictionary.call_count, 2)
-        with patch('src.steps.MergeTokensStep.get_jmdict') as get_dictionary:
+        with patch('src.steps.MergeTokensStep.index.get_jmdict') as get_dictionary:
             GrammarStep(rules=(), prefer_expressions=True).process(Artifact([source]))
             get_dictionary.assert_not_called()
 
@@ -113,7 +113,7 @@ class GrammarReservationTests(unittest.TestCase):
                 return None
         def run(use_cache):
             stage = GrammarStep(rules=(RULE,), prefer_expressions=True)
-            with patch('src.steps.MergeTokensStep.get_jmdict', return_value=EmptyDictionary()):
+            with patch('src.steps.MergeTokensStep.index.get_jmdict', return_value=EmptyDictionary()):
                 if use_cache:
                     stage.process(Artifact([source, source]))
                 else:
@@ -126,11 +126,11 @@ class GrammarReservationTests(unittest.TestCase):
     def test_archived_expressions_overlap_start_of_grammar(self):
         from pathlib import Path
         from src.TokenizedSentence import TokenizedSentence
-        from src.steps.TokenizeStep import tokenize_raw_sentences
-        from src.steps.MergeTokensStep import combine_tokens_jmdict, get_jmdict
-        from src.steps.BuildWordStatsStep import build_word_stats
-        from src.grammar_rules.rules.sou_da import APPEARANCE
-        from src.grammar_rules.rules.te_mo import RULE as TE_MO
+        from src.steps.TokenizeStep.index import tokenize_raw_sentences
+        from src.steps.MergeTokensStep.index import combine_tokens_jmdict, get_jmdict
+        from src.steps.BuildWordStatsStep.index import build_word_stats
+        from src.grammar_rules.rules.sou_da.index import APPEARANCE
+        from src.grammar_rules.rules.te_mo.index import RULE as TE_MO
 
         try:
             dictionary = get_jmdict()
@@ -162,14 +162,14 @@ class GrammarReservationTests(unittest.TestCase):
         merged = [source.tokens[0], {'surface': 'いってきます', 'lemma': 'いってきます',
                   'pos': ('exp', '*'), 'analysis_rule': 'jmdict_surface_merge'}, source.tokens[-1]]
         stage = GrammarStep(rules=(RULE,), prefer_expressions=True)
-        with patch('src.steps.MergeTokensStep.get_jmdict'), \
-             patch('src.steps.MergeTokensStep.combine_tokens_jmdict', return_value=merged):
+        with patch('src.steps.MergeTokensStep.index.get_jmdict'), \
+             patch('src.steps.MergeTokensStep.index.combine_tokens_jmdict', return_value=merged):
             stage.process(Artifact([source]))
         self.assertEqual(stage.occurrences[RULE.id].count, 0)
         self.assertEqual(stage.spans, {})
 
     def test_negative_at_expression_start_preserves_expression_and_other_negatives(self):
-        from src.grammar_rules.rules.nai import RULE as NAI_RULE
+        from src.grammar_rules.rules.nai.index import RULE as NAI_RULE
         source = sentence('本を読まないといけないが遊ばない。', [
             tok('本を', '本', ('名詞', '普通名詞')),
             tok('読ま', '読む', ('動詞', '一般', '*', '*', '五段', '未然形-一般')),
@@ -190,7 +190,7 @@ class GrammarReservationTests(unittest.TestCase):
             def get_reading(self, entry, word): return word
         dictionary = ExpressionDictionary()
         stage = GrammarStep(rules=(NAI_RULE,), prefer_expressions=True)
-        with patch('src.steps.MergeTokensStep.get_jmdict', return_value=dictionary):
+        with patch('src.steps.MergeTokensStep.index.get_jmdict', return_value=dictionary):
             artifact = stage.process(Artifact([source]))
         self.assertEqual(stage.occurrences[NAI_RULE.id].count, 1)
         tokens = ExcludeGrammarTokensStep(stage).process(artifact).data[0].tokens
@@ -212,8 +212,8 @@ class GrammarReservationTests(unittest.TestCase):
         merged = [source.tokens[0], {'surface': 'なんだって', 'lemma': 'なんだって',
                   'pos': ('exp', '*'), 'analysis_rule': 'jmdict_surface_merge'}, source.tokens[-1]]
         stage = GrammarStep(rules=(NDA_RULE,), prefer_expressions=True)
-        with patch('src.steps.MergeTokensStep.get_jmdict'), \
-             patch('src.steps.MergeTokensStep.combine_tokens_jmdict', return_value=merged):
+        with patch('src.steps.MergeTokensStep.index.get_jmdict'), \
+             patch('src.steps.MergeTokensStep.index.combine_tokens_jmdict', return_value=merged):
             artifact = stage.process(Artifact([source]))
         self.assertEqual(stage.occurrences[NDA_RULE.id].count, 1)
         self.assertEqual(stage.occurrences[NDA_RULE.id].examples[0].surface_form, 'んだ')
@@ -230,8 +230,8 @@ class GrammarReservationTests(unittest.TestCase):
         merged = [source.tokens[0], {'surface': 'そうなんですか', 'lemma': 'そうなんですか',
                   'pos': ('exp', '*'), 'analysis_rule': 'jmdict_surface_merge'}, source.tokens[-1]]
         stage = GrammarStep(rules=(NDA_RULE,), prefer_expressions=True)
-        with patch('src.steps.MergeTokensStep.get_jmdict'), \
-             patch('src.steps.MergeTokensStep.combine_tokens_jmdict', return_value=merged):
+        with patch('src.steps.MergeTokensStep.index.get_jmdict'), \
+             patch('src.steps.MergeTokensStep.index.combine_tokens_jmdict', return_value=merged):
             stage.process(Artifact([source]))
         self.assertEqual(stage.occurrences[NDA_RULE.id].count, 0)
 
@@ -257,7 +257,7 @@ class GrammarReservationTests(unittest.TestCase):
             tok('いる', 'いる', ('動詞', '非自立可能')), tok('よ。', 'よ', ('助詞', '*'))])
         for token in source.tokens:
             token.update(base_form=token['lemma'], reading='ヨミ')
-        from src.grammar_rules.rules.te_iru import RULE as IRU_RULE
+        from src.grammar_rules.rules.te_iru.index import RULE as IRU_RULE
         stage = GrammarStep(rules=(IRU_RULE,))
         art = stage.process(Artifact([source]))
         tokens = ExcludeGrammarTokensStep(stage).process(art).data[0].tokens
@@ -278,7 +278,7 @@ class GrammarReservationTests(unittest.TestCase):
                              for t in combine_tokens_jmdict(ordinary, ExpressionDictionary())))
 
     def test_kigahen_repair_does_not_change_reserved_components(self):
-        from src.steps.MergeTokensStep import _repair_kigahen_boundaries
+        from src.steps.MergeTokensStep.index import _repair_kigahen_boundaries
         tokens = [dict(surface='気が変', lemma='気が変', pos=('形状詞',), grammar_reserved=True),
                   dict(surface='わっ', lemma='わる', pos=('動詞',)),
                   dict(surface='たら', lemma='た', pos=('助動詞',), grammar_reserved=True)]
@@ -287,7 +287,7 @@ class GrammarReservationTests(unittest.TestCase):
         self.assertEqual(_repair_kigahen_boundaries(tokens, PresentDictionary()), tokens)
 
     def test_passive_guard_sees_reserved_connective(self):
-        from src.steps.MergeTokensStep import _is_inflection_misread_as_noun
+        from src.steps.MergeTokensStep.index import _is_inflection_misread_as_noun
         tokens = [dict(surface='覆わ', lemma='覆う', pos=('動詞', '*', '*', '*', '*', '未然形')),
                   dict(surface='れ', lemma='れる', pos=('助動詞', '*')),
                   dict(surface='て', lemma='て', pos=('助詞', '接続助詞'), grammar_reserved=True)]

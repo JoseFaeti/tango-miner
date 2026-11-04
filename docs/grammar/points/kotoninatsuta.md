@@ -12,6 +12,6 @@ Selected forms are covered under 〜ことになる; other tokenizations and mea
 
 ## Implementation
 
-See [koto-ni-naru](./koto-ni-naru.md), its [rule](../../../src/grammar_rules/rules/koto_ni_naru.py), and [tests](../../../tests/test_grammar_koto_ni_naru.py).
+See [koto-ni-naru](./koto-ni-naru.md), its [rule](../../../src/grammar_rules/rules/koto_ni_naru/index.py), and [tests](../../../src/grammar_rules/rules/koto_ni_naru/test_index.py).
 
 Registry identity: `koto_ni_naru`.

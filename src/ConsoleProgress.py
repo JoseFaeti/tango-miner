@@ -14,7 +14,6 @@ _LABELS = {
     "NormalizeSentences": "Normalizing sentences",
     "RawTokenizeStep": "Tokenizing",
     "GrammarStep": "Finding grammar occurrences",
-    "GrammarShadowStep": "Writing grammar proposals",
     "ExcludeGrammarTokensStep": "Reserving grammar tokens",
     "MergeTokensStep": "Merging token compounds",
     "OccurrenceDiagnosticsStep": "Writing occurrence diagnostics",

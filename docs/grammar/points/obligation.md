@@ -8,8 +8,8 @@ obligation. Covered: selected complete present and past, plain and polite negati
 
 ## Implementation
 
-- Rule: [src/grammar_rules/rules/obligation.py](../../../src/grammar_rules/rules/obligation.py)
-- Tests: [tests/test_grammar_obligation.py](../../../tests/test_grammar_obligation.py)
+- Rule: [src/grammar_rules/rules/obligation/index.py](../../../src/grammar_rules/rules/obligation/index.py)
+- Tests: [tests/test_grammar_obligation.py](../../../src/grammar_rules/rules/obligation/test_index.py)
 - Registry identity: `obligation`
 - Registry and stable identities: [registry.py](../../../src/grammar_rules/registry.py), [GrammarConstants.py](../../../src/GrammarConstants.py).
 

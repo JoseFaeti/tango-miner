@@ -7,19 +7,24 @@ from pathlib import Path
 from unittest.mock import patch
 
 from tango_miner import MIN_FREQUENCY_DEFAULT, process_script, resolve_directory_output_path, notify_run
-from src.steps.AddWordsToAnkiStep import AddWordsToAnkiStep
-from src.steps.AddDefinitionsStep import AddDefinitionsStep
-from src.steps.WriteOutputStep import WriteOutputStep
-from src.steps.TokenizeStep import RawTokenizeStep
-from src.steps.GatherInputFilesStep import GatherInputFilesStep
-from src.steps.FilterFrequencyStep import FilterFrequencyStep
-from src.steps.ScoreWordStep import ScoreWordStep
-from src.steps.AttachSentencesStep import AttachSentencesStep
-from src.steps.MergeTokensStep import MergeTokensStep
-from src.steps.OccurrenceDiagnosticsStep import OccurrenceDiagnosticsStep
+from src.steps.AddWordsToAnkiStep.index import AddWordsToAnkiStep
+from src.steps.AddDefinitionsStep.index import AddDefinitionsStep
+from src.steps.WriteOutputStep.index import WriteOutputStep
+from src.steps.TokenizeStep.index import RawTokenizeStep
+from src.steps.GatherInputFilesStep.index import GatherInputFilesStep
+from src.steps.FilterFrequencyStep.index import FilterFrequencyStep
+from src.steps.ScoreWordStep.index import ScoreWordStep
+from src.steps.AttachSentencesStep.index import AttachSentencesStep
+from src.steps.MergeTokensStep.index import MergeTokensStep
+from src.steps.OccurrenceDiagnosticsStep.index import OccurrenceDiagnosticsStep
 
 
 class TangoMinerTests(unittest.TestCase):
+    def test_removed_grammar_diagnostic_option_is_rejected(self):
+        with redirect_stderr(io.StringIO()), self.assertRaises(SystemExit) as result:
+            process_script(['--grammar-shadow'])
+        self.assertEqual(result.exception.code, 2)
+
     def test_silent_run_logs_output_and_failure_without_console_output(self):
         with tempfile.TemporaryDirectory() as tmp:
             config = Path(tmp) / 'config.toml'

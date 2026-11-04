@@ -16,8 +16,8 @@ from src.StageCache import _bytes, _input_key_data, MERGE_SOURCE_DEPENDENCIES
 def _fingerprint():
     root = Path(__file__).resolve().parent
     names = set(MERGE_SOURCE_DEPENDENCIES) | {
-        'GrammarCache.py', 'Grammar.py', 'GrammarShadow.py', 'WordStats.py',
-        'steps/TokenizeStep.py',
+        'GrammarCache.py', 'Grammar.py', 'WordStats.py',
+        'steps/TokenizeStep/index.py',
     }
     names.update(str(path.relative_to(root)).replace('\\', '/')
                  for path in (root / 'grammar_rules').rglob('*.py'))

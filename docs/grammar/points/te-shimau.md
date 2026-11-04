@@ -12,8 +12,8 @@ completion or unintended result.
 
 ## Implementation
 
-- Rule: [src/grammar_rules/rules/te_shimau.py](../../../src/grammar_rules/rules/te_shimau.py)
-- Tests: [tests/test_grammar_te_shimau.py](../../../tests/test_grammar_te_shimau.py)
+- Rule: [src/grammar_rules/rules/te_shimau/index.py](../../../src/grammar_rules/rules/te_shimau/index.py)
+- Tests: [tests/test_grammar_te_shimau.py](../../../src/grammar_rules/rules/te_shimau/test_index.py)
 - Registry identity: `te_shimau`
 - Registry and stable identities: [registry.py](../../../src/grammar_rules/registry.py), [GrammarConstants.py](../../../src/GrammarConstants.py).
 

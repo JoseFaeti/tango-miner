@@ -13,8 +13,8 @@ conditional or subsequent event.
 
 ## Implementation
 
-- Rule: [src/grammar_rules/rules/tara.py](../../../src/grammar_rules/rules/tara.py)
-- Tests: [tests/test_grammar_tara.py](../../../tests/test_grammar_tara.py)
+- Rule: [src/grammar_rules/rules/tara/index.py](../../../src/grammar_rules/rules/tara/index.py)
+- Tests: [tests/test_grammar_tara.py](../../../src/grammar_rules/rules/tara/test_index.py)
 - Registry identity: `conditional_tara`
 - Registry and stable identities: [registry.py](../../../src/grammar_rules/registry.py), [GrammarConstants.py](../../../src/GrammarConstants.py).
 

@@ -4,20 +4,20 @@ from bisect import bisect_right
 from functools import lru_cache
 from time import perf_counter
 
-from src.GrammarShadow import aligned_tokens
+from src.grammar_rules.alignment import aligned_tokens
 from src.TokenizedSentence import TokenizedSentence
 from src.PipelineStep import PipelineStep
 from src.WordStats import Sentence, WordStats
-from src.steps.ProcessingStep import ProcessingStep
-from src.steps.TokenizeStep import is_valid_sentence, is_useless
+from src.steps.ProcessingStep.index import ProcessingStep
+from src.steps.TokenizeStep.index import is_valid_sentence, is_useless
 from src.grammar_rules.base import GrammarRule
 from src.grammar_rules.registry import RULES
 # Preserve existing imports for callers of the former single-module API.
-from src.grammar_rules.rules.te_iru import match_te_iru
-from src.grammar_rules.rules.nda import match_nda
-from src.grammar_rules.rules.tai import match_tai
-from src.grammar_rules.rules.te_shimau import match_te_shimau
-from src.grammar_rules.rules.monono import match_monono
+from src.grammar_rules.rules.te_iru.index import match_te_iru
+from src.grammar_rules.rules.nda.index import match_nda
+from src.grammar_rules.rules.tai.index import match_tai
+from src.grammar_rules.rules.te_shimau.index import match_te_shimau
+from src.grammar_rules.rules.monono.index import match_monono
 
 
 class _PrecedenceDictionary:
@@ -92,7 +92,7 @@ class GrammarStep(PipelineStep):
             if proposals and self.prefer_expressions:
                 # Use the established dictionary merger as evidence of a complete
                 # expression, before deciding which analysis owns the occurrence.
-                from src.steps.MergeTokensStep import combine_tokens_jmdict, get_jmdict
+                from src.steps.MergeTokensStep.index import combine_tokens_jmdict, get_jmdict
                 if not dictionary_loaded:
                     with self.performance_phase('expression_dictionary'):
                         dictionary = _PrecedenceDictionary(get_jmdict(self.dictionary_path))

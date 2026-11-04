@@ -24,28 +24,27 @@ from src.ConsoleProgress import ConsoleProgress
 from src.RunConfig import resolve_config
 from src.RunArchive import write_stage_record, create_run_archive, collect_dependencies, write_run_summary
 from src.RunReport import write_run_report
-from src.steps.CompareOutputStep import CompareOutputStep
+from src.steps.CompareOutputStep.index import CompareOutputStep
 from src.StageCache import StageCache
 
-from src.steps.AddDefinitionsStep import AddDefinitionsStep
-from src.steps.AddWordsToAnkiStep import AddWordsToAnkiStep
-from src.steps.AttachSentencesStep import AttachSentencesStep
-from src.steps.GatherInputFilesStep import GatherInputFilesStep
-from src.steps.ExtractSentencesStep import ExtractSentencesStep
-from src.steps.NormalizeSentences import NormalizeSentences
-from src.steps.ProcessingStep import ProcessingStep
-from src.steps.ReadFilesStep import ReadFilesStep
-from src.steps.ScoreWordStep import ScoreWordStep
-from src.steps.TokenizeStep import RawTokenizeStep
-from src.steps.MergeTokensStep import MergeTokensStep
-from src.steps.BuildWordStatsStep import BuildWordStatsStep
-from src.steps.FilterFrequencyStep import FilterFrequencyStep
-from src.steps.WriteOutputStep import WriteOutputStep
-from src.steps.OccurrenceDiagnosticsStep import OccurrenceDiagnosticsStep
-from src.steps.GrammarShadowStep import GrammarShadowStep
+from src.steps.AddDefinitionsStep.index import AddDefinitionsStep
+from src.steps.AddWordsToAnkiStep.index import AddWordsToAnkiStep
+from src.steps.AttachSentencesStep.index import AttachSentencesStep
+from src.steps.GatherInputFilesStep.index import GatherInputFilesStep
+from src.steps.ExtractSentencesStep.index import ExtractSentencesStep
+from src.steps.NormalizeSentences.index import NormalizeSentences
+from src.steps.ProcessingStep.index import ProcessingStep
+from src.steps.ReadFilesStep.index import ReadFilesStep
+from src.steps.ScoreWordStep.index import ScoreWordStep
+from src.steps.TokenizeStep.index import RawTokenizeStep
+from src.steps.MergeTokensStep.index import MergeTokensStep
+from src.steps.BuildWordStatsStep.index import BuildWordStatsStep
+from src.steps.FilterFrequencyStep.index import FilterFrequencyStep
+from src.steps.WriteOutputStep.index import WriteOutputStep
+from src.steps.OccurrenceDiagnosticsStep.index import OccurrenceDiagnosticsStep
 from src.Grammar import GrammarStep, GrammarPositionStep, AddGrammarCardsStep, ExcludeGrammarTokensStep
 
-from src.steps.debug.DumpSentences import DumpSentences
+from src.steps.debug.DumpSentences.index import DumpSentences
 
 
 MIN_FREQUENCY_DEFAULT = 4
@@ -108,9 +107,6 @@ def process_script(argv=None):
 
     parser.add_argument("--occurrence-diagnostics", action="store_true",
                         help="Write detailed occurrence and candidate JSONL files (can be large)")
-
-    parser.add_argument("--grammar-shadow", action="store_true",
-                        help="Write tentative grammar proposals without changing mining output")
 
     parser.add_argument("--no-grammar", dest="grammar", action="store_false",
                         help="Disable source-supported grammar cards")
@@ -177,7 +173,6 @@ def process_script(argv=None):
             DumpSentences("sentences-normalized.txt") if debug else None,
             RawTokenizeStep(force_retokenize=args.retokenize or "all" in args.refresh_cache, config=config.tokenizer),
             grammar_step,
-            GrammarShadowStep(final_path.parent / "grammar-shadow.jsonl") if args.grammar_shadow else None,
             ExcludeGrammarTokensStep(grammar_step) if grammar_step else None,
             MergeTokensStep(max_lookahead=config.merge.max_lookahead, dictionary_path=config.dictionary.jmdict_path,
                             diagnostics_path=final_path.parent / "rejected-merges.jsonl" if args.occurrence_diagnostics else None),
@@ -198,7 +193,7 @@ def process_script(argv=None):
 
         dependencies = collect_dependencies(config)
         summary = {"status": "running", "dependencies": dependencies,
-                   "retokenize_requested": args.retokenize, "occurrence_diagnostics": args.occurrence_diagnostics, "grammar_shadow": args.grammar_shadow, "grammar_enabled": args.grammar, "grammar_te_iru": args.grammar, "stages": [],
+                   "retokenize_requested": args.retokenize, "occurrence_diagnostics": args.occurrence_diagnostics, "grammar_enabled": args.grammar, "grammar_te_iru": args.grammar, "stages": [],
                    "cache_refresh_requested": args.refresh_cache,
                    "anki": {"status": "not_started" if config.anki.enabled else "disabled"}}
         write_run_summary(final_path.parent, summary)

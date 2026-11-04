@@ -13,8 +13,8 @@ precision and recall have not been independently evaluated.
 
 ## Implementation
 
-- Rule: [src/grammar_rules/rules/ba.py](../../../src/grammar_rules/rules/ba.py)
-- Tests: [tests/test_grammar_ba.py](../../../tests/test_grammar_ba.py)
+- Rule: [src/grammar_rules/rules/ba/index.py](../../../src/grammar_rules/rules/ba/index.py)
+- Tests: [tests/test_grammar_ba.py](../../../src/grammar_rules/rules/ba/test_index.py)
 - Registry identity: `conditional_ba`
 - Registry and stable identities: [registry.py](../../../src/grammar_rules/registry.py), [GrammarConstants.py](../../../src/GrammarConstants.py).
 

@@ -5,7 +5,7 @@ from src.Artifact import Artifact
 from src.Grammar import GrammarStep
 from src.Pipeline import Pipeline
 from src.TokenizedSentence import TokenizedSentence
-from src.steps.ProcessingStep import ProcessingStep
+from src.steps.ProcessingStep.index import ProcessingStep
 
 
 class GrammarProgressTests(unittest.TestCase):

@@ -48,6 +48,17 @@ takes precedence over the configuration file, which takes precedence over `.env`
 The main command still uses its configured recursion and Anki settings; check
 `--show-config` before a full run.
 
+## Agent full-corpus procedure
+
+Obtain explicit user authorization before starting a full corpus run. Use the
+curated input corpus agreed with the user and configured in the private `.env`;
+source files may be outside the project directory. Verify the resolved
+configuration has Anki disabled or in output-only mode; do not mutate Anki.
+Save verbose output to a log and wait for the process completion signal or
+exit status before inspecting the run, its log, or its artifacts. Then use
+bounded inspection tools, report failures and Anki status, and distinguish
+observed counts from independently measured precision or recall.
+
 The pipeline needs Python, SudachiPy with its full dictionary and the local
 Sudachi configuration, `appdirs`, and a JMdict XML file. The dictionary path is
 configured in `config.toml`, as are the Sudachi config and dictionary; some

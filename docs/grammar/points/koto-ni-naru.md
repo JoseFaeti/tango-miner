@@ -8,8 +8,8 @@ decided outcome or consequence. Covered: finite verb and verbal negative + merge
 
 ## Implementation
 
-- Rule: [src/grammar_rules/rules/koto_ni_naru.py](../../../src/grammar_rules/rules/koto_ni_naru.py)
-- Tests: [tests/test_grammar_koto_ni_naru.py](../../../tests/test_grammar_koto_ni_naru.py)
+- Rule: [src/grammar_rules/rules/koto_ni_naru/index.py](../../../src/grammar_rules/rules/koto_ni_naru/index.py)
+- Tests: [tests/test_grammar_koto_ni_naru.py](../../../src/grammar_rules/rules/koto_ni_naru/test_index.py)
 - Registry identity: `koto_ni_naru`
 - Registry and stable identities: [registry.py](../../../src/grammar_rules/registry.py), [GrammarConstants.py](../../../src/GrammarConstants.py).
 

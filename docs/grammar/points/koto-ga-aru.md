@@ -13,8 +13,8 @@ occasional occurrence.
 
 ## Implementation
 
-- Rule: [src/grammar_rules/rules/koto_ga_aru_occasional.py](../../../src/grammar_rules/rules/koto_ga_aru_occasional.py)
-- Tests: [tests/test_grammar_koto_ga_aru_occasional.py](../../../tests/test_grammar_koto_ga_aru_occasional.py)
+- Rule: [src/grammar_rules/rules/koto_ga_aru_occasional/index.py](../../../src/grammar_rules/rules/koto_ga_aru_occasional/index.py)
+- Tests: [tests/test_grammar_koto_ga_aru_occasional.py](../../../src/grammar_rules/rules/koto_ga_aru_occasional/test_index.py)
 - Registry identity: `koto_ga_aru_occasional`
 - Registry and stable identities: [registry.py](../../../src/grammar_rules/registry.py), [GrammarConstants.py](../../../src/GrammarConstants.py).
 
@@ -28,7 +28,7 @@ and split positive present, past and polite forms through `ことがありまし
 It reserves only the construction, leaving the verb and cue eligible. A cue
 can modify another clause or describe an existing matter, so it does not prove
 the intended meaning. Negative, uncued and other forms remain lexical. A replay
-of an older 521,821-sentence shadow archive found nine raw rule matches; this
+of an older 521,821-sentence diagnostic archive found nine raw rule matches; this
 does not apply expression precedence or example eligibility, and is not an
 independent precision or recall evaluation. Dictionary expression precedence
 applies during a normal run. See [shared inflection improvements](../inflection-improvements.md) for matcher design and remaining cross-rule work.

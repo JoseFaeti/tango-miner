@@ -22,8 +22,8 @@ through this interface.
 | --- | --- |
 | `next_grammar` | Print the first unchecked grammar queue entry as JSON. |
 | `check_grammar_docs` | Check grammar indexes, specifications, identities and links. |
-| `replay_grammar` | Replay a registered grammar rule against a shadow archive. |
-| `profile_grammar_rules` | Profile grammar rules on a bounded shadow archive sample. |
+| `replay_grammar` | Replay a registered grammar rule against a historical aligned-token archive. |
+| `profile_grammar_rules` | Profile grammar rules on a bounded historical aligned-token sample. |
 | `inspect_run` | Inspect a completed run with bounded output. |
 | `compare_runs` | Compare archived mining results without rerunning mining or contacting Anki. |
 | `query_jsonl` | Search JSONL diagnostics without loading the whole file into memory. |

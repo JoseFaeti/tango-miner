@@ -8,8 +8,8 @@ predicate quotation and intention; reserves matched 思う while retaining indep
 
 ## Implementation
 
-- Rule: [src/grammar_rules/rules/to_omou.py](../../../src/grammar_rules/rules/to_omou.py)
-- Tests: [tests/test_grammar_to_omou.py](../../../tests/test_grammar_to_omou.py)
+- Rule: [src/grammar_rules/rules/to_omou/index.py](../../../src/grammar_rules/rules/to_omou/index.py)
+- Tests: [tests/test_grammar_to_omou.py](../../../src/grammar_rules/rules/to_omou/test_index.py)
 - Registry identity: `to_omou`
 - Registry and stable identities: [registry.py](../../../src/grammar_rules/registry.py), [GrammarConstants.py](../../../src/GrammarConstants.py).
 

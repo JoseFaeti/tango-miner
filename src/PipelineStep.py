@@ -5,7 +5,7 @@ from contextlib import contextmanager
 from dataclasses import dataclass
 from typing import Any
 
-from src.steps.ProcessingStep import ProcessingStep
+from src.steps.ProcessingStep.index import ProcessingStep
 
 class PipelineStep(ABC):
     _progress_handler = None

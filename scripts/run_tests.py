@@ -1,7 +1,7 @@
 """Run unittest quietly, printing failure details only when the run fails.
 
 Without arguments, discover the full suite. Pass unittest names or discovery
-arguments to select tests, for example: python scripts/run_tests.py tests.test_run_report
+arguments to select tests, for example: python scripts/run_tests.py src.tests.test_run_report
 """
 import contextlib
 import io
@@ -35,7 +35,7 @@ def main():
     try:
         with contextlib.redirect_stdout(captured), contextlib.redirect_stderr(captured):
             runner = unittest.TextTestRunner(stream=output, verbosity=0, buffer=True)
-            arguments = sys.argv if len(sys.argv) > 1 else [sys.argv[0], "discover", "-s", "tests"]
+            arguments = sys.argv if len(sys.argv) > 1 else [sys.argv[0], "discover", "-s", "."]
             program = unittest.main(module=None, argv=arguments, testRunner=runner, exit=False)
     except SystemExit as exc:
         exit_code = exc.code or 0

@@ -10,7 +10,7 @@ from pathlib import Path
 from src.Artifact import Artifact
 from src.TokenizedSentence import TokenizedSentence
 from src.TokenProvenance import TokenComponent
-from src.steps.MergeTokensStep import MergeTokensStep
+from src.steps.MergeTokensStep.index import MergeTokensStep
 
 
 def _pack_token(token):
@@ -118,7 +118,7 @@ def _bytes(value):
 MERGE_SOURCE_DEPENDENCIES = (
     "StageCache.py", "Artifact.py", "JMDict.py", "PipelineStep.py",
     "TokenizedSentence.py", "TokenProvenance.py",
-    "steps/MergeTokensStep.py", "steps/ProcessingStep.py",
+    "steps/MergeTokensStep/index.py", "steps/ProcessingStep/index.py",
 )
 
 

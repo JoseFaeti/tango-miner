@@ -8,8 +8,8 @@ concession, “even if”. Covered: split て/で + も after continuative verbs
 
 ## Implementation
 
-- Rule: [src/grammar_rules/rules/te_mo.py](../../../src/grammar_rules/rules/te_mo.py)
-- Tests: [tests/test_grammar_te_mo.py](../../../tests/test_grammar_te_mo.py)
+- Rule: [src/grammar_rules/rules/te_mo/index.py](../../../src/grammar_rules/rules/te_mo/index.py)
+- Tests: [tests/test_grammar_te_mo.py](../../../src/grammar_rules/rules/te_mo/test_index.py)
 - Registry identity: `te_mo`
 - Registry and stable identities: [registry.py](../../../src/grammar_rules/registry.py), [GrammarConstants.py](../../../src/GrammarConstants.py).
 

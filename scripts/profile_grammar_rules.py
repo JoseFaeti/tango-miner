@@ -1,4 +1,4 @@
-"""Profile registered grammar rules on a bounded grammar-shadow JSONL sample."""
+"""Profile registered grammar rules on a bounded historical aligned-token JSONL sample."""
 import argparse
 import hashlib
 import json

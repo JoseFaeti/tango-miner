@@ -10,6 +10,9 @@ compatible source example is available, one conflicting occurrence is attached
 and the candidate is marked for review (`no_definition_compatible_example` in
 candidate diagnostics). Repeated identical lines do not create distinct examples;
 frequency therefore need not equal the number of available examples.
+Source-boundary repairs also distinguish the colloquial ズラかろう and selected
+からさ contexts from analyzer misreadings of からい. Other ambiguous からさ
+occurrences retain the analyzer's adjective analysis for review.
 For example, past-tense occurrences of できる can be assigned to that verb,
 while the separate できた candidate can retain a supported prenominal or
 interjection meaning. Ambiguous occurrences can still inflate its frequency.
@@ -33,6 +36,12 @@ a different edition. Users may choose another edition; evaluate resulting
 test failures and behavioral differences before updating this baseline.
 Run archives record the actual dictionary hash.
 
+## Performance optimization
+
+After each optimization, analyze the remaining bottlenecks and propose the
+most useful next step. Report measurement limitations, including differences in
+inputs, configuration, dependencies, cache state and machine load where relevant.
+
 ## Agent command modules
 
 See the [agent command reference](../../agent_commands/README.md) for the
@@ -51,7 +60,9 @@ python scripts/run_tests.py
 ```
 
 The runner emits failure details only and returns a nonzero exit status on failure.
-Pass unittest test names or discovery arguments for focused runs. On failure,
+Step tests live alongside their implementations in each step folder; core module and script tests live in `tests` folders alongside those areas; grammar rule tests live in each rule folder; cross-component tests and shared helpers remain in the
+top-level `tests` folder. Pass a full unittest module name such as
+`src.tests.test_run_report`, or discovery arguments, for focused runs. On failure,
 the runner also reports a missing or mismatched JMdict baseline; it does not
 require the baseline for ordinary use or otherwise passing tests.
 
@@ -112,7 +123,6 @@ the file into memory or running the pipeline:
 
 ```sh
 python -X utf8 scripts/query_jsonl.py runs/example-run/occurrences.jsonl --field sentence --contains ないし --show candidate --show sentence
-python -X utf8 scripts/query_jsonl.py runs/example-run/grammar-shadow.jsonl --field proposals.construction_id --exact te_iru --show normalized_sentence --show proposals --limit 5
 ```
 
 Dotted fields traverse arrays; repeated `--show` selects fields. Output is
@@ -133,8 +143,8 @@ Omit `--baseline` and `--word` when no comparison is needed; see `--help` for
 other options. Check the resolved configuration and input before any full run.
 The log and archive may contain source text and paths.
 
-Replay a registered grammar rule against an existing shadow archive without
-running the pipeline:
+Replay a registered grammar rule against an existing historical diagnostic
+archive without running the pipeline (new runs do not create these archives):
 
 ```sh
 python -X utf8 scripts/replay_grammar.py runs/example-run/grammar-shadow.jsonl --rule koto_ga_aru_occasional --limit 10
@@ -158,14 +168,6 @@ Some integration tests require the installed Sudachi dictionary and local
 JMdict data. Candidate component provenance is retained in memory for eligible
 candidates and supports some definition and parsing corrections; it does not
 yet appear in exported CSVs.
-
-For experimental, review-only grammar proposals, use `--grammar-shadow`.
-This writes `grammar-shadow.jsonl` in the run archive before token merging;
-it does not itself alter candidate or Anki decisions; the separate normal grammar
-stage remains enabled unless `--no-grammar` is passed. The file contains source-derived
-text and paths. The rules are preliminary, all proposals remain ambiguous, and
-the option does not disable Anki: use an Anki-disabled configuration for safe
-offline checks. See [grammar shadow prototype](../grammar-shadow-prototype.md).
 
 The normal pipeline includes grammar cards by default; pass
 `--no-grammar` to disable them. Rules create separate grammar candidates when
@@ -207,6 +209,13 @@ Their source
 examples can represent different senses, so they are not automatically added
 to Anki and existing notes are protected from pruning. This review path can
 retain additional expressions beyond the examples motivating it.
+
+The lexical merger also looks up adjacent noun and verb tokens as a JMdict
+expression with an omitted を, using the verb's dictionary form. The candidate
+keeps the actual source surface and component evidence. Exact dictionary merges
+take precedence and reserved grammar tokens are not crossed. These matches can
+be ambiguous with literal object-verb usage; dictionary evidence alone does not
+establish the intended sense.
 
 
 ## Pipeline performance measurements

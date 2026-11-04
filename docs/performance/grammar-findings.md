@@ -83,7 +83,7 @@ the grammar cache fingerprint; the merge cache is unaffected by this change.
 
 ## Bounded archive rule profile
 
-A 20,000-sentence sample from an older grammar-shadow archive was profiled
+A 20,000-sentence sample from an older grammar diagnostic archive was profiled
 with `scripts/profile_grammar_rules.py`; its tokenizer configuration predates
 the current baseline. The `te_kuru` rule now checks the motion-verb lemma
 and connective before more expensive boundary and predicate checks. Three

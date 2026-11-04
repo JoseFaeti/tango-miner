@@ -21,7 +21,7 @@ still be ambiguous; merged verb-plus-suffix tokens, other punctuation and
 non-final elliptical uses are not covered. Independent precision and recall
 have not been measured.
 
-The implementation is in [elliptical_obligation.py](../../../src/grammar_rules/rules/elliptical_obligation.py),
-with focused cases in [test_grammar_elliptical_obligation.py](../../../tests/test_grammar_elliptical_obligation.py).
+The implementation is in [elliptical_obligation.py](../../../src/grammar_rules/rules/elliptical_obligation/index.py),
+with focused cases in [test_grammar_elliptical_obligation.py](../../../src/grammar_rules/rules/elliptical_obligation/test_index.py).
 These cases include analyzer tokenizations, controls, reservation and card
 identity; they have not been run for this change.

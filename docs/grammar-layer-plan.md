@@ -96,9 +96,9 @@ source sentence + normalization mapping
    changed source content and normalization versions. Keep adapters for current
    consumers until migrated.
 2. **Parallel evidence.** Capture raw tokens before `MergeTokensStep`; retain
-   merged proposals and their constituent occurrence IDs. A new shadow grammar
-   stage receives both views, sentence context and catalog; it emits overlapping
-   proposals without mutating the streams consumed by `BuildWordStatsStep`.
+   merged proposals and their constituent occurrence IDs. Grammar analysis can
+   use both views, sentence context and catalog to preserve overlapping evidence
+   without mutating the streams consumed by `BuildWordStatsStep`.
    If a required component or source span is unavailable, emit an unresolved
    result rather than inventing a match.
 3. **Grammar proposal contract.** Record construction ID, normalized and raw

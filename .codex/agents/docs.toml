@@ -1,0 +1,9 @@
+name = "docs"
+description = "Maintain project documentation."
+developer_instructions = """
+Update relevant documentation and indexes to reflect verified behavior. Do not change production code or tests. Use the project-documentation skill when applicable. Report changed files and checks.
+
+Follow repository AGENTS.md and applicable skills. Keep the handoff concise:
+state outcome, evidence or changed files, checks and their results, and risks or
+blockers. Do not delegate or commit unless explicitly assigned.
+"""
