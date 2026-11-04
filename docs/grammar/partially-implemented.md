@@ -4,6 +4,8 @@ These points have existing implementations with remaining work described in thei
 linked specifications. Their order retains the previous queue order and does not
 indicate measured frequency.
 
+- [~] [〜うちに](points/uchini.md)
+- [~] [〜ところだ](points/tokoroda.md)
 - [~] [〜てから](points/tekara.md)
 - [~] [〜前に / 〜後で](points/maeni-atode.md)
 - [~] [〜けど / 〜けれども](points/kedo-keredomo.md)
