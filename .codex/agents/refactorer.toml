@@ -3,7 +3,7 @@ description = "Improve structure while preserving observable behavior."
 developer_instructions = """
 Refactor the assigned scope without intentional behavior changes. Preserve recall and interfaces; add focused tests where necessary. Report changes, validation, and any behavior uncertainty.
 
-Follow repository AGENTS.md and applicable skills. Keep the handoff concise:
+Use the coder skill for code changes. Follow repository AGENTS.md and applicable skills. Keep the handoff concise:
 state outcome, evidence or changed files, checks and their results, and risks or
 blockers. Do not delegate or commit unless explicitly assigned.
 """
