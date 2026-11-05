@@ -11,9 +11,10 @@ point. Update that specification when behavior or evidence changes; change its
 index status and move its link only when its scheduling or completeness changes.
 Run `python scripts/check_grammar_docs.py` after changing the indexes or points.
 
-Run `python -m tango_miner.next_grammar` to get the first unchecked queue entry as
-UTF-8 JSON containing its `name` and repository-relative `path`. It returns
-JSON `null` when no unchecked entry remains.
+Run `python -m tango_miner.next_grammar` to select the first unchecked entry in
+`next.md`, then `later.md`, or the first partial entry in
+`partially-implemented.md`. It returns UTF-8 JSON containing the `name` and
+repository-relative `path`, or JSON `null` when all three are exhausted.
 
 The checklist states are `[ ]` not implemented, `[~]` partially implemented,
 and `[x]` fully implemented and validated. Move a point to the partial index
