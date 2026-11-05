@@ -85,10 +85,12 @@ def report_row(row):
 def example_changes(before, after):
     changes = []
     for old, new in zip_longest(before, after):
-        old = old or {"text": None, "score": None}
-        new = new or {"text": None, "score": None}
-        changes.append({key: [old[key]] if old[key] == new[key] else [old[key], new[key]]
-                        for key in ("text", "score")})
+        if old is None or new is None:
+            example = old if old is not None else new
+            changes.append({key: [example[key]] for key in ("text", "score")})
+        else:
+            changes.append({key: [old[key]] if old[key] == new[key] else [old[key], new[key]]
+                            for key in ("text", "score")})
     return changes
 
 
