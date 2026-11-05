@@ -2,6 +2,7 @@
 from src.GrammarConstants import YOU_NI_GRAMMAR_EXPRESSION
 from src.grammar_rules.base import GrammarRule
 from src.grammar_rules.helpers import adjacent
+from src.grammar_rules.rules.you_ni_naru.index import match_you_ni_naru
 
 
 RULE = GrammarRule(
@@ -12,6 +13,7 @@ RULE = GrammarRule(
 
 
 def match_you_ni(tokens):
+    owned_starts = {start for start, _ in match_you_ni_naru(tokens)}
     for i in range(1, len(tokens) - 1):
         previous, token = tokens[i - 1:i + 1]
         if (not adjacent(previous, token)
@@ -32,4 +34,5 @@ def match_you_ni(tokens):
             continue
         if not any(t['pos'][:1] != ['補助記号'] for t in tokens[end + 1:]):
             continue
-        yield token['span'][0], tokens[end]['span'][1]
+        if token['span'][0] not in owned_starts:
+            yield token['span'][0], tokens[end]['span'][1]
