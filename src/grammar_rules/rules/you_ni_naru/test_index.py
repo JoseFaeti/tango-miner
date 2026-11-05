@@ -6,6 +6,7 @@ from src.grammar_rules.alignment import aligned_tokens
 from src.grammar_rules.registry import RULES
 from src.grammar_rules.rules.you_ni_naru.index import RULE, match_you_ni_naru
 from src.grammar_rules.rules.you_ni.index import RULE as YOU_NI
+from src.grammar_rules.rules.te_iru.index import RULE as TE_IRU
 from src.grammar_rules.rules.te_iru.test_index import sentence, tok
 
 
@@ -24,7 +25,11 @@ class YouNiNaruTests(unittest.TestCase):
             '静かなようになる。': None,
             '泳げるように練習する。': None,
             '泳げるように なる。': None,
-            '泳げるようになっている。': None,
+            '泳げるようになっている。': 'ようになって',
+            '毎日走るようになって、元気になった。': 'ようになって',
+            '鳥のようになっている。': None,
+            '泳げるようになっ ている。': None,
+            '泳げるようになっ。': None,
             '泳げるようにならない。': 'ようにならない',
             '泳げるようにならなかった。': 'ようにならなかった',
             '泳げるようになりません。': 'ようになりません',
@@ -60,3 +65,19 @@ class YouNiNaruTests(unittest.TestCase):
         words = {}
         stage.add_cards(words)
         self.assertEqual(words[RULE.expression].sentences[0].surface_form, 'ようになった')
+
+    def test_connective_overlap_with_te_iru(self):
+        source = sentence('泳げるようになっている。', [
+            tok('泳げる', '泳げる', ('動詞', '一般', '*', '*', '下一段', '連体形-一般')),
+            tok('よう', 'よう', ('形状詞',)), tok('に', 'だ', ('助動詞',)),
+            tok('なっ', 'なる', ('動詞', '非自立可能', '*', '*', '五段', '連用形-促音便')),
+            tok('て', 'て', ('助詞', '接続助詞')),
+            tok('いる', 'いる', ('動詞', '非自立可能', '*', '*', '上一段', '終止形-一般')),
+            tok('。', '。', ('補助記号',))])
+        stage = GrammarStep(rules=(RULE, YOU_NI, TE_IRU), prefer_expressions=False)
+        result = ExcludeGrammarTokensStep(stage).process(stage.process(Artifact([source])))
+        self.assertEqual(stage.occurrences[RULE.id].count, 1)
+        self.assertEqual(stage.occurrences[YOU_NI.id].count, 0)
+        self.assertEqual(stage.occurrences[TE_IRU.id].count, 1)
+        self.assertFalse(result.data[0].tokens[0].get('grammar_reserved'))
+        self.assertTrue(all(t.get('grammar_reserved') for t in result.data[0].tokens[1:6]))

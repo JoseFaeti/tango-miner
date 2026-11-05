@@ -37,6 +37,9 @@ def match_you_ni_naru(tokens):
             end = negative_predicate_end(tokens, ni + 1, plain_lemma='なる',
                                          plain_stems={'なら'}, polite_lemma='なる',
                                          polite_stems={'なり'})
+        if (end is None and tokens[ni + 1]['surface'] == 'なっ'
+                and next_matches(tokens, ni + 1, 'て', '助詞', 'て')):
+            end = ni + 2
         if end is not None:
             yield you['span'][0], tokens[end]['span'][1]
 
