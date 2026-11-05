@@ -1,7 +1,7 @@
 """Verb-attached ようになる expressing a change of ability or habit."""
 from src.GrammarConstants import YOU_NI_NARU_EXPRESSION
 from src.grammar_rules.base import GrammarRule
-from src.grammar_rules.helpers import adjacent, next_matches, positive_verb_end
+from src.grammar_rules.helpers import adjacent, next_matches, positive_verb_end, negative_predicate_end
 
 
 def match_you_ni_naru(tokens):
@@ -33,6 +33,10 @@ def match_you_ni_naru(tokens):
             continue
         end = positive_verb_end(tokens, ni + 1, lemma='なる', base_forms={'なる'},
                                 past_stems={'なっ'}, polite_stems={'なり'})
+        if end is None:
+            end = negative_predicate_end(tokens, ni + 1, plain_lemma='なる',
+                                         plain_stems={'なら'}, polite_lemma='なる',
+                                         polite_stems={'なり'})
         if end is not None:
             yield you['span'][0], tokens[end]['span'][1]
 

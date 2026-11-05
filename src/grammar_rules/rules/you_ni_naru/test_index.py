@@ -25,7 +25,12 @@ class YouNiNaruTests(unittest.TestCase):
             '泳げるように練習する。': None,
             '泳げるように なる。': None,
             '泳げるようになっている。': None,
-            '泳げるようにならない。': None,
+            '泳げるようにならない。': 'ようにならない',
+            '泳げるようにならなかった。': 'ようにならなかった',
+            '泳げるようになりません。': 'ようになりません',
+            '泳げるようになりませんでした。': 'ようになりませんでした',
+            '鳥のようにならない。': None,
+            '泳げるようになら ない。': None,
         }
         for text, expected in cases.items():
             with self.subTest(text=text):
