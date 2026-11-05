@@ -95,7 +95,7 @@ pipeline or contacting Anki:
 python -X utf8 scripts/compare_runs.py --word しれる --word かもしれない
 ```
 
-Use `--json-output PATH` to save the complete structured comparison for any two runs.
+Use `--json-output PATH` to save the structured comparison of valid candidates for any two runs.
 Pass two run directories to compare particular runs, or use `--runs-dir` to
 select another archive root. The report shows candidate additions, removals,
 status and frequency changes, input/config equality, and recorded Anki outcomes.

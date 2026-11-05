@@ -18,22 +18,37 @@ class OutputComparisonTests(unittest.TestCase):
             b = make_run(root, '2026-10-27_1201_b', [('猫', 2), ('犬', 1), ('新', 1)])
             with (b / 'output.csv').open('r', encoding='utf-8', newline='') as f:
                 rows = list(csv.reader(f))
-            rows[0] = ['99', '猫', 'ねこ', '2.00', '2', 'new\nmeaning', 'tag', 'sentences: 2', '<b>例</b>']
+            rows[0] = ['99', '猫', 'ねこ', '2.00', '2', 'new\nmeaning', 'tag', 'sentences: 1', "<span class='highlight'>例</span><br><span class='tag sentence-tag'>source - 2.5</span>"]
             with (b / 'output.csv').open('w', encoding='utf-8', newline='') as f:
                 csv.writer(f).writerows(rows)
             result = build_change_report(load_run(a), load_run(b))
-            self.assertEqual(result['schema_version'], 2)
+            self.assertEqual(result['schema_version'], 3)
             self.assertEqual(set(result['changes']), {'added', 'removed', 'changed'})
             entries = {x['candidate']: x for group in result['changes'].values() for x in group}
-            self.assertEqual([x['candidate'] for x in result['changes']['added']], ['新'])
+            self.assertEqual([x['candidate'] for x in result['changes']['added']], sorted(['新', '犬']))
             self.assertEqual([x['candidate'] for x in result['changes']['removed']], ['旧'])
-            self.assertEqual([x['candidate'] for x in result['changes']['changed']], sorted(['猫', '犬']))
-            self.assertEqual(result['counts'], {'added': 1, 'removed': 1, 'changed': 2, 'status_changes': 1})
+            self.assertEqual([x['candidate'] for x in result['changes']['changed']], ['猫'])
+            self.assertEqual(result['counts'], {'added': 2, 'removed': 1, 'changed': 1})
             self.assertEqual(set(entries['猫']['fields']), {'score', 'reading', 'index', 'frequency', 'definition', 'tags', 'sentence_count', 'examples'})
             self.assertEqual(entries['猫']['fields']['definition']['after'], 'new\nmeaning')
-            self.assertEqual(entries['犬']['fields']['status']['after'], 'valid')
-            self.assertEqual(entries['新']['after']['word'], '新')
-            self.assertEqual(entries['旧']['before']['word'], '旧')
+            self.assertEqual(entries['新']['sentence_count'], 0)
+            self.assertEqual(entries['旧']['score'], 0)
+            self.assertNotIn('word', entries['新'])
+            self.assertEqual(entries['猫']['fields']['examples'][0]['after'], {'text': "<span class='highlight'>例</span>", 'score': 2.5})
+
+    def test_example_changes_only_include_changed_properties(self):
+        from src.RunComparison import example_changes, report_examples
+        before = [{'text': 'one', 'score': 1.0}, {'text': 'two', 'score': 2.0}]
+        after = [{'text': 'one', 'score': 3.0}, {'text': 'changed', 'score': 2.0}]
+        self.assertEqual(example_changes(before, after), [
+            {'index': 0, 'before': before[0], 'after': {'score': 3.0}},
+            {'index': 1, 'before': before[1], 'after': {'text': 'changed'}},
+        ])
+        self.assertEqual(example_changes(before[:1], []), [
+            {'index': 0, 'before': before[0], 'after': None},
+        ])
+        self.assertEqual(report_examples("<span class='highlight'>猫</span> &amp; 犬<br><span class='tag sentence-tag'>source - -1.5</span>"),
+                         [{'text': "<span class='highlight'>猫</span> & 犬", 'score': -1.5}])
 
     def test_step_first_run_and_previous_completed(self):
         with tempfile.TemporaryDirectory() as tmp:

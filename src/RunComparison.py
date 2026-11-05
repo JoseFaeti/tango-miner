@@ -1,7 +1,9 @@
 """Read and compare archived CSV outputs without mining or contacting Anki."""
 import csv
+import html
 import json
 import re
+from itertools import zip_longest
 from pathlib import Path
 
 FIELDS = ("score", "word", "reading", "index", "frequency", "definition", "tags", "sentence_count", "examples")
@@ -56,24 +58,60 @@ def load_run(path, *, require_completed=True):
 
 
 
+def report_examples(value):
+    if not value or value == "no sentences :(":
+        return []
+    result = []
+    for part in re.split(r"<br\s*/?>\s*<br\s*/?>", value, flags=re.I):
+        match = re.fullmatch(
+            r"(.*?)<br\s*/?>\s*<span\s+class=['\"]tag sentence-tag['\"]>.*? - ([+-]?(?:\d+(?:\.\d*)?|\.\d+)(?:[eE][+-]?\d+)?)</span>",
+            part, flags=re.I | re.S)
+        if not match:
+            raise ValueError(f"Malformed example: {part!r}")
+        text = re.sub(r"<(?!/?span\b)[^>]*>", "", match.group(1), flags=re.I)
+        result.append({"text": html.unescape(text), "score": float(match.group(2))})
+    return result
+
+
+def report_row(row):
+    count = re.fullmatch(r"sentences:\s*(\d+)", row["sentence_count"].strip())
+    if not count:
+        raise ValueError(f"Malformed sentence count: {row['sentence_count']!r}")
+    return {**{key: row[key] for key in ("reading", "frequency", "definition", "tags")},
+            "score": float(row["score"]), "index": float(row["index"]),
+            "sentence_count": int(count.group(1)), "examples": report_examples(row["examples"])}
+
+
+def example_changes(before, after):
+    changes = []
+    for index, (old, new) in enumerate(zip_longest(before, after)):
+        if old == new:
+            continue
+        partial = ({key: value for key, value in new.items() if old is None or old[key] != value}
+                   if new is not None else None)
+        changes.append({"index": index, "before": old, "after": partial})
+    return changes
+
+
 def build_change_report(before, after):
     changes = {key: [] for key in ("added", "removed", "changed")}
-    old = before["rows"] if before else {}
-    new = after["rows"]
+    old = {word: report_row(row) for word, row in before["rows"].items() if row["status"] == "valid"} if before else {}
+    new = {word: report_row(row) for word, row in after["rows"].items() if row["status"] == "valid"}
     if before is not None:
         for word in sorted(old.keys() | new.keys()):
             a, b = old.get(word), new.get(word)
             if a is None or b is None:
                 category = "added" if a is None else "removed"
-                changes[category].append({"candidate": word, "before": a, "after": b})
+                changes[category].append({"candidate": word, **(b if a is None else a)})
             else:
                 fields = {key: {"before": a[key], "after": b[key]}
-                          for key in ("status", *FIELDS) if a[key] != b[key]}
+                          for key in a if key != "examples" and a[key] != b[key]}
+                if a["examples"] != b["examples"]:
+                    fields["examples"] = example_changes(a["examples"], b["examples"])
                 if fields:
                     changes["changed"].append({"candidate": word, "fields": fields})
     counts = {key: len(items) for key, items in changes.items()}
-    counts["status_changes"] = sum("status" in item["fields"] for item in changes["changed"])
-    return {"schema_version": 2, "status": "compared" if before else "no_baseline",
+    return {"schema_version": 3, "status": "compared" if before else "no_baseline",
             "baseline": before["path"].name if before else None,
             "current": after["path"].name,
             "inputs_identical": before["manifest"] == after["manifest"] if before else None,

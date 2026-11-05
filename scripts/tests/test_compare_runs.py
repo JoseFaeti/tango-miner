@@ -19,7 +19,7 @@ def make_run(root, name, valid, dropped=(), status="completed"):
         with (path / filename).open("w", encoding="utf-8", newline="") as f:
             writer = csv.writer(f)
             for word, frequency in entries:
-                writer.writerow([0, word, word, 0, frequency, "definition", "", "", "example"])
+                writer.writerow([0, word, word, 0, frequency, "definition", "", "sentences: 0", "no sentences :("])
     return path
 
 
@@ -63,6 +63,7 @@ class CompareRunsTests(unittest.TestCase):
             before, after = load_run(first), load_run(second)
             before['rows']['猫']['sentence_count'] = 'sentences: 0'
             after['rows']['猫']['sentence_count'] = 'sentences: 2'
+            after['rows']['犬']['sentence_count'] = ''
             self.assertEqual(sentence_coverage(before)['valid'], {'0': 1})
             self.assertEqual(sentence_coverage(after)['dropped/review'], {'unavailable': 1})
             output = io.StringIO()
