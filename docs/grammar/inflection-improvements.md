@@ -31,6 +31,14 @@ interpretation.
    overlapping expression reservation needs investigation. The Anki preview
    reported no deletions.
    Fused `てる` tokenizations and other positive forms remain future work.
+   The shared positive matcher also supports caller-selected connective and
+   conditional stems. `〜てみる` and the benefactive family use these for
+   selected `て` and `ば` forms and recognize selected volitionals; `〜ていく`
+   and `〜てくる` use it for selected conditional forms. `〜てしまう`
+   also recognizes selected conditional and volitional split and contracted
+   forms. Focused Sudachi
+   tests cover complete spans and lexical controls. Corpus effects, overlapping
+   grammar and expression precedence have not been evaluated for these additions.
 3. [~] Consolidate and extend polite-suffix handling for supported `ます`,
    `ました`, `ません` and `ませんでした` tokenizations. A shared matcher
    handles selected split and whole-suffix analyses, with callers choosing

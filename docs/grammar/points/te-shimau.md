@@ -2,6 +2,10 @@
 
 Status: [~]
 
+Selected conditional and volitional forms including `てしまえば`, `ちゃえば`
+and `じゃおう` are recognized, with focused Sudachi tests and an independent
+しまう control. Their corpus effects and expression precedence are unevaluated.
+
 ## Meaning and tracked scope
 
 completion or unintended result.

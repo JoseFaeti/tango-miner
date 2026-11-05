@@ -7,7 +7,7 @@ Status: [~]
 try doing something.
 
   - Covered: adjacent continuative verb + て/で + non-independent みる,
-    including selected past, negative and polite forms.
+    including selected past, negative, polite, connective, conditional and volitional forms.
   - Remaining: other tokenizations and inflections; distinguish literal “see”
     readings and evaluate precision and recall independently.
 
@@ -20,6 +20,6 @@ try doing something.
 
 ## Existing implementation notes
 
-The `〜てみる` card recognizes an adjacent continuative verb + connective て/で + non-independent みる. It includes the supported present form and selected past, negative and polite forms. Standalone 見る and noun + てみる do not match. These token and POS cues do not prove that the meaning is “try doing”; a literal see reading can remain ambiguous, and unsupported forms stay lexical. The rule requires an eligible example and has not been independently evaluated for precision or recall.
+The `〜てみる` card recognizes an adjacent continuative verb + connective て/で + non-independent みる. It includes the supported present form and selected past, negative, polite, connective, conditional and volitional forms, including source-aligned みて, みれば and みよう. Standalone 見る and noun + てみる do not match. These token and POS cues do not prove that the meaning is “try doing”; a literal see reading can remain ambiguous, and unsupported forms stay lexical. Focused Sudachi regressions cover these forms; corpus frequency, expression precedence and independent precision and recall remain unevaluated.
 
 See [stage and precedence](../stage-and-precedence.md) and [identity and review](../identity-and-review.md) for shared behavior.

@@ -2,7 +2,7 @@ import unittest
 
 from src.Artifact import Artifact
 from src.Grammar import GrammarStep, ExcludeGrammarTokensStep
-from src.grammar_rules.rules.te_shimau.index import match_te_shimau
+from src.grammar_rules.rules.te_shimau.index import RULE, match_te_shimau
 from src.GrammarConstants import TE_SHIMAU_GRAMMAR_EXPRESSION as EXPRESSION
 from src.grammar_rules.alignment import aligned_tokens
 from src.steps.AddWordsToAnkiStep.index import export_words_to_anki
@@ -11,6 +11,18 @@ from src.grammar_rules.rules.te_iru.test_index import sentence, tok
 
 
 class TeShimauTests(unittest.TestCase):
+    def test_conditional_reserves_full_contraction_and_keeps_verb(self):
+        source = sentence('本を読んじゃえばいい。', [
+            tok('本を', '本', ('名詞',)),
+            tok('読ん', '読む', ('動詞', '一般', '*', '*', '五段', '連用形-撥音便')),
+            tok('じゃえ', 'じゃう', ('助動詞',)),
+            tok('ば', 'ば', ('助詞', '接続助詞')),
+            tok('いい。', 'いい', ('形容詞',))])
+        stage = GrammarStep(rules=(RULE,))
+        result = ExcludeGrammarTokensStep(stage).process(stage.process(Artifact([source])))
+        self.assertEqual([t['surface'] for t in result.data[0].tokens if t.get('grammar_reserved')],
+                         ['じゃえ', 'ば'])
+
     def test_tokenizer_forms_and_controls(self):
         try:
             from sudachipy import dictionary, tokenizer
@@ -18,6 +30,10 @@ class TeShimauTests(unittest.TestCase):
         except (ImportError, OSError, RuntimeError) as exc:
             self.skipTest(f'Sudachi full dictionary unavailable: {exc}')
         cases = {
+            '食べてしまえば。': 'てしまえば', '食べてしまおう。': 'てしまおう',
+            '食べちゃえば。': 'ちゃえば', '食べちゃおう。': 'ちゃおう',
+            '読んじゃえば。': 'じゃえば', '読んじゃおう。': 'じゃおう',
+            '荷物をしまえば。': None,
             '圭くんささっと友達遊びにいってしまって': 'てしまって',
             'こんな貴重な物もらっちゃって': 'ちゃって',
             'ごめんねひな店番頼んじゃって': 'じゃって',

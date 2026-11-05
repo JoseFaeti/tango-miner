@@ -8,6 +8,17 @@ from src.grammar_rules.rules.te_iru.test_index import sentence, tok
 
 
 class TeMiruTests(unittest.TestCase):
+    def test_incomplete_conditional_and_nonadjacent_suffix_do_not_match(self):
+        text = '読んでみれ ば'
+        raw = [tok('読ん', '読む', ('動詞', '一般', '*', '*', '五段', '連用形-撥音便')),
+               tok('で', 'で', ('助詞', '接続助詞')),
+               tok('みれ', 'みる', ('動詞', '非自立可能', '*', '*', '上一段', '仮定形-一般')),
+               tok('ば', 'ば', ('助詞', '接続助詞'))]
+        aligned, error = aligned_tokens(text, raw)
+        self.assertIsNone(error)
+        self.assertEqual(list(match_te_miru(aligned)), [])
+        self.assertEqual(list(match_te_miru(aligned[:-1])), [])
+
     def test_analyzer_forms_and_lexical_controls(self):
         try:
             from sudachipy import dictionary, tokenizer
@@ -16,6 +27,8 @@ class TeMiruTests(unittest.TestCase):
             self.skipTest(f'Sudachi full dictionary unavailable: {exc}')
         cases = {'食べてみる。': 'てみる', 'やってみた。': 'てみた',
                  '読んでみます。': 'でみます', '試してみない。': 'てみない',
+                 '読んでみて。': 'でみて', '読んでみれば。': 'でみれば',
+                 '読んでみよう。': 'でみよう', '本を見れば。': None,
                  '本を見てみる。': 'てみる', '本を見ている。': None,
                  '本を見て。': None, '雨で見る。': None,
                  '食べて 見る。': None}

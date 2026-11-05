@@ -1,7 +1,7 @@
 """Source-aligned benefactive auxiliaries after a verb's te-form."""
 from src.GrammarConstants import TE_BENEFACTIVE_EXPRESSION
 from src.grammar_rules.base import GrammarRule
-from src.grammar_rules.helpers import adjacent, next_matches, polite_suffix_end, negative_suffix_end
+from src.grammar_rules.helpers import adjacent, next_matches, polite_suffix_end, negative_suffix_end, positive_verb_end
 
 
 def match_te_benefactive(tokens):
@@ -16,24 +16,22 @@ def match_te_benefactive(tokens):
             continue
         lemma, surface = auxiliary['lemma'], auxiliary['surface']
         forms = {
-            'あげる': ('あげる', 'あげ', 'あげ', 'あげ'),
-            'くれる': ('くれる', 'くれ', 'くれ', 'くれ'),
-            'もらう': ('もらう', 'もらっ', 'もらい', 'もらわ'),
+            'あげる': ('あげる', 'あげ', 'あげ', 'あげ', 'あげれ', 'あげよう'),
+            'くれる': ('くれる', 'くれ', 'くれ', 'くれ', 'くれれ', 'くれよう'),
+            'もらう': ('もらう', 'もらっ', 'もらい', 'もらわ', 'もらえ', 'もらおう'),
         }
         if lemma not in forms:
             continue
-        base, past, polite, negative = forms[lemma]
-        end = i + 1
-        if surface == base:
-            pass
-        elif surface == past and next_matches(tokens, end, 'た', '助動詞', 'た'):
-            end += 1
-        elif surface == polite and next_matches(tokens, end, 'ます', '助動詞'):
+        base, past, polite, negative, conditional, volitional = forms[lemma]
+        end = positive_verb_end(tokens, i + 1, lemma=lemma,
+                                base_forms={base, volitional}, past_stems={past},
+                                polite_stems={polite}, te_stems={past},
+                                conditional_stems={conditional})
+        if end is None and surface == polite and next_matches(tokens, i + 1, 'ます', '助動詞'):
+            end = i + 1
             end = polite_suffix_end(tokens, end + 1)
-        elif surface == negative and next_matches(tokens, end, 'ない', '助動詞'):
-            end = negative_suffix_end(tokens, end + 1, pos='助動詞', continuative=True, extended=True)
-        else:
-            continue
+        elif end is None and surface == negative and next_matches(tokens, i + 1, 'ない', '助動詞'):
+            end = negative_suffix_end(tokens, i + 2, pos='助動詞', continuative=True, extended=True)
         if end is not None:
             yield connective['span'][0], tokens[end]['span'][1]
 

@@ -46,19 +46,24 @@ def polite_suffix_end(tokens, index, *, forms=('positive', 'negative', 'te', 'vo
     return None
 
 
-def positive_verb_end(tokens, index, *, lemma, base_forms, past_stems, polite_stems):
+def positive_verb_end(tokens, index, *, lemma, base_forms, past_stems, polite_stems,
+                      te_stems=(), conditional_stems=(), pos='動詞'):
     """Match selected positive finite forms; return the last token index or None.
 
     Callers supply the verb-specific surfaces and decide which meanings and
     forms are appropriate for their construction. Incomplete suffixes fail.
     """
     token = tokens[index]
-    if token['lemma'] != lemma or token['pos'][:1] != ['動詞']:
+    if token['lemma'] != lemma or token['pos'][:1] != [pos]:
         return None
     surface = token['surface']
     if surface in base_forms:
         return index
     if surface in past_stems and next_matches(tokens, index, 'た', '助動詞', 'た'):
+        return index + 1
+    if surface in te_stems and next_matches(tokens, index, 'て', '助詞', 'て'):
+        return index + 1
+    if surface in conditional_stems and next_matches(tokens, index, 'ば', '助詞', 'ば'):
         return index + 1
     if surface in polite_stems and next_matches(tokens, index, 'ます', '助動詞'):
         return polite_suffix_end(tokens, index + 1, forms=('positive',))

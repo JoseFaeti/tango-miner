@@ -2,6 +2,10 @@
 
 Status: [~]
 
+Selected conditional `ていけば` forms are recognized at complete token
+boundaries; focused Sudachi tests include an independent 行けば control.
+Corpus effects and expression precedence remain unevaluated.
+
 ## Meaning and tracked scope
 
 movement away or change continuing onward.

@@ -15,7 +15,8 @@ class TeIkuTests(unittest.TestCase):
             analyzer = dictionary.Dictionary(config_path='sudachi.config.json', dict='full').create()
         except (ImportError, OSError, RuntimeError) as exc:
             self.skipTest(f'Sudachi full dictionary unavailable: {exc}')
-        cases = {'雨が降っていく。': 'ていく', '変わっていった。': 'ていった',
+        cases = {'続けていけば。': 'ていけば', '駅へ行けば。': None,
+                 '雨が降っていく。': 'ていく', '変わっていった。': 'ていった',
                  '歩いて行く。': 'て行く', '歩いていきます。': 'ていきます',
                  '歩いていきませんでした。': 'ていきませんでした',
                  '歩いていかない。': 'ていかない', '歩いていかなかった。': 'ていかなかった',

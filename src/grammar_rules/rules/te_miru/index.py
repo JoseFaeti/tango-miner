@@ -1,7 +1,7 @@
 """Source-aligned verb te-form + non-independent miru (try doing)."""
 from src.GrammarConstants import TE_MIRU_GRAMMAR_EXPRESSION
 from src.grammar_rules.base import GrammarRule
-from src.grammar_rules.helpers import adjacent, negative_suffix_end, polite_suffix_end
+from src.grammar_rules.helpers import adjacent, negative_suffix_end, positive_verb_end
 
 
 def match_te_miru(tokens):
@@ -18,16 +18,13 @@ def match_te_miru(tokens):
         miru = tokens[i + 1]
         if miru['lemma'] not in ('みる', '見る') or miru['pos'][:2] != ['動詞', '非自立可能']:
             continue
-        end = None
-        if miru['surface'] in ('みる', '見る'):
-            end = i + 1
-        elif miru['surface'] in ('み', '見') and i + 2 < len(tokens) and adjacent(miru, tokens[i + 2]):
+        end = positive_verb_end(tokens, i + 1, lemma=miru['lemma'],
+                                base_forms={'みる', '見る', 'みよう', '見よう'},
+                                past_stems={'み', '見'}, polite_stems={'み', '見'},
+                                te_stems={'み', '見'}, conditional_stems={'みれ', '見れ'})
+        if end is None and miru['surface'] in ('み', '見') and i + 2 < len(tokens) and adjacent(miru, tokens[i + 2]):
             suffix = tokens[i + 2]
-            if suffix['lemma'] == 'た' and suffix['pos'][:1] == ['助動詞'] and suffix['surface'] == 'た':
-                end = i + 2
-            elif suffix['lemma'] == 'ます' and suffix['pos'][:1] == ['助動詞']:
-                end = polite_suffix_end(tokens, i + 2, forms=('positive',))
-            elif suffix['lemma'] == 'ない' and suffix['pos'][:1] == ['助動詞']:
+            if suffix['lemma'] == 'ない' and suffix['pos'][:1] == ['助動詞']:
                 end = negative_suffix_end(tokens, i + 2, pos='助動詞', continuative=True, extended=True)
         if end is not None:
             yield connective['span'][0], tokens[end]['span'][1]

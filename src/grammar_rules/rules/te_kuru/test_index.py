@@ -16,6 +16,7 @@ class TeKuruTests(unittest.TestCase):
         except (ImportError, OSError, RuntimeError) as exc:
             self.skipTest(f'Sudachi full dictionary unavailable: {exc}')
         cases = {
+            '持ってくれば。': 'てくれば', '持って来れば。': 'て来れば', '駅に来れば。': None,
             '雨が降ってくる。': 'てくる', '雨が降ってきた。': 'てきた',
             '雨が降ってきます。': 'てきます', '雨が降ってきました。': 'てきました',
             '雨が降ってきませんでした。': 'てきませんでした',
