@@ -84,12 +84,11 @@ def report_row(row):
 
 def example_changes(before, after):
     changes = []
-    for index, (old, new) in enumerate(zip_longest(before, after)):
-        if old == new:
-            continue
-        partial = ({key: value for key, value in new.items() if old is None or old[key] != value}
-                   if new is not None else None)
-        changes.append({"index": index, "before": old, "after": partial})
+    for old, new in zip_longest(before, after):
+        old = old or {"text": None, "score": None}
+        new = new or {"text": None, "score": None}
+        changes.append({key: [old[key]] if old[key] == new[key] else [old[key], new[key]]
+                        for key in ("text", "score")})
     return changes
 
 
@@ -104,7 +103,7 @@ def build_change_report(before, after):
                 category = "added" if a is None else "removed"
                 changes[category].append({"candidate": word, **(b if a is None else a)})
             else:
-                fields = {key: {"before": a[key], "after": b[key]}
+                fields = {key: [a[key], b[key]]
                           for key in a if key != "examples" and a[key] != b[key]}
                 if a["examples"] != b["examples"]:
                     fields["examples"] = example_changes(a["examples"], b["examples"])
