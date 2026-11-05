@@ -20,6 +20,31 @@ from src.steps.OccurrenceDiagnosticsStep.index import OccurrenceDiagnosticsStep
 
 
 class TangoMinerTests(unittest.TestCase):
+    def test_run_uses_archived_config_if_original_changes_during_startup(self):
+        from tango_miner import create_run_archive
+
+        with tempfile.TemporaryDirectory() as tmp:
+            source = Path(tmp) / "custom.toml"
+            original = b'[filter]\nmin_frequency = 7\n'
+            source.write_bytes(original)
+
+            def archive_then_change(*args, **kwargs):
+                result = create_run_archive(*args, **kwargs)
+                source.write_text('[filter]\nmin_frequency = 99\n', encoding="utf-8")
+                return result
+
+            with patch("tango_miner.create_run_archive", side_effect=archive_then_change), \
+                 patch("tango_miner.Pipeline") as pipeline:
+                pipeline.return_value.duration = 0
+                process_script(["--config", str(source), "--input", tmp, "--silent"])
+            saved, = (Path(tmp) / "runs").glob("*/config.toml")
+            self.assertEqual(saved.read_bytes(), original)
+            settings = json.loads((saved.parent / "config.json").read_text(encoding="utf-8"))
+            self.assertEqual(settings["filter"]["min_frequency"], 7)
+            filter_step = next(s for s in pipeline.call_args.kwargs["steps"]
+                               if isinstance(s, FilterFrequencyStep))
+            self.assertEqual(filter_step.min_frequency, 7)
+
     def test_removed_grammar_diagnostic_option_is_rejected(self):
         with redirect_stderr(io.StringIO()), self.assertRaises(SystemExit) as result:
             process_script(['--grammar-shadow'])

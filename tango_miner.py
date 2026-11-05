@@ -121,7 +121,11 @@ def process_script(argv=None):
         if value is not None:
             overrides.setdefault(section, {})[key] = value
     try:
-        config = resolve_config(args.config, overrides)
+        config_bytes = Path(args.config).read_bytes()
+        with TemporaryDirectory() as config_tmp:
+            initial_config = Path(config_tmp) / "config.toml"
+            initial_config.write_bytes(config_bytes)
+            config = resolve_config(initial_config, overrides)
         if config.input.path is None:
             default_input = corpus_path_from_env(Path(__file__).resolve().parent / ".env")
             if default_input is not None:
@@ -156,6 +160,11 @@ def process_script(argv=None):
 
         output_path = resolve_directory_output_path(input_path_obj, config.output.path)
         final_path = create_run_archive(output_path, config)
+        archived_config = final_path.parent / "config.toml"
+        archived_config.write_bytes(config_bytes)
+        config = resolve_config(archived_config, overrides)
+        if config.input.path is None:
+            config = replace(config, input=replace(config.input, path=input_path))
 
         print_debug(f'Output path: {final_path.resolve()}')
 

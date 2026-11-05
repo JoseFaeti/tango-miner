@@ -76,8 +76,11 @@ Each completed or failed pipeline run writes `report.md`, a concise overview of 
 Each run writes the requested CSV and its `.dropped.csv` and `.sentence.csv`
 companions under `runs/<local-date>_<time>_<git-revision>/` beside the
 requested output path. Repeated runs in the same minute receive a numbered
-suffix rather than overwriting earlier files. The run also saves the resolved
-`config.json`, `notes.txt`, and an `input-manifest.json` with SHA-256 hashes
+suffix rather than overwriting earlier files. The run copies the selected TOML
+configuration to `config.toml` and uses that snapshot for the run; later changes
+to the original file do not affect it. Command-line overrides and the optional
+`.env` input are reflected in the resolved `config.json`. The run also saves
+`notes.txt` and an `input-manifest.json` with SHA-256 hashes
 of discovered input files. `summary.json` records run status, per-stage counts
 and durations, file-level tokenizer cache hits and misses, the retokenization
 option, dependency versions and dictionary hashes, and the Anki plan and
