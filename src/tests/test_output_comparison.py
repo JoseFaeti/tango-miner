@@ -38,7 +38,7 @@ class OutputComparisonTests(unittest.TestCase):
             self.assertEqual(entries['新']['sentence_count'], 0)
             self.assertEqual(entries['旧']['score'], 0)
             self.assertNotIn('word', entries['新'])
-            self.assertEqual(entries['猫']['fields']['examples'][0], {'text': ["<span class='highlight'>例</span>"], 'score': [2.5]})
+            self.assertEqual(entries['猫']['fields']['examples'][0], {'text': [None, "<span class='highlight'>例</span>"], 'score': [None, 2.5]})
 
     def test_example_changes_only_include_changed_properties(self):
         from src.RunComparison import example_changes, report_examples
@@ -49,14 +49,14 @@ class OutputComparisonTests(unittest.TestCase):
             {'text': ['two', 'changed'], 'score': [2.0]},
         ])
         self.assertEqual(example_changes(before[:1], []), [
-            {'text': ['one'], 'score': [1.0]},
+            {'text': ['one', None], 'score': [1.0, None]},
         ])
         self.assertEqual(example_changes(before, before[:1]), [
             {'text': ['one'], 'score': [1.0]},
-            {'text': ['two'], 'score': [2.0]},
+            {'text': ['two', None], 'score': [2.0, None]},
         ])
         self.assertEqual(example_changes([], after[:1]), [
-            {'text': ['one'], 'score': [3.0]},
+            {'text': [None, 'one'], 'score': [None, 3.0]},
         ])
         self.assertEqual(report_examples("<span class='highlight'>猫</span> &amp; 犬<br><span class='tag sentence-tag'>source - -1.5</span>"),
                          [{'text': "<span class='highlight'>猫</span> & 犬", 'score': -1.5}])
