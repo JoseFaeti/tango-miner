@@ -45,6 +45,14 @@ connective particle. Focused tokenizer regressions cover both forms and a
 standalone locative `いて` control; they do not establish corpus-wide
 precision or recall.
 
+Colloquial `てん` / `でん` is recognized when Sudachi splits the
+contracted auxiliary and nominalizing `ん`, as in an archived
+`思ってんじゃねぇ` example. Fused auxiliary `てん` / `でん` followed by
+nominalizing or sentence-final `の` is also recognized. The split `ん` is
+included in the aspect span and can simultaneously belong to `〜んだ`;
+focused tests check that overlap. Expression precedence and corpus-wide
+frequency and precision remain unevaluated.
+
 Source-aligned listing forms `ていたり` / `でいたり`, `居` spelling, and
 contracted `てたり` / `でたり` are recognized when Sudachi analyzes
 `たり` as an adverbial particle. Focused tokenizer tests include locative

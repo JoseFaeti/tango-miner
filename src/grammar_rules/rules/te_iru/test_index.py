@@ -6,7 +6,8 @@ from unittest.mock import patch
 
 from src.Artifact import Artifact
 from src.Grammar import GrammarStep, GrammarRule, GrammarPositionStep, AddGrammarCardsStep
-from src.grammar_rules.rules.te_iru.index import match_te_iru
+from src.grammar_rules.rules.te_iru.index import RULE as TE_IRU, match_te_iru
+from src.grammar_rules.rules.nda.index import RULE as NDA, match_nda
 from src.grammar_rules.alignment import aligned_tokens
 from src.GrammarConstants import TE_IRU_GRAMMAR_EXPRESSION as EXPRESSION
 from src.TokenizedSentence import TokenizedSentence
@@ -32,6 +33,10 @@ class TeIruCardTests(unittest.TestCase):
         except (ImportError, OSError, RuntimeError) as exc:
             self.skipTest(f'Sudachi full dictionary unavailable: {exc}')
         cases = {
+            'おまえら本当に帝国に戻れると思ってんじゃねぇよな。': 'てん',
+            '知ってんだ。': 'てん', '読んでんだ。': 'でん',
+            '何してんの。': 'てん', '見てんの。': 'てん',
+            '駅に出るんだ。': None,
             '本を読んでいれば楽しい。': 'でいれば',
             '本を見ていれば分かる。': 'ていれば',
             '本を読んで居ればいい。': 'で居れば',
@@ -95,6 +100,29 @@ class TeIruCardTests(unittest.TestCase):
                 self.assertIsNone(error)
                 found = [text[start:end] for start, end in match_te_iru(aligned)]
                 self.assertEqual(found, [] if expected is None else [expected])
+
+    def test_split_contraction_overlaps_explanatory_card(self):
+        try:
+            from sudachipy import dictionary, tokenizer
+            analyzer = dictionary.Dictionary(config_path='sudachi.config.json', dict='full').create()
+        except (ImportError, OSError, RuntimeError) as exc:
+            self.skipTest(f'Sudachi full dictionary unavailable: {exc}')
+        text = '今日は本を読んでんだよ。'
+        raw = [tok(m.surface(), m.dictionary_form(), m.part_of_speech())
+               for m in analyzer.tokenize(text, tokenizer.Tokenizer.SplitMode.C)]
+        aligned, error = aligned_tokens(text, raw)
+        self.assertIsNone(error)
+        self.assertEqual([text[a:b] for a, b in match_te_iru(aligned)], ['でん'])
+        self.assertEqual([text[a:b] for a, b in match_nda(aligned)], ['んだ'])
+
+        from src.Grammar import ExcludeGrammarTokensStep
+        source = sentence(text, raw)
+        stage = GrammarStep(rules=(TE_IRU, NDA))
+        result = ExcludeGrammarTokensStep(stage).process(stage.process(Artifact([source])))
+        self.assertEqual(stage.occurrences[TE_IRU.id].count, 1)
+        self.assertEqual(stage.occurrences[NDA.id].count, 1)
+        self.assertEqual([t['surface'] for t in result.data[0].tokens if t.get('grammar_reserved')],
+                         ['で', 'ん', 'だ'])
 
     def valid(self):
         return sentence('今日は本を読んでいるよ。', [

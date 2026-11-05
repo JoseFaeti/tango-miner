@@ -31,6 +31,10 @@ interpretation.
    overlapping expression reservation needs investigation. The Anki preview
    reported no deletions.
    Fused `てる` tokenizations and other positive forms remain future work.
+   A documented source example of `てん` split as auxiliary `て` plus `ん`
+   is now recognized, as are selected fused `てん` / `でん` before `の`.
+   The split form can overlap `〜んだ`; focused tests cover both rule spans,
+   but expression precedence and corpus-wide effects remain unevaluated.
    The shared positive matcher also supports caller-selected connective and
    conditional stems. `〜てみる` and the benefactive family use these for
    selected `て` and `ば` forms and recognize selected volitionals; `〜ていく`

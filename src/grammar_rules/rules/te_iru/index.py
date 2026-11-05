@@ -50,10 +50,18 @@ def match_te_iru(tokens):
         elif token['pos'][:1] == ['助動詞'] and token['lemma'] in ('てる', 'でる'):
             if token['surface'] in ('てる', 'でる', 'てよう', 'でよう', 'てろ', 'でろ'):
                 end = i
+            elif (token['surface'] in ('てん', 'でん') and has_next(tokens, i)
+                  and tokens[i + 1]['surface'] == 'の'
+                  and tokens[i + 1]['pos'][:2] in (['助詞', '準体助詞'], ['助詞', '終助詞'])):
+                end = i
             elif token['surface'] in ('てれ', 'でれ'):
                 end = conditional_end(i)
             elif token['surface'] in ('て', 'で'):
                 end = suffix_end(i)
+                if (end is None and has_next(tokens, i)
+                        and tokens[i + 1]['surface'] == 'ん'
+                        and tokens[i + 1]['pos'][:2] == ['助詞', '準体助詞']):
+                    end = i + 1
         elif (token['surface'] in ('て', 'で')
               and (token['pos'][:2] == ['助詞', '接続助詞']
                    or (token['surface'] == 'で' and token['lemma'] == 'だ'
