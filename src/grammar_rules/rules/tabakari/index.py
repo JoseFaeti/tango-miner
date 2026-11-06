@@ -7,6 +7,8 @@ from src.grammar_rules.helpers import adjacent
 def match_tabakari(tokens):
     for i in range(2, len(tokens)):
         verb, past, marker = tokens[i - 2:i + 1]
+        if marker['surface'] not in ('ばかり', 'ばっかり', 'ばっか'):
+            continue
         if (verb['pos'][:1] != ['動詞']
                 or past['surface'] not in ('た', 'だ')
                 or past['lemma'] != past['surface']

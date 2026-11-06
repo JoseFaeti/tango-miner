@@ -7,6 +7,8 @@ from src.grammar_rules.helpers import adjacent
 def match_tame_ni(tokens):
     for i in range(1, len(tokens) - 1):
         previous, tame, ni = tokens[i - 1:i + 2]
+        if tame['surface'] not in ('ため', '為') or ni['surface'] != 'に':
+            continue
         predicate = (previous['pos'][:1] in (['動詞'], ['形容詞'], ['助動詞'])
                      and len(previous['pos']) >= 6
                      and previous['pos'][5].startswith('連体形'))

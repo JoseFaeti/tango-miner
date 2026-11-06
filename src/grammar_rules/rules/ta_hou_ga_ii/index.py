@@ -7,6 +7,8 @@ from src.grammar_rules.helpers import adjacent, next_matches
 def match_ta_hou_ga_ii(tokens):
     for i in range(1, len(tokens) - 3):
         verb, suffix = tokens[i - 1:i + 1]
+        if suffix['surface'] not in ('た', 'だ', 'ない'):
+            continue
         if (verb['pos'][:1] not in (['動詞'], ['助動詞'])
                 or len(verb['pos']) < 6 or not adjacent(verb, suffix)):
             continue

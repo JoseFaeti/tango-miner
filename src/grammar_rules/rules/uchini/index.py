@@ -7,6 +7,8 @@ from src.grammar_rules.helpers import adjacent
 def match_uchini(tokens):
     for i in range(1, len(tokens) - 1):
         previous, noun, particle = tokens[i - 1:i + 2]
+        if noun['surface'] not in ('うち', '内') or particle['surface'] != 'に':
+            continue
         nominal = (i >= 2 and previous['surface'] == 'の' and previous['lemma'] == 'の'
                    and previous['pos'][:2] == ['助詞', '格助詞']
                    and tokens[i - 2]['pos'][:1] == ['名詞']

@@ -39,6 +39,8 @@ def match_te_iru(tokens):
 
     for i in range(1, len(tokens)):
         previous, token = tokens[i - 1:i + 1]
+        if token['surface'] not in ('て', 'で', 'でない') and token['lemma'] not in ('てる', 'でる'):
+            continue
         if (not has_next(tokens, i - 1) or previous['pos'][:1] not in (['動詞'], ['助動詞'])
                 or len(previous['pos']) < 6 or not previous['pos'][5].startswith('連用形')):
             continue

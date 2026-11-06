@@ -7,6 +7,8 @@ from src.grammar_rules.helpers import adjacent, next_matches
 def match_hazu_da(tokens):
     for i in range(1, len(tokens) - 1):
         previous, hazu, copula = tokens[i - 1:i + 2]
+        if hazu['surface'] != 'はず':
+            continue
         if not adjacent(previous, hazu) or not adjacent(hazu, copula):
             continue
         if hazu['surface'] != 'はず' or hazu['lemma'] != 'はず' or hazu['pos'][:2] != ['名詞', '普通名詞']:

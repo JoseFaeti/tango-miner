@@ -37,6 +37,8 @@ def has_frequency_cue(tokens, verb_index):
 def match_occasional(tokens):
     for i in range(1, len(tokens)):
         verb, koto = tokens[i - 1:i + 1]
+        if koto['surface'] not in ('こと', 'ことがある'):
+            continue
         if (verb['pos'][:1] != ['動詞'] or len(verb['pos']) < 6
                 or not verb['pos'][5].startswith(('終止形', '連体形'))
                 or not adjacent(verb, koto) or not has_frequency_cue(tokens, i - 1)):

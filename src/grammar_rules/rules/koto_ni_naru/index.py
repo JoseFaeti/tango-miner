@@ -7,6 +7,8 @@ from src.grammar_rules.helpers import adjacent, next_matches, positive_verb_end
 def match_koto_ni_naru(tokens):
     for i in range(1, len(tokens)):
         predicate, koto = tokens[i - 1:i + 1]
+        if koto['surface'] not in ('こと', 'ことになる'):
+            continue
         pos = predicate['pos']
         if not adjacent(predicate, koto) or len(pos) < 6:
             continue

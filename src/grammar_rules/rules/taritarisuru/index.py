@@ -7,11 +7,12 @@ from src.grammar_rules.helpers import adjacent, next_matches, positive_verb_end
 def match_taritarisuru(tokens):
     for i in range(1, len(tokens) - 1):
         predicate, particle = tokens[i - 1:i + 1]
+        if particle['surface'] not in ('たり', 'だり'):
+            continue
         pos = predicate['pos']
         if (not adjacent(predicate, particle) or len(pos) < 6
                 or pos[:1] not in (['動詞'], ['形容詞'], ['助動詞'])
                 or not pos[5].startswith('連用形')
-                or particle['surface'] not in ('たり', 'だり')
                 or particle['lemma'] != particle['surface']
                 or particle['pos'][:2] != ['助詞', '副助詞']
                 or not next_matches(tokens, i, 'する', '動詞')):

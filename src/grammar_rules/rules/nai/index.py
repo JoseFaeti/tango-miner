@@ -13,11 +13,9 @@ RULE = GrammarRule(
 
 
 def match_nai(tokens):
-    no_obligation_starts = {start for start, _ in match_nakutemoii(tokens)}
+    no_obligation_starts = None
     for i in range(1, len(tokens)):
         previous, negative = tokens[i - 1:i + 1]
-        if negative['span'][0] in no_obligation_starts:
-            continue
         if (not adjacent(previous, negative) or negative['lemma'] != 'ない'
                 or negative['pos'][:1] != ['助動詞']
                 or len(previous['pos']) < 6
@@ -31,4 +29,7 @@ def match_nai(tokens):
                                   conditional=True, concessive=True)
         if end is None:
             continue
-        yield negative['span'][0], tokens[end]['span'][1]
+        if no_obligation_starts is None:
+            no_obligation_starts = {start for start, _ in match_nakutemoii(tokens)}
+        if negative['span'][0] not in no_obligation_starts:
+            yield negative['span'][0], tokens[end]['span'][1]

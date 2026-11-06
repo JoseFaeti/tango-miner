@@ -7,6 +7,8 @@ from src.grammar_rules.helpers import adjacent, next_matches
 def _match(tokens, appearance):
     for i in range(1, len(tokens) - 1):
         previous, sou, copula = tokens[i - 1:i + 2]
+        if sou['surface'] != 'そう':
+            continue
         if not adjacent(previous, sou) or not adjacent(sou, copula):
             continue
         expected = ['形状詞', '助動詞語幹'] if appearance else ['名詞', '助動詞語幹']

@@ -15,6 +15,8 @@ RULE = GrammarRule(
 def match_experience(tokens):
     for i in range(2, len(tokens)):
         verb, past, koto = tokens[i - 2:i + 1]
+        if koto['surface'] not in ('こと', 'ことがある', 'ことがない'):
+            continue
         if (verb['pos'][:1] != ['動詞'] or len(verb['pos']) < 6
                 or not verb['pos'][5].startswith('連用形')
                 or (past['surface'], past['lemma']) not in (('た', 'た'), ('だ', 'だ'))

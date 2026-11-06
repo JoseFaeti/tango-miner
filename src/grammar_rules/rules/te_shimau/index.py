@@ -14,6 +14,8 @@ RULE = GrammarRule(
 def match_te_shimau(tokens):
     for i in range(1, len(tokens)):
         verb, first = tokens[i - 1:i + 1]
+        if first['surface'] not in ('て', 'で') and first['lemma'] not in ('ちゃう', 'じゃう'):
+            continue
         if (not has_next(tokens, i - 1) or verb['pos'][:1] not in (['動詞'], ['助動詞'])
                 or len(verb['pos']) < 6 or not verb['pos'][5].startswith('連用形')):
             continue

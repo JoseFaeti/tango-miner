@@ -7,6 +7,8 @@ from src.grammar_rules.helpers import adjacent
 def match_te_kara(tokens):
     for i in range(1, len(tokens) - 1):
         verb, te, kara = tokens[i - 1:i + 2]
+        if te['surface'] not in ('て', 'で') or kara['surface'] != 'から':
+            continue
         pos = verb['pos']
         if (pos[:1] not in (['動詞'], ['助動詞']) or len(pos) < 6
                 or not pos[5].startswith('連用形')

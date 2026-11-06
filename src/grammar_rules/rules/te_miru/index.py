@@ -7,11 +7,12 @@ from src.grammar_rules.helpers import adjacent, negative_suffix_end, positive_ve
 def match_te_miru(tokens):
     for i in range(1, len(tokens)):
         verb, connective = tokens[i - 1:i + 1]
+        if connective['surface'] not in ('て', 'で'):
+            continue
         if (not adjacent(verb, connective)
                 or verb['pos'][:1] not in (['動詞'], ['助動詞'])
                 or len(verb['pos']) < 6
                 or not verb['pos'][5].startswith('連用形')
-                or connective['surface'] not in ('て', 'で')
                 or connective['pos'][:2] != ['助詞', '接続助詞']
                 or i + 1 >= len(tokens) or not adjacent(connective, tokens[i + 1])):
             continue

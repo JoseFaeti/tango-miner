@@ -7,6 +7,8 @@ from src.grammar_rules.helpers import adjacent
 def match_te_kudasai(tokens):
     for i in range(1, len(tokens) - 1):
         verb, connective, request = tokens[i - 1:i + 2]
+        if connective['surface'] not in ('て', 'で') or request['lemma'] not in ('くださる', '下さる', 'くれる', '呉れる'):
+            continue
         if (verb['pos'][:1] not in (['動詞'], ['助動詞'])
                 or len(verb['pos']) < 6 or not verb['pos'][5].startswith('連用形')
                 or connective['surface'] not in ('て', 'で')

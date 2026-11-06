@@ -7,6 +7,8 @@ from src.grammar_rules.helpers import adjacent, next_matches
 def match_tokoroda(tokens):
     for i in range(1, len(tokens) - 1):
         previous, noun, copula = tokens[i - 1:i + 2]
+        if noun['surface'] not in ('ところ', '所'):
+            continue
         verb = (previous['pos'][:1] == ['動詞'] and len(previous['pos']) >= 6
                 and previous['pos'][5].startswith('連体形'))
         past = (i >= 2 and previous['surface'] in ('た', 'だ')

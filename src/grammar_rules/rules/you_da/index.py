@@ -7,6 +7,8 @@ from src.grammar_rules.helpers import adjacent, next_matches
 def match_you_da(tokens):
     for i in range(1, len(tokens) - 1):
         previous, you, copula = tokens[i - 1:i + 2]
+        if you['surface'] != 'よう':
+            continue
         if not adjacent(previous, you) or not adjacent(you, copula):
             continue
         if you['surface'] != 'よう' or you['lemma'] != 'よう' or you['pos'][:2] != ['形状詞', '助動詞語幹']:
