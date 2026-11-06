@@ -7,20 +7,24 @@ from src.grammar_rules.rules.nakutemoii.index import match_nakutemoii
 
 
 def match_te_mo(tokens):
-    permission_starts = {start for start, _ in match_te_mo_ii(tokens)}
-    no_obligation = list(match_nakutemoii(tokens))
+    permission_starts = None
+    no_obligation = None
     for i in range(1, len(tokens) - 2):
         anchor, connective = tokens[i - 1:i + 1]
-        if any(start <= connective['span'][0] < end for start, end in no_obligation):
+        if connective['surface'] not in ('て', 'で'):
             continue
         pos = anchor['pos']
         if (pos[:1] not in (['動詞'], ['形容詞'], ['助動詞'])
                 or len(pos) < 6 or not pos[5].startswith('連用形')
                 or not adjacent(anchor, connective)
-                or connective['surface'] not in ('て', 'で')
                 or connective['pos'][:2] != ['助詞', '接続助詞']
-                or not next_matches(tokens, i, 'も', '助詞', 'も')
-                or connective['span'][0] in permission_starts):
+                or not next_matches(tokens, i, 'も', '助詞', 'も')):
+            continue
+        if permission_starts is None:
+            permission_starts = {start for start, _ in match_te_mo_ii(tokens)}
+            no_obligation = list(match_nakutemoii(tokens))
+        if (connective['span'][0] in permission_starts
+                or any(start <= connective['span'][0] < end for start, end in no_obligation)):
             continue
         following = tokens[i + 2:]
         if not following or following[0]['surface'] in ('。', '！', '？', '!', '?'):

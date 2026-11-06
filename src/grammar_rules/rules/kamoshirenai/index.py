@@ -7,6 +7,8 @@ from src.grammar_rules.helpers import adjacent, negative_predicate_end
 def match_kamoshirenai(tokens):
     for i in range(1, len(tokens) - 3):
         previous, ka, mo, shire = tokens[i - 1:i + 3]
+        if ka['surface'] != 'か' or mo['surface'] != 'も' or shire['surface'] != 'しれ':
+            continue
         if (previous['pos'][:1] not in (['動詞'], ['形容詞'], ['形状詞'], ['助動詞'], ['名詞'])
                 or not all(adjacent(tokens[j], tokens[j + 1]) for j in range(i - 1, i + 2))
                 or (ka['surface'], ka['lemma'], ka['pos'][:2]) != ('か', 'か', ['助詞', '副助詞'])
