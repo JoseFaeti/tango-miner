@@ -720,6 +720,8 @@ def combine_tokens_jmdict(
                 and not _has_useful_kana_only_sense(definitions)
                 and not _is_prefixed_kana_noun(token_list[i:j], definitions)
                 and not _is_split_kana_noun(token_list[i:j], definitions)
+                and not (token_string == 'まけずぎらい'
+                         and [t['surface'] for t in token_list[i:j]] == ['まけ', 'ず', 'ぎらい'])
             ):
                 reject("kana_entry_not_eligible_for_merge")
                 continue

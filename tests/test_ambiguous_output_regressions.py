@@ -30,6 +30,23 @@ class AmbiguousOutputRegressionTests(unittest.TestCase):
     def setUpClass(cls):
         cls.jmdict = get_jmdict()
 
+    def test_makezugirai_recovers_dictionary_word_from_source(self):
+        for text in ('『まけずぎらい』すばやさとたいりょくが少し上がりやすい。',
+                     '読むと性格がまけずぎらいになる本使ったらなくなる'):
+            with self.subTest(text=text):
+                words, _ = tokenize([text])
+                self.assertIn('まけずぎらい', words)
+                stats = words['まけずぎらい']
+                self.assertIn('competitive', self.jmdict.get_most_common_definition(
+                    'まけずぎらい', component_counts=stats.component_counts))
+                self.assertEqual([c.surface for c in next(iter(stats.component_counts))],
+                                 ['まけ', 'ず', 'ぎらい'])
+
+        for text in ('負けずに頑張る。', '好き嫌いが激しい。'):
+            with self.subTest(text=text):
+                words, _ = tokenize([text])
+                self.assertNotIn('まけずぎらい', words)
+
     def test_conjunction_pos_alone_cannot_distinguish_fragments(self):
         cases = [
             ('ないし', 'まだ全然自信ないし、それに倒れちゃったら困るから。', '月曜日ないし火曜日に会いましょう。'),
