@@ -33,10 +33,10 @@ spelling remain lexical. The meaning can be preparation or leaving a resulting
 state; tokenization cannot establish which.
 A raw replay of the first 20,000 archived sentences found 123 matches, before
 expression precedence and example eligibility; this does not measure precision
-or recall. In the archived ほっとく example, the current dictionary merger
-leaves ほっ and とく separate. Reservation keeps the ほる component and removes
-the とく lexical occurrence; the complete expression is not emitted as a
-lexical candidate in this example. Independent おく and 置く remain eligible.
+or recall. In the archived ほっとく example, an exact JMdict abbreviated verb
+now takes precedence over grammar, preserving the complete lexical candidate
+and its ほっ and とく component evidence. Ordinary 買っとく remains grammar.
+Independent おく and 置く remain eligible.
 When a longer JMdict expression starts at おく and extends beyond the
 construction, as in おけばいい or おけばよかった, it takes precedence over
 this grammar match. The attached verb remains eligible; in 従っておく, the

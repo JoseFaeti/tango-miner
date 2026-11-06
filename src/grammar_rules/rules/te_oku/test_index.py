@@ -128,7 +128,8 @@ class TeOkuTests(unittest.TestCase):
 
         try:
             dictionary = get_jmdict()
-            texts = ['これで１～２週間ほっとく', '今は本を買っておくよ', '明日は机に本を置くよ']
+            texts = ['これで１～２週間ほっとく', '今は本を買っておくよ', '明日は机に本を置くよ',
+                     '明日は本を買っとくよ']
             raw = tokenize_raw_sentences(texts, tag='source', source_path=Path('source.txt'))
         except (ImportError, OSError, RuntimeError) as exc:
             self.skipTest(f'Sudachi or JMdict unavailable: {exc}')
@@ -142,16 +143,18 @@ class TeOkuTests(unittest.TestCase):
                   for s in reserved]
         after, _ = build_word_stats(merged)
         self.assertEqual(stage.occurrences[RULE.id].count, 2)
+        self.assertIn('ほっとく', before)
+        self.assertIn('ほっとく', after)
+        self.assertEqual([c.surface for c in next(iter(after['ほっとく'].component_counts))],
+                         ['ほっ', 'とく'])
         self.assertIn('とく', before)
         self.assertNotIn('とく', after)
         self.assertIn('おく', before)
         self.assertNotIn('おく', after)
-        self.assertIn('ほる', after)
         self.assertIn('買う', after)
         self.assertIn('置く', after)
-        components = list(after['ほる'].component_counts)
-        self.assertEqual(components[0][0].surface, 'ほっ')
-        self.assertEqual(components[0][0].lemma, 'ほる')
+        self.assertFalse(any(t.get('grammar_reserved') for t in reserved[0].tokens))
+        self.assertTrue(any(t.get('grammar_reserved') for t in reserved[-1].tokens))
 
     def test_archived_overlapping_expressions_and_verb(self):
         from src.TokenizedSentence import TokenizedSentence

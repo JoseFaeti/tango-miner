@@ -12,6 +12,7 @@ checks/*
 !scripts/run_full_corpus.ps1
 !scripts/inspect_run.py
 !scripts/inspect_anki_plan.py
+!scripts/inspect_grammar_overlap.py
 !scripts/report_performance.py
 !scripts/benchmark_snapshot_payload.py
 !scripts/query_jsonl.py

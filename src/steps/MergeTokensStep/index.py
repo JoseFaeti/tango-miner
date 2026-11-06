@@ -134,6 +134,22 @@ def _is_split_kana_noun(tokens: list[dict], definitions: list) -> bool:
     )
 
 
+def _is_contracted_kana_verb(tokens: list[dict], entry) -> bool:
+    """Keep an attested abbreviated verb split into a verb and auxiliary."""
+    if len(tokens) != 2 or not isinstance(entry, dict):
+        return False
+    verb, auxiliary = tokens
+    if (verb['pos'][:1] not in (('動詞',), ['動詞'])
+            or auxiliary['pos'][:1] not in (('助動詞',), ['助動詞'])
+            or auxiliary['lemma'] not in {'とく', 'どく', 'ちゃう', 'じゃう', 'てる', 'でる'}
+            or auxiliary['surface'] != auxiliary['lemma']):
+        return False
+    return any('abbreviation' in sense.get('misc', [])
+               and any('verb' in tag.lower() and not tag.lower().startswith('adverb')
+                       for tag in sense.get('pos', []))
+               for sense in entry.get('senses', []))
+
+
 def _crosses_incompatible_grammar(tokens: list[dict], entry) -> bool:
     """Reject lexical readings contradicted by a clear Sudachi boundary."""
     if len(tokens) != 2 or not isinstance(entry, dict):
@@ -715,16 +731,22 @@ def combine_tokens_jmdict(
                     rejected.append({"surface": token_string, "start_token": i, "end_token": j,
                                      "components": [t["surface"] for t in token_list[i:j]], "reason": reason})
 
+            match_word = None
             if (
                 not has_kanji(token_string)
                 and not _has_useful_kana_only_sense(definitions)
                 and not _is_prefixed_kana_noun(token_list[i:j], definitions)
                 and not _is_split_kana_noun(token_list[i:j], definitions)
             ):
-                reject("kana_entry_not_eligible_for_merge")
-                continue
-
-            match_word = jmdict.get_best_entry(token_string)
+                if not any(_is_contracted_kana_verb(token_list[i:j], entry) for entry in definitions):
+                    reject("kana_entry_not_eligible_for_merge")
+                    continue
+                match_word = jmdict.get_best_entry(token_string)
+                if not _is_contracted_kana_verb(token_list[i:j], match_word):
+                    reject("kana_entry_not_eligible_for_merge")
+                    continue
+            if match_word is None:
+                match_word = jmdict.get_best_entry(token_string)
             if not match_word:
                 reject("no_best_entry")
                 continue
