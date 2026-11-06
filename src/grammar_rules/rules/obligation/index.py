@@ -17,6 +17,9 @@ def match_obligation(tokens):
     # Match whole aligned tokens only. Some dictionary analyses label complete
     # suffixes as nouns, so surfaces are checked alongside the verbal anchor.
     for i in range(1, len(tokens)):
+        first_surface = tokens[i]['surface']
+        if first_surface and first_surface not in _FORM_PREFIXES:
+            continue
         anchor = tokens[i - 1]
         pos = anchor['pos']
         if (pos[:1] != ['動詞'] or len(pos) < 6

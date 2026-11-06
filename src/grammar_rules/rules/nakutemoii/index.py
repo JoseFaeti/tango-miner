@@ -10,6 +10,9 @@ _PREFIXES = frozenset(form[:i] for form in _FORMS for i in range(len(form) + 1))
 
 def match_nakutemoii(tokens):
     for i in range(1, len(tokens)):
+        first_surface = tokens[i]['surface']
+        if first_surface and first_surface not in _PREFIXES:
+            continue
         anchor = tokens[i - 1]
         pos = anchor['pos']
         if (len(pos) < 6 or not pos[5].startswith('未然形')

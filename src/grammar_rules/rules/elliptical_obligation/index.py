@@ -26,6 +26,9 @@ def _at_utterance_end(tokens, index):
 
 def match_elliptical_obligation(tokens):
     for i in range(1, len(tokens)):
+        first_surface = tokens[i]['surface']
+        if first_surface and first_surface not in _PREFIXES:
+            continue
         anchor = tokens[i - 1]
         pos = anchor['pos']
         if (pos[:1] != ['動詞'] or len(pos) < 6
