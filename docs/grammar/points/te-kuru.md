@@ -6,6 +6,9 @@ Selected conditional `てくれば` and `て来れば` forms are recognized at
 complete token boundaries; focused Sudachi tests include an independent 来れば
 control. Corpus effects and expression precedence remain unevaluated.
 
+Focused Sudachi tests also cover complete `こなかったら` and
+`こなくったって` spans; other analyses remain unevaluated.
+
 ## Meaning and tracked scope
 
 movement toward, return or emerging change.

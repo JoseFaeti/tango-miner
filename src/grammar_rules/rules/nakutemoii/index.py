@@ -3,7 +3,7 @@ from src.GrammarConstants import NAKUTEMOII_GRAMMAR_EXPRESSION
 from src.grammar_rules.base import GrammarRule
 from src.grammar_rules.helpers import adjacent
 
-_FORMS = frozenset('なくても' + ending for ending in
+_FORMS = frozenset(prefix + ending for prefix in ('なくても', 'なくったって') for ending in
                    ('いい', 'よい', '良い', 'よかった', '良かった'))
 _PREFIXES = frozenset(form[:i] for form in _FORMS for i in range(len(form) + 1))
 

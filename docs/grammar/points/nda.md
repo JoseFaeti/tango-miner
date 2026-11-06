@@ -2,6 +2,9 @@
 
 Status: [~]
 
+Focused Sudachi tests cover complete `んじゃなかったら` and
+`んじゃなくったって` spans. Corpus effects remain unevaluated.
+
 ## Meaning and tracked scope
 
 explanatory construction.

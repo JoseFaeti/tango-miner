@@ -27,7 +27,8 @@ def match_nai(tokens):
                 (previous['pos'][:1] == ['助動詞'] and
                  previous['lemma'] in ('れる', 'られる', 'せる', 'させる'))):
             continue
-        end = negative_suffix_end(tokens, i, pos='助動詞', continuative=True, conditional=True)
+        end = negative_suffix_end(tokens, i, pos='助動詞', continuative=True,
+                                  conditional=True, concessive=True)
         if end is None:
             continue
         yield negative['span'][0], tokens[end]['span'][1]

@@ -15,7 +15,19 @@ interpretation.
    The shared matcher now consumes observed `なくっ` + `て` and split
    `なけれ` + `ば` completely; incomplete stems are rejected. Existing
    `なきゃ` and `なかったら` coverage is tested across selected rules.
-   Sudachi’s `なくっ` + `た` + `ってな` analysis remains unsupported.
+   The observed `なくっ` + `たって` analysis is now consumed completely
+   by opted-in callers; ordinary verbal negation also recognizes `なかったら`,
+   `なきゃ`, and `なけりゃ`. Complete `なくったっていい` is handled by
+   the no-obligation rule rather than the shorter verbal-negation match.
+   The distinct `なくっ` + `た` + `ってな` analysis remains unsupported.
+   A bounded search of the available input files found ten `なくっ` cases
+   in lines containing `なくったって`; retokenizing those lines with the
+   configured dictionary produced `たって` as a separate particle in each.
+   This is source-line tokenization rather than a pipeline replay or an
+   independent accuracy evaluation, and does not establish that other
+   tokenizations cannot occur.
+   Focused tests cover these forms, gaps and lexical controls; effects on
+   corpus frequencies and expression precedence remain unmeasured.
    A same-input run found `〜ていく` down two and lexical `いく` and
    `ない` each up two; the Anki preview had no deletions. Other effects on
    expression precedence and recall still need investigation.

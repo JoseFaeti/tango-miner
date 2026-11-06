@@ -70,7 +70,8 @@ def positive_verb_end(tokens, index, *, lemma, base_forms, past_stems, polite_st
     return None
 
 
-def negative_suffix_end(tokens, index, *, pos, continuative=False, conditional=False, extended=False):
+def negative_suffix_end(tokens, index, *, pos, continuative=False, conditional=False,
+                        concessive=False, extended=False):
     """Return the end of a supported negative suffix, requiring complete forms."""
     token = tokens[index]
     if token['lemma'] != 'ない' or token['pos'][:1] != [pos]:
@@ -78,14 +79,20 @@ def negative_suffix_end(tokens, index, *, pos, continuative=False, conditional=F
     surface = token['surface']
     if surface == 'ない' or (continuative and surface == 'なく'):
         return index
-    if surface == 'なかっ' and (next_matches(tokens, index, 'た', '助動詞', 'た')
-                                 or (extended and next_matches(tokens, index, 'た', '助動詞'))):
-        return index + 1
-    if extended and surface == 'なくっ':
-        return index + 1 if next_matches(tokens, index, 'て', '助詞', 'て') else None
+    if surface == 'なかっ' and next_matches(tokens, index, 'た', '助動詞'):
+        suffix = tokens[index + 1]['surface']
+        if suffix == 'た' or (conditional and suffix == 'たら') or extended:
+            return index + 1
+    if (concessive or extended) and surface == 'なくっ':
+        if (next_matches(tokens, index, 'て', '助詞', 'て')
+                or next_matches(tokens, index, 'たって', '助詞', 'たって')):
+            return index + 1
+        return None
     if (conditional or extended) and surface == 'なけれ':
         return index + 1 if next_matches(tokens, index, 'ば', '助詞', 'ば') else None
-    if extended and surface in ('なきゃ', 'なけりゃ', 'なかろう', 'んかっ', 'な'):
+    if (conditional or extended) and surface in ('なきゃ', 'なけりゃ'):
+        return index
+    if extended and surface in ('なかろう', 'んかっ', 'な'):
         return index
     return None
 

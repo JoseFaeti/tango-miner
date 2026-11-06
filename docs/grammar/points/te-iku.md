@@ -6,6 +6,10 @@ Selected conditional `ていけば` forms are recognized at complete token
 boundaries; focused Sudachi tests include an independent 行けば control.
 Corpus effects and expression precedence remain unevaluated.
 
+The observed `出ていかなくったってなあ` is matched through `たって`
+when Sudachi splits it as `なくっ` + `たって`; `なかったら` is also
+covered. Other analyses and lexical precedence remain unmeasured.
+
 ## Meaning and tracked scope
 
 movement away or change continuing onward.

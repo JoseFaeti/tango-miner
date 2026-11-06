@@ -19,6 +19,9 @@ ongoing action or resulting state.
 
 ## Existing implementation and evidence
 
+Focused Sudachi tests cover complete `いなかったら` and
+`いなくったって` spans. Other analyses and corpus effects remain unevaluated.
+
 Source occurrences with adjacent Sudachi continuative verb/auxiliary + connective て/で +
 non-independent `いる`, or a contracted auxiliary `てる`/`でる`, are counted.
 Supported forms include plain, past, negative, polite and some contracted
