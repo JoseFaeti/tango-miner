@@ -42,6 +42,20 @@ After each optimization, analyze the remaining bottlenecks and propose the
 most useful next step. Report measurement limitations, including differences in
 inputs, configuration, dependencies, cache state and machine load where relevant.
 
+To profile the merger on a bounded sample of an archived sentence CSV, run:
+
+```sh
+python scripts/profile_token_merging.py RUN_DIR/input.sentence.csv --reserve-grammar --diagnostics --repeat 3
+```
+
+The sample is limited by `--limit` and `--per-tag`. The report separates
+merging time from checksum serialization and includes a checksum of complete
+token output and rejection records. Omit `--reserve-grammar` or `--diagnostics`
+to measure those configurations; `--max-lookahead` selects the merge limit.
+Setup and grammar reservation are outside the reported merge time. Pass
+`--profile FILE` to write cProfile data. Compare the same sample, options and
+dictionary snapshot; archived examples are a selected sample, not a corpus run.
+
 ## Agent command modules
 
 See the [agent command reference](../../agent_commands/README.md) for the

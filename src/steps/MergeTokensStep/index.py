@@ -1,3 +1,4 @@
+from contextlib import nullcontext
 from pathlib import Path
 import json
 
@@ -53,25 +54,24 @@ class MergeTokensStep(PipelineStep):
         merged_sentences = []
 
         temporary = Path(self.diagnostics_path).with_suffix(".jsonl.tmp") if self.diagnostics_path is not None else None
-        if temporary is not None:
-            temporary.write_text("", encoding="utf-8")
-        for index, sentence in enumerate(tokenized_sentences, 1):
-            sentence_events = [] if temporary is not None else None
-            merged_sentences.append(
-                TokenizedSentence(
-                    text=sentence.text,
-                    tag=sentence.tag,
-                    origin=sentence.origin,
-                    tokens=combine_tokens_jmdict(sentence.tokens, jmdict, max_lookahead=self.max_lookahead, rejected=sentence_events),
+        output = temporary.open("w", encoding="utf-8", newline="\n") if temporary is not None else nullcontext()
+        with output as stream:
+            for index, sentence in enumerate(tokenized_sentences, 1):
+                sentence_events = [] if stream is not None else None
+                merged_sentences.append(
+                    TokenizedSentence(
+                        text=sentence.text,
+                        tag=sentence.tag,
+                        origin=sentence.origin,
+                        tokens=combine_tokens_jmdict(sentence.tokens, jmdict, max_lookahead=self.max_lookahead, rejected=sentence_events),
+                    )
                 )
-            )
-            if temporary is not None and sentence_events:
-                with temporary.open("a", encoding="utf-8", newline="\n") as stream:
+                if sentence_events:
                     for event in sentence_events:
                         event.update(sentence_index=index - 1, sentence=sentence.text, source=str(sentence.origin) if sentence.origin is not None else None)
                         stream.write(json.dumps(event, ensure_ascii=False, separators=(",", ":")) + "\n")
-            if index % PROGRESS_INTERVAL == 0 and index < len(tokenized_sentences):
-                self.progress(index, len(tokenized_sentences))
+                if index % PROGRESS_INTERVAL == 0 and index < len(tokenized_sentences):
+                    self.progress(index, len(tokenized_sentences))
 
         if temporary is not None:
             temporary.replace(self.diagnostics_path)
@@ -658,13 +658,30 @@ def combine_tokens_jmdict(
     rejected: list | None = None,
 ) -> list[dict]:
     """Greedily merge adjacent lexical compounds recognized by JMdict."""
-    token_list = _recover_me_ni_mieru(token_list, jmdict)
+    surfaces = {token['surface'] for token in token_list}
+    if '目' in surfaces:
+        token_list = _recover_me_ni_mieru(token_list, jmdict)
     # The reserved ending remains context for this repair, but is never changed.
-    token_list = _repair_kigahen_boundaries(token_list, jmdict)
+    if '気が変' in surfaces:
+        token_list = _repair_kigahen_boundaries(token_list, jmdict)
     # Boundary repairs operate on lexical runs, while the merge guards below
-    # can still inspect adjacent reserved tokens as context.
+    # can still inspect adjacent reserved tokens as context. Refresh the
+    # surfaces after a repair so later repairs can see any new tokens.
     def repair_run(run):
-        return _repair_karai_boundaries(_repair_sukitto_and_rise(_repair_grammatical_constructions(_repair_kotoshi_boundaries(_repair_warui_koto_boundary(_repair_chigee_boundary(_repair_komatta_koto_boundary(run)))))))
+        present = {token['surface'] for token in run}
+        for triggers, repair in (
+            (('ことがある',), _repair_komatta_koto_boundary),
+            (('はち',), _repair_chigee_boundary),
+            (('悪いこと',), _repair_warui_koto_boundary),
+            (('ことし',), _repair_kotoshi_boundaries),
+            (('か', 'かもしれん'), _repair_grammatical_constructions),
+            (('すきっと', 'りせ'), _repair_sukitto_and_rise),
+            (('ズラ', 'から'), _repair_karai_boundaries),
+        ):
+            if any(trigger in present for trigger in triggers):
+                run = repair(run)
+                present = {token['surface'] for token in run}
+        return run
 
     if any(token.get('grammar_reserved') for token in token_list):
         repaired, start = [], 0
@@ -684,14 +701,24 @@ def combine_tokens_jmdict(
     merged_tokens = []
     n = len(token_list)
     surfaces = [token["surface"] for token in token_list]
-    # Each candidate range stops before the next reserved token. Compute that
-    # boundary once instead of scanning every overlapping candidate slice.
+    combined_text = "".join(surfaces)
+    offsets = [0]
+    for surface in surfaces:
+        offsets.append(offsets[-1] + len(surface))
+    # Exact dictionary merges may not cross reserved grammar or synthetic
+    # boundary-repair tokens. The omitted-particle fallback only uses the
+    # reserved boundary, so keep it separate.
     next_reserved = [n] * n
-    boundary = n
+    next_merge_boundary = [n] * n
+    reserved_boundary = merge_boundary = n
     for index in range(n - 1, -1, -1):
-        if token_list[index].get('grammar_reserved'):
-            boundary = index
-        next_reserved[index] = boundary
+        token = token_list[index]
+        if token.get('grammar_reserved'):
+            reserved_boundary = merge_boundary = index
+        elif token.get('analysis_rule') in ('desu_kitto_boundary', 'kara_sa_boundary'):
+            merge_boundary = index
+        next_reserved[index] = reserved_boundary
+        next_merge_boundary[index] = merge_boundary
     i = 0
 
     while i < n:
@@ -700,14 +727,8 @@ def combine_tokens_jmdict(
             i += 1
             continue
         match_found = False
-        for j in range(min(n, i + max_lookahead), i + 1, -1):
-            if j > next_reserved[i]:
-                continue
-            # Do not immediately undo a source-supported split by merging
-            # its synthetic す and きっと back into the original false target.
-            if any(t.get('analysis_rule') in {'desu_kitto_boundary', 'kara_sa_boundary'} for t in token_list[i:j]):
-                continue
-            combined_surface = "".join(surfaces[i:j])
+        for j in range(min(n, i + max_lookahead, next_merge_boundary[i]), i + 1, -1):
+            combined_surface = combined_text[offsets[i]:offsets[j]]
             # A merged card must be grounded in the text the learner will see.
             # Matching a concatenation of dictionary lemmas can invent an
             # unrelated word from inflected or grammatical tokens: for example,

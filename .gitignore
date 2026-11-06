@@ -18,6 +18,7 @@ checks/*
 !scripts/query_jsonl.py
 !scripts/replay_grammar.py
 !scripts/profile_grammar_rules.py
+!scripts/profile_token_merging.py
 !scripts/compare_runs.py
 !scripts/evaluate_review.py
 !scripts/compare_japanese_analyzers.py
