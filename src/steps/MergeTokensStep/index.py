@@ -50,20 +50,38 @@ class MergeTokensStep(PipelineStep):
 
     def process(self, artifact: Artifact) -> Artifact:
         tokenized_sentences: list[TokenizedSentence] = artifact.data
-        jmdict = get_jmdict(self.dictionary_path)
         merged_sentences = []
+        executor = getattr(self, '_parallel_executor', None)
+        if executor is not None and len(tokenized_sentences) >= 512:
+            from src.Parallel import batches, merge_batch, ordered_map
+            batch_size = max(128, min(1000, (len(tokenized_sentences) + self._parallel_workers - 1)
+                                       // self._parallel_workers))
+            arguments = ((group, self.dictionary_path, self.max_lookahead, self.diagnostics_path is not None)
+                         for _, group in batches(tokenized_sentences, batch_size))
+            batch_results = ordered_map(executor, merge_batch, arguments, self._parallel_workers)
+            packed_results = (result for group in batch_results for result in group)
+            results = ((list(sentence.tokens) if packed is None else
+                        [sentence.tokens[item] if type(item) is int else item for item in packed], rejected)
+                       for sentence, (packed, rejected) in zip(tokenized_sentences, packed_results))
+        else:
+            jmdict = get_jmdict(self.dictionary_path)
+            def serial_results():
+                for sentence in tokenized_sentences:
+                    rejected = [] if self.diagnostics_path is not None else None
+                    yield (combine_tokens_jmdict(sentence.tokens, jmdict,
+                                                max_lookahead=self.max_lookahead, rejected=rejected), rejected)
+            results = serial_results()
 
         temporary = Path(self.diagnostics_path).with_suffix(".jsonl.tmp") if self.diagnostics_path is not None else None
         output = temporary.open("w", encoding="utf-8", newline="\n") if temporary is not None else nullcontext()
         with output as stream:
-            for index, sentence in enumerate(tokenized_sentences, 1):
-                sentence_events = [] if stream is not None else None
+            for index, (sentence, (merged, sentence_events)) in enumerate(zip(tokenized_sentences, results), 1):
                 merged_sentences.append(
                     TokenizedSentence(
                         text=sentence.text,
                         tag=sentence.tag,
                         origin=sentence.origin,
-                        tokens=combine_tokens_jmdict(sentence.tokens, jmdict, max_lookahead=self.max_lookahead, rejected=sentence_events),
+                        tokens=merged,
                     )
                 )
                 if sentence_events:

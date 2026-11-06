@@ -17,6 +17,11 @@ path = "."
 [debug]
 enabled = false
 
+[parallel]
+# Set to 2 or more to use worker processes for large grammar and merge tasks.
+# The main process participates; helpers use a shared, read-only JMdict index.
+workers = 4
+
 [profiling]
 # Collect named phase timings for pipeline steps.
 enabled = true

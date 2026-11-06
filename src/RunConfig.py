@@ -26,6 +26,11 @@ class DictionaryConfig:
 
 
 @dataclass(frozen=True)
+class ParallelConfig:
+    workers: int = 1
+
+
+@dataclass(frozen=True)
 class MergeConfig:
     max_lookahead: int = 10
 
@@ -94,6 +99,7 @@ class RunConfig:
     input: InputConfig = InputConfig()
     tokenizer: TokenizerConfig = TokenizerConfig()
     merge: MergeConfig = MergeConfig()
+    parallel: ParallelConfig = ParallelConfig()
     dictionary: DictionaryConfig = DictionaryConfig()
     filter: FilterConfig = FilterConfig()
     scoring: ScoringConfig = ScoringConfig()
@@ -118,7 +124,7 @@ def resolve_config(path=None, overrides=None) -> RunConfig:
         version = data.get("config_version", 1)
         if type(version) is not int or version != 1:
             raise ValueError(f"Unsupported config_version: {version!r}")
-        for section in ("input", "tokenizer", "merge", "dictionary", "filter", "scoring", "sentences", "output", "debug", "profiling", "anki"):
+        for section in ("input", "tokenizer", "merge", "parallel", "dictionary", "filter", "scoring", "sentences", "output", "debug", "profiling", "anki"):
             values = data.get(section, {})
             if not isinstance(values, dict):
                 raise ValueError(f"[{section}] must be a table")
@@ -145,6 +151,8 @@ def resolve_config(path=None, overrides=None) -> RunConfig:
         raise ValueError("tokenizer.config_path and tokenizer.dictionary must not be empty")
     if not config.dictionary.jmdict_path.strip():
         raise ValueError("dictionary.jmdict_path must not be empty")
+    if not 1 <= config.parallel.workers <= 61:
+        raise ValueError("parallel.workers must be between 1 and 61")
     if config.merge.max_lookahead < 2:
         raise ValueError("merge.max_lookahead must be at least 2")
     if config.filter.min_frequency < 1:
@@ -191,6 +199,7 @@ def _update_section(name, section, values):
     types = {"input": {"path": (str, type(None)), "recursive": (bool,), "encoding": (str,), "extensions": (list, tuple)},
              "tokenizer": {"config_path": (str,), "dictionary": (str,)},
              "merge": {"max_lookahead": (int,)},
+             "parallel": {"workers": (int,)},
              "dictionary": {"jmdict_path": (str,)},
              "filter": {"min_frequency": (int,), "keep_percent": (int,), "min_frequency_per_source": (int, float)}, "output": {"path": (str, type(None))},
              "scoring": {"frequency_weight": (int, float), "position_weight": (int, float),

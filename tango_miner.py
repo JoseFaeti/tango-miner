@@ -105,6 +105,7 @@ def process_script(argv=None):
     parser.add_argument("--refresh-cache", action="append", choices=("merge", "all"), default=[],
                         help="Refresh the merge cache or all caches; may be repeated")
 
+    parser.add_argument("--workers", type=int, help="Parallel grammar and merge worker processes (default: config)")
     parser.add_argument("--occurrence-diagnostics", action="store_true",
                         help="Write detailed occurrence and candidate JSONL files (can be large)")
 
@@ -117,6 +118,7 @@ def process_script(argv=None):
         ("input", "path", args.input), ("input", "recursive", args.recursive),
         ("input", "encoding", args.encoding), ("output", "path", args.output),
         ("filter", "min_frequency", args.min_frequency), ("debug", "enabled", args.debug),
+        ("parallel", "workers", args.workers),
     ):
         if value is not None:
             overrides.setdefault(section, {})[key] = value
@@ -201,7 +203,7 @@ def process_script(argv=None):
         ]
 
         dependencies = collect_dependencies(config)
-        summary = {"status": "running", "dependencies": dependencies,
+        summary = {"status": "running", "dependencies": dependencies, "workers": config.parallel.workers,
                    "retokenize_requested": args.retokenize, "occurrence_diagnostics": args.occurrence_diagnostics, "grammar_enabled": args.grammar, "grammar_te_iru": args.grammar, "stages": [],
                    "cache_refresh_requested": args.refresh_cache,
                    "anki": {"status": "not_started" if config.anki.enabled else "disabled"}}
@@ -225,7 +227,8 @@ def process_script(argv=None):
             display.stage(index, step, record)
 
         pipeline = Pipeline(steps=active_steps, on_progress=display.progress,
-                            cache=stage_cache, on_stage_record=record_stage, profiling=config.profiling.enabled)
+                            cache=stage_cache, on_stage_record=record_stage, profiling=config.profiling.enabled,
+                            workers=config.parallel.workers)
         try:
             with display.capture_step_output():
                 if args.silent:

@@ -1,11 +1,15 @@
 import time
+from src.Parallel import ParallelPool
 from typing import Iterable, Any, List
 
 from src.PipelineStep import PipelineStep, ProgressEvent
 
 
 class Pipeline:
-    def __init__(self, steps: Iterable[PipelineStep], on_progress=None, cache=None, on_stage_record=None, profiling=False):
+    def __init__(self, steps: Iterable[PipelineStep], on_progress=None, cache=None, on_stage_record=None, profiling=False, workers=1):
+        if type(workers) is not int or workers < 1:
+            raise ValueError("workers must be a positive integer")
+        self.workers = workers
         self.profiling = profiling
         self.performance = {}
         self.steps: List[PipelineStep] = list(steps)
@@ -28,6 +32,17 @@ class Pipeline:
         self.stage_records = []
         self.performance = {}
         self.wait_seconds = 0.0
+        cache_dir = (self.cache.directory.parent.parent if self.cache is not None
+                     and hasattr(self.cache, 'directory') else None)
+        dictionary_hash = getattr(self.cache, 'dictionary_hash', None)
+        executor = ParallelPool(self.workers, cache_dir, dictionary_hash) if self.workers > 1 else None
+        parallel_steps = [step for step in self.steps
+                          if type(step).__name__ in ('GrammarStep', 'MergeTokensStep')]
+        last_parallel_step = max((i for i, step in enumerate(self.steps, 1)
+                                  if step in parallel_steps), default=0)
+        for step in parallel_steps:
+            step._parallel_executor = executor
+            step._parallel_workers = self.workers
         try:
             for index, step in enumerate(self.steps, 1):
                 step.start_time = time.perf_counter()
@@ -60,6 +75,11 @@ class Pipeline:
                     record["error"] = f"{type(exc).__name__}: {exc}"
                     raise
                 finally:
+                    if executor is not None and index == last_parallel_step:
+                        executor.shutdown(wait=True, cancel_futures=True)
+                        executor = None
+                        for parallel_step in parallel_steps:
+                            parallel_step._parallel_executor = None
                     wall_seconds = time.perf_counter() - step.start_time
                     wait_seconds = getattr(step, "wait_seconds", 0.0)
                     self.wait_seconds += wait_seconds
@@ -85,6 +105,10 @@ class Pipeline:
                         self.on_stage_record(index, step, record)
                     self._current_record = None
         finally:
+            if executor is not None:
+                executor.shutdown(wait=True, cancel_futures=True)
+            for step in parallel_steps:
+                step._parallel_executor = None
             self.end_time = time.perf_counter()
             self.duration = max(0.0, self.end_time - self.start_time - self.wait_seconds)
 

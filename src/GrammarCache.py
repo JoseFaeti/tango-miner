@@ -98,7 +98,12 @@ class GrammarCache:
         finally:
             step.add_performance_time('cache_key', clock() - started)
         if key is None:
-            return step.process(artifact)
+            executor = getattr(step, '_parallel_executor', None)
+            step._parallel_executor = None
+            try:
+                return step.process(artifact)
+            finally:
+                step._parallel_executor = executor
         path = self.directory / (key + '.json')
         forced = bool(self.refresh & {'grammar', 'all'})
         if not forced:
