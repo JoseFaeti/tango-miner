@@ -1,4 +1,6 @@
 import unittest
+import io
+from contextlib import redirect_stderr
 from pathlib import Path
 
 from src.Artifact import Artifact
@@ -9,6 +11,12 @@ from src.steps.ProcessingStep.index import ProcessingStep
 
 
 class GrammarProgressTests(unittest.TestCase):
+    def test_removed_grammar_diagnostic_option_is_rejected(self):
+        from tango_miner import process_script
+        with redirect_stderr(io.StringIO()), self.assertRaises(SystemExit) as result:
+            process_script(['--grammar-shadow'])
+        self.assertEqual(result.exception.code, 2)
+
     def test_reports_progress_even_when_sentence_alignment_fails(self):
         sentence = TokenizedSentence('猫', None, Path('source'),
                                      [{'surface': '犬', 'lemma': '犬', 'pos': ('名詞',)}])
