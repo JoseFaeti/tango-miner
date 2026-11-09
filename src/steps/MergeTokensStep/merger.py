@@ -71,6 +71,16 @@ def _merge_candidate(token_list, i, j, combined_text, offsets, jmdict, rejected)
     if not match_word:
         reject("no_best_entry")
         return None
+    if token_string == 'ちょっと見':
+        following = token_list[j] if j < n else None
+        if (following is not None
+                and not (following['pos'][0] in {'補助記号', '記号'}
+                         or (following['pos'][0] == '助詞'
+                             and tuple(following['pos'][:2]) != ('助詞', '接続助詞'))
+                         or (following['pos'][0] == '助動詞'
+                             and following['lemma'] in {'だ', 'です'}))):
+            reject('chotto_mi_requires_noun_context')
+            return None
     # In 従っておく, 従って is the て-form of 従う, not the
     # dictionary adverb meaning "therefore". Preserve its verb evidence.
     if (token_string == '従って' and j < n

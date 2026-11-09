@@ -33,6 +33,23 @@ class TokenizerIntegrationTests(unittest.TestCase):
         # These tests deliberately exercise the real Sudachi and JMdict data.
         cls.jmdict = get_jmdict()
 
+    def test_chotto_mi_requires_noun_context(self):
+        for sentence in [
+            'えっとね、まず本屋でしょー服もちょっと見たいしー',
+            'ちょっと見ないあいだに、お姉さんっぽくなったなー！',
+            '僕ぁただ、りせちーが好きで、部屋とか、ちょっと見てみたくて',
+        ]:
+            with self.subTest(sentence=sentence):
+                merged = combine_tokens_jmdict(tokenize_sentence(sentence), self.jmdict)
+                self.assertNotIn('ちょっと見', [t['lemma'] for t in merged])
+                self.assertIn('見る', [t['lemma'] for t in merged])
+
+        for sentence in ['ちょっと見では分からない。', 'ちょっと見は普通だ。']:
+            with self.subTest(sentence=sentence):
+                merged = combine_tokens_jmdict(tokenize_sentence(sentence), self.jmdict)
+                expression = next(t for t in merged if t['lemma'] == 'ちょっと見')
+                self.assertEqual(expression['surface'], 'ちょっと見')
+
     def test_pinto_kuru_inflections_preserve_source_evidence(self):
         for sentence, surface in [
             ('じゃが、氷刃の目的が今一つピンとこんのじゃ。', 'ピンとこん'),
