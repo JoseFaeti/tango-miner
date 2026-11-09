@@ -17,6 +17,7 @@ from src.steps.ScoreWordStep.index import ScoreWordStep
 from src.steps.AttachSentencesStep.index import AttachSentencesStep
 from src.steps.MergeTokensStep.index import MergeTokensStep
 from src.steps.OccurrenceDiagnosticsStep.index import OccurrenceDiagnosticsStep
+from src.Expressions import ExpressionStep, AddExpressionCandidatesStep
 
 
 class TangoMinerTests(unittest.TestCase):
@@ -100,6 +101,42 @@ class TangoMinerTests(unittest.TestCase):
                     self.assertEqual(sum(isinstance(s, OccurrenceDiagnosticsStep) for s in steps), int(enabled))
                     writer = next(s for s in steps if isinstance(s, WriteOutputStep))
                     self.assertEqual(writer.diagnostics_path is not None, enabled)
+                    expression = next(s for s in steps if isinstance(s, ExpressionStep))
+                    addition = next(s for s in steps if isinstance(s, AddExpressionCandidatesStep))
+                    self.assertIs(addition.expression_step, expression)
+                    self.assertEqual(expression.diagnostics_path is not None, enabled)
+
+    def test_real_pipeline_archives_expression_and_grammar_evidence(self):
+        import csv
+        from src.steps.MergeTokensStep.index import get_jmdict
+
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            source = root / 'input'
+            source.mkdir()
+            (source / '[test].txt').write_text(
+                '彼は青筋を立てているそうです。\n彼女は青筋立てたそうです。\n', encoding='utf-8')
+            config = root / 'config.toml'
+            dictionary = json.dumps(str(get_jmdict().xml_path), ensure_ascii=True)
+            config.write_text('[dictionary]\njmdict_path = ' + dictionary +
+                              '\n[anki]\nenabled = false\n[filter]\nmin_frequency = 1\n'
+                              'keep_percent = 100\nmin_frequency_per_source = 0.0\n', encoding='utf-8')
+            with patch('tango_miner.notify_run'), patch('appdirs.user_cache_dir', return_value=str(root / 'cache')):
+                process_script(['--config', str(config), '--input', str(source), '--output', str(root / 'result.csv'),
+                                '--silent', '--occurrence-diagnostics'])
+            archive, = (root / 'runs').iterdir()
+            summary = json.loads((archive / 'summary.json').read_text(encoding='utf-8'))
+            self.assertEqual(summary['status'], 'completed')
+            self.assertEqual(summary['anki']['status'], 'disabled')
+            with (archive / 'result.dropped.csv').open(encoding='utf-8', newline='') as stream:
+                words = [row[1] for row in csv.reader(stream)]
+            self.assertIn('青筋を立てる', words)
+            with (archive / 'expression-occurrences.jsonl').open(encoding='utf-8') as stream:
+                occurrences = [json.loads(line) for line in stream]
+            self.assertEqual([row['surface'] for row in occurrences], ['青筋を立てて', '青筋立てた'])
+            self.assertTrue(occurrences[1]['omitted_particle'])
+            grammar = next(s for s in summary['stages'] if s['name'] == 'GrammarStep')
+            self.assertGreater(grammar['grammar_rules']['te_iru']['occurrences'], 0)
 
     def setUp(self):
         dependency_patch = patch("tango_miner.collect_dependencies", return_value={})

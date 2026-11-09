@@ -63,6 +63,7 @@ class RunArchiveTests(unittest.TestCase):
             result = collect_dependencies(config)
             self.assertEqual(result["files"]["sudachi_dictionary"][0]["sha256"], hashlib.sha256(b"system.dic").hexdigest())
             self.assertEqual(result["files"]["jmdict"]["sha256"], hashlib.sha256(b"jmdict.xml").hexdigest())
+            self.assertIn("sha256", result["files"]["expressions"])
             self.assertEqual(result["files"]["configured_sudachi_dictionaries"][0]["sha256"], hashlib.sha256(b"user.dic").hexdigest())
             self.assertTrue(result["python"])
             system.unlink()

@@ -54,3 +54,5 @@ class WordStats:
     dictionary_expression_occurrences: int = 0
     coverage_review: bool = False
     example_review: bool = False
+    expression_definition: str = ""
+    expression_review: bool = False

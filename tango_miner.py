@@ -43,6 +43,7 @@ from src.steps.FilterFrequencyStep.index import FilterFrequencyStep
 from src.steps.WriteOutputStep.index import WriteOutputStep
 from src.steps.OccurrenceDiagnosticsStep.index import OccurrenceDiagnosticsStep
 from src.Grammar import GrammarStep, GrammarPositionStep, AddGrammarCardsStep, ExcludeGrammarTokensStep
+from src.Expressions import ExpressionStep, AddExpressionCandidatesStep
 
 from src.steps.debug.DumpSentences.index import DumpSentences
 
@@ -173,6 +174,8 @@ def process_script(argv=None):
         grammar_step = GrammarStep(max_examples=config.sentences.max_sentences, dictionary_path=config.dictionary.jmdict_path,
                                    prefer_expressions=True, max_lookahead=config.merge.max_lookahead,
                                    profile_rules=False, profiling=config.profiling.enabled) if args.grammar else None
+        expression_step = ExpressionStep(final_path.parent / 'expression-occurrences.jsonl'
+                                         if args.occurrence_diagnostics else None)
         steps = [
             GatherInputFilesStep(input_path_obj, include_subdirectories=recursive, extensions=config.input.extensions,
                                  excluded_directory=final_path.parent.parent,
@@ -183,6 +186,7 @@ def process_script(argv=None):
             NormalizeSentences(),
             DumpSentences("sentences-normalized.txt") if debug else None,
             RawTokenizeStep(force_retokenize=args.retokenize or "all" in args.refresh_cache, config=config.tokenizer),
+            expression_step,
             grammar_step,
             ExcludeGrammarTokensStep(grammar_step) if grammar_step else None,
             MergeTokensStep(max_lookahead=config.merge.max_lookahead, dictionary_path=config.dictionary.jmdict_path,
@@ -191,6 +195,7 @@ def process_script(argv=None):
             GrammarPositionStep(grammar_step) if grammar_step else None,
             BuildWordStatsStep(merge_potential_forms=config.merge.merge_potential_forms,
                                dictionary_path=config.dictionary.jmdict_path),
+            AddExpressionCandidatesStep(expression_step),
             FilterFrequencyStep(min_frequency, keep_percent=config.filter.keep_percent,
                                 min_frequency_per_source=config.filter.min_frequency_per_source),
             AddDefinitionsStep(debug=debug, dictionary_path=config.dictionary.jmdict_path, diagnostics=args.occurrence_diagnostics),

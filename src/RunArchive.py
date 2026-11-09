@@ -91,6 +91,7 @@ def collect_dependencies(config):
     """Record versions and actual dictionary/config file hashes where discoverable."""
     import importlib.metadata as metadata
     import platform
+    from src.Expressions import INVENTORY_PATH
     result = {"python": platform.python_version(), "packages": {}, "files": {}}
     names = ["SudachiPy"]
     dictionary = config.tokenizer.dictionary
@@ -111,6 +112,7 @@ def collect_dependencies(config):
     if not package:
         result["files"]["sudachi_dictionary"] = [_file_identity(dictionary)]
     result["files"]["jmdict"] = _file_identity(config.dictionary.jmdict_path)
+    result["files"]["expressions"] = _file_identity(INVENTORY_PATH)
     config_path = Path(config.tokenizer.config_path).expanduser()
     result["files"]["sudachi_config"] = _file_identity(config_path)
     try:
