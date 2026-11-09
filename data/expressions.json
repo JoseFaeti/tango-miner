@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "source": "OpenMWE corpus idiom inventory, https://github.com/nlp-waseda/OpenMWE; see OPENMWE-LICENSE.txt",
+  "source": "Original verb entries: OpenMWE corpus idiom inventory, https://github.com/nlp-waseda/OpenMWE; see OPENMWE-LICENSE.txt. Additional entries cite sources individually.",
   "entries": [
     {
       "expression": "幕を開ける",
@@ -137,6 +137,26 @@
       "meaning": "to boast or exaggerate",
       "reference": "https://kotobank.jp/word/%E3%82%89%E3%81%A4%E3%81%B1-3174627",
       "verb_class": "godan"
+    },
+    {
+      "expression": "舌が長い",
+      "reading": "したがながい",
+      "noun": ["舌"],
+      "particle": "が",
+      "verb": ["長い", "ながい"],
+      "meaning": "to be talkative; to talk at length",
+      "reference": "https://kotowaza.jitenon.jp/kotowaza/9670.php",
+      "verb_class": "i_adjective"
+    },
+    {
+      "expression": "胸が熱い",
+      "reading": "むねがあつい",
+      "noun": ["胸"],
+      "particle": "が",
+      "verb": ["熱い", "あつい"],
+      "meaning": "to be overcome with emotion",
+      "reference": "https://ir.library.osaka-u.ac.jp/repo/ouka/all/98641/34457_Dissertation.pdf",
+      "verb_class": "i_adjective"
     }
   ]
 }

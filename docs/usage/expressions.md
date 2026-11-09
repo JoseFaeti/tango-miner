@@ -10,7 +10,9 @@ literal from idiomatic examples. Each entry links to a separate reference for
 its meaning; its English gloss was written for this project. The corpus's
 redistribution terms are included in [OPENMWE-LICENSE.txt](../../data/OPENMWE-LICENSE.txt).
 
-The list is deliberately extensible and is not an exhaustive idiom dictionary.
+The adjective entries were separately researched using the references linked
+in their records. The list is deliberately extensible and is not an exhaustive
+idiom dictionary.
 The canonical spelling and concatenated analyzer reading for each initial
 entry were absent from the tested JMdict snapshot. This does not prove that
 all spellings or synonymous expressions are absent from every JMdict edition.
@@ -21,13 +23,17 @@ does not decide whether a dictionary sense is equivalent.
 Run summaries record the inventory file's SHA-256 alongside the other
 dependency identities.
 
-Entries specify the canonical identity, reading, meaning, noun and verb spelling
-variants, verb class, particle and meaning reference. Matching normally uses
-aligned, contiguous noun, optional listed particle and verb tokens. Sudachi's verb lemma supports
+Entries specify the canonical identity, reading, meaning, noun and predicate
+spelling variants, predicate class, particle and meaning reference. For
+compatibility, the JSON fields are named `verb` and `verb_class` even for
+adjectives. Matching normally uses aligned, contiguous noun, optional listed
+particle and predicate tokens. Sudachi's lemma supports
 ordinary conjugation, auxiliary chains, ichidan ら抜き potentials and selected
-godan potential and contracted causative forms. When Sudachi combines or
+godan potential and contracted causative forms, as well as i-adjective past,
+negative, conditional and connective forms. When Sudachi combines or
 misreads the parts, source-aligned fallbacks check generated inflected surfaces
-and reanalyze the verb fragment at complete raw-token boundaries. The highlighted
+and reanalyze the predicate fragment at complete raw-token boundaries, selecting
+the longer supported span when both methods match. The highlighted
 occurrence includes consecutive inflectional auxiliaries and a following
 connective て, で or ば. Matching
 does not infer arbitrary changes to word order, inserted modifiers, all analyzer

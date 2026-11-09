@@ -35,10 +35,11 @@ def validate_inventory(data):
                 or not all(isinstance(entry.get(key), list) and entry[key]
                            and all(isinstance(item, str) and item for item in entry[key])
                            for key in ('noun', 'verb'))
-                or entry.get('verb_class') not in {'ichidan', 'godan'}
+                or entry.get('verb_class') not in {'ichidan', 'godan', 'i_adjective'}
                 or entry['expression'] in seen
                 or any(not verb.endswith('る') for verb in entry['verb']) and entry['verb_class'] == 'ichidan'
-                or any(verb[-1] not in 'うくぐすつぬぶむる' for verb in entry['verb']) and entry['verb_class'] == 'godan'):
+                or any(verb[-1] not in 'うくぐすつぬぶむる' for verb in entry['verb']) and entry['verb_class'] == 'godan'
+                or any(not verb.endswith('い') for verb in entry['verb']) and entry['verb_class'] == 'i_adjective'):
             raise ValueError('Invalid or duplicate expression inventory entry')
         seen.add(entry['expression'])
     return tuple(entries)
@@ -57,6 +58,8 @@ class ExpressionMatch:
 def _verb_forms(verb, verb_class):
     # Sudachi may use a separate dictionary lemma for a godan potential or
     # contracted causative, rather than exposing the original verb lemma.
+    if verb_class == 'i_adjective':
+        return {verb}
     rows = {'う': ('え', 'わ'), 'く': ('け', 'か'), 'ぐ': ('げ', 'が'),
             'す': ('せ', 'さ'), 'つ': ('て', 'た'), 'ぬ': ('ね', 'な'),
             'ぶ': ('べ', 'ば'), 'む': ('め', 'ま'), 'る': ('れ', 'ら')}
@@ -72,6 +75,10 @@ def _verb_forms(verb, verb_class):
 def _surface_forms(verb, verb_class):
     """Finite forms for recovering an analyzer's merged or misread tokens."""
     stem = verb[:-1]
+    if verb_class == 'i_adjective':
+        return {verb, *(stem + suffix for suffix in (
+            'く', 'かった', 'ければ', 'くて', 'くない', 'くなかった',
+            'くなければ', 'くなくて', 'くありません', 'くありませんでした', 'くなきゃ'))}
     if verb_class == 'ichidan':
         negative, polite, conditional, volitional, imperative = stem, stem, stem + 'れ', stem + 'よう', stem + 'ろ'
         past, connective = stem + 'た', stem + 'て'
@@ -114,8 +121,6 @@ def _reanalyze_end(text, start, prefix, entry, boundaries):
     """Reanalyze a verb after a merged noun, retaining only raw-token boundaries."""
     if not text.startswith(prefix, start):
         return None
-    if not text.startswith(prefix, start):
-        return None
     offset = start + len(prefix)
     fragment = text[offset:]
     if not any(fragment.startswith(verb[:-1]) for verb in entry['verb']):
@@ -126,18 +131,24 @@ def _reanalyze_end(text, start, prefix, entry, boundaries):
         return None
     allowed = {form for verb in entry['verb'] for form in _verb_forms(verb, entry['verb_class'])}
     first = nodes[0]
-    if first.part_of_speech()[0] != '動詞' or first.dictionary_form() not in allowed:
+    expected_pos = '形容詞' if entry['verb_class'] == 'i_adjective' else '動詞'
+    if first.part_of_speech()[0] != expected_pos or first.dictionary_form() not in allowed:
         return None
     end = offset + len(first.surface())
+    previous_surface = first.surface()
     for node in islice(nodes, 1, None):
         pos = node.part_of_speech()
-        if pos[0] == '助動詞':
+        if (expected_pos == '形容詞' and previous_surface.endswith('く')
+                and pos[0] == '形容詞' and node.dictionary_form() == 'ない'):
+            end += len(node.surface())
+        elif pos[0] == '助動詞':
             end += len(node.surface())
         elif pos[:2] == ('助詞', '接続助詞') and node.surface() in {'て', 'で', 'ば'}:
             end += len(node.surface())
             break
         else:
             break
+        previous_surface = node.surface()
     return end if end in boundaries else None
 
 
@@ -159,14 +170,14 @@ def _recover_surface_matches(sentence, aligned, entries, found):
                     hits = [start + len(prefix) + len(form) for form in forms
                             if sentence.text.startswith(prefix + form, start)
                             and start + len(prefix) + len(form) in boundaries]
-                    rule = 'surface_recovery'
-                    if not hits:
-                        end = _reanalyze_end(sentence.text, start, prefix, entry, boundaries)
-                        if end is None:
-                            continue
-                        hits = [end]
-                        rule = 'verb_reanalysis'
-                    end = max(hits)
+                    recovered_end = max(hits, default=None)
+                    analyzed_end = _reanalyze_end(sentence.text, start, prefix, entry, boundaries)
+                    if recovered_end is None and analyzed_end is None:
+                        continue
+                    if analyzed_end is not None and (recovered_end is None or analyzed_end > recovered_end):
+                        end, rule = analyzed_end, 'verb_reanalysis'
+                    else:
+                        end, rule = recovered_end, 'surface_recovery'
                     components = tuple(component for token in aligned
                                        if start <= token['span'][0] and token['span'][1] <= end
                                        for component in token_components(sentence.tokens[token['index']]))
@@ -202,9 +213,14 @@ def find_expressions(sentence, entries=None):
                 continue
             verb = aligned[j]
             forms = {form for spelling in entry['verb'] for form in _verb_forms(spelling, entry['verb_class'])}
-            if not verb['pos'] or verb['pos'][0] != '動詞' or verb['lemma'] not in forms:
+            expected_pos = '形容詞' if entry['verb_class'] == 'i_adjective' else '動詞'
+            if not verb['pos'] or verb['pos'][0] != expected_pos or verb['lemma'] not in forms:
                 continue
             end = j + 1
+            if (expected_pos == '形容詞' and verb['surface'].endswith('く') and end < len(aligned)
+                    and verb['span'][1] == aligned[end]['span'][0]
+                    and aligned[end]['pos'][:1] == ['形容詞'] and aligned[end]['lemma'] == 'ない'):
+                end += 1
             while (end < len(aligned) and aligned[end - 1]['span'][1] == aligned[end]['span'][0]
                    and aligned[end]['pos'] and aligned[end]['pos'][0] == '助動詞'):
                 end += 1
@@ -212,6 +228,16 @@ def find_expressions(sentence, entries=None):
                     and aligned[end]['surface'] in {'て', 'で', 'ば'}
                     and aligned[end]['pos'][:2] == ['助詞', '接続助詞']):
                 end += 1
+            if expected_pos == '形容詞':
+                prefix = sentence.text[first['span'][0]:verb['span'][0]]
+                boundaries = {token['span'][1]: index + 1 for index, token in enumerate(aligned)}
+                inflections = {form for spelling in entry['verb']
+                               for form in _surface_forms(spelling, entry['verb_class'])}
+                ends = [first['span'][0] + len(prefix) + len(form) for form in inflections
+                        if sentence.text.startswith(prefix + form, first['span'][0])
+                        and first['span'][0] + len(prefix) + len(form) in boundaries]
+                if ends:
+                    end = max(end, boundaries[max(ends)])
             parts = (component for token in aligned[i:end]
                      for component in token_components(raw[token['index']]))
             found.append(ExpressionMatch(entry, first['span'][0], aligned[end - 1]['span'][1],

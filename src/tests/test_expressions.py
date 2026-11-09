@@ -12,6 +12,7 @@ from src.Expressions import ExpressionStep, AddExpressionCandidatesStep
 from src.Grammar import GrammarStep, ExcludeGrammarTokensStep
 from src.grammar_rules.rules.te_iru.index import RULE as TE_IRU
 from src.grammar_rules.rules.te_shimau.index import RULE as TE_SHIMAU
+from src.grammar_rules.rules.sou_da.index import HEARSAY
 from src.steps.BuildWordStatsStep.index import BuildWordStatsStep
 from src.steps.AddDefinitionsStep.index import AddDefinitionsStep
 from src.steps.FilterFrequencyStep.index import FilterFrequencyStep
@@ -105,6 +106,8 @@ class ExpressionMatchingTests(unittest.TestCase):
                 'む': ('ま', 'み', 'め', 'も', 'んだ', 'んで')}
         cases = []
         for entry in self.entries:
+            if entry['verb_class'] == 'i_adjective':
+                continue
             verb = entry['verb'][0]
             stem = verb[:-1]
             if entry['verb_class'] == 'ichidan':
@@ -132,6 +135,55 @@ class ExpressionMatchingTests(unittest.TestCase):
         for (text, expected), matches in zip(cases, results):
             with self.subTest(text=text):
                 self.assertIn(expected, [m[0] for m in matches])
+
+    def test_adjective_inflections_with_and_without_particle(self):
+        for entry in self.entries:
+            if entry['verb_class'] != 'i_adjective':
+                continue
+            stem = entry['verb'][0][:-1]
+            forms = [stem + ending for ending in ('い', 'かった', 'くない', 'くなかった',
+                     'ければ', 'くて', 'くありません', 'くありませんでした')]
+            cases = [(entry['noun'][0] + particle + form + '。', entry['expression'])
+                     for particle in (entry['particle'], '') for form in forms]
+            for (text, expected), matches in zip(cases, self.match(*(text for text, _ in cases))):
+                with self.subTest(text=text):
+                    self.assertIn(expected, [m[0] for m in matches])
+                    self.assertEqual(matches[0][1], text[:-1])
+                    self.assertEqual(matches[0][1], matches[0][3])
+
+    def test_adjective_does_not_match_unrelated_predicate_or_particle(self):
+        for matches in self.match('舌を長い。', '舌が短い。', '胸が冷たい。'):
+            self.assertFalse(any(m[0] in {'舌が長い', '胸が熱い'} for m in matches))
+
+    def test_adjective_expression_coexists_with_hearsay_grammar(self):
+        raw = tokenize_raw_sentences(['彼の話では胸が熱いそうです。'],
+                                     tag='source', source_path=Path('test.txt'))
+        artifact = Artifact(raw)
+        expression = ExpressionStep()
+        expression.process(artifact)
+        grammar = GrammarStep(rules=(HEARSAY,))
+        grammar.process(artifact)
+        self.assertEqual(grammar.occurrences[HEARSAY.id].count, 1)
+        self.assertEqual([m.entry['expression'] for m in expression.matches[0]], ['胸が熱い'])
+
+    def test_adjective_candidate_keeps_definition_examples_and_components(self):
+        raw = tokenize_raw_sentences(['彼女は胸が熱くなかったそうです。', 'その話で胸熱かった。'],
+                                     tag='source', source_path=Path('test.txt'))
+        artifact = Artifact(raw)
+        expression = ExpressionStep()
+        expression.process(artifact)
+        build = BuildWordStatsStep()
+        build.start_time = None
+        artifact = AddExpressionCandidatesStep(expression).process(build.process(artifact))
+        definitions = AddDefinitionsStep()
+        definitions.start_time = None
+        artifact = definitions.process(artifact)
+        stats = artifact.data['胸が熱い']
+        self.assertEqual(stats.frequency, 2)
+        self.assertEqual(stats.definition, 'to be overcome with emotion')
+        self.assertTrue(stats.needs_review)
+        self.assertEqual(sum(stats.component_counts.values()), 2)
+        self.assertEqual(artifact.sentences[0].lemma_surfaces['胸が熱い'], '胸が熱くなかった')
 
     def test_contracted_omitted_particle_forms(self):
         cases = [('幕開けちゃった。', '幕を開ける'), ('幕開けてる。', '幕を開ける'),
@@ -169,6 +221,17 @@ class ExpressionMatchingTests(unittest.TestCase):
                 for match in matches:
                     self.assertEqual(sentence.text[match.start:match.end],
                                      ''.join(component.surface for component in match.components))
+
+    def test_reanalysis_extends_merged_stem_through_auxiliary_chain(self):
+        text = '幕開けさせられませんでした。'
+        sentence = tokenize_raw_sentences([text], tag='source', source_path=Path('test'))[0]
+        matches = [m for m in find_expressions(sentence) if m.entry['expression'] == '幕を開ける']
+        self.assertEqual(len(matches), 1)
+        match = matches[0]
+        self.assertEqual(text[match.start:match.end], '幕開けさせられませんでした')
+        self.assertEqual(match.analysis_rule, 'verb_reanalysis')
+        self.assertTrue(match.omitted_particle)
+        self.assertEqual(''.join(c.surface for c in match.components), text[:-1])
 
     def test_different_particles_words_and_broken_alignment_do_not_match(self):
         for matches in self.match('青筋に立てる。', '青筋を探す。', '青筋、立てる。',
