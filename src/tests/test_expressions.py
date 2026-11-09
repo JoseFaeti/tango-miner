@@ -102,7 +102,10 @@ class ExpressionMatchingTests(unittest.TestCase):
                 self.assertEqual([m[1] for m in matches], [surface])
 
     def test_each_inventory_verb_across_inflections_and_particle_omission(self):
-        rows = {'く': ('か', 'き', 'け', 'こ', 'いた', 'いて'),
+        rows = {'う': ('わ', 'い', 'え', 'お', 'った', 'って'),
+                'く': ('か', 'き', 'け', 'こ', 'いた', 'いて'),
+                'ぐ': ('が', 'ぎ', 'げ', 'ご', 'いだ', 'いで'),
+                'す': ('さ', 'し', 'せ', 'そ', 'した', 'して'),
                 'む': ('ま', 'み', 'め', 'も', 'んだ', 'んで')}
         cases = []
         for entry in self.entries:
@@ -200,6 +203,28 @@ class ExpressionMatchingTests(unittest.TestCase):
         self.assertTrue(stats.needs_review)
         self.assertEqual(sum(stats.component_counts.values()), 2)
         self.assertEqual(artifact.sentences[0].lemma_surfaces['胸が熱い'], '胸が熱くなかった')
+
+    def test_new_inventory_candidates_keep_component_words_and_review(self):
+        raw = tokenize_raw_sentences(['目を塞いだ。', '人目がうるさかった。'],
+                                     tag='source', source_path=Path('test.txt'))
+        artifact = Artifact(raw)
+        expression = ExpressionStep()
+        expression.process(artifact)
+        build = BuildWordStatsStep()
+        build.start_time = None
+        artifact = AddExpressionCandidatesStep(expression).process(build.process(artifact))
+        for word, surface in [('目を塞ぐ', '目を塞いだ'),
+                              ('人目がうるさい', '人目がうるさかった')]:
+            with self.subTest(word=word):
+                stats = artifact.data[word]
+                self.assertTrue(stats.expression_review)
+                self.assertEqual(stats.frequency, 1)
+                self.assertEqual(sum(stats.component_counts.values()), 1)
+                self.assertTrue(any(sentence.lemma_surfaces.get(word) == surface
+                                    for sentence in artifact.sentences))
+        self.assertIn('目', artifact.data)
+        self.assertIn('人目', artifact.data)
+        self.assertEqual(self.match('目で塞いだ。', '人目が静かだった。'), [[], []])
 
     def test_contracted_omitted_particle_forms(self):
         cases = [('幕開けちゃった。', '幕を開ける'), ('幕開けてる。', '幕を開ける'),

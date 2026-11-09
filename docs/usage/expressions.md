@@ -11,10 +11,12 @@ its meaning; its English gloss was written for this project. The corpus's
 redistribution terms are included in [OPENMWE-LICENSE.txt](../../data/OPENMWE-LICENSE.txt).
 
 The adjective entries were separately researched using the references linked
-in their records. The list is deliberately extensible and is not an exhaustive
-idiom dictionary.
-The canonical spelling and concatenated analyzer reading for each initial
-entry were absent from the tested JMdict snapshot. This does not prove that
+in their records. Additional eye-related expressions and 顎が外れる were
+selected from the idiom references linked in their records. These surface
+patterns can also have literal uses. The list is deliberately extensible and
+is not an exhaustive idiom dictionary.
+The canonical spelling and reading of each inventory entry are checked against
+the tested JMdict snapshot. Absence from that snapshot does not prove that
 all spellings or synonymous expressions are absent from every JMdict edition.
 Run `python scripts/inspect_expression_coverage.py` to inspect current inventory
 coverage, or pass a UTF-8 file with one candidate per line. The script checks

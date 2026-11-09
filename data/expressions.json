@@ -157,6 +157,290 @@
       "meaning": "to be overcome with emotion",
       "reference": "https://ir.library.osaka-u.ac.jp/repo/ouka/all/98641/34457_Dissertation.pdf",
       "verb_class": "i_adjective"
+    },
+    {
+      "expression": "人目がうるさい",
+      "reading": "ひとめがうるさい",
+      "noun": [
+        "人目"
+      ],
+      "particle": "が",
+      "verb": [
+        "うるさい"
+      ],
+      "meaning": "to feel constrained by others' scrutiny",
+      "reference": "https://kotowaza.jitenon.jp/bamen/list60.php",
+      "verb_class": "i_adjective"
+    },
+    {
+      "expression": "人目に晒す",
+      "reading": "ひとめにさらす",
+      "noun": [
+        "人目"
+      ],
+      "particle": "に",
+      "verb": [
+        "晒す",
+        "さらす"
+      ],
+      "meaning": "to expose something to public view",
+      "reference": "https://kotowaza.jitenon.jp/bamen/list60.php",
+      "verb_class": "godan"
+    },
+    {
+      "expression": "人目を奪う",
+      "reading": "ひとめをうばう",
+      "noun": [
+        "人目"
+      ],
+      "particle": "を",
+      "verb": [
+        "奪う",
+        "うばう"
+      ],
+      "meaning": "to captivate people's attention",
+      "reference": "https://kotowaza.jitenon.jp/bamen/list60.php",
+      "verb_class": "godan"
+    },
+    {
+      "expression": "目が堅い",
+      "reading": "めがかたい",
+      "noun": [
+        "目"
+      ],
+      "particle": "が",
+      "verb": [
+        "堅い",
+        "かたい"
+      ],
+      "meaning": "to have difficulty falling asleep",
+      "reference": "https://kotowaza.jitenon.jp/bamen/list60.php",
+      "verb_class": "i_adjective"
+    },
+    {
+      "expression": "目が鋭い",
+      "reading": "めがするどい",
+      "noun": [
+        "目"
+      ],
+      "particle": "が",
+      "verb": [
+        "鋭い",
+        "するどい"
+      ],
+      "meaning": "to have a piercing gaze",
+      "reference": "https://kotowaza.jitenon.jp/bamen/list60.php",
+      "verb_class": "i_adjective"
+    },
+    {
+      "expression": "目が近い",
+      "reading": "めがちかい",
+      "noun": [
+        "目"
+      ],
+      "particle": "が",
+      "verb": [
+        "近い",
+        "ちかい"
+      ],
+      "meaning": "to be short-sighted",
+      "reference": "https://kotowaza.jitenon.jp/bamen/list60.php",
+      "verb_class": "i_adjective"
+    },
+    {
+      "expression": "目が早い",
+      "reading": "めがはやい",
+      "noun": [
+        "目"
+      ],
+      "particle": "が",
+      "verb": [
+        "早い",
+        "はやい"
+      ],
+      "meaning": "to notice or judge things quickly",
+      "reference": "https://kotowaza.jitenon.jp/bamen/list60.php",
+      "verb_class": "i_adjective"
+    },
+    {
+      "expression": "目先を変える",
+      "reading": "めさきをかえる",
+      "noun": [
+        "目先"
+      ],
+      "particle": "を",
+      "verb": [
+        "変える",
+        "かえる"
+      ],
+      "meaning": "to change the approach for variety",
+      "reference": "https://kotowaza.jitenon.jp/bamen/list60.php",
+      "verb_class": "ichidan"
+    },
+    {
+      "expression": "目で殺す",
+      "reading": "めでころす",
+      "noun": [
+        "目"
+      ],
+      "particle": "で",
+      "verb": [
+        "殺す",
+        "ころす"
+      ],
+      "meaning": "to captivate someone with a seductive look",
+      "reference": "https://kotowaza.jitenon.jp/bamen/list60.php",
+      "verb_class": "godan"
+    },
+    {
+      "expression": "目元が涼しい",
+      "reading": "めもとがすずしい",
+      "noun": [
+        "目元"
+      ],
+      "particle": "が",
+      "verb": [
+        "涼しい",
+        "すずしい"
+      ],
+      "meaning": "to have clear and pleasant-looking eyes",
+      "reference": "https://kotowaza.jitenon.jp/bamen/list60.php",
+      "verb_class": "i_adjective"
+    },
+    {
+      "expression": "目を欺く",
+      "reading": "めをあざむく",
+      "noun": [
+        "目"
+      ],
+      "particle": "を",
+      "verb": [
+        "欺く",
+        "あざむく"
+      ],
+      "meaning": "to deceive someone's eyes",
+      "reference": "https://kotowaza.jitenon.jp/bamen/list60.php",
+      "verb_class": "godan"
+    },
+    {
+      "expression": "目を呉れる",
+      "reading": "めをくれる",
+      "noun": [
+        "目"
+      ],
+      "particle": "を",
+      "verb": [
+        "呉れる",
+        "くれる"
+      ],
+      "meaning": "to cast a glance at something",
+      "reference": "https://kotowaza.jitenon.jp/bamen/list60.php",
+      "verb_class": "ichidan"
+    },
+    {
+      "expression": "目を肥やす",
+      "reading": "めをこやす",
+      "noun": [
+        "目"
+      ],
+      "particle": "を",
+      "verb": [
+        "肥やす",
+        "こやす"
+      ],
+      "meaning": "to cultivate an eye for quality",
+      "reference": "https://kotowaza.jitenon.jp/bamen/list60.php",
+      "verb_class": "godan"
+    },
+    {
+      "expression": "目を据える",
+      "reading": "めをすえる",
+      "noun": [
+        "目"
+      ],
+      "particle": "を",
+      "verb": [
+        "据える",
+        "すえる"
+      ],
+      "meaning": "to fix one's gaze on something",
+      "reference": "https://kotowaza.jitenon.jp/bamen/list60.php",
+      "verb_class": "ichidan"
+    },
+    {
+      "expression": "目を注ぐ",
+      "reading": "めをそそぐ",
+      "noun": [
+        "目"
+      ],
+      "particle": "を",
+      "verb": [
+        "注ぐ",
+        "そそぐ"
+      ],
+      "meaning": "to look at something attentively",
+      "reference": "https://kotowaza.jitenon.jp/bamen/list60.php",
+      "verb_class": "godan"
+    },
+    {
+      "expression": "目を側める",
+      "reading": "めをそばめる",
+      "noun": [
+        "目"
+      ],
+      "particle": "を",
+      "verb": [
+        "側める",
+        "そばめる"
+      ],
+      "meaning": "to look aside in aversion or fear",
+      "reference": "https://kotowaza.jitenon.jp/bamen/list60.php",
+      "verb_class": "ichidan"
+    },
+    {
+      "expression": "目を塞ぐ",
+      "reading": "めをふさぐ",
+      "noun": [
+        "目"
+      ],
+      "particle": "を",
+      "verb": [
+        "塞ぐ",
+        "ふさぐ"
+      ],
+      "meaning": "to turn a blind eye",
+      "reference": "https://kotowaza.jitenon.jp/bamen/list60.php",
+      "verb_class": "godan"
+    },
+    {
+      "expression": "後口が悪い",
+      "reading": "あとくちがわるい",
+      "noun": [
+        "後口"
+      ],
+      "particle": "が",
+      "verb": [
+        "悪い",
+        "わるい"
+      ],
+      "meaning": "to leave an unpleasant feeling afterward",
+      "reference": "https://kotowaza.jitenon.jp/bamen/list301.php",
+      "verb_class": "i_adjective"
+    },
+    {
+      "expression": "顎が外れる",
+      "reading": "あごがはずれる",
+      "noun": [
+        "顎"
+      ],
+      "particle": "が",
+      "verb": [
+        "外れる",
+        "はずれる"
+      ],
+      "meaning": "to laugh uproariously",
+      "reference": "https://kotowaza.jitenon.jp/kanji/%E9%A1%8E/contain/",
+      "verb_class": "ichidan"
     }
   ]
 }
