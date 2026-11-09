@@ -19,6 +19,12 @@ For example, past-tense occurrences of できる can be assigned to that verb,
 while the separate できた candidate can retain a supported prenominal or
 interjection meaning. Ambiguous occurrences can still inflate its frequency.
 
+With `[merge] merge_potential_forms = true`, analyzer-supported potential forms
+are grouped with the base verb before filtering, retaining their source examples
+and counts. Forms with dictionary senses beyond ability remain separate. The
+check is conservative: ambiguous dictionary glosses remain separate as well.
+Set the option to `false` to retain separate potential candidates.
+
 ## JMdict test baseline
 
 Integration tests use the configured English-only legacy `JMdict_e` XML. The

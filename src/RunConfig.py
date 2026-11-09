@@ -33,6 +33,7 @@ class ParallelConfig:
 @dataclass(frozen=True)
 class MergeConfig:
     max_lookahead: int = 10
+    merge_potential_forms: bool = True
 
 
 @dataclass(frozen=True)
@@ -198,7 +199,7 @@ def _update_section(name, section, values):
         raise ValueError(f"Unknown [{name}] settings: {', '.join(sorted(unknown))}")
     types = {"input": {"path": (str, type(None)), "recursive": (bool,), "encoding": (str,), "extensions": (list, tuple)},
              "tokenizer": {"config_path": (str,), "dictionary": (str,)},
-             "merge": {"max_lookahead": (int,)},
+             "merge": {"max_lookahead": (int,), "merge_potential_forms": (bool,)},
              "parallel": {"workers": (int,)},
              "dictionary": {"jmdict_path": (str,)},
              "filter": {"min_frequency": (int,), "keep_percent": (int,), "min_frequency_per_source": (int, float)}, "output": {"path": (str, type(None))},
