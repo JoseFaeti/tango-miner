@@ -7,12 +7,12 @@ from src.grammar_rules.helpers import adjacent, next_matches, polite_suffix_end
 def match_te_aru(tokens):
     for i in range(1, len(tokens) - 1):
         verb, connective, aru = tokens[i - 1:i + 2]
+        if connective['surface'] not in ('て', 'で') or aru['lemma'] not in ('ある', '有る'):
+            continue
         if (not adjacent(verb, connective) or not adjacent(connective, aru)
                 or verb['pos'][:1] not in (['動詞'], ['助動詞'])
                 or len(verb['pos']) < 6 or not verb['pos'][5].startswith('連用形')
-                or connective['surface'] not in ('て', 'で')
                 or connective['pos'][:2] != ['助詞', '接続助詞']
-                or aru['lemma'] not in ('ある', '有る')
                 or aru['pos'][:2] != ['動詞', '非自立可能']):
             continue
         end = None

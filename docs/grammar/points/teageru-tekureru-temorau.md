@@ -11,7 +11,8 @@ someone do something for the speaker or another beneficiary.
 
 The `te_benefactive` rule recognizes a continuative verb or auxiliary followed
 by split て/で and non-independent あげる, くれる or もらう in selected
-plain, past, polite and negative forms. The construction is reserved while the
+plain, past, polite, negative, connective, conditional and volitional forms.
+Focused Sudachi examples include あげて, くれれば and もらおう. The construction is reserved while the
 attached predicate remains eligible for lexical collection, subject to shared
 dictionary expression precedence. The imperative てくれ belongs to the
 separate request card. Focused Sudachi tests cover these forms, ordinary giving

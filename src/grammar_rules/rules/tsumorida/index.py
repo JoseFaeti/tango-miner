@@ -7,6 +7,8 @@ from src.grammar_rules.helpers import adjacent, next_matches
 def match_tsumorida(tokens):
     for i in range(1, len(tokens) - 1):
         previous, noun, copula = tokens[i - 1:i + 2]
+        if noun['surface'] not in ('つもり', '積もり'):
+            continue
         pos = previous['pos']
         verb = (pos[:1] == ['動詞'] and len(pos) >= 6
                 and pos[5].startswith('連体形'))

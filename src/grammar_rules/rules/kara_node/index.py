@@ -7,6 +7,8 @@ from src.grammar_rules.helpers import adjacent
 def match_kara_node(tokens):
     for i in range(1, len(tokens)):
         previous, token = tokens[i - 1:i + 1]
+        if token['surface'] not in ('から', 'の'):
+            continue
         pos = previous['pos']
         if (not adjacent(previous, token)
                 or pos[:1] not in (['動詞'], ['形容詞'], ['助動詞'])

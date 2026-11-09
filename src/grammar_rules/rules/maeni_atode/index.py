@@ -7,6 +7,8 @@ from src.grammar_rules.helpers import adjacent
 def match_maeni_atode(tokens):
     for i in range(1, len(tokens) - 1):
         previous, noun, particle = tokens[i - 1:i + 2]
+        if noun['surface'] not in ('前', 'まえ', '後', 'あと'):
+            continue
         nominal = (previous['surface'] == 'の' and previous['lemma'] == 'の'
                    and previous['pos'][:2] == ['助詞', '格助詞'])
         verb_before = (previous['pos'][:1] == ['動詞']

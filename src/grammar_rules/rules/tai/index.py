@@ -14,9 +14,11 @@ RULE = GrammarRule(
 def match_tai(tokens):
     for i in range(1, len(tokens)):
         verb, desire = tokens[i - 1:i + 1]
+        if desire['lemma'] != 'たい':
+            continue
         if not (adjacent(verb, desire) and verb['pos'][:1] == ['動詞']
                 and len(verb['pos']) >= 6 and verb['pos'][5].startswith('連用形')
-                and desire['lemma'] == 'たい' and desire['pos'][:1] == ['助動詞']):
+                and desire['pos'][:1] == ['助動詞']):
             continue
         end = adjective_inflection_end(
             tokens, i, lemma='たい', pos='助動詞', base='たい', past_stem='たかっ',

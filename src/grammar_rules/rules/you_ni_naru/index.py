@@ -7,6 +7,8 @@ from src.grammar_rules.helpers import adjacent, next_matches, positive_verb_end,
 def match_you_ni_naru(tokens):
     for i in range(1, len(tokens)):
         predicate, you = tokens[i - 1:i + 1]
+        if you['surface'] not in ('ように', 'よう'):
+            continue
         pos = predicate['pos']
         if not adjacent(predicate, you) or len(pos) < 6:
             continue

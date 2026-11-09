@@ -39,6 +39,8 @@ def match_te_iru(tokens):
 
     for i in range(1, len(tokens)):
         previous, token = tokens[i - 1:i + 1]
+        if token['surface'] not in ('て', 'で', 'でない') and token['lemma'] not in ('てる', 'でる'):
+            continue
         if (not has_next(tokens, i - 1) or previous['pos'][:1] not in (['動詞'], ['助動詞'])
                 or len(previous['pos']) < 6 or not previous['pos'][5].startswith('連用形')):
             continue
@@ -50,10 +52,18 @@ def match_te_iru(tokens):
         elif token['pos'][:1] == ['助動詞'] and token['lemma'] in ('てる', 'でる'):
             if token['surface'] in ('てる', 'でる', 'てよう', 'でよう', 'てろ', 'でろ'):
                 end = i
+            elif (token['surface'] in ('てん', 'でん') and has_next(tokens, i)
+                  and tokens[i + 1]['surface'] == 'の'
+                  and tokens[i + 1]['pos'][:2] in (['助詞', '準体助詞'], ['助詞', '終助詞'])):
+                end = i
             elif token['surface'] in ('てれ', 'でれ'):
                 end = conditional_end(i)
             elif token['surface'] in ('て', 'で'):
                 end = suffix_end(i)
+                if (end is None and has_next(tokens, i)
+                        and tokens[i + 1]['surface'] == 'ん'
+                        and tokens[i + 1]['pos'][:2] == ['助詞', '準体助詞']):
+                    end = i + 1
         elif (token['surface'] in ('て', 'で')
               and (token['pos'][:2] == ['助詞', '接続助詞']
                    or (token['surface'] == 'で' and token['lemma'] == 'だ'

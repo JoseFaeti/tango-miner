@@ -51,7 +51,7 @@ class RunConfigTests(unittest.TestCase):
         self.assertEqual(RunConfig().output, config.output)
 
     def test_invalid_config_rejected(self):
-        for contents in ('config_version = 2', '[filter]\nmin_frequency = 0', '[input]\nrecursiv = true', '[filter]\nmin_frequency = true', '[anki]\nenabled = 1', '[anki]\noutput_only = 1', '[filter]\nkeep_percent = 0', '[filter]\nmin_frequency_per_source = -1', '[input]\nextensions = [1]', '[scoring]\ntag_saturation = 1', '[scoring]\nfrequency_weight = 0\nposition_weight = 0', '[scoring]\nmax_score = inf', '[scoring]\nminimum_tag_factor = 1.1', '[sentences]\nmax_sentences = 0', '[sentences]\nlength_divisor = 0', '[sentences]\nunknown_word_penalty = -1', '[sentences]\nvariance_divisor = inf', '[sentences]\nmin_word_count = true', '[merge]\nmax_lookahead = 1', '[merge]\nmax_lookahead = true', '[dictionary]\njmdict_path = ""', '[anki]\nendpoint = "nope"', '[anki]\ntimeout_seconds = 0', '[anki]\nbatch_size = 0', '[anki]\nnote_fetch_batch_size = true', '[anki]\ndeck = " "', '[tokenizer]\nconfig_path = ""', '[tokenizer]\ndictionary = true'):
+        for contents in ('config_version = 2', '[filter]\nmin_frequency = 0', '[input]\nrecursiv = true', '[filter]\nmin_frequency = true', '[anki]\nenabled = 1', '[anki]\noutput_only = 1', '[filter]\nkeep_percent = 0', '[filter]\nmin_frequency_per_source = -1', '[input]\nextensions = [1]', '[scoring]\ntag_saturation = 1', '[scoring]\nfrequency_weight = 0\nposition_weight = 0', '[scoring]\nmax_score = inf', '[scoring]\nminimum_tag_factor = 1.1', '[sentences]\nmax_sentences = 0', '[sentences]\nlength_divisor = 0', '[sentences]\nunknown_word_penalty = -1', '[sentences]\nvariance_divisor = inf', '[sentences]\nmin_word_count = true', '[merge]\nmax_lookahead = 1', '[merge]\nmax_lookahead = true', '[parallel]\nworkers = 0', '[parallel]\nworkers = 62', '[parallel]\nworkers = true', '[dictionary]\njmdict_path = ""', '[anki]\nendpoint = "nope"', '[anki]\ntimeout_seconds = 0', '[anki]\nbatch_size = 0', '[anki]\nnote_fetch_batch_size = true', '[anki]\ndeck = " "', '[tokenizer]\nconfig_path = ""', '[tokenizer]\ndictionary = true'):
             with self.subTest(contents=contents), tempfile.TemporaryDirectory() as directory:
                 path = Path(directory) / 'config.toml'
                 path.write_text(contents, encoding='utf-8')
@@ -78,6 +78,17 @@ class RunConfigTests(unittest.TestCase):
             path.write_text('[merge]\nmax_lookahead = 4\n', encoding='utf-8')
             self.assertEqual(resolve_config(path).merge.max_lookahead, 4)
         self.assertEqual(resolve_config().merge.max_lookahead, 10)
+
+    def test_parallel_worker_setting_and_cli_override(self):
+        with tempfile.TemporaryDirectory() as directory:
+            path = Path(directory) / 'config.toml'
+            path.write_text('[parallel]\nworkers = 3\n', encoding='utf-8')
+            self.assertEqual(resolve_config(path).parallel.workers, 3)
+            result = subprocess.run([sys.executable, 'tango_miner.py', '--config', str(path),
+                                     '--workers', '2', '--show-config'],
+                                    capture_output=True, text=True, check=True)
+            self.assertEqual(json.loads(result.stdout)['parallel']['workers'], 2)
+        self.assertEqual(resolve_config().parallel.workers, 1)
 
     def test_sentence_settings_load_from_toml(self):
         with tempfile.TemporaryDirectory() as directory:

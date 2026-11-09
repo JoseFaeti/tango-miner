@@ -7,6 +7,8 @@ from src.grammar_rules.helpers import adjacent
 def match_kedo(tokens):
     for i in range(1, len(tokens)):
         previous, marker = tokens[i - 1:i + 1]
+        if marker['surface'] not in ('けど', 'けれど', 'けれども'):
+            continue
         pos = previous['pos']
         if (adjacent(previous, marker)
                 and pos[:1] in (['動詞'], ['形容詞'], ['助動詞'])

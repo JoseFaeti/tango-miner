@@ -15,6 +15,24 @@ example, `python tango_miner.py --min-frequency 3 --show-config`. The existing `
 Other pipeline constants are not configurable yet. Relative paths are resolved
 against the current working directory.
 
+Set `[parallel] workers = 2` in `config.toml` to use two processes for
+large grammar and token-merging batches. The built-in default is `1`; the
+project configuration selects `4`. `--workers N` overrides the setting for one
+run. The main process participates, and helpers are reused between these stages
+and closed after merging. Other pipeline stages remain sequential. Helpers use
+a checksum-verified, read-only memory-mapped JMdict index when the dictionary
+hash and cache are available. The index is built once in the application cache;
+its first build costs time and disk space. If it cannot be built, a warning is
+reported and helpers load independent dictionaries, which can use substantially
+more memory. Small batches and cache hits stay on the main process, and startup
+and data transfer can make smaller runs slower. Compare elapsed times and
+available memory before increasing the count.
+The worker count is recorded in the resolved configuration and run summary.
+
+When profiling a parallel grammar run, `parallel_wall` reports the elapsed work
+including worker startup and transfer. Per-phase grammar timings are not
+available in that mode; the merge stage total includes worker shutdown.
+
 Pass `--retokenize` to a normal pipeline run to regenerate tokenizer output
 instead of reading cached tokens. The refreshed tokens are saved to the cache
 for later runs. All other configured stages, including Anki if enabled, run

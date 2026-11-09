@@ -3,6 +3,7 @@ from src.GrammarConstants import YOU_NI_GRAMMAR_EXPRESSION
 from src.grammar_rules.base import GrammarRule
 from src.grammar_rules.helpers import adjacent
 from src.grammar_rules.rules.you_ni_naru.index import match_you_ni_naru
+from src.grammar_rules.rules.you_ni_suru.index import match_you_ni_suru
 
 
 RULE = GrammarRule(
@@ -13,9 +14,11 @@ RULE = GrammarRule(
 
 
 def match_you_ni(tokens):
-    owned_starts = {start for start, _ in match_you_ni_naru(tokens)}
+    owned_starts = None
     for i in range(1, len(tokens) - 1):
         previous, token = tokens[i - 1:i + 1]
+        if token['surface'] not in ('ように', 'よう'):
+            continue
         if (not adjacent(previous, token)
                 or previous['pos'][:1] not in (['動詞'], ['形容詞'], ['助動詞'])
                 or len(previous['pos']) < 6
@@ -34,5 +37,8 @@ def match_you_ni(tokens):
             continue
         if not any(t['pos'][:1] != ['補助記号'] for t in tokens[end + 1:]):
             continue
+        if owned_starts is None:
+            owned_starts = {start for matcher in (match_you_ni_naru, match_you_ni_suru)
+                            for start, _ in matcher(tokens)}
         if token['span'][0] not in owned_starts:
             yield token['span'][0], tokens[end]['span'][1]

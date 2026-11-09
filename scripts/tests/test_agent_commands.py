@@ -25,6 +25,14 @@ class AgentCommandTests(unittest.TestCase):
                 silent = subprocess.run(base + ['--silent', '--help'], cwd=ROOT, capture_output=True)
                 self.assertEqual((silent.returncode, silent.stdout, silent.stderr), (0, b'', b''))
 
+    def test_run_tests_module_supports_spawned_workers(self):
+        result = subprocess.run(
+            [sys.executable, '-m', 'tango_miner.run_tests',
+             'src.tests.test_parallel_pipeline.ParallelPipelineTests.test_ordered_map_handles_uneven_batches'],
+            cwd=ROOT, capture_output=True, timeout=60,
+        )
+        self.assertEqual(result.returncode, 0, result.stderr)
+
     def test_silent_preserves_failure_status(self):
         result = subprocess.run([sys.executable, '-m', 'tango_miner.query_jsonl',
                                  '--silent', 'missing.jsonl'], cwd=ROOT, capture_output=True)

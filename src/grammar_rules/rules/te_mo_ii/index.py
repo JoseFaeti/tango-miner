@@ -6,13 +6,17 @@ from src.grammar_rules.rules.nakutemoii.index import match_nakutemoii
 
 
 def match_te_mo_ii(tokens):
-    no_obligation = list(match_nakutemoii(tokens))
+    no_obligation = None
     for i in range(1, len(tokens)):
         previous, token = tokens[i - 1:i + 1]
-        if any(start <= token['span'][0] < end for start, end in no_obligation):
+        if token['surface'] not in ('てもいい', 'て', 'で'):
             continue
         if (not adjacent(previous, token) or previous['pos'][:1] not in (['動詞'], ['助動詞'])
                 or len(previous['pos']) < 6 or not previous['pos'][5].startswith('連用形')):
+            continue
+        if no_obligation is None:
+            no_obligation = list(match_nakutemoii(tokens))
+        if any(start <= token['span'][0] < end for start, end in no_obligation):
             continue
         if token['surface'] == 'てもいい' and token['lemma'] == 'てもいい':
             yield token['span'][0], token['span'][1]

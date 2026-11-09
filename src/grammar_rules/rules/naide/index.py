@@ -6,13 +6,17 @@ from src.grammar_rules.rules.nai.index import match_nai
 
 
 def match_naide(tokens):
-    starts = {start for start, end in match_nai(tokens)
-              if any(tuple(t['span']) == (start, end) and t['surface'] == 'ない' for t in tokens)}
+    starts = None
     for i in range(len(tokens) - 1):
         negative, connective = tokens[i:i + 2]
-        if (negative['span'][0] not in starts or connective['surface'] != 'で'
+        if (negative['surface'] != 'ない' or connective['surface'] != 'で'
                 or connective['pos'][:2] != ['助詞', '接続助詞']
                 or not adjacent(negative, connective)):
+            continue
+        if starts is None:
+            starts = {start for start, end in match_nai(tokens)
+                      if any(tuple(t['span']) == (start, end) and t['surface'] == 'ない' for t in tokens)}
+        if negative['span'][0] not in starts:
             continue
         end = connective['span'][1]
         if i + 2 < len(tokens):

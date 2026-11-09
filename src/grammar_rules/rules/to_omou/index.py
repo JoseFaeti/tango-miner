@@ -7,6 +7,8 @@ from src.grammar_rules.helpers import adjacent, next_matches, positive_verb_end,
 def match_to_omou(tokens):
     for i in range(1, len(tokens) - 1):
         previous, particle, verb = tokens[i - 1:i + 2]
+        if particle['surface'] != 'と' or verb['lemma'] != '思う':
+            continue
         if (not adjacent(previous, particle) or not adjacent(particle, verb)
                 or previous['pos'][:1] not in (['動詞'], ['形容詞'], ['助動詞'])
                 or len(previous['pos']) < 6

@@ -7,6 +7,8 @@ from src.grammar_rules.helpers import adjacent, adjective_inflection_end, next_m
 def match_te_hoshii(tokens):
     for i in range(1, len(tokens) - 1):
         verb, connective, desire = tokens[i - 1:i + 2]
+        if connective['surface'] not in ('て', 'で') or desire['lemma'] not in ('欲しい', 'ほしい'):
+            continue
         if (verb['pos'][:1] not in (['動詞'], ['助動詞'])
                 or len(verb['pos']) < 6 or not verb['pos'][5].startswith('連用形')
                 or connective['surface'] not in ('て', 'で')

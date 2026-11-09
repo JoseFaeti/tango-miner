@@ -7,6 +7,8 @@ from src.grammar_rules.helpers import adjacent, next_matches, negative_suffix_en
 def match_koto_ga_dekiru(tokens):
     for i in range(1, len(tokens)):
         verb, koto = tokens[i - 1:i + 1]
+        if koto['surface'] not in ('こと', '事'):
+            continue
         if (verb['pos'][:1] != ['動詞'] or len(verb['pos']) < 6
                 or not verb['pos'][5].startswith(('終止形', '連体形'))
                 or not adjacent(verb, koto)

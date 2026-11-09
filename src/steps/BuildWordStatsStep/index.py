@@ -12,15 +12,60 @@ from dataclasses import replace
 PROGRESS_INTERVAL = 200
 
 
+class PotentialFormResolver:
+    """Resolve analyzer-supported potentials only when no independent entry exists."""
+
+    def __init__(self, dictionary, tokenizer):
+        self.dictionary = dictionary
+        self.tokenizer = tokenizer
+        self.cache = {}
+
+    def resolve(self, token, lemma):
+        if not token.get("pos") or token["pos"][0] != "\u52d5\u8a5e" or token.get("components"):
+            return None
+        if lemma not in self.cache:
+            self.cache[lemma] = self._resolve(lemma)
+        return self.cache[lemma]
+
+    def _resolve(self, lemma):
+        if not lemma.endswith("\u308b"):
+            return None
+        entries = self.dictionary.lookup_word(lemma)
+        glosses = [gloss.lower() for entry in entries for sense in entry["senses"]
+                   for gloss in sense["gloss"]]
+        if entries and (not glosses or any(not gloss.startswith("to be able to ") for gloss in glosses)):
+            return None
+        from src.steps.TokenizeStep.index import TOKENIZER_MODE, get_lemma_reading
+        nodes = self.tokenizer.tokenize(lemma, TOKENIZER_MODE)
+        if len(nodes) != 1 or nodes[0].dictionary_form() != lemma:
+            return None
+        base = nodes[0].normalized_form()
+        endings = {"\u3046": "\u3048\u308b", "\u304f": "\u3051\u308b", "\u3050": "\u3052\u308b", "\u3059": "\u305b\u308b", "\u3064": "\u3066\u308b", "\u306c": "\u306d\u308b", "\u3076": "\u3079\u308b", "\u3080": "\u3081\u308b", "\u308b": "\u308c\u308b"}
+        if not base or base[-1] not in endings or base[:-1] + endings[base[-1]] != lemma:
+            return None
+        entries = self.dictionary.lookup_word(base)
+        if not entries:
+            return None
+        return base, get_lemma_reading(base)
+
+
 class BuildWordStatsStep(PipelineStep):
     """Build word statistics and sentence mappings from merged token streams."""
 
-    def __init__(self):
+    def __init__(self, merge_potential_forms=False, dictionary_path=None):
+        self.merge_potential_forms = merge_potential_forms
+        self.dictionary_path = dictionary_path
         self._processing_step = ProcessingStep.WORD_COLLECTION
 
     def process(self, artifact: Artifact) -> Artifact:
+        resolver = None
+        if self.merge_potential_forms:
+            from src.steps.MergeTokensStep.index import get_jmdict
+            from src.steps.TokenizeStep.index import get_tokenizer
+            resolver = PotentialFormResolver(get_jmdict(self.dictionary_path), get_tokenizer())
         word_data, segmented_sentences = build_word_stats(
             artifact.data,
+            potential_resolver=resolver,
             progress_handler=self.progress,
             progress_interval=PROGRESS_INTERVAL,
         )
@@ -36,6 +81,7 @@ def build_word_stats(
     word_data=None,
     segmented_sentences=None,
     progress_interval: int = 200,
+    potential_resolver=None,
 ):
     """Aggregate merged tokens while retaining per-source index positions."""
     word_data = word_data or {}
@@ -86,6 +132,10 @@ def build_word_stats(
                     tags.add(tokenized_sentence.tag)
             lemma = token["base_form"] or token["lemma"]
             reading = token["reading"]
+            if potential_resolver and lemma and reading and not is_useless(token):
+                resolved = potential_resolver.resolve(token, lemma)
+                if resolved:
+                    lemma, reading = resolved
             if not lemma or not reading or is_useless(token):
                 continue
 

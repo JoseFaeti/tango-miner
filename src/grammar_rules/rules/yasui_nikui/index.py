@@ -15,6 +15,8 @@ def match_yasui_nikui(tokens):
     for i in range(1, len(tokens)):
         verb, suffix = tokens[i - 1:i + 1]
         lemma = suffix['lemma']
+        if lemma not in ('やすい', 'にくい', '易い', '難い'):
+            continue
         if not (adjacent(verb, suffix) and verb['pos'][:1] == ['動詞']
                 and len(verb['pos']) >= 6 and verb['pos'][5].startswith('連用形')
                 and suffix['pos'][:2] == ['接尾辞', '形容詞的']

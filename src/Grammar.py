@@ -60,6 +60,11 @@ class GrammarStep(PipelineStep):
         self.performance = {'per_rule_requested': profile_rules}
 
     def process(self, artifact):
+        executor = getattr(self, '_parallel_executor', None)
+        if (executor is not None and len(artifact.data) >= 512 and not self.profile_rules
+                and len(self.rules) == len(RULES)
+                and all(a is b for a, b in zip(self.rules, RULES))):
+            return self._process_parallel(artifact, executor)
         rule_times = self.performance.setdefault('rules_seconds', {}) if self.profile_rules else None
         self.occurrences = {rule.id: GrammarOccurrences() for rule in self.rules}
         self.matches = {}
@@ -142,6 +147,38 @@ class GrammarStep(PipelineStep):
                                                    sentence.text[start:end], 0.0, (start, end)))
                     group.example_texts.add(sentence.text)
             self.add_performance_time('aggregation', (perf_counter() if self._performance_enabled else 0.0) - started)
+        self.done(f'{sum(g.count for g in self.occurrences.values())} source-supported grammar occurrences.')
+        return artifact
+
+    def _process_parallel(self, artifact, executor):
+        from src.Parallel import batches, grammar_batch, ordered_map
+
+        self.occurrences = {rule.id: GrammarOccurrences() for rule in self.rules}
+        self.matches, self.spans = {}, {}
+        total = len(artifact.data)
+        batch_size = max(128, min(1000, (total + self._parallel_workers - 1) // self._parallel_workers))
+        arguments = ((start, group, self.dictionary_path, self.prefer_expressions,
+                      self.max_lookahead, self.max_examples)
+                     for start, group in batches(artifact.data, batch_size))
+        started = perf_counter()
+        for start, batch_count, occurrences, spans in ordered_map(
+                executor, grammar_batch, arguments, self._parallel_workers):
+            for rule_id, occurrence_count, tags, examples in occurrences:
+                group = self.occurrences[rule_id]
+                group.count += occurrence_count
+                group.tags.update(tags)
+                for example in examples:
+                    if len(group.examples) >= self.max_examples:
+                        break
+                    if example.text not in group.example_texts:
+                        group.examples.append(example)
+                        group.example_texts.add(example.text)
+            for index, items in spans.items():
+                self.spans[start + index] = items
+                self.matches[start + index] = [(rule_id, begin) for rule_id, begin, _ in items]
+            if start + batch_count < total:
+                self.progress(start + batch_count, total, 'Matching grammar')
+        self.add_performance_time('parallel_wall', perf_counter() - started)
         self.done(f'{sum(g.count for g in self.occurrences.values())} source-supported grammar occurrences.')
         return artifact
 

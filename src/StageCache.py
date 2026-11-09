@@ -116,9 +116,11 @@ def _bytes(value):
 # Cache correctness depends on these modules. Update this list if merge logic
 # starts calling another project module; upstream token changes are in the key.
 MERGE_SOURCE_DEPENDENCIES = (
-    "StageCache.py", "Artifact.py", "JMDict.py", "PipelineStep.py",
+    "StageCache.py", "Artifact.py", "JMDict.py", "PipelineStep.py", "Parallel.py", "SharedJMDict.py",
     "TokenizedSentence.py", "TokenProvenance.py",
-    "steps/MergeTokensStep/index.py", "steps/ProcessingStep/index.py",
+    "steps/MergeTokensStep/index.py", "steps/MergeTokensStep/merger.py",
+    "steps/MergeTokensStep/helpers.py", "steps/MergeTokensStep/grammar_guards.py",
+    "steps/MergeTokensStep/recovery.py", "steps/ProcessingStep/index.py",
 )
 
 
@@ -172,14 +174,24 @@ class StageCache:
             finally:
                 step._progress_handler = handler
 
+        executor = getattr(step, '_parallel_executor', None)
+        if executor is not None and len(artifact.data) >= 512:
+            result = self._parallel_merge(step, artifact, executor)
+            if result is not None:
+                return result
+
         output = []
-        def compute(group):
+        def compute(group, *, serial=False):
             handler = step._progress_handler
+            executor = getattr(step, '_parallel_executor', None)
             step._progress_handler = None
+            if serial:
+                step._parallel_executor = None
             try:
                 return step.process(Artifact(group, tmpdir=artifact.tmpdir)).data
             finally:
                 step._progress_handler = handler
+                step._parallel_executor = executor
 
         for _, sentences in groupby(artifact.data, key=lambda sentence: sentence.origin):
             group = list(sentences)
@@ -189,7 +201,7 @@ class StageCache:
             except (TypeError, ValueError, KeyError, AttributeError, RecursionError):
                 self.stats["misses"] += 1
                 self.stats["miss_streams"] += len(group)
-                output.extend(compute(group))
+                output.extend(compute(group, serial=True))
                 continue
             path = self.directory / (key + ".json")
             forced = bool(self.refresh & {"merge", "all"})
@@ -204,6 +216,69 @@ class StageCache:
                 self.stats["hits"] += 1
                 self.stats["hit_streams"] += len(group)
                 merged = cached
+            output.extend(merged)
+            if step._progress_handler and len(output) < len(artifact.data):
+                step.progress(len(output), len(artifact.data))
+        if step._progress_handler:
+            step.done(
+                f"{len(output)} token streams merged; cache: {self.stats['hits']} hits, "
+                f"{self.stats['misses']} misses, {self.stats['refreshes']} refreshed "
+                f"(source groups; {self.stats['hit_streams']} cached streams)."
+            )
+        return Artifact(output)
+
+    def _parallel_merge(self, step, artifact, executor):
+        """Queue independent cache misses across source groups, in input order."""
+        from src.Parallel import batches, merge_batch, ordered_map
+
+        groups = []
+        keys = set()
+        forced = bool(self.refresh & {'merge', 'all'})
+        for _, sentences in groupby(artifact.data, key=lambda sentence: sentence.origin):
+            group = list(sentences)
+            try:
+                key_data = ['merge-v2', sys.version, self.source_hash, self.dictionary_hash,
+                            step.max_lookahead, _input_key_data(group)]
+                key = hashlib.sha256(_bytes(key_data)).hexdigest()
+            except (TypeError, ValueError, KeyError, AttributeError, RecursionError):
+                return None
+            # A later identical group can hit the entry written by the first.
+            # Keep the sequential cache path for that uncommon case.
+            if key in keys:
+                return None
+            keys.add(key)
+            path = self.directory / (key + '.json')
+            cached = None if forced else self._load(path, key, group)
+            groups.append((group, path, key, cached))
+
+        missing = [group for group, _, _, cached in groups if cached is None]
+        workers = step._parallel_workers
+        def group_batches(group):
+            size = 1000 if len(missing) >= workers else max(128, min(1000, (len(group) + workers - 1) // workers))
+            return batches(group, size)
+
+        arguments = ((chunk, step.dictionary_path, step.max_lookahead, False)
+                     for group in missing for _, chunk in group_batches(group))
+        results = ordered_map(executor, merge_batch, arguments, workers)
+        output = []
+        for group, path, key, cached in groups:
+            if cached is not None:
+                self.stats['hits'] += 1
+                self.stats['hit_streams'] += len(group)
+                merged = cached
+            else:
+                status = 'refreshes' if forced and key is not None else 'misses'
+                self.stats[status] += 1
+                self.stats['refreshed_streams' if status == 'refreshes' else 'miss_streams'] += len(group)
+                merged = []
+                for _, chunk in group_batches(group):
+                    packed_results = next(results)
+                    for sentence, (packed, _) in zip(chunk, packed_results):
+                        tokens = (list(sentence.tokens) if packed is None else
+                                  [sentence.tokens[item] if type(item) is int else item for item in packed])
+                        merged.append(TokenizedSentence(sentence.text, sentence.tag, sentence.origin, tokens))
+                if key is not None and not self._save(path, key, group, merged):
+                    self.stats['write_failures'] += 1
             output.extend(merged)
             if step._progress_handler and len(output) < len(artifact.data):
                 step.progress(len(output), len(artifact.data))

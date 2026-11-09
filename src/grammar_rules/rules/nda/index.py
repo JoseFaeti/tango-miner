@@ -18,21 +18,24 @@ def match_nda(tokens):
                 and tokens[i - 1]['pos'][:1] in (['動詞'], ['形容詞'], ['助動詞']))
 
     for i, particle in enumerate(tokens):
+        surface = particle['surface']
+        if surface not in ('のだ', 'のです', 'ん', 'の'):
+            continue
         # Sudachi sometimes treats the whole written form as a noun.
-        if (particle['surface'] in ('のだ', 'のです') and predicate_before(i)):
+        if (surface in ('のだ', 'のです') and predicate_before(i)):
             yield tuple(particle['span'])
             continue
         # Some analyses split の + だった but label both as non-copular.
-        if (particle['surface'] == 'の' and predicate_before(i)
+        if (surface == 'の' and predicate_before(i)
                 and particle['pos'][:1] == ['助詞'] and i + 1 < len(tokens)
                 and adjacent(particle, tokens[i + 1])
                 and tokens[i + 1]['surface'] == 'だった'):
             yield particle['span'][0], tokens[i + 1]['span'][1]
             continue
-        if not (particle['surface'] == particle['lemma']
-                and particle['surface'] in ('ん', 'の')
+        if not (surface == particle['lemma']
+                and surface in ('ん', 'の')
                 and particle['pos'][:2] == ['助詞', '準体助詞']
-                and (particle['surface'] != 'の' or predicate_before(i))):
+                and (surface != 'の' or predicate_before(i))):
             continue
         if i + 1 >= len(tokens) or not adjacent(particle, tokens[i + 1]):
             continue

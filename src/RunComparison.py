@@ -92,6 +92,15 @@ def example_changes(before, after):
     return changes
 
 
+def unwrap_single_values(value):
+    if isinstance(value, dict):
+        return {key: unwrap_single_values(item) for key, item in value.items()}
+    if isinstance(value, list):
+        items = [unwrap_single_values(item) for item in value]
+        return items[0] if len(items) == 1 else items
+    return value
+
+
 def build_change_report(before, after):
     changes = {key: [] for key in ("added", "removed", "changed")}
     old = {word: report_row(row) for word, row in before["rows"].items() if row["status"] == "valid"} if before else {}
@@ -110,12 +119,12 @@ def build_change_report(before, after):
                 if fields:
                     changes["changed"].append({"candidate": word, "fields": fields})
     counts = {key: len(items) for key, items in changes.items()}
-    return {"schema_version": 3, "status": "compared" if before else "no_baseline",
+    return unwrap_single_values({"schema_version": 3, "status": "compared" if before else "no_baseline",
             "baseline": before["path"].name if before else None,
             "current": after["path"].name,
             "inputs_identical": before["manifest"] == after["manifest"] if before else None,
             "config_identical": before["config"] == after["config"] if before else None,
-            "counts": counts, "changes": changes}
+            "counts": counts, "changes": changes})
 
 
 def write_change_report(path, report):

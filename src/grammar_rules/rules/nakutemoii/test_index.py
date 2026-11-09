@@ -18,6 +18,8 @@ class NakutemoiiTests(unittest.TestCase):
         except (ImportError, OSError, RuntimeError) as exc:
             self.skipTest(f'Sudachi full dictionary unavailable: {exc}')
         cases = {'行かなくてもいい。': 'なくてもいい',
+                 '行かなくったっていい。': 'なくったっていい',
+                 '行かなくったって困る。': None,
                  '食べなくても良いです。': 'なくても良い',
                  '行かなくてもよかった。': 'なくてもよかった',
                  '行かなくても大丈夫。': None, '行かなくても困る。': None,
@@ -53,6 +55,21 @@ class NakutemoiiTests(unittest.TestCase):
         words = {}
         stage.add_cards(words)
         self.assertEqual(words[RULE.expression].sentences[0].surface_form, 'なくてもいい')
+
+    def test_colloquial_no_obligation_reserves_complete_span(self):
+        source = sentence('今日は行かなくったっていい。', [
+            tok('今日は', '今日', ('名詞',)),
+            tok('行か', '行く', ('動詞', '一般', '*', '*', '五段', '未然形-一般')),
+            tok('なくっ', 'ない', ('助動詞',)), tok('たって', 'たって', ('助詞', '接続助詞')),
+            tok('いい', 'いい', ('形容詞',)), tok('。', '。', ('補助記号',))])
+        aligned, error = aligned_tokens(source.text, source.tokens)
+        self.assertIsNone(error)
+        self.assertEqual(list(match_nai(aligned)), [])
+        stage = GrammarStep(rules=(RULE,))
+        result = ExcludeGrammarTokensStep(stage).process(stage.process(Artifact([source])))
+        self.assertEqual([t['surface'] for t in result.data[0].tokens if t.get('grammar_reserved')],
+                         ['なくっ', 'たって', 'いい'])
+        self.assertFalse(result.data[0].tokens[1].get('grammar_reserved'))
 
 
 if __name__ == '__main__':

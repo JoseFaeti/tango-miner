@@ -7,6 +7,8 @@ from src.grammar_rules.helpers import adjacent, next_matches, polite_suffix_end,
 def match_te_oku(tokens):
     for i in range(1, len(tokens)):
         verb, first = tokens[i - 1:i + 1]
+        if first['surface'] not in ('て', 'で') and first['lemma'] not in ('とく', 'どく'):
+            continue
         if (not adjacent(verb, first) or verb['pos'][:1] not in (['動詞'], ['助動詞'])
                 or len(verb['pos']) < 6 or not verb['pos'][5].startswith('連用形')):
             continue

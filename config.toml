@@ -17,6 +17,11 @@ path = "."
 [debug]
 enabled = false
 
+[parallel]
+# Set to 2 or more to use worker processes for large grammar and merge tasks.
+# The main process participates; helpers use a shared, read-only JMdict index.
+workers = 4
+
 [profiling]
 # Collect named phase timings for pipeline steps.
 enabled = true
@@ -36,6 +41,8 @@ jmdict_path = "~/JMdict_e.xml"
 # Maximum number of adjacent raw tokens considered for a dictionary compound.
 # Lower values can leave useful multi-token expressions unmerged.
 max_lookahead = 10
+# Combine potential verb forms with their base unless independently defined.
+merge_potential_forms = true
 
 [filter]
 min_frequency = 4

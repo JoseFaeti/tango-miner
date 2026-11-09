@@ -19,6 +19,9 @@ ongoing action or resulting state.
 
 ## Existing implementation and evidence
 
+Focused Sudachi tests cover complete `いなかったら` and
+`いなくったって` spans. Other analyses and corpus effects remain unevaluated.
+
 Source occurrences with adjacent Sudachi continuative verb/auxiliary + connective て/で +
 non-independent `いる`, or a contracted auxiliary `てる`/`でる`, are counted.
 Supported forms include plain, past, negative, polite and some contracted
@@ -44,6 +47,14 @@ Source-aligned continuative `ていて` / `でいて` and contracted `てて` /
 connective particle. Focused tokenizer regressions cover both forms and a
 standalone locative `いて` control; they do not establish corpus-wide
 precision or recall.
+
+Colloquial `てん` / `でん` is recognized when Sudachi splits the
+contracted auxiliary and nominalizing `ん`, as in an archived
+`思ってんじゃねぇ` example. Fused auxiliary `てん` / `でん` followed by
+nominalizing or sentence-final `の` is also recognized. The split `ん` is
+included in the aspect span and can simultaneously belong to `〜んだ`;
+focused tests check that overlap. Expression precedence and corpus-wide
+frequency and precision remain unevaluated.
 
 Source-aligned listing forms `ていたり` / `でいたり`, `居` spelling, and
 contracted `てたり` / `でたり` are recognized when Sudachi analyzes

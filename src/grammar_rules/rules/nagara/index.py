@@ -7,6 +7,8 @@ from src.grammar_rules.helpers import adjacent
 def match_nagara(tokens):
     for i in range(1, len(tokens) - 1):
         verb, particle, following = tokens[i - 1:i + 2]
+        if particle['surface'] != 'ながら':
+            continue
         if (verb['pos'][:1] != ['動詞'] or len(verb['pos']) < 6
                 or not verb['pos'][5].startswith('連用形')
                 or not adjacent(verb, particle)

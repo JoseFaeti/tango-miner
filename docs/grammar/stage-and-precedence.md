@@ -38,3 +38,25 @@ and recall evaluation. Treating a match exclusively as grammar can remove a
 useful lexical analysis when the rule is wrong; unmatched uses remain eligible.
 
 Dictionary expressions can also take precedence when they start before a grammar span and end inside it, as with ではなさそう + だ and 命に代えて + も. This preserves lexical components but suppresses the overlapping grammar occurrence; the effect on other expressions remains unmeasured.
+
+An exact kana-only dictionary verb marked as an abbreviation can also take
+precedence when Sudachi splits it into a verb and a supported contracted
+auxiliary. For example, ほっとく remains a lexical candidate with component
+evidence, while 買っとく remains eligible for 〜ておく. This narrow rule
+does not establish the interpretation of every homograph or cover inflected
+dictionary abbreviations. Corpus frequency and precision effects are unmeasured.
+
+In the archived `はなれちゃっても` example, focused integration tests
+retain both 〜てしまう and 〜ても, with their shared て token reserved once.
+The archived `乗ってあげてもいい` example likewise produces both the
+benefactive and permission proposals under current precedence. These examples
+do not explain earlier aggregate decreases. One historical comparison changed
+both inputs and configuration; another used the same inputs and configuration
+but did not isolate individual competing spans. Neither proves that extending
+〜てしまって caused those decreases.
+
+Use `python scripts/inspect_grammar_overlap.py SENTENCES.txt` to inspect up to
+20 UTF-8 source sentences, one per line. The JSON report shows raw grammar
+proposals, accepted spans, dictionary merges and tokens before and after
+reservation. Reservation depends on the supplied sentences providing eligible
+card examples; the report does not measure corpus precision or recall.

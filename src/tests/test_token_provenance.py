@@ -1,4 +1,5 @@
 import unittest
+import json
 import os
 import tempfile
 from unittest.mock import patch
@@ -28,6 +29,32 @@ class Dictionary:
 
 
 class ProvenanceTests(unittest.TestCase):
+    def test_moushi_noun_boundaries_and_controls(self):
+        from src.steps.TokenizeStep.index import get_tokenizer, TOKENIZER_MODE, sudachi_node_to_dict
+
+        cases = [
+            ('しかし、きみ達、ずいぶん体力をしょうもうしているな？', '消耗', ['しょう', 'もう']),
+            ('しかし、きみ達も、ずいぶん体力をしょうもうしているな？', '消耗', ['しょう', 'もう']),
+            ('ところが、とつぜん皇帝からわかいしようという、もうしでがあったの！', '申し出', ['もう', 'し', 'で']),
+        ]
+        for sentence, lemma, components in cases:
+            with self.subTest(sentence=sentence):
+                raw = [sudachi_node_to_dict(n) for n in get_tokenizer().tokenize(sentence, TOKENIZER_MODE)]
+                result = combine_tokens_jmdict(raw, Dictionary())
+                item = next(t for t in result if t['lemma'] == lemma)
+                self.assertEqual([c.surface for c in item['components']], components)
+                self.assertNotIn('もうし', [t['lemma'] for t in result])
+                if lemma == '消耗':
+                    next(t for t in raw if t['surface'] == 'て')['grammar_reserved'] = True
+                    reserved = combine_tokens_jmdict(raw, Dictionary())
+                    self.assertIn('消耗', [t['lemma'] for t in reserved])
+                    self.assertTrue(next(t for t in reserved if t['surface'] == 'て')['grammar_reserved'])
+        for sentence in ('もうしばらく待ってください。', 'そうもうしました。', 'もうしで終わりです。'):
+            with self.subTest(sentence=sentence):
+                raw = [sudachi_node_to_dict(n) for n in get_tokenizer().tokenize(sentence, TOKENIZER_MODE)]
+                result = combine_tokens_jmdict(raw, Dictionary())
+                self.assertFalse(any(t.get('analysis_rule') == 'moushi_noun_boundary' for t in result))
+
     def test_karai_source_boundaries_and_adjective_controls(self):
         from src.steps.TokenizeStep.index import get_tokenizer, TOKENIZER_MODE, sudachi_node_to_dict
 
@@ -111,6 +138,82 @@ class ProvenanceTests(unittest.TestCase):
         self.assertEqual([item["surface"] for item in long], ["ないでね"])
         self.assertEqual([item.surface for item in long[0]["components"]], ["ない", "で", "ね"])
         self.assertEqual(long[0]["lemma"], "ないでね")
+
+    def test_multiple_boundary_repairs_in_one_lexical_run(self):
+        raw = [token('ことし', 'ことし', ['名詞', '*']),
+               token('て', 'て', ['助詞', '*']),
+               token('で', 'だ', ['助動詞', '*']),
+               token('すきっと', 'すきっと', ['副詞', '*']),
+               token('。', '。', ['補助記号', '*'])]
+        result = combine_tokens_jmdict(raw, Dictionary())
+        self.assertEqual([item['surface'] for item in result],
+                         ['こと', 'し', 'て', 'で', 'す', 'きっと', '。'])
+        self.assertEqual(result[0]['components'][0].surface, 'ことし')
+        self.assertEqual(result[5]['components'][0].surface, 'すきっと')
+
+    def test_protected_boundaries_preserve_neighboring_merges_and_evidence(self):
+        class BoundaryDictionary(Dictionary):
+            def lookup_word(self, word):
+                return [{'senses': [{'pos': ['expression']}]}] if len(word) >= 2 else []
+
+        for boundary in ('desu_kitto_boundary', 'kara_sa_boundary', 'grammar_reserved'):
+            with self.subTest(boundary=boundary):
+                tokens = [token(char, char, ['名詞', '*']) for char in '甲乙丙丁戊']
+                if boundary == 'grammar_reserved':
+                    tokens[2][boundary] = True
+                else:
+                    tokens[2]['analysis_rule'] = boundary
+                rejected = []
+                merged = combine_tokens_jmdict(tokens, BoundaryDictionary(), rejected=rejected)
+                self.assertEqual([item['surface'] for item in merged], ['甲乙', '丙', '丁戊'])
+                self.assertEqual([part.surface for part in merged[0]['components']], ['甲', '乙'])
+                self.assertEqual([part.surface for part in merged[2]['components']], ['丁', '戊'])
+                self.assertEqual(rejected, [])
+
+    def test_synthetic_merge_boundary_keeps_omitted_particle_fallback(self):
+        class ExpressionDictionary(Dictionary):
+            def lookup_word(self, word):
+                return [{'senses': [{'pos': ['expression']}]}] if word == '甲を行く' else []
+
+            def get_best_entry(self, word):
+                return self.lookup_word(word)[0]
+
+        noun = token('甲', '甲', ['名詞', '*'])
+        verb = token('行く', '行く', ['動詞', '*'])
+        noun['analysis_rule'] = 'kara_sa_boundary'
+        merged = combine_tokens_jmdict([noun, verb], ExpressionDictionary())
+        self.assertEqual([item['lemma'] for item in merged], ['甲を行く'])
+        self.assertEqual([part.surface for part in merged[0]['components']], ['甲', '行く'])
+        noun['grammar_reserved'] = True
+        unmerged = combine_tokens_jmdict([noun, verb], ExpressionDictionary())
+        self.assertEqual([item['surface'] for item in unmerged], ['甲', '行く'])
+
+    def test_diagnostic_output_is_ordered_and_replaced_only_on_success(self):
+        sentences = [TokenizedSentence(text, 'tag', Path('source'), [])
+                     for text in ('first', 'second')]
+
+        def merge(tokens, dictionary, *, max_lookahead, rejected):
+            rejected.append({'reason': 'test'})
+            return tokens
+
+        with tempfile.TemporaryDirectory() as directory:
+            output = Path(directory) / 'rejected.jsonl'
+            output.write_text('previous', encoding='utf-8')
+            stage = MergeTokensStep(diagnostics_path=output)
+            stage.start_time = None
+            with patch('src.steps.MergeTokensStep.index.get_jmdict', return_value=Dictionary()), \
+                 patch('src.steps.MergeTokensStep.index.combine_tokens_jmdict', side_effect=merge):
+                stage.process(Artifact(sentences))
+            events = [json.loads(line) for line in output.read_text(encoding='utf-8').splitlines()]
+            self.assertEqual([(event['sentence_index'], event['sentence'], event['reason'])
+                              for event in events], [(0, 'first', 'test'), (1, 'second', 'test')])
+            self.assertFalse(output.with_suffix('.jsonl.tmp').exists())
+            before = output.read_bytes()
+            with patch('src.steps.MergeTokensStep.index.get_jmdict', return_value=Dictionary()), \
+                 patch('src.steps.MergeTokensStep.index.combine_tokens_jmdict', side_effect=RuntimeError('failure')):
+                with self.assertRaises(RuntimeError):
+                    stage.process(Artifact(sentences))
+            self.assertEqual(output.read_bytes(), before)
 
     def test_merge_retains_immutable_original_components(self):
         raw = [token('ない', 'ない', ['助動詞', '*']), token('で', 'で', ['助詞', '*'])]

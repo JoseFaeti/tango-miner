@@ -7,9 +7,10 @@ from src.grammar_rules.helpers import adjacent, next_matches, negative_predicate
 def matches(tokens, negative):
     for i in range(1, len(tokens) - 1):
         prev, wake = tokens[i - 1:i + 1]
+        if wake['surface'] not in ('わけ', '訳'):
+            continue
         pos = prev['pos']
-        if not (adjacent(prev, wake) and wake['surface'] in ('わけ', '訳')
-                and wake['pos'][:2] == ['名詞', '普通名詞']
+        if not (adjacent(prev, wake) and wake['pos'][:2] == ['名詞', '普通名詞']
                 and pos[:1] in (['動詞'], ['形容詞'], ['助動詞'])
                 and len(pos) >= 6 and pos[5].startswith(('終止形', '連体形'))
                 and adjacent(wake, tokens[i + 1])):

@@ -19,6 +19,9 @@ desire to perform an action.
 
 ## Existing implementation notes
 
+The shared negative matcher recognizes observed `たくなくったって` when
+Sudachi splits `なくっ` + `たって`; corpus effects remain unevaluated.
+
 The `〜たい` card expresses a desire to perform an action. It
 requires a source-aligned continuative verb followed by Sudachi's `たい`
 auxiliary. It recognizes plain, past, negative, conditional and selected polite

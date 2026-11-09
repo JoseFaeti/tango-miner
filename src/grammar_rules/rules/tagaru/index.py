@@ -7,9 +7,11 @@ from src.grammar_rules.helpers import adjacent, next_matches, negative_suffix_en
 def match_tagaru(tokens):
     for i in range(1, len(tokens)):
         verb, desire = tokens[i - 1:i + 1]
+        if desire['lemma'] != 'たがる':
+            continue
         if not (adjacent(verb, desire) and verb['pos'][:1] == ['動詞']
                 and len(verb['pos']) >= 6 and verb['pos'][5].startswith('連用形')
-                and desire['lemma'] == 'たがる' and desire['pos'][:1] == ['助動詞']):
+                and desire['pos'][:1] == ['助動詞']):
             continue
         surface = desire['surface']
         end = None

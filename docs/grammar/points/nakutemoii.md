@@ -10,11 +10,12 @@ No obligation.
 
 A verb or passive/causative auxiliary in irrealis form followed immediately by
 なくてもいい, なくてもよい, なくても良い, なくてもよかった, or
-なくても良かった. The suffix is reserved while the verb remains lexical.
+なくても良かった, and corresponding `なくったって` + いい / よい / 良い /
+よかった / 良かった forms. The suffix is reserved while the verb remains lexical.
 The complete construction takes precedence over overlapping 〜ない, 〜ても,
 and 〜てもいい matches. Matching requires complete adjacent token surfaces.
 
-Focused regressions cover forms, controls, overlaps, and reservation. They have
-not yet been run. Analyzer segmentation and corpus behavior remain unverified.
-Other variants, including なくても大丈夫 and colloquial forms, are outside
+Focused Sudachi regressions cover forms, controls, overlaps, and reservation.
+Corpus behavior remains unverified. Other variants, including なくても大丈夫
+and additional colloquial forms, are outside
 this initial scope.

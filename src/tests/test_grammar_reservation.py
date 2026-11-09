@@ -19,6 +19,42 @@ class Dictionary:
 
 
 class GrammarReservationTests(unittest.TestCase):
+    def test_kana_contraction_requires_abbreviated_verb_and_auxiliary(self):
+        from src.steps.MergeTokensStep.index import _is_contracted_kana_verb
+        tokens = [tok('ほっ', 'ほる', ('動詞', '一般')),
+                  tok('とく', 'とく', ('助動詞', '*'))]
+        entry = {'senses': [{'pos': ['Godan verb with ku ending'], 'misc': ['abbreviation']}]}
+        self.assertTrue(_is_contracted_kana_verb(tokens, entry))
+        for auxiliary in ('とく', 'どく', 'ちゃう', 'じゃう', 'てる', 'でる'):
+            with self.subTest(auxiliary=auxiliary):
+                self.assertTrue(_is_contracted_kana_verb(
+                    [tokens[0], tok(auxiliary, auxiliary, ('助動詞', '*'))], entry))
+        self.assertFalse(_is_contracted_kana_verb(tokens, {'senses': [{'pos': ['noun'], 'misc': ['abbreviation']}]}))
+        self.assertFalse(_is_contracted_kana_verb(tokens, {'senses': [{'pos': ['Godan verb'], 'misc': []}]}))
+        self.assertFalse(_is_contracted_kana_verb([tokens[0], tok('とく', 'とく', ('動詞', '一般'))], entry))
+        self.assertFalse(_is_contracted_kana_verb([tokens[0], tok('とい', 'とく', ('助動詞', '*'))], entry))
+
+    def test_completion_and_concessive_overlap_preserves_both_grammar_cards(self):
+        from pathlib import Path
+        from src.grammar_rules.rules.te_shimau.index import RULE as TE_SHIMAU
+        from src.grammar_rules.rules.te_mo.index import RULE as TE_MO
+        from src.steps.TokenizeStep.index import tokenize_raw_sentences
+
+        try:
+            raw = tokenize_raw_sentences(['舞子とはなれちゃってもずっとお友だち。',
+                                          '雨が降っても出かけよう。'],
+                                         tag='source', source_path=Path('source.txt'))
+        except (ImportError, OSError, RuntimeError) as exc:
+            self.skipTest(f'Sudachi unavailable: {exc}')
+        stage = GrammarStep(rules=(TE_SHIMAU, TE_MO), prefer_expressions=True)
+        artifact = ExcludeGrammarTokensStep(stage).process(stage.process(Artifact(raw)))
+        self.assertEqual(stage.occurrences[TE_SHIMAU.id].count, 1)
+        self.assertEqual(stage.occurrences[TE_MO.id].count, 2)
+        self.assertEqual([t['surface'] for t in artifact.data[0].tokens if t.get('grammar_reserved')],
+                         ['ちゃっ', 'て', 'も'])
+        self.assertTrue(any(t['lemma'] == 'はなれる' and not t.get('grammar_reserved')
+                            for t in artifact.data[0].tokens))
+
     def test_grammar_reserved_before_merge_but_other_uses_survive(self):
         grammar_source = sentence('外では雨が降ってきたよ。', [
             tok('外では雨が', '雨', ('名詞', '普通名詞')),

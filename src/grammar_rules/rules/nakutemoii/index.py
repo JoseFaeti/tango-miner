@@ -3,13 +3,16 @@ from src.GrammarConstants import NAKUTEMOII_GRAMMAR_EXPRESSION
 from src.grammar_rules.base import GrammarRule
 from src.grammar_rules.helpers import adjacent
 
-_FORMS = frozenset('なくても' + ending for ending in
+_FORMS = frozenset(prefix + ending for prefix in ('なくても', 'なくったって') for ending in
                    ('いい', 'よい', '良い', 'よかった', '良かった'))
 _PREFIXES = frozenset(form[:i] for form in _FORMS for i in range(len(form) + 1))
 
 
 def match_nakutemoii(tokens):
     for i in range(1, len(tokens)):
+        first_surface = tokens[i]['surface']
+        if first_surface and first_surface not in _PREFIXES:
+            continue
         anchor = tokens[i - 1]
         pos = anchor['pos']
         if (len(pos) < 6 or not pos[5].startswith('未然形')
