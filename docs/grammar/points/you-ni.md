@@ -23,7 +23,7 @@ after an adjacent finite verb, adjective or auxiliary, with following text. It
 can express purpose, manner, resemblance or instruction; morphology does not
 distinguish these meanings. Noun comparisons and other tokenizations remain
 lexical. Dictionary expression precedence applies, and matched construction
-tokens are reserved while the preceding predicate remains eligible. Precision
-and recall have not been independently evaluated.
+tokens are reserved while the preceding predicate remains eligible. The more specific 〜ようになる and 〜ようにする rules own their overlaps.
+Precision and recall have not been independently evaluated.
 
 See [stage and precedence](../stage-and-precedence.md) and [identity and review](../identity-and-review.md) for shared behavior.

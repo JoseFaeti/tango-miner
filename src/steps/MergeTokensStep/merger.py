@@ -128,6 +128,29 @@ def _merge_candidate(token_list, i, j, combined_text, offsets, jmdict, rejected)
     }
 
 
+def _merge_pinto_kuru(parts, jmdict):
+    """Recover the inflected expression, including dialectal こん."""
+    verb = parts[2]
+    if not (parts[0]['surface'] in ('ピン', 'ぴん') and parts[1]['surface'] == 'と'
+            and ((verb['pos'][0] == '動詞' and verb['lemma'] in ('来る', 'くる'))
+                 or verb['surface'] == 'こん')):
+        return None
+    word = parts[0]['surface'] + 'と来る'
+    entries = jmdict.lookup_word(word)
+    entry = jmdict.get_best_entry(word) if entries else None
+    if not is_dictionary_expression(entry):
+        return None
+    return {
+        'surface': ''.join(t['surface'] for t in parts),
+        'lemma': word, 'base_form': word,
+        'reading': jmdict.get_reading(entry, word),
+        'pos': ['exp', '*', '*', '*', '*', '*'],
+        'dictionary_expression': True,
+        'analysis_rule': 'jmdict_pinto_kuru',
+        'components': tuple(c for token in parts for c in token_components(token)),
+    }
+
+
 def _merge_omitted_particle(token_list, i, next_reserved, jmdict):
     """Recover dictionary expressions with an omitted object particle."""
     if i + 1 < len(token_list) and next_reserved > i + 1:
@@ -187,6 +210,12 @@ def combine_tokens_jmdict(
             merged_tokens.append(token_list[i])
             i += 1
             continue
+        if i + 3 <= min(n, i + max_lookahead, next_merge_boundary[i]):
+            candidate = _merge_pinto_kuru(token_list[i:i + 3], jmdict)
+            if candidate is not None:
+                merged_tokens.append(candidate)
+                i += 3
+                continue
         match_found = False
         for j in range(min(n, i + max_lookahead, next_merge_boundary[i]), i + 1, -1):
             candidate = _merge_candidate(token_list, i, j, combined_text, offsets, jmdict, rejected)

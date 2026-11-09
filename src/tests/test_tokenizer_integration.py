@@ -33,6 +33,31 @@ class TokenizerIntegrationTests(unittest.TestCase):
         # These tests deliberately exercise the real Sudachi and JMdict data.
         cls.jmdict = get_jmdict()
 
+    def test_pinto_kuru_inflections_preserve_source_evidence(self):
+        for sentence, surface in [
+            ('じゃが、氷刃の目的が今一つピンとこんのじゃ。', 'ピンとこん'),
+            ('こわいって話を聞いてもなんかピンと来ないんだよね。', 'ピンと来'),
+            ('ここで殺人なんて今いちピンと来ねえし、いまだに信じらんねえよ。', 'ピンと来'),
+            ('ピンと来る。', 'ピンと来る'),
+        ]:
+            with self.subTest(sentence=sentence):
+                merged = combine_tokens_jmdict(tokenize_sentence(sentence), self.jmdict)
+                expression = next(t for t in merged if t['lemma'] == 'ピンと来る')
+                self.assertEqual(expression['surface'], surface)
+                self.assertEqual(''.join(c.surface for c in expression['components']), surface)
+                self.assertNotIn('ピンと', [t['lemma'] for t in merged])
+
+        for sentence, expected in (('糸がピンと張る。', 'ピンと張る'),
+                                   ('ピンと、来ない。', 'ピンと')):
+            with self.subTest(sentence=sentence):
+                merged = combine_tokens_jmdict(tokenize_sentence(sentence), self.jmdict)
+                self.assertNotIn('ピンと来る', [t['lemma'] for t in merged])
+                self.assertIn(expected, [t['lemma'] for t in merged])
+
+        tokens = tokenize_sentence('ピンと来ない。')
+        tokens[2]['grammar_reserved'] = True
+        self.assertNotIn('ピンと来る', [t['lemma'] for t in combine_tokens_jmdict(tokens, self.jmdict)])
+
     def test_omitted_object_particle_in_dictionary_expressions(self):
         for sentence, word, surface in [
             ('そうか男友達だから腹割んなきゃいけないんだ', '腹を割る', '腹割ん'),
