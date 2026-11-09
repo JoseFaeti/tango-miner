@@ -152,6 +152,14 @@ def _reanalyze_end(text, start, prefix, entry, boundaries):
     return end if end in boundaries else None
 
 
+def _particle_variants(particle):
+    if particle in {'が', 'を'}:
+        return (particle, 'は', 'も', '')
+    if particle == 'に':
+        return (particle + 'は', particle + 'も', particle, '')
+    return (particle, '')
+
+
 def _recover_surface_matches(sentence, aligned, entries, found):
     """Recover known inflections at raw-token boundaries when tokenization fails."""
     boundaries = {point for token in aligned for point in token['span']}
@@ -165,7 +173,7 @@ def _recover_surface_matches(sentence, aligned, entries, found):
                 if not sentence.text.startswith(noun, start):
                     continue
                 forms = {form for verb in entry['verb'] for form in _surface_forms(verb, entry['verb_class'])}
-                for particle in (entry['particle'], ''):
+                for particle in _particle_variants(entry['particle']):
                     prefix = noun + particle
                     hits = [start + len(prefix) + len(form) for form in forms
                             if sentence.text.startswith(prefix + form, start)
@@ -204,11 +212,18 @@ def find_expressions(sentence, entries=None):
             j = i + 1
             if j >= len(aligned) or first['span'][1] != aligned[j]['span'][0]:
                 continue
-            omitted = aligned[j]['surface'] != entry['particle']
-            if not omitted:
-                if not aligned[j]['pos'] or aligned[j]['pos'][0] != '助詞':
-                    continue
+            particle = next((variant for variant in _particle_variants(entry['particle'])
+                             if variant and sentence.text.startswith(variant, first['span'][1])), '')
+            omitted = not particle
+            particle_end = first['span'][1] + len(particle)
+            while j < len(aligned) and aligned[j]['span'][0] < particle_end:
+                if (aligned[j]['span'][1] > particle_end or not aligned[j]['pos']
+                        or aligned[j]['pos'][0] != '助詞'
+                        or aligned[j - 1]['span'][1] != aligned[j]['span'][0]):
+                    break
                 j += 1
+            if particle and (aligned[j - 1]['span'][1] != particle_end):
+                continue
             if j >= len(aligned) or aligned[j - 1]['span'][1] != aligned[j]['span'][0]:
                 continue
             verb = aligned[j]

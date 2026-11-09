@@ -27,7 +27,11 @@ Entries specify the canonical identity, reading, meaning, noun and predicate
 spelling variants, predicate class, particle and meaning reference. For
 compatibility, the JSON fields are named `verb` and `verb_class` even for
 adjectives. Matching normally uses aligned, contiguous noun, optional listed
-particle and predicate tokens. Sudachi's lemma supports
+particle and predicate tokens. For entries with が or を, the matcher also
+recognizes substitution by は or も; for に, it recognizes には and にも.
+These variants can be literal and remain review candidates. The diagnostic
+`omitted_particle` flag is false when は or も replaces the inventory particle.
+Sudachi's lemma supports
 ordinary conjugation, auxiliary chains, ichidan ら抜き potentials and selected
 godan potential and contracted causative forms, as well as i-adjective past,
 negative, conditional and connective forms. When Sudachi combines or

@@ -151,6 +151,22 @@ class ExpressionMatchingTests(unittest.TestCase):
                     self.assertEqual(matches[0][1], text[:-1])
                     self.assertEqual(matches[0][1], matches[0][3])
 
+    def test_topic_and_additive_particle_variants(self):
+        cases = [('胸は熱かった。', '胸が熱い', '胸は熱かった'),
+                 ('胸も熱い。', '胸が熱い', '胸も熱い'),
+                 ('青筋は立てた。', '青筋を立てる', '青筋は立てた'),
+                 ('青筋も立てた。', '青筋を立てる', '青筋も立てた'),
+                 ('耳には入れた。', '耳に入れる', '耳には入れた'),
+                 ('耳にも入れた。', '耳に入れる', '耳にも入れた')]
+        for (text, expected, surface), matches in zip(cases, self.match(*(case[0] for case in cases))):
+            with self.subTest(text=text):
+                match = next(m for m in matches if m[0] == expected)
+                self.assertEqual(match[1], surface)
+                self.assertFalse(match[2])
+                self.assertEqual(match[1], match[3])
+        for matches in self.match('胸に熱い。', '青筋で立てた。', '耳は入れた。'):
+            self.assertEqual(matches, [])
+
     def test_adjective_does_not_match_unrelated_predicate_or_particle(self):
         for matches in self.match('舌を長い。', '舌が短い。', '胸が冷たい。'):
             self.assertFalse(any(m[0] in {'舌が長い', '胸が熱い'} for m in matches))
