@@ -75,6 +75,20 @@ def _is_contracted_kana_verb(tokens: list[dict], entry) -> bool:
                        for tag in sense.get('pos', []))
                for sense in entry.get('senses', []))
 
+
+def _is_noun_arige(tokens: list[dict], definitions: list) -> bool:
+    """Recognize a dictionary adjectival noun split before ありげ."""
+    if (len(tokens) != 3 or tuple(tokens[0]['pos'][:2]) != ('名詞', '普通名詞')
+            or tokens[0]['surface'] != tokens[0]['lemma']
+            or tokens[1]['surface'] != 'あり' or tokens[1]['lemma'] != 'ある'
+            or tokens[1]['pos'][0] != '動詞'
+            or tokens[2]['surface'] != 'げ'
+            or tuple(tokens[2]['pos'][:2]) != ('接尾辞', '形状詞的')):
+        return False
+    return any('adjectival nouns or quasi-adjectives' in pos.lower()
+               for entry in definitions for sense in _get_field(entry, 'senses', [])
+               for pos in _get_field(sense, 'pos', []))
+
 def has_kanji(text: str) -> bool:
     return any("一" <= char <= "龯" for char in text)
 

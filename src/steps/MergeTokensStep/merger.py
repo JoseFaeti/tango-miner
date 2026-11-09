@@ -8,6 +8,7 @@ from .helpers import (
     _is_prefixed_kana_noun,
     _is_split_kana_noun,
     _is_contracted_kana_verb,
+    _is_noun_arige,
     has_kanji,
     is_dictionary_expression,
 )
@@ -56,6 +57,7 @@ def _merge_candidate(token_list, i, j, combined_text, offsets, jmdict, rejected)
         and not _has_useful_kana_only_sense(definitions)
         and not _is_prefixed_kana_noun(token_list[i:j], definitions)
         and not _is_split_kana_noun(token_list[i:j], definitions)
+        and not _is_noun_arige(token_list[i:j], definitions)
         and not (token_string == 'まけずぎらい'
                 and [t['surface'] for t in token_list[i:j]] == ['まけ', 'ず', 'ぎらい'])
     ):

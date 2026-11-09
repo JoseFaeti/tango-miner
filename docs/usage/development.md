@@ -15,6 +15,8 @@ Source-boundary repairs also distinguish the colloquial ズラかろう and sele
 occurrences retain the analyzer's adjective analysis for review.
 Dictionary expression merging also recognizes inflected ピンと来る, including
 the dialectal negative ピンとこん, while retaining the source components.
+Dictionary-backed adjectival nouns such as いわくありげ can also be recovered
+when the analyzer splits the noun from あり and げ.
 For example, past-tense occurrences of できる can be assigned to that verb,
 while the separate できた candidate can retain a supported prenominal or
 interjection meaning. Ambiguous occurrences can still inflate its frequency.

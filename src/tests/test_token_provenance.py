@@ -29,6 +29,28 @@ class Dictionary:
 
 
 class ProvenanceTests(unittest.TestCase):
+    def test_iwaku_arige_dictionary_merge_and_controls(self):
+        from src.steps.TokenizeStep.index import get_tokenizer, TOKENIZER_MODE, sudachi_node_to_dict
+        from src.steps.MergeTokensStep.helpers import _is_noun_arige
+
+        dictionary = get_jmdict()
+        for sentence in ('いわくありげな宮殿がたたずむ。', '曰くありげな宮殿。'):
+            with self.subTest(sentence=sentence):
+                raw = [sudachi_node_to_dict(n) for n in get_tokenizer().tokenize(sentence, TOKENIZER_MODE)]
+                result = combine_tokens_jmdict(raw, dictionary)
+                item = next(t for t in result if t['surface'] in ('いわくありげ', '曰くありげ'))
+                self.assertEqual(''.join(c.surface for c in item['components']), item['surface'])
+                self.assertIn('あり', [c.surface for c in item['components']])
+        raw = [sudachi_node_to_dict(n) for n in get_tokenizer().tokenize('いわくがある。', TOKENIZER_MODE)]
+        result = combine_tokens_jmdict(raw, dictionary)
+        self.assertIn('いわく', [t['lemma'] for t in result])
+        self.assertIn('ある', [t['lemma'] for t in result])
+        raw = [sudachi_node_to_dict(n) for n in get_tokenizer().tokenize('いわくありげな宮殿。', TOKENIZER_MODE)]
+        parts = raw[:3]
+        self.assertFalse(_is_noun_arige(parts, []))
+        self.assertFalse(_is_noun_arige(parts, [{'senses': [{'pos': ['noun (common)']}]}]))
+        self.assertFalse(_is_noun_arige(parts[:2], dictionary.lookup_word('いわくありげ')))
+
     def test_moushi_noun_boundaries_and_controls(self):
         from src.steps.TokenizeStep.index import get_tokenizer, TOKENIZER_MODE, sudachi_node_to_dict
 
