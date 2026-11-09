@@ -30,7 +30,7 @@ class AmbiguousOutputRegressionTests(unittest.TestCase):
     def setUpClass(cls):
         cls.jmdict = get_jmdict()
 
-   def test_makezugirai_recovers_dictionary_word_from_source(self):
+    def test_makezugirai_recovers_dictionary_word_from_source(self):
         for text in ('『まけずぎらい』すばやさとたいりょくが少し上がりやすい。',
                      '読むと性格がまけずぎらいになる本使ったらなくなる'):
             with self.subTest(text=text):
