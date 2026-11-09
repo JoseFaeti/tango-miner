@@ -118,7 +118,9 @@ def _bytes(value):
 MERGE_SOURCE_DEPENDENCIES = (
     "StageCache.py", "Artifact.py", "JMDict.py", "PipelineStep.py", "Parallel.py", "SharedJMDict.py",
     "TokenizedSentence.py", "TokenProvenance.py",
-    "steps/MergeTokensStep/index.py", "steps/ProcessingStep/index.py",
+    "steps/MergeTokensStep/index.py", "steps/MergeTokensStep/merger.py",
+    "steps/MergeTokensStep/helpers.py", "steps/MergeTokensStep/grammar_guards.py",
+    "steps/MergeTokensStep/recovery.py", "steps/ProcessingStep/index.py",
 )
 
 
