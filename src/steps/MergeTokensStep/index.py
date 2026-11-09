@@ -744,6 +744,31 @@ def combine_tokens_jmdict(
             merged_tokens.append(token_list[i])
             i += 1
             continue
+        # Sudachi analyzes dialectal こん as a non-verb; elsewhere it supplies
+        # the lemma 来る for the inflected stem. Retain the original components.
+        if i + 3 <= min(n, i + max_lookahead, next_merge_boundary[i]):
+            parts = token_list[i:i + 3]
+            verb = parts[2]
+            if (parts[0]['surface'] in ('ピン', 'ぴん') and parts[1]['surface'] == 'と'
+                    and ((verb['pos'][0] == '動詞' and verb['lemma'] in ('来る', 'くる'))
+                         or verb['surface'] == 'こん')):
+                word = parts[0]['surface'] + 'と来る'
+                entries = jmdict.lookup_word(word)
+                entry = jmdict.get_best_entry(word) if entries else None
+                if isinstance(entry, dict) and any(
+                        'expression' in tag.lower() for sense in entry.get('senses', [])
+                        for tag in sense.get('pos', [])):
+                    merged_tokens.append({
+                        'surface': ''.join(t['surface'] for t in parts),
+                        'lemma': word, 'base_form': word,
+                        'reading': jmdict.get_reading(entry, word),
+                        'pos': ['exp', '*', '*', '*', '*', '*'],
+                        'dictionary_expression': True,
+                        'analysis_rule': 'jmdict_pinto_kuru',
+                        'components': tuple(c for token in parts for c in token_components(token)),
+                    })
+                    i += 3
+                    continue
         match_found = False
         for j in range(min(n, i + max_lookahead, next_merge_boundary[i]), i + 1, -1):
             combined_surface = combined_text[offsets[i]:offsets[j]]
