@@ -5,6 +5,41 @@ from src.TokenProvenance import token_components
 from .helpers import is_dictionary_expression
 
 
+def _repair_moushi_boundaries(tokens):
+    """Recover kana nouns split into an unrelated もうし expression."""
+    result = []
+    i = 0
+    while i < len(tokens):
+        parts = tokens[i:i + 3]
+        surfaces = [part['surface'] for part in parts]
+        lemmas = [part['lemma'] for part in parts]
+        if (surfaces == ['しょう', 'もう', 'し'] and lemmas == ['する', 'もう', 'する']
+                and i > 0 and tokens[i - 1]['surface'] == 'を'
+                and i + 3 < len(tokens) and tokens[i + 3]['surface'] in {'て', 'た'}):
+            noun_parts, lemma, reading = parts[:2], '消耗', 'しょうもう'
+            length = 2
+        elif (surfaces == ['もう', 'し', 'で'] and lemmas == ['もう', 'する', 'で']
+              and i + 3 < len(tokens) and tokens[i + 3]['surface'] in {'が', 'を', 'に', 'は', 'も'}
+              and tokens[i + 3]['pos'][0] == '助詞'):
+            noun_parts, lemma, reading = parts, '申し出', 'もうしで'
+            length = 3
+        else:
+            result.append(tokens[i])
+            i += 1
+            continue
+        if any(part.get('grammar_reserved') for part in noun_parts):
+            result.append(tokens[i])
+            i += 1
+            continue
+        result.append({'surface': ''.join(part['surface'] for part in noun_parts),
+                       'lemma': lemma, 'base_form': lemma, 'reading': reading,
+                       'pos': ('名詞', '普通名詞', 'サ変可能', '*', '*', '*'),
+                       'components': tuple(c for part in noun_parts for c in token_components(part)),
+                       'analysis_rule': 'moushi_noun_boundary'})
+        i += length
+    return result
+
+
 def _repair_tsurete_motion(tokens, index, jmdict):
     """Identify taking someone along only with an object and motion verb."""
     token = tokens[index]
@@ -333,6 +368,8 @@ def _recover_me_ni_mieru(tokens, jmdict):
 def prepare_tokens(token_list, jmdict):
     """Apply boundary and analysis repairs while preserving reserved tokens."""
     surfaces = {token['surface'] for token in token_list}
+    if 'もう' in surfaces:
+        token_list = _repair_moushi_boundaries(token_list)
     if '目' in surfaces:
         token_list = _recover_me_ni_mieru(token_list, jmdict)
     # The reserved ending remains context for this repair, but is never changed.

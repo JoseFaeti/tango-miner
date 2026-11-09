@@ -29,6 +29,32 @@ class Dictionary:
 
 
 class ProvenanceTests(unittest.TestCase):
+    def test_moushi_noun_boundaries_and_controls(self):
+        from src.steps.TokenizeStep.index import get_tokenizer, TOKENIZER_MODE, sudachi_node_to_dict
+
+        cases = [
+            ('しかし、きみ達、ずいぶん体力をしょうもうしているな？', '消耗', ['しょう', 'もう']),
+            ('しかし、きみ達も、ずいぶん体力をしょうもうしているな？', '消耗', ['しょう', 'もう']),
+            ('ところが、とつぜん皇帝からわかいしようという、もうしでがあったの！', '申し出', ['もう', 'し', 'で']),
+        ]
+        for sentence, lemma, components in cases:
+            with self.subTest(sentence=sentence):
+                raw = [sudachi_node_to_dict(n) for n in get_tokenizer().tokenize(sentence, TOKENIZER_MODE)]
+                result = combine_tokens_jmdict(raw, Dictionary())
+                item = next(t for t in result if t['lemma'] == lemma)
+                self.assertEqual([c.surface for c in item['components']], components)
+                self.assertNotIn('もうし', [t['lemma'] for t in result])
+                if lemma == '消耗':
+                    next(t for t in raw if t['surface'] == 'て')['grammar_reserved'] = True
+                    reserved = combine_tokens_jmdict(raw, Dictionary())
+                    self.assertIn('消耗', [t['lemma'] for t in reserved])
+                    self.assertTrue(next(t for t in reserved if t['surface'] == 'て')['grammar_reserved'])
+        for sentence in ('もうしばらく待ってください。', 'そうもうしました。', 'もうしで終わりです。'):
+            with self.subTest(sentence=sentence):
+                raw = [sudachi_node_to_dict(n) for n in get_tokenizer().tokenize(sentence, TOKENIZER_MODE)]
+                result = combine_tokens_jmdict(raw, Dictionary())
+                self.assertFalse(any(t.get('analysis_rule') == 'moushi_noun_boundary' for t in result))
+
     def test_karai_source_boundaries_and_adjective_controls(self):
         from src.steps.TokenizeStep.index import get_tokenizer, TOKENIZER_MODE, sudachi_node_to_dict
 
