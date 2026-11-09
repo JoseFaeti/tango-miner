@@ -27,6 +27,15 @@ and counts. Forms with dictionary senses beyond ability remain separate. The
 check is conservative: ambiguous dictionary glosses remain separate as well.
 Set the option to `false` to retain separate potential candidates.
 
+When multiple JMdict entries match a candidate, the definition selector prefers
+source-supported contextual matches. Otherwise it ranks matching entries using
+source reading and part of speech, then JMdict priority. Ambiguity alone no
+longer sends a candidate to review: the fallback can choose a definition for a
+different sense or homophone. It prefers senses compatible with the lookup form,
+but retains a gloss when every available sense has incompatible restrictions.
+Other review reasons still apply. Standalone proper nouns remain filtered earlier
+in the pipeline, a known gap in recall.
+
 ## JMdict test baseline
 
 Integration tests use the configured English-only legacy `JMdict_e` XML. The

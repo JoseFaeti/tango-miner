@@ -59,7 +59,7 @@ class AmbiguousOutputRegressionTests(unittest.TestCase):
                 bad, _ = tokenize([fragment])
                 good, _ = tokenize([legitimate])
                 self.assertIn(word, bad)
-                self.assertIsNone(self.jmdict.get_most_common_definition(word, component_counts=bad[word].component_counts))
+                self.assertIsNone(self.jmdict.select_contextual_entry(word, bad[word].component_counts))
                 # With the system dictionary, たら in the positive example
                 # is a conditional auxiliary, not a lexical conjunction.
                 if word == 'たら':
@@ -73,7 +73,7 @@ class AmbiguousOutputRegressionTests(unittest.TestCase):
                     self.assertFalse(bad_components & good_components)
                 else:
                     self.assertTrue(bad_components & good_components)
-                self.assertIsNone(self.jmdict.get_most_common_definition(word, component_counts=good[word].component_counts))
+                self.assertIsNone(self.jmdict.select_contextual_entry(word, good[word].component_counts))
 
     def test_sentence_initial_shikashi_uses_only_source_supported_examples(self):
         from src.steps.AddDefinitionsStep.index import add_and_filter_for_definitions
@@ -93,7 +93,7 @@ class AmbiguousOutputRegressionTests(unittest.TestCase):
         self.assertEqual([s.text for s in stats.sentences], [supported])
 
         alone, _ = tokenize([unsupported])
-        self.assertIsNone(self.jmdict.get_most_common_definition('しかし', component_counts=alone['しかし'].component_counts))
+        self.assertIsNone(self.jmdict.select_contextual_entry('しかし', alone['しかし'].component_counts))
 
     def test_hazu_expectation_is_selected_from_supported_occurrences(self):
         from src.steps.AddDefinitionsStep.index import add_and_filter_for_definitions
@@ -115,7 +115,7 @@ class AmbiguousOutputRegressionTests(unittest.TestCase):
         attach_sentences({'はず': stats}, sentences)
         self.assertEqual([s.text for s in stats.sentences], [supported])
         alone, _ = tokenize([unsupported])
-        self.assertIsNone(self.jmdict.get_most_common_definition('はず', component_counts=alone['はず'].component_counts))
+        self.assertIsNone(self.jmdict.select_contextual_entry('はず', alone['はず'].component_counts))
 
     def test_hazu_expectation_and_nominal_homophones(self):
         for text in ['約束したはずです。', '彼は来るはずじゃ。', '花が美しいはずだ。']:
@@ -126,8 +126,7 @@ class AmbiguousOutputRegressionTests(unittest.TestCase):
         for text in ['矢のはずだ。', '矢のはずを調べた。']:
             with self.subTest(text=text):
                 words, _ = tokenize([text])
-                self.assertIsNone(self.jmdict.get_most_common_definition(
-                    'はず', component_counts=words['はず'].component_counts))
+                self.assertIsNone(self.jmdict.select_contextual_entry('はず', words['はず'].component_counts))
         words, _ = tokenize(['矢の筈を弦にかけた。'])
         self.assertIn('nock', self.jmdict.get_most_common_definition(
             '筈', component_counts=words['筈'].component_counts))
@@ -639,8 +638,7 @@ class AmbiguousOutputRegressionTests(unittest.TestCase):
             with self.subTest(text=text):
                 candidates, _ = tokenize([text])
                 self.assertIn(target, candidates)
-                self.assertIsNone(self.jmdict.get_most_common_definition(
-                    target, component_counts=candidates[target].component_counts))
+                self.assertIsNone(self.jmdict.select_contextual_entry(target, candidates[target].component_counts))
 
     def test_interjection_particle_exception_does_not_apply_to_other_verbs(self):
         for text in ['来たな、ようやく到着した。', 'やったな、仕事は終わった。']:

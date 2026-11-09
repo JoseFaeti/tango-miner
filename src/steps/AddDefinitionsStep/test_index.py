@@ -1,4 +1,5 @@
 import unittest
+import tempfile
 from pathlib import Path
 from unittest.mock import patch
 
@@ -34,6 +35,25 @@ class AddDefinitionsStepTests(unittest.TestCase):
             Pipeline([AddDefinitionsStep()]).run(Artifact({"猫": stats}))
         self.assertEqual(stats.definition, "cat")
         self.assertTrue(stats.needs_review)
+
+    def test_ambiguous_dictionary_match_is_not_sent_to_review(self):
+        from src.JMDict import JMDict
+        from src.TokenProvenance import TokenComponent
+        xml = """<JMdict>
+        <entry><r_ele><reb>そば</reb><re_pri>nf01</re_pri></r_ele><sense><pos>noun (common)</pos><gloss>nearby</gloss></sense></entry>
+        <entry><r_ele><reb>そば</reb></r_ele><sense><pos>noun (common)</pos><gloss>noodles</gloss></sense></entry>
+        </JMdict>"""
+        with tempfile.TemporaryDirectory() as tmp:
+            path = Path(tmp) / 'dictionary.xml'
+            path.write_text(xml, encoding='utf-8')
+            token = (TokenComponent('そば', 'そば', 'そば', 'そば', ('名詞',)),)
+            stats = make_stats()
+            stats.component_counts = {token: 2}
+            with patch('src.steps.AddDefinitionsStep.index.get_jmdict', return_value=JMDict(path)):
+                Pipeline([AddDefinitionsStep()]).run(Artifact({'そば': stats}))
+            self.assertEqual(stats.definition, 'nearby')
+            self.assertFalse(stats.needs_review)
+            self.assertIsNone(stats.definition_components)
 
     def test_merge_and_definitions_share_dictionary(self):
         words = {"猫": make_stats()}

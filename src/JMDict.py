@@ -389,11 +389,49 @@ class JMDict:
         entry = entries[index]
         return ({**entry, 'senses': [s for s in entry['senses'] if id(s) in allowed]}, supported[index])
 
+    def get_fallback_entry(self, word, component_counts):
+        """Rank unresolved entries by source reading and POS, then dictionary priority."""
+        entries = self.lookup_word(word)
+        if not entries:
+            return None
+        categories = {"動詞": "verb", "形容詞": "adjective", "副詞": "adverb",
+                      "名詞": "noun", "助動詞": "auxiliary", "連体詞": "pre-noun adjectival",
+                      "接続詞": "conjunction", "感動詞": "interjection", "助詞": "particle"}
+        scores = []
+        for entry in entries:
+            score = 0
+            for components, count in (component_counts or {}).items():
+                if count <= 0 or len(components) != 1:
+                    continue
+                token = components[0]
+                if token.lemma != word:
+                    continue
+                reading_match = bool(token.reading and any(r['form'] == token.reading for r in entry['reading']))
+                category = categories.get(token.pos[0]) if token.pos else None
+                pos_match = bool(category and any(
+                    (tag.lower().startswith(category) if category != 'verb' else
+                     'verb' in tag.lower() and not tag.lower().startswith(('adverb', 'noun', 'auxiliary')))
+                    for sense in entry['senses'] for tag in sense['pos']))
+                if reading_match:
+                    score += count * (2 if pos_match else 1)
+            scores.append(score)
+        def has_applicable_gloss(entry):
+            is_kanji = any(k['form'] == word for k in entry['kanji'])
+            is_reading = any(r['form'] == word for r in entry['reading'])
+            return any(s['gloss'] and (not is_kanji or not s['stagk'] or word in s['stagk'])
+                       and (not is_reading or not s['stagr'] or word in s['stagr'])
+                       for s in entry['senses'])
+
+        eligible = [(entry, score) for entry, score in zip(entries, scores) if has_applicable_gloss(entry)]
+        ranked = eligible or list(zip(entries, scores))
+        top = max(score for _, score in ranked)
+        candidates = [entry for entry, score in ranked if score == top]
+        entry = self._best_entries(candidates, word, tie_break="defs")[0]
+        return entry
+
     def select_definition_entry(self, word, component_counts=None):
         selection = self.select_contextual_entry(word, component_counts)
-        if selection is None and component_counts and (len(self.lookup_word(word)) > 1 or word in {'できた', '出来た'}):
-            return None
-        best_entry = selection[0] if selection else self.get_best_entry(word)
+        best_entry = selection[0] if selection else self.get_fallback_entry(word, component_counts)
         contextual_entry = self.get_contextual_modifier_entry(word, component_counts, best_entry)
         if contextual_entry is not None:
             best_entry = contextual_entry
@@ -419,6 +457,10 @@ class JMDict:
                   if (not is_kanji_form or not s.get("stagk") or word in s["stagk"])
                   and (not is_reading_form or not s.get("stagr") or word in s["stagr"])
                   and s["gloss"]]
+        if not senses:
+            # Keep a dictionary-backed candidate even when all glosses carry
+            # restrictions incompatible with the lookup form.
+            senses = [s for s in best_entry["senses"] if s["gloss"]]
         english_defs = []
         for i, s in enumerate(senses):
             glosses = s["gloss"]
