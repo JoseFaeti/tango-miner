@@ -33,6 +33,41 @@ class TokenizerIntegrationTests(unittest.TestCase):
         # These tests deliberately exercise the real Sudachi and JMdict data.
         cls.jmdict = get_jmdict()
 
+    def test_split_adjective_stems_before_sou_and_garu(self):
+        for sentence, surface in [
+            ('風花は少し照れ臭そうにしている。', '照れ臭'),
+            ('照れくさがってライブ行くのもやめるとか言いだしかねない', '照れくさ'),
+        ]:
+            with self.subTest(sentence=sentence):
+                merged = combine_tokens_jmdict(tokenize_sentence(sentence), self.jmdict)
+                adjective = next(t for t in merged if t['lemma'] == '照れくさい')
+                self.assertEqual(adjective['surface'], surface)
+                self.assertEqual(adjective['reading'], 'てれくさい')
+                self.assertEqual(''.join(c.surface for c in adjective['components']), surface)
+                self.assertNotIn('照れ', [t['lemma'] for t in merged])
+
+        for sentence, expected in [('恥ずかしそうだ。', '恥ずかしい'),
+                                   ('面白がっている。', '面白い'),
+                                   ('照れがある。', '照れ')]:
+            with self.subTest(sentence=sentence):
+                merged = combine_tokens_jmdict(tokenize_sentence(sentence), self.jmdict)
+                self.assertIn(expected, [t['lemma'] for t in merged])
+                self.assertNotIn('照れくさい', [t['lemma'] for t in merged])
+
+        # Exercise the same recovery on a different dictionary adjective,
+        # using a split analysis that Sudachi does not produce in this context.
+        tokens = tokenize_sentence('恥ずかしそうだ。')
+        prefix = tokenize_sentence('気')[0]
+        merged = combine_tokens_jmdict([prefix] + tokens, self.jmdict)
+        adjective = next(t for t in merged if t['lemma'] == '気恥ずかしい')
+        self.assertEqual(adjective['surface'], '気恥ずかし')
+        self.assertEqual(''.join(c.surface for c in adjective['components']), '気恥ずかし')
+
+        tokens = tokenize_sentence('照れくさがっている。')
+        tokens[1]['grammar_reserved'] = True
+        self.assertNotIn('照れくさい', [t['lemma'] for t in
+                                      combine_tokens_jmdict(tokens, self.jmdict)])
+
     def test_chotto_mi_requires_noun_context(self):
         for sentence in [
             'えっとね、まず本屋でしょー服もちょっと見たいしー',

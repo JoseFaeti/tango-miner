@@ -163,6 +163,42 @@ def _merge_pinto_kuru(parts, jmdict):
     }
 
 
+def _merge_adjective_stem(tokens, i, boundary, jmdict):
+    """Recover a split dictionary adjective before appearance or -garu."""
+    for end in range(min(boundary, i + 4), i + 1, -1):
+        stem = tokens[end - 1]
+        if end >= len(tokens) or stem['pos'][0] not in {'形容詞', '接尾辞'}:
+            continue
+        if not stem['lemma'].endswith('い') or stem['surface'] != stem['lemma'][:-1]:
+            continue
+        following = tokens[end]
+        if not ((following['surface'] == 'そう' and following['pos'][:2] in
+                 (('形状詞', '助動詞語幹'), ['形状詞', '助動詞語幹']))
+                or (following['lemma'] == 'がる' and following['pos'][:2] in
+                    (('接尾辞', '動詞的'), ['接尾辞', '動詞的']))):
+            continue
+        parts = tokens[i:end]
+        if any(t['pos'][0] in {'助詞', '助動詞', '補助記号', '記号'} for t in parts):
+            continue
+        surface = ''.join(t['surface'] for t in parts)
+        word = surface + 'い'
+        entry = jmdict.get_best_entry(word) if jmdict.lookup_word(word) else None
+        if not isinstance(entry, dict) or not any(
+                tag.lower() == 'adjective (keiyoushi)'
+                for sense in entry.get('senses', []) for tag in sense.get('pos', [])):
+            continue
+        forms = entry.get('kanji', []) or entry.get('reading', [])
+        lemma = forms[0]['form'] if forms else word
+        return {
+            'surface': surface, 'lemma': lemma, 'base_form': lemma,
+            'reading': jmdict.get_reading(entry, word),
+            'pos': ['形容詞', '一般', '*', '*', '形容詞', '語幹-一般'],
+            'analysis_rule': 'jmdict_adjective_stem',
+            'components': tuple(c for token in parts for c in token_components(token)),
+        }, end
+    return None
+
+
 def _merge_omitted_particle(token_list, i, next_reserved, jmdict):
     """Recover dictionary expressions with an omitted object particle."""
     if i + 1 < len(token_list) and next_reserved > i + 1:
@@ -228,6 +264,11 @@ def combine_tokens_jmdict(
                 merged_tokens.append(candidate)
                 i += 3
                 continue
+        stem_match = _merge_adjective_stem(token_list, i, next_reserved[i], jmdict)
+        if stem_match is not None:
+            candidate, i = stem_match
+            merged_tokens.append(candidate)
+            continue
         match_found = False
         for j in range(min(n, i + max_lookahead, next_merge_boundary[i]), i + 1, -1):
             candidate = _merge_candidate(token_list, i, j, combined_text, offsets, jmdict, rejected)
