@@ -18,7 +18,7 @@ class ToOmouTests(unittest.TestCase):
         except (ImportError, OSError, RuntimeError) as exc:
             self.skipTest(f'Sudachi full dictionary unavailable: {exc}')
         cases = {'行くと思う。': 'と思う', '雨だと思った。': 'と思った',
-                 '行こうと思います。': 'と思います', 'いいと思わない。': 'と思わない',
+                 '行こうと思います。': None, 'いいと思わない。': 'と思わない',
                  '行くと思っている。': 'と思って', 'そう思う。': None,
                  '友達と思う。': None, '行くと言う。': None, '行くと 思う。': None}
         for text, expected in cases.items():

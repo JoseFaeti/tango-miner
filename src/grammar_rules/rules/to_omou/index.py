@@ -4,9 +4,13 @@ from src.grammar_rules.base import GrammarRule
 from src.grammar_rules.helpers import adjacent, next_matches, positive_verb_end, negative_suffix_end
 
 
-def match_to_omou(tokens):
+def _match_to_omou(tokens, *, intention):
     for i in range(1, len(tokens) - 1):
         previous, particle, verb = tokens[i - 1:i + 2]
+        is_intention = (previous['pos'][:1] == ['動詞'] and len(previous['pos']) >= 6
+                        and previous['pos'][5].startswith('意志推量形'))
+        if is_intention != intention:
+            continue
         if particle['surface'] != 'と' or verb['lemma'] != '思う':
             continue
         if (not adjacent(previous, particle) or not adjacent(particle, verb)
@@ -27,8 +31,12 @@ def match_to_omou(tokens):
             yield particle['span'][0], tokens[end]['span'][1]
 
 
+def match_to_omou(tokens):
+    yield from _match_to_omou(tokens, intention=False)
+
+
 RULE = GrammarRule(
     id='to_omou', expression=TO_OMOU_GRAMMAR_EXPRESSION, reading='とおもう',
-    meaning='think that; believe that; (after a volitional form) intend to',
+    meaning='think that; believe that',
     match=match_to_omou,
 )

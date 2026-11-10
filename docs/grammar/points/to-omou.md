@@ -4,7 +4,7 @@ Status: [~]
 
 ## Meaning and tracked scope
 
-predicate quotation and intention; reserves matched 思う while retaining independent lexical uses. Quoted questions, noun predicates and other inflections remain unsupported.
+Predicate quotation; reserves matched 思う while retaining independent lexical uses. Verb volitionals use the separate 〜ようと思う card. Quoted questions, noun predicates and other inflections remain unsupported.
 
 ## Implementation
 
@@ -15,10 +15,10 @@ predicate quotation and intention; reserves matched 思う while retaining indep
 
 ## Existing implementation notes
 
-The `〜と思う` card matches a source-aligned finite or volitional verb,
+The `〜と思う` card matches a source-aligned finite verb,
 adjective, or auxiliary followed by と and 思う, 思った, 思います,
 思いました, 思わない, 思わなかった, or 思って. It describes thought or
-judgment, with intention possible after volitional forms. Quoted questions,
+judgment. Verb volitionals are handled by [〜ようと思う](youtoomou.md). Quoted questions,
 bare noun predicates, other inflections, and spaced token boundaries are not
 covered. The full matched span supplies the example and expression precedence,
 and its tokens are reserved from lexical collection. The attached predicate
