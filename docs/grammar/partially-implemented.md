@@ -4,6 +4,8 @@ These points have existing implementations with remaining work described in thei
 linked specifications. Their order retains the previous queue order and does not
 indicate measured frequency.
 
+- [~] [〜直す](points/naosu.md)
+
 - [~] [〜までに](points/madeni.md)
 - [~] [〜とき](points/toki.md)
 - [~] [〜って](points/tsute.md)

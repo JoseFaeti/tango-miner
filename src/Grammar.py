@@ -212,7 +212,7 @@ class ExcludeGrammarTokensStep(PipelineStep):
         count = 0
         for index, sentence in enumerate(artifact.data):
             spans = [(start, end) for rule_id, start, end in self.grammar.spans.get(index, ())
-                     if rule_id in active]
+                     if rule_id in active and rule_id != 'naosu']
             if not spans:
                 result.append(sentence)
                 continue
