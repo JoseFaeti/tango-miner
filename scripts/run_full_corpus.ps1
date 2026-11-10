@@ -1,5 +1,6 @@
+param([string]$baseline)
 if ($args -contains "--help" -or $args -contains "-h" -or $args -contains "-?") {
-    Write-Output 'Usage: ./scripts/run_full_corpus.ps1'
+    Write-Output 'Usage: ./scripts/run_full_corpus.ps1 [-baseline RUN_DIR]'
     Write-Output 'Run the configured full corpus with Anki disabled or in output-only mode.'
     exit 0
 }
@@ -42,7 +43,9 @@ if ($env:NTFY_URL) {
     Write-Warning 'NTFY_URL is not set; this run will not send an ntfy notification.'
 }
 Write-Host 'Running full corpus.'
-& python -X utf8 tango_miner.py --input $inputPath -r --silent
+$pipelineArgs = @('--input', $inputPath, '-r', '--silent')
+if ($baseline) { $pipelineArgs += @('--baseline', $baseline) }
+& python -X utf8 tango_miner.py @pipelineArgs
 $pipelineExit = $LASTEXITCODE
 if ($pipelineExit -ne 0) {
     Write-Host "Pipeline failed with exit code $pipelineExit."

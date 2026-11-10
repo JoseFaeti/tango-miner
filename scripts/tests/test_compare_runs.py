@@ -6,7 +6,7 @@ import tempfile
 import unittest
 from pathlib import Path
 
-from scripts.compare_runs import compact_report, completed_runs, load_run, overview_report, sentence_coverage, report
+from scripts.compare_runs import compact_report, completed_runs, load_run, main, overview_report, sentence_coverage, report
 
 
 def make_run(root, name, valid, dropped=(), status="completed"):
@@ -24,6 +24,21 @@ def make_run(root, name, valid, dropped=(), status="completed"):
 
 
 class CompareRunsTests(unittest.TestCase):
+    def test_explicit_baseline_and_default_selection(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            first = make_run(root, '2026-10-27_1200_a', [('猫', 1)])
+            middle = make_run(root, '2026-10-27_1201_b', [('犬', 1)])
+            last = make_run(root, '2026-10-27_1202_c', [('鳥', 1)])
+            for args, before, after in [(['--runs-dir', str(root)], middle, last),
+                                        (['--runs-dir', str(root), '--baseline', str(first)], first, last),
+                                        (['--baseline', str(first), str(middle)], first, middle)]:
+                output = io.StringIO()
+                with contextlib.redirect_stdout(output):
+                    self.assertEqual(main(args), 0)
+                self.assertIn(f'Before: {before}', output.getvalue())
+                self.assertIn(f'After:  {after}', output.getvalue())
+
     def test_selection_and_report_include_transitions_and_frequency_changes(self):
         with tempfile.TemporaryDirectory() as tmp:
             root = Path(tmp)

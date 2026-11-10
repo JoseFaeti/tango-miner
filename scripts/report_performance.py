@@ -58,7 +58,10 @@ def report(root):
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('runs', nargs='+', type=Path)
+    parser.add_argument('--baseline', type=Path, help='run directory to compare with the supplied runs')
     args = parser.parse_args()
+    if args.baseline:
+        args.runs.insert(0, args.baseline)
     for root in args.runs:
         report(root)
     if len(args.runs) > 1:

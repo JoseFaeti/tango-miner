@@ -21,7 +21,9 @@ def render_report(summary):
     if comparison.get("status") == "compared":
         counts = comparison.get("counts", {})
         lines.append("- CSV candidate changes: " + ", ".join(f"{key} {counts.get(key, 0):,}" for key in ("added", "removed", "changed")))
-        lines.append(f"- CSV baseline: ../{comparison['baseline']}/summary.json")
+        baseline = Path(comparison['baseline'])
+        location = baseline / 'summary.json' if baseline.is_absolute() else Path('..') / baseline / 'summary.json'
+        lines.append(f"- CSV baseline: {location.as_posix()}")
         lines.append("- Changes are candidate differences, not Anki changes; check input and configuration before interpreting them.")
     elif comparison.get("status") == "no_baseline":
         lines.append("- CSV comparison: no previous completed run")

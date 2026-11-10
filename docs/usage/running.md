@@ -73,6 +73,16 @@ before a run.
 
 Each completed or failed pipeline run writes `report.md`, a concise overview of available candidate counts, grammar occurrences, Anki status and plan, and the five slowest stages. Read it first; use `summary.json`, stage records and other detailed artifacts when investigating. Counts at the definition stage precede grammar card addition. Grammar rule occurrences can overlap. Planned Anki changes are not necessarily applied changes. Timings exclude recorded user wait and are not directly comparable without checking inputs, configuration and cache state. An interrupted process may not write a final report.
 
+Pass `--baseline RUN_DIR` to select a completed archive for the CSV comparison;
+otherwise the most recently completed archive is used. The full-corpus wrapper
+accepts the same choice as `-baseline RUN_DIR`. For existing archives,
+`scripts/compare_runs.py --baseline RUN_DIR [CURRENT_RUN]` compares against the
+selected baseline (the current run defaults to the latest completed archive).
+`tango_miner.py report diff --baseline RUN_DIR` computes a fresh comparison,
+and `report performance` and `report warnings` also accept `--baseline`.
+`scripts/report_performance.py --baseline RUN_DIR CURRENT_RUN` includes the
+baseline in its performance and configuration report.
+
 Each run writes the requested CSV and its `.dropped.csv` and `.sentence.csv`
 companions under `runs/<local-date>_<time>_<git-revision>/` beside the
 requested output path. Repeated runs in the same minute receive a numbered

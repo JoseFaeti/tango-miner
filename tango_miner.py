@@ -87,6 +87,7 @@ def process_script(argv=None):
 
     parser.add_argument("--input", "-i", required=False, help="Path to input text file")
     parser.add_argument("--output", "-o", required=False, help="CSV filename or output directory; runs are saved in its runs subdirectory")
+    parser.add_argument("--baseline", type=Path, help="completed run directory for CSV comparison (default: latest completed run)")
 
     parser.add_argument("--tags", "-t", required=False, help="Tags to add to every word")
     parser.add_argument("--min-frequency", "--minFrequency", "-f", dest="min_frequency", type=int, required=False, help="Min amount of times a word needs to appear in the text to be included")
@@ -204,7 +205,7 @@ def process_script(argv=None):
             AttachSentencesStep(config.sentences),
             WriteOutputStep(final_path, diagnostics_path=(final_path.parent / "candidate-diagnostics.jsonl")
                             if args.occurrence_diagnostics else None),
-            CompareOutputStep(final_path),
+            CompareOutputStep(final_path, args.baseline),
             AddWordsToAnkiStep(config.anki, plan_path=final_path.parent / "anki-plan.json") if config.anki.enabled else None,
         ]
 

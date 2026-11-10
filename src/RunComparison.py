@@ -120,7 +120,7 @@ def build_change_report(before, after):
                     changes["changed"].append({"candidate": word, "fields": fields})
     counts = {key: len(items) for key, items in changes.items()}
     return unwrap_single_values({"schema_version": 3, "status": "compared" if before else "no_baseline",
-            "baseline": before["path"].name if before else None,
+            "baseline": (before["path"].name if before["path"].resolve().parent == after["path"].resolve().parent else str(before["path"].resolve())) if before else None,
             "current": after["path"].name,
             "inputs_identical": before["manifest"] == after["manifest"] if before else None,
             "config_identical": before["config"] == after["config"] if before else None,

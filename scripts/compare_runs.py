@@ -111,6 +111,7 @@ def main(argv=None):
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("before", nargs="?", type=Path, help="older run directory")
     parser.add_argument("after", nargs="?", type=Path, help="newer run directory")
+    parser.add_argument("--baseline", type=Path, help="baseline run directory")
     parser.add_argument("--runs-dir", type=Path, default=Path("runs"), help="archive root for automatic selection")
     parser.add_argument("--word", action="append", default=[], help="inspect a candidate; repeat as needed")
     parser.add_argument("--limit", type=int, default=20, help="maximum entries displayed per summary list")
@@ -118,11 +119,18 @@ def main(argv=None):
     parser.add_argument("--overview", action="store_true", help="compact run checks and sentence-coverage comparison")
     parser.add_argument("--json-output", type=Path, help="write the complete structured change report")
     args = parser.parse_args(argv)
-    if (args.before is None) != (args.after is None):
+    if args.baseline and args.after:
+        parser.error("--baseline cannot be combined with two positional run directories")
+    if not args.baseline and (args.before is None) != (args.after is None):
         parser.error("provide both run directories or neither")
     if args.limit < 0:
         parser.error("--limit must be non-negative")
     try:
+        if args.baseline:
+            runs = completed_runs(args.runs_dir) if args.before is None else []
+            if args.before is None and not runs:
+                raise ValueError(f"No completed runs in {args.runs_dir}")
+            args.before, args.after = args.baseline, args.before or runs[-1]
         if args.before is None:
             runs = completed_runs(args.runs_dir)
             if len(runs) < 2:

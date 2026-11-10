@@ -99,6 +99,17 @@ class OutputComparisonTests(unittest.TestCase):
                 CompareOutputStep(current / 'output.csv').process(Artifact({}))
             self.assertFalse((current / 'csv-changes.json').exists())
 
+    def test_explicit_baseline_overrides_latest(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            old = make_run(root, '2026-10-27_1200_a', [('猫', 1)])
+            make_run(root, '2026-10-27_1201_b', [('犬', 1)])
+            current = make_run(root, '2026-10-27_1202_c', [('猫', 1)], status='running')
+            step = CompareOutputStep(current / 'output.csv', old)
+            step.process(Artifact({}))
+            self.assertEqual(step.comparison['baseline'], old.name)
+            self.assertEqual(step.comparison['counts'], {'added': 0, 'removed': 0, 'changed': 0})
+
 
 if __name__ == '__main__':
     unittest.main()

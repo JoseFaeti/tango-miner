@@ -6,6 +6,7 @@ import unittest
 from pathlib import Path
 
 from src.ReportCLI import query
+from scripts.tests.test_compare_runs import make_run
 
 
 class ReportCLITests(unittest.TestCase):
@@ -36,6 +37,15 @@ class ReportCLITests(unittest.TestCase):
         self.assertEqual(data['planned_changes'], {'add': 2})
         self.assertEqual(data['anki_status'], 'preview_only')
         self.assertEqual(query('diff', self.new)['comparison']['counts']['added'], 1)
+
+    def test_diff_with_explicit_baseline_recomputes_comparison(self):
+        root = Path(self.tmp.name)
+        baseline = make_run(root, '2026-01-01_1100_c', [('cat', 1)])
+        current = make_run(root, '2026-01-03_1200_d', [('dog', 1)])
+        data = query('diff', current, baseline=baseline)
+        self.assertEqual(data['comparison']['baseline'], baseline.name)
+        self.assertEqual(data['comparison']['counts']['added'], 1)
+        self.assertIsNone(data['details'])
 
     def test_missing_baseline_and_missing_metrics_are_explicit(self):
         data = query('warnings', self.old)

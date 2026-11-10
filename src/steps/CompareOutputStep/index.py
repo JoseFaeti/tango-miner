@@ -4,7 +4,8 @@ from src.RunComparison import build_change_report, completed_runs, load_run, wri
 
 
 class CompareOutputStep(PipelineStep):
-    def __init__(self, output_path):
+    def __init__(self, output_path, baseline=None):
+        self.baseline = baseline
         self.csv_path = output_path
         self.path = output_path.parent / "csv-changes.json"
         self.comparison = None
@@ -13,8 +14,8 @@ class CompareOutputStep(PipelineStep):
         current = self.csv_path.parent
         # Final summary timestamps order completions even when revisions differ
         # within the same minute. The current run is still marked running.
-        candidates = [p for p in completed_runs(current.parent) if p != current]
-        previous = max(candidates, key=lambda p: ((p / "summary.json").stat().st_mtime_ns, p.name), default=None)
+        candidates = [p for p in completed_runs(current.parent) if p != current] if self.baseline is None else []
+        previous = self.baseline or max(candidates, key=lambda p: ((p / "summary.json").stat().st_mtime_ns, p.name), default=None)
         before = load_run(previous) if previous else None
         after = load_run(current, require_completed=False)
         result = build_change_report(before, after)

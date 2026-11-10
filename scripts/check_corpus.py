@@ -56,6 +56,8 @@ def main(argv=None):
                 raise ValueError('Could not disable Anki for the check')
             command = [sys.executable, '-X', 'utf8', str(ROOT / 'tango_miner.py'),
                        '--config', str(config_path), '--output', str(output), '--silent']
+            if args.baseline:
+                command += ['--baseline', str(args.baseline.resolve())]
             if args.input:
                 command += ['--input', str(args.input.resolve())]
             if args.occurrence_diagnostics:

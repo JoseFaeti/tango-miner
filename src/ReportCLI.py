@@ -4,7 +4,7 @@ import json
 import sys
 from pathlib import Path
 
-from src.RunComparison import completed_runs, load_json
+from src.RunComparison import build_change_report, completed_runs, load_json, load_run
 
 
 def _optional(path):
@@ -55,13 +55,14 @@ def query(command, run, baseline=None, regressions=False, threshold=25.0, change
         result['planned_changes'] = ({k: v for k, v in plan.items() if k in ('add', 'modify', 'delete') and (not changes_only or v)} if isinstance(plan, dict) else None)
         result['details'] = 'anki-plan.json' if (run / 'anki-plan.json').is_file() else None
     elif command == 'diff':
-        comparison = stages.get('CompareOutputStep', {}).get('comparison')
+        comparison = (build_change_report(load_run(baseline), load_run(run)) if baseline
+                      else stages.get('CompareOutputStep', {}).get('comparison'))
         result['comparison'] = comparison or {'status': 'unavailable'}
         if comparison and comparison.get('baseline'):
             old = run.parent / comparison['baseline']
             previous = _optional(old / 'summary.json')
             result['compatibility'] = _compatibility(run, old, summary, previous) if previous else None
-        result['details'] = 'csv-changes.json' if (run / 'csv-changes.json').is_file() else None
+        result['details'] = 'csv-changes.json' if not baseline and (run / 'csv-changes.json').is_file() else None
     elif command in ('performance', 'warnings'):
         baseline = _baseline(run, baseline)
         previous = _optional(baseline / 'summary.json') if baseline else None
@@ -106,8 +107,9 @@ def main(argv=None):
         p.add_argument('--run', type=Path, help='run directory; defaults to latest completed run')
         p.add_argument('--runs-dir', type=Path, default=Path('runs'), help='archive root for automatic selection')
         p.add_argument('--json', action='store_true', help='emit JSON')
+        if name in ('warnings', 'performance', 'diff'):
+            p.add_argument('--baseline', type=Path, help='baseline run directory; defaults to the recorded or preceding run')
         if name in ('warnings', 'performance'):
-            p.add_argument('--baseline', type=Path, help='baseline run directory; defaults to preceding completed run')
             p.add_argument('--threshold', type=float, default=25.0, help='single-run timing increase percent (default 25)')
         if name == 'performance':
             p.add_argument('--regressions', action='store_true', help='show only timings above threshold')
@@ -116,6 +118,8 @@ def main(argv=None):
         if name == 'anki':
             p.add_argument('--changes-only', action='store_true', help='omit zero planned change counts')
     args = parser.parse_args(argv)
+    if getattr(args, 'previous', False) and getattr(args, 'baseline', None):
+        parser.error('--previous cannot be combined with --baseline')
     if getattr(args, 'threshold', 0) < 0:
         parser.error('--threshold must be non-negative')
     try:
