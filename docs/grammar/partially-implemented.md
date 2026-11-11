@@ -1,5 +1,7 @@
 # Partially implemented grammar points
 
+- [~] [〜ませんか / 〜ないか](points/masenka-naika.md)
+
 - [~] [ある / いる](points/aru-iru.md)
 - [~] [だろう / でしょう](points/darou-deshiyou.md)
 
