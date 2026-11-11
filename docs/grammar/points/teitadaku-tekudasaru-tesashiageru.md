@@ -21,8 +21,8 @@ lexical collection, subject to shared dictionary expression precedence.
 
 Focused analyzer tests cover forms, standalone giving verbs, てください and
 ていただけませんか, plus card identity and reservation. The request
-てください has its own card; potential いただける requests are outside this
-rule. Other inflections, spellings, negative antecedents and merged tokenizations
+てください and ていただけませんか have their own cards; potential
+いただける requests are outside this rule. Other inflections, spellings, negative antecedents and merged tokenizations
 remain to be investigated. Morphology alone cannot establish the beneficiary or
 resolve all contextual interpretations. Corpus precision, recall, frequency and
 expression precedence effects remain unevaluated.
