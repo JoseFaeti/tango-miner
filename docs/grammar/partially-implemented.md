@@ -4,6 +4,7 @@ These points have existing implementations with remaining work described in thei
 linked specifications. Their order retains the previous queue order and does not
 indicate measured frequency.
 
+- [~] [など / なんか / なんて](points/nado-nanka-nante.md)
 - [~] [ほど / くらい / ぐらい](points/hodo-kurai-gurai.md)
 - [~] [しか〜ない](points/shikanai.md)
 - [~] [さえ / すら](points/sae-sura.md)
