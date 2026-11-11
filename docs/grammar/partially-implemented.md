@@ -1,5 +1,7 @@
 # Partially implemented grammar points
 
+- [~] [〜てやる](points/teyaru.md)
+
 - [~] [〜てちょうだい](points/techiyoudai.md)
 
 - [~] [〜てごらん](points/tegoran.md)
