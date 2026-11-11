@@ -64,6 +64,7 @@ from src.grammar_rules.rules.elliptical_obligation.index import RULE as ELLIPTIC
 from src.grammar_rules.rules.to_omou.index import RULE as TO_OMOU
 from src.grammar_rules.rules.te_iru.index import RULE as TE_IRU
 from src.grammar_rules.rules.te_hoshii.index import RULE as TE_HOSHII
+from src.grammar_rules.rules.hoshii.index import RULE as HOSHII
 from src.grammar_rules.rules.nda.index import RULE as NDA
 from src.grammar_rules.rules.tagaru.index import RULE as TAGARU
 from src.grammar_rules.rules.tai.index import RULE as TAI
@@ -89,7 +90,7 @@ RULES = (NAGARA, TAGARU, WAKE_DA, WAKE_NEGATIVE, HAZU_DA, APPEARANCE, HEARSAY, T
 
 RULES = (MITAI_NI, TSUPOI, NAOSU, MADENI, TOKI, TOIU, TTE, YOU_TO_OMOU, YOU_TO_SURU, YOU_NI_SURU, YOU_NI_NARU, TSUMORIDA, TABAKARI, TOKORODA, UCHINI, TE_KARA, MAENI_ATODE, KEDO, KARA_NODE, TARITARISURU, YASUI_NIKUI, KOTO_GA_DEKIRU, TA_HOU_GA_II, ELLIPTICAL_OBLIGATION, NAKUTEMOII, TE_HOSHII, TE_BENEFACTIVE, NAIDE, TE_KUDASAI, KAMOSHIRENAI, NONI, TAME_NI, TE_ARU,) + RULES
 RULES = (NE_YO_YONE, SHIKANAI, SAE_SURA, NADO_NANKA_NANTE, DAKE_NOMI, HODO_KURAI_GURAI, YA_TOKA, GA, HA, KARA_MADE, YORI, BAKARI,) + RULES
-RULES = RULES + (SASERARERU, DAROU_DESHOU, DA_DESU, DATTA_DESHITA, JANAI_DEWANAI, ARU_IRU, MASEN_MASHITA, MASHOU_YOU, MASENKA_NAIKA, NASAI,)
+RULES = RULES + (SASERARERU, DAROU_DESHOU, DA_DESU, DATTA_DESHITA, JANAI_DEWANAI, ARU_IRU, MASEN_MASHITA, MASHOU_YOU, MASENKA_NAIKA, NASAI, HOSHII,)
 
 if frozenset(rule.expression for rule in RULES) != GRAMMAR_EXPRESSIONS:
     raise ValueError('Registered grammar identities and Anki protections must match')
