@@ -4,7 +4,6 @@ Ordered implementation queue for points not yet implemented. The order is an
 estimate of usefulness and frequency, not a measurement of corpus occurrences.
 Check each specification for overlap and source evidence before implementation.
 
-- [ ] [ある / いる](points/aru-iru.md)
 - [ ] [〜ません / 〜ました / 〜ませんでした](points/masen-mashita-masendeshita.md)
 - [ ] [〜ましょう / 〜よう](points/mashiyou-you.md)
 - [ ] [〜ませんか / 〜ないか](points/masenka-naika.md)

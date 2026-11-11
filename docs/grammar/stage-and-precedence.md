@@ -24,6 +24,7 @@ instead of grammar. This is a heuristic: dictionary matches can be ambiguous.
 Remaining matched grammar tokens are reserved before lexical merging and collection.
 The `〜直す` rule is an exception: its whole compound remains available to
 lexical processing so that the vocabulary reading is retained alongside grammar.
+Standalone `ある / いる` matches likewise remain available to lexical processing.
 The separate [curated expression inventory](../usage/expressions.md) is matched
 on raw tokens before reservation and added alongside grammar and component-word
 candidates. An inventory match does not suppress an overlapping grammar rule;

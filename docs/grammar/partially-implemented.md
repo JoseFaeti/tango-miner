@@ -1,5 +1,6 @@
 # Partially implemented grammar points
 
+- [~] [ある / いる](points/aru-iru.md)
 - [~] [だろう / でしょう](points/darou-deshiyou.md)
 
 These points have existing implementations with remaining work described in their
