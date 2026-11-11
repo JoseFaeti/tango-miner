@@ -11,6 +11,10 @@ FIELDS = ("score", "word", "reading", "index", "frequency", "definition", "tags"
 ARCHIVE = re.compile(r"^(\d{4}-\d{2}-\d{2}_\d{4})_[^/]+?(?:_(\d+))?$")
 
 
+class ScoredExampleError(ValueError):
+    """An archive uses the obsolete scored-example format."""
+
+
 def load_json(path):
     return json.loads(path.read_text(encoding="utf-8"))
 
@@ -69,7 +73,7 @@ def report_examples(value):
         if not match:
             raise ValueError(f"Malformed example: {part!r}")
         if re.search(r" - [+-]?(?:\d+(?:\.\d*)?|\.\d+)(?:[eE][+-]?\d+)?$", match.group(2)):
-            raise ValueError(f"Scored example is not supported: {part!r}")
+            raise ScoredExampleError(f"Scored example is not supported: {part!r}")
         text = re.sub(r"<(?!/?span\b)[^>]*>", "", match.group(1), flags=re.I)
         result.append({"text": html.unescape(text)})
     return result

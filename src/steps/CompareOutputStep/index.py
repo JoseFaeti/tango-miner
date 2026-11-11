@@ -1,6 +1,6 @@
 """Save a complete comparison against the preceding completed run."""
 from src.PipelineStep import PipelineStep
-from src.RunComparison import build_change_report, completed_runs, load_run, write_change_report
+from src.RunComparison import ScoredExampleError, build_change_report, completed_runs, load_run, write_change_report
 
 
 class CompareOutputStep(PipelineStep):
@@ -18,8 +18,16 @@ class CompareOutputStep(PipelineStep):
         previous = self.baseline or max(candidates, key=lambda p: ((p / "summary.json").stat().st_mtime_ns, p.name), default=None)
         before = load_run(previous) if previous else None
         after = load_run(current, require_completed=False)
-        result = build_change_report(before, after)
+        try:
+            result = build_change_report(before, after)
+        except ScoredExampleError:
+            if self.baseline is not None or before is None:
+                raise
+            # Verify that the incompatible example is in the baseline, not the current output.
+            result = build_change_report(None, after)
+            result["baseline_skipped"] = {"run": previous.name, "reason": "scored_examples"}
+            before = None
         write_change_report(self.path, result)
         self.comparison = {key: result[key] for key in ("status", "baseline", "counts")}
-        self.progress(1, 1, "CSV comparison written." if before else "No previous completed run to compare.")
+        self.progress(1, 1, "CSV comparison written." if before else "No compatible previous run to compare.")
         return artifact

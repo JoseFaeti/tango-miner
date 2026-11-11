@@ -104,6 +104,43 @@ class OutputComparisonTests(unittest.TestCase):
                 CompareOutputStep(current / 'output.csv').process(Artifact({}))
             self.assertFalse((current / 'csv-changes.json').exists())
 
+    def test_automatic_scored_baseline_is_skipped_and_next_run_compares(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            old = make_run(root, '2026-10-27_1200_a', [('猫', 1)])
+            with (old / 'output.csv').open('r', encoding='utf-8', newline='') as f:
+                rows = list(csv.reader(f))
+            rows[0][7:] = ['sentences: 1', "猫<br><span class='tag sentence-tag'>FF7 - 918.14</span>"]
+            with (old / 'output.csv').open('w', encoding='utf-8', newline='') as f:
+                csv.writer(f).writerows(rows)
+            current = make_run(root, '2026-10-27_1201_b', [('猫', 1)], status='running')
+            step = CompareOutputStep(current / 'output.csv')
+            step.process(Artifact({}))
+            report = json.loads(step.path.read_text(encoding='utf-8'))
+            self.assertEqual(report['status'], 'no_baseline')
+            self.assertEqual(report['baseline_skipped'], {'run': old.name, 'reason': 'scored_examples'})
+            with self.assertRaisesRegex(ValueError, 'Scored example'):
+                CompareOutputStep(current / 'output.csv', old).process(Artifact({}))
+            (current / 'summary.json').write_text('{"status":"completed"}', encoding='utf-8')
+            next_run = make_run(root, '2026-10-27_1202_c', [('猫', 1)], status='running')
+            step = CompareOutputStep(next_run / 'output.csv')
+            step.process(Artifact({}))
+            self.assertEqual(step.comparison['status'], 'compared')
+            self.assertEqual(step.comparison['baseline'], current.name)
+
+    def test_scored_current_output_still_fails(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            make_run(root, '2026-10-27_1200_a', [('猫', 1)])
+            current = make_run(root, '2026-10-27_1201_b', [('猫', 1)], status='running')
+            with (current / 'output.csv').open('r', encoding='utf-8', newline='') as f:
+                rows = list(csv.reader(f))
+            rows[0][7:] = ['sentences: 1', "猫<br><span class='tag sentence-tag'>FF7 - 918.14</span>"]
+            with (current / 'output.csv').open('w', encoding='utf-8', newline='') as f:
+                csv.writer(f).writerows(rows)
+            with self.assertRaisesRegex(ValueError, 'Scored example'):
+                CompareOutputStep(current / 'output.csv').process(Artifact({}))
+
     def test_explicit_baseline_overrides_latest(self):
         with tempfile.TemporaryDirectory() as tmp:
             root = Path(tmp)
