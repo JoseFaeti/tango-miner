@@ -13,7 +13,8 @@ frequency therefore need not equal the number of available examples.
 Source-boundary repairs also distinguish the colloquial ズラかろう and selected
 からさ contexts from analyzer misreadings of からい. Other ambiguous からさ
 occurrences retain the analyzer's adjective analysis for review.
-Dictionary expression merging also recognizes inflected ピンと来る, including
+Dictionary expression merging recognizes inflected 目をつぶる while retaining
+the source components. It also recognizes inflected ピンと来る, including
 the dialectal negative ピンとこん, while retaining the source components.
 Dictionary-backed adjectival nouns such as いわくありげ can also be recovered
 when the analyzer splits the noun from あり and げ.

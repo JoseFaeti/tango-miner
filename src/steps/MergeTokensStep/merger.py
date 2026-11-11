@@ -140,6 +140,28 @@ def _merge_candidate(token_list, i, j, combined_text, offsets, jmdict, rejected)
     }
 
 
+def _merge_me_wo_tsuburu(parts, jmdict):
+    """Recover the expression when its final verb is inflected."""
+    noun, particle, verb = parts
+    if not (noun['surface'] == noun['lemma'] == '目'
+            and particle['surface'] == 'を' and particle['pos'][0] == '助詞'
+            and verb['lemma'] in ('つぶる', '瞑る') and verb['pos'][0] == '動詞'):
+        return None
+    word = '目をつぶる'
+    entry = jmdict.get_best_entry(word) if jmdict.lookup_word(word) else None
+    if not is_dictionary_expression(entry):
+        return None
+    return {
+        'surface': ''.join(t['surface'] for t in parts),
+        'lemma': word, 'base_form': word,
+        'reading': jmdict.get_reading(entry, word),
+        'pos': ['exp', '*', '*', '*', '*', '*'],
+        'dictionary_expression': True,
+        'analysis_rule': 'jmdict_me_wo_tsuburu',
+        'components': tuple(c for token in parts for c in token_components(token)),
+    }
+
+
 def _merge_pinto_kuru(parts, jmdict):
     """Recover the inflected expression, including dialectal こん."""
     verb = parts[2]
@@ -259,7 +281,8 @@ def combine_tokens_jmdict(
             i += 1
             continue
         if i + 3 <= min(n, i + max_lookahead, next_merge_boundary[i]):
-            candidate = _merge_pinto_kuru(token_list[i:i + 3], jmdict)
+            candidate = (_merge_me_wo_tsuburu(token_list[i:i + 3], jmdict)
+                         or _merge_pinto_kuru(token_list[i:i + 3], jmdict))
             if candidate is not None:
                 merged_tokens.append(candidate)
                 i += 3

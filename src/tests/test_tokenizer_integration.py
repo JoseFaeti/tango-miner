@@ -85,6 +85,39 @@ class TokenizerIntegrationTests(unittest.TestCase):
                 expression = next(t for t in merged if t['lemma'] == 'ちょっと見')
                 self.assertEqual(expression['surface'], 'ちょっと見')
 
+    def test_me_wo_tsuburu_inflections_preserve_source_evidence(self):
+        for sentence in [
+            '私は、家を守るため帝国の横暴に目をつぶってきた。',
+            'テム：ぼくは目をつぶってグラスを一気にのみほした！',
+            'ここから先は目をつぶってるので手を引いて連れてってほしいでがす。',
+        ]:
+            with self.subTest(sentence=sentence):
+                merged = combine_tokens_jmdict(tokenize_sentence(sentence), self.jmdict)
+                expression = next(t for t in merged if t['lemma'] == '目をつぶる')
+                self.assertEqual(expression['surface'], '目をつぶっ')
+                self.assertEqual(''.join(c.surface for c in expression['components']), '目をつぶっ')
+
+        for sentence in ['目がつぶれた。', '目を大きく開いた。', '目を、つぶった。']:
+            with self.subTest(sentence=sentence):
+                merged = combine_tokens_jmdict(tokenize_sentence(sentence), self.jmdict)
+                self.assertNotIn('目をつぶる', [t['lemma'] for t in merged])
+        from pathlib import Path
+        from src.Artifact import Artifact
+        from src.Grammar import GrammarStep, ExcludeGrammarTokensStep
+        from src.steps.TokenizeStep.index import tokenize_raw_sentences
+
+        raw = tokenize_raw_sentences(['目をつぶってきた。', '目をつぶってる。'],
+                                     tag='source', source_path=Path('source.txt'))
+        stage = GrammarStep(prefer_expressions=True)
+        reserved = ExcludeGrammarTokensStep(stage).process(stage.process(Artifact(raw)))
+        for source in reserved.data:
+            merged = combine_tokens_jmdict(source.tokens, self.jmdict)
+            self.assertIn('目をつぶる', [t['lemma'] for t in merged])
+
+        tokens = tokenize_sentence('目をつぶった。')
+        tokens[2]['grammar_reserved'] = True
+        self.assertNotIn('目をつぶる', [t['lemma'] for t in combine_tokens_jmdict(tokens, self.jmdict)])
+
     def test_pinto_kuru_inflections_preserve_source_evidence(self):
         for sentence, surface in [
             ('じゃが、氷刃の目的が今一つピンとこんのじゃ。', 'ピンとこん'),
