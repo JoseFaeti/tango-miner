@@ -16,6 +16,8 @@ occurrences retain the analyzer's adjective analysis for review.
 Dictionary expression merging recognizes inflected 目をつぶる while retaining
 the source components. It also recognizes inflected ピンと来る, including
 the dialectal negative ピンとこん, while retaining the source components.
+Inflected 目を覚ます is recognized in kanji and kana spellings, including
+the analyzer boundary がめ before をさます; original tokens remain as evidence.
 Kana そなえる following a direct flower object is assigned to 供える,
 while its original analyzer token remains available as source evidence.
 Dictionary-backed adjectival nouns such as いわくありげ can also be recovered

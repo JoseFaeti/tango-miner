@@ -388,6 +388,29 @@ def _recover_flower_offering(tokens, jmdict):
 def prepare_tokens(token_list, jmdict):
     """Apply boundary and analysis repairs while preserving reserved tokens."""
     surfaces = {token['surface'] for token in token_list}
+    if 'がめ' in surfaces and jmdict.lookup_word('目を覚ます'):
+        repaired = []
+        for i, token in enumerate(token_list):
+            following = token_list[i + 1:i + 3]
+            if (i > 0 and token['surface'] == token['lemma'] == 'がめ'
+                    and token_list[i - 1]['pos'][0] == '名詞'
+                    and len(following) == 2 and following[0]['surface'] == 'を'
+                    and following[0]['pos'][0] == '助詞'
+                    and following[1]['lemma'] in ('さます', '覚ます')
+                    and following[1]['pos'][0] == '動詞'
+                    and not any(t.get('grammar_reserved') for t in [token, *following])):
+                evidence = token_components(token)
+                repaired.extend([
+                    {'surface': 'が', 'lemma': 'が', 'base_form': 'が', 'reading': 'が',
+                     'pos': ('助詞', '格助詞', '*', '*', '*', '*'),
+                     'components': evidence, 'analysis_rule': 'me_wo_samasu_boundary'},
+                    {'surface': 'め', 'lemma': '目', 'base_form': '目', 'reading': 'め',
+                     'pos': ('名詞', '普通名詞', '一般', '*', '*', '*'),
+                     'components': evidence, 'analysis_rule': 'me_wo_samasu_boundary'},
+                ])
+            else:
+                repaired.append(token)
+        token_list = repaired
     if 'もう' in surfaces:
         token_list = _repair_moushi_boundaries(token_list)
     if '目' in surfaces:

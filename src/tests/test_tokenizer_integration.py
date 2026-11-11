@@ -133,6 +133,40 @@ class TokenizerIntegrationTests(unittest.TestCase):
         tokens[2]['grammar_reserved'] = True
         self.assertNotIn('目をつぶる', [t['lemma'] for t in combine_tokens_jmdict(tokens, self.jmdict)])
 
+    def test_me_wo_samasu_inflections_and_boundary(self):
+        from pathlib import Path
+        from src.Artifact import Artifact
+        from src.Grammar import GrammarStep, ExcludeGrammarTokensStep
+        from src.steps.TokenizeStep.index import tokenize_raw_sentences
+
+        examples = [
+            ('目をさませば、森は道をひらくと言われています', '目をさませ'),
+            ('わしの妻が目をさましてこの話を聞いたらどれほど悲しむことか…', '目をさまし'),
+            ('グランパがめをさましたらいっしょに海をおよぐのにね下の方から声が聞こえる…', 'めをさまし'),
+            ('目を覚ました。', '目を覚まし'),
+        ]
+        raw = tokenize_raw_sentences([sentence for sentence, _ in examples],
+                                     tag='source', source_path=Path('source.txt'))
+        stage = GrammarStep(prefer_expressions=True)
+        reserved = ExcludeGrammarTokensStep(stage).process(stage.process(Artifact(raw)))
+        for source, (_, surface) in zip(reserved.data, examples):
+            with self.subTest(sentence=source.text):
+                merged = combine_tokens_jmdict(source.tokens, self.jmdict)
+                expression = next(t for t in merged if t['lemma'] == '目を覚ます')
+                self.assertEqual(expression['surface'], surface)
+                self.assertTrue(expression['dictionary_expression'])
+                self.assertEqual(expression['components'][-1].lemma, 'さます' if 'さま' in surface else '覚ます')
+                if surface.startswith('め'):
+                    self.assertEqual(expression['components'][0].surface, 'がめ')
+
+        for sentence in ['夢をさました。', '目がさめた。', '目を、さました。', '亀をさました。']:
+            with self.subTest(sentence=sentence):
+                merged = combine_tokens_jmdict(tokenize_sentence(sentence), self.jmdict)
+                self.assertNotIn('目を覚ます', [t['lemma'] for t in merged])
+        tokens = tokenize_sentence('目をさました。')
+        tokens[2]['grammar_reserved'] = True
+        self.assertNotIn('目を覚ます', [t['lemma'] for t in combine_tokens_jmdict(tokens, self.jmdict)])
+
     def test_pinto_kuru_inflections_preserve_source_evidence(self):
         for sentence, surface in [
             ('じゃが、氷刃の目的が今一つピンとこんのじゃ。', 'ピンとこん'),
