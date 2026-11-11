@@ -6,6 +6,7 @@ indicate measured frequency.
 
 - [~] [じゃない / ではない](points/jiyanai-dehanai.md)
 - [~] [だ / です](points/da-desu.md)
+- [~] [だった / でした](points/datsuta-deshita.md)
 - [~] [ね / よ / よね](points/ne-yo-yone.md)
 - [~] [など / なんか / なんて](points/nado-nanka-nante.md)
 - [~] [ほど / くらい / ぐらい](points/hodo-kurai-gurai.md)

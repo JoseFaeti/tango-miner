@@ -1,0 +1,20 @@
+"""Past copula and polite predicate ending."""
+from src.GrammarConstants import DATTA_DESHITA_EXPRESSION
+from src.grammar_rules.base import GrammarRule
+from src.grammar_rules.helpers import adjacent, next_matches
+
+
+def match_datta_deshita(tokens):
+    for i in range(1, len(tokens) - 1):
+        previous, copula = tokens[i - 1:i + 1]
+        if (copula['pos'][:1] == ['助動詞']
+                and (copula['lemma'], copula['surface']) in (('だ', 'だっ'), ('です', 'でし'))
+                and adjacent(previous, copula)
+                and previous['pos'][:1] not in (['空白'], ['補助記号'])
+                and next_matches(tokens, i, 'た', '助動詞', 'た')):
+            yield copula['span'][0], tokens[i + 1]['span'][1]
+
+
+RULE = GrammarRule(id='datta_deshita', expression=DATTA_DESHITA_EXPRESSION,
+                   reading='だった / でした', meaning='past copula; polite past predicate ending',
+                   match=match_datta_deshita)
