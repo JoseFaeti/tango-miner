@@ -1,4 +1,5 @@
 from src.grammar_rules.rules.ya_toka.index import RULE as YA_TOKA
+from src.grammar_rules.rules.dake_nomi.index import RULE as DAKE_NOMI
 from src.grammar_rules.rules.toki.index import RULE as TOKI
 from src.grammar_rules.rules.ha.index import RULE as HA
 from src.grammar_rules.rules.ga.index import RULE as GA
@@ -71,7 +72,7 @@ from src.grammar_rules.rules.yori.index import RULE as YORI
 RULES = (NAGARA, TAGARU, WAKE_DA, WAKE_NEGATIVE, HAZU_DA, APPEARANCE, HEARSAY, TE_MO, NARA, BA, YOU_DA, KOTO_NI_SURU, KOTO_NI_NARU, TE_WA_IKENAI, TE_MIRU, TE_OKU, TE_MO_II, OBLIGATION, TO_OMOU, YOU_NI, KOTO_GA_ARU_OCCASIONAL, KOTO_GA_ARU, TE_IKU, TARA, NAI, TE_KURU, TE_IRU, NDA, TAI, TE_SHIMAU, MONONO,)
 
 RULES = (MITAI_NI, TSUPOI, NAOSU, MADENI, TOKI, TOIU, TTE, YOU_TO_OMOU, YOU_TO_SURU, YOU_NI_SURU, YOU_NI_NARU, TSUMORIDA, TABAKARI, TOKORODA, UCHINI, TE_KARA, MAENI_ATODE, KEDO, KARA_NODE, TARITARISURU, YASUI_NIKUI, KOTO_GA_DEKIRU, TA_HOU_GA_II, ELLIPTICAL_OBLIGATION, NAKUTEMOII, TE_HOSHII, TE_BENEFACTIVE, NAIDE, TE_KUDASAI, KAMOSHIRENAI, NONI, TAME_NI, TE_ARU,) + RULES
-RULES = (YA_TOKA, GA, HA, KARA_MADE, YORI,) + RULES
+RULES = (DAKE_NOMI, YA_TOKA, GA, HA, KARA_MADE, YORI,) + RULES
 
 if frozenset(rule.expression for rule in RULES) != GRAMMAR_EXPRESSIONS:
     raise ValueError('Registered grammar identities and Anki protections must match')

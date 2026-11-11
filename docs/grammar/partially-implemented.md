@@ -4,6 +4,7 @@ These points have existing implementations with remaining work described in thei
 linked specifications. Their order retains the previous queue order and does not
 indicate measured frequency.
 
+- [~] [だけ / のみ](points/dake-nomi.md)
 - [~] [や / とか](points/ya-toka.md)
 - [~] [より](points/yori.md)
 - [~] [から / まで](points/kara-made.md)
