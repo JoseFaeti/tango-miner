@@ -1,4 +1,5 @@
 from src.grammar_rules.rules.da_desu.index import RULE as DA_DESU
+from src.grammar_rules.rules.janai_dewanai.index import RULE as JANAI_DEWANAI
 from src.grammar_rules.rules.ne_yo_yone.index import RULE as NE_YO_YONE
 from src.grammar_rules.rules.sae_sura.index import RULE as SAE_SURA
 from src.grammar_rules.rules.nado_nanka_nante.index import RULE as NADO_NANKA_NANTE
@@ -80,7 +81,7 @@ RULES = (NAGARA, TAGARU, WAKE_DA, WAKE_NEGATIVE, HAZU_DA, APPEARANCE, HEARSAY, T
 
 RULES = (MITAI_NI, TSUPOI, NAOSU, MADENI, TOKI, TOIU, TTE, YOU_TO_OMOU, YOU_TO_SURU, YOU_NI_SURU, YOU_NI_NARU, TSUMORIDA, TABAKARI, TOKORODA, UCHINI, TE_KARA, MAENI_ATODE, KEDO, KARA_NODE, TARITARISURU, YASUI_NIKUI, KOTO_GA_DEKIRU, TA_HOU_GA_II, ELLIPTICAL_OBLIGATION, NAKUTEMOII, TE_HOSHII, TE_BENEFACTIVE, NAIDE, TE_KUDASAI, KAMOSHIRENAI, NONI, TAME_NI, TE_ARU,) + RULES
 RULES = (NE_YO_YONE, SHIKANAI, SAE_SURA, NADO_NANKA_NANTE, DAKE_NOMI, HODO_KURAI_GURAI, YA_TOKA, GA, HA, KARA_MADE, YORI, BAKARI,) + RULES
-RULES = RULES + (DA_DESU,)
+RULES = RULES + (DA_DESU, JANAI_DEWANAI,)
 
 if frozenset(rule.expression for rule in RULES) != GRAMMAR_EXPRESSIONS:
     raise ValueError('Registered grammar identities and Anki protections must match')
