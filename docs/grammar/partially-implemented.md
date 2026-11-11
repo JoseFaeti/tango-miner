@@ -1,5 +1,7 @@
 # Partially implemented grammar points
 
+- [~] [〜始める / 〜出す](points/hajimeru-dasu.md)
+
 - [~] [〜すぎる](points/sugiru.md)
 
 - [~] [〜ほうがいい](points/hougaii.md)

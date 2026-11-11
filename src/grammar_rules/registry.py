@@ -22,6 +22,7 @@ from src.grammar_rules.rules.ga.index import RULE as GA
 from src.grammar_rules.rules.mitai_ni.index import RULE as MITAI_NI
 from src.grammar_rules.rules.tsupoi.index import RULE as TSUPOI
 from src.grammar_rules.rules.naosu.index import RULE as NAOSU
+from src.grammar_rules.rules.hajimeru_dasu.index import RULE as HAJIMERU_DASU
 from src.grammar_rules.rules.madeni.index import RULE as MADENI
 from src.grammar_rules.rules.you_to_suru.index import RULE as YOU_TO_SURU
 from src.grammar_rules.rules.toiu.index import RULE as TOIU
@@ -103,6 +104,7 @@ RULES = (NE_YO_YONE, SHIKANAI, SAE_SURA, NADO_NANKA_NANTE, DAKE_NOMI, HODO_KURAI
 RULES = (TE_ITADAKEMASENKA, TE_KURENAI_TEMORAENAI, TE_GORAN, TE_CHOUDAI, TE_YARU,) + RULES
 RULES = RULES + (HOU_GA_II, SASERARERU, DAROU_DESHOU, DA_DESU, DATTA_DESHITA, JANAI_DEWANAI, ARU_IRU, MASEN_MASHITA, MASHOU_YOU, MASENKA_NAIKA, NASAI, HOSHII,)
 RULES = RULES + (RARERU_RERU, SUGIRU,)
+RULES = RULES + (HAJIMERU_DASU,)
 
 if frozenset(rule.expression for rule in RULES) != GRAMMAR_EXPRESSIONS:
     raise ValueError('Registered grammar identities and Anki protections must match')
