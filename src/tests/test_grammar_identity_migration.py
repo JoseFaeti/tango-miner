@@ -1,7 +1,7 @@
 import unittest
 from unittest.mock import patch
 
-from src.GrammarConstants import GRAMMAR_EXPRESSIONS
+from src.GrammarConstants import GRAMMAR_EXPRESSIONS, LEGACY_GRAMMAR_EXPRESSIONS
 from src.steps.AddWordsToAnkiStep.index import export_words_to_anki
 from tests.helpers import make_stats
 from src.steps.AddWordsToAnkiStep.test_index import note
@@ -22,6 +22,10 @@ class GrammarIdentityMigrationTests(unittest.TestCase):
                                           prune=True, output_only=not apply,
                                           details_handler=plans.append)
         return plans[0], calls, result
+
+    def test_all_grammar_identities_have_legacy_protection(self):
+        self.assertEqual(LEGACY_GRAMMAR_EXPRESSIONS,
+                         {expression + ' (grammar)': expression for expression in GRAMMAR_EXPRESSIONS})
 
     def test_each_legacy_note_is_renamed_and_refreshes_meaning_and_metrics(self):
         for expression in GRAMMAR_EXPRESSIONS:
