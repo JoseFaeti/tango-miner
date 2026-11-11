@@ -4,7 +4,6 @@ Ordered implementation queue for points not yet implemented. The order is an
 estimate of usefulness and frequency, not a measurement of corpus occurrences.
 Check each specification for overlap and source evidence before implementation.
 
-- [ ] [から / まで](points/kara-made.md)
 - [ ] [より](points/yori.md)
 - [ ] [や / とか](points/ya-toka.md)
 - [ ] [だけ / のみ](points/dake-nomi.md)
