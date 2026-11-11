@@ -58,6 +58,7 @@ indicate measured frequency.
 - [~] [〜たほうがいい / 〜ないほうがいい](points/tahougaii-naihougaii.md)
 - [~] [〜てほしい](points/tehoshii.md)
 - [~] [〜てあげる / 〜てくれる / 〜てもらう](points/teageru-tekureru-temorau.md)
+- [~] [〜ていただく / 〜てくださる / 〜て差し上げる](points/teitadaku-tekudasaru-tesashiageru.md)
 - [~] [〜てください / 〜てくれ](points/tekudasai-tekure.md)
 - [~] [〜ている](points/te-iru.md)
 - [~] [〜んだ / 〜のだ](points/nda.md)
