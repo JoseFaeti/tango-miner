@@ -75,6 +75,17 @@ After each optimization, analyze the remaining bottlenecks and propose the
 most useful next step. Report measurement limitations, including differences in
 inputs, configuration, dependencies, cache state and machine load where relevant.
 
+To time word-stat aggregation without rerunning the pipeline, use
+`python scripts/profile_word_stats.py RUN_DIR/input.sentence.csv --repeat 3`.
+This tokenizes a bounded sample of exported examples and times aggregation with
+potential-form merging; it does not reproduce merged tokens, grammar reservation,
+source distribution, or the full corpus. A 20,000-sentence sample showed that
+repeated token eligibility checks dominated the profiled step. Caching eligibility
+by lemma, POS and analysis rule reduced the profiled time from 5.47 to 2.77 seconds
+on that sample. The remaining time is primarily aggregation and provenance
+construction; measuring representative merged streams and allocation costs is
+the next useful step before considering more extensive changes.
+
 To profile the merger on a bounded sample of an archived sentence CSV, run:
 
 ```sh

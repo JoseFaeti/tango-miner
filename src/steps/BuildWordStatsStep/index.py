@@ -90,6 +90,7 @@ def build_word_stats(
     lemma_first_pos_in_file: dict[str, int] = {}
     token_index = 0
     reassigned_occurrences = {}
+    usefulness_cache = {}
 
     def update_source_indexes():
         if token_index == 0:
@@ -132,12 +133,20 @@ def build_word_stats(
                     tags.add(tokenized_sentence.tag)
             lemma = token["base_form"] or token["lemma"]
             reading = token["reading"]
-            if potential_resolver and lemma and reading and not is_useless(token):
+            if not lemma or not reading or token.get("grammar_reserved"):
+                continue
+            # Eligibility depends on these fields, not on source position or surface.
+            key = (lemma, tuple(token["pos"]), token.get("analysis_rule"))
+            useful = usefulness_cache.get(key)
+            if useful is None:
+                useful = not is_useless(token)
+                usefulness_cache[key] = useful
+            if not useful:
+                continue
+            if potential_resolver:
                 resolved = potential_resolver.resolve(token, lemma)
                 if resolved:
                     lemma, reading = resolved
-            if not lemma or not reading or is_useless(token):
-                continue
 
             token_index += 1
             lemma_first_pos_in_file.setdefault(lemma, token_index)
