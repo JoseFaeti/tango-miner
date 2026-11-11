@@ -3,6 +3,7 @@ from src.GrammarConstants import BA_GRAMMAR_EXPRESSION
 from src.grammar_rules.base import GrammarRule
 from src.grammar_rules.helpers import adjacent
 from src.grammar_rules.rules.obligation.index import match_obligation
+from src.grammar_rules.rules.nakuteha_nakereba.index import match_nakuteha_nakereba
 
 
 def match_ba(tokens):
@@ -21,7 +22,7 @@ def match_ba(tokens):
         # Complete なければならない / いけない belongs to the obligation card.
         if previous['lemma'] == 'ない':
             if obligation_spans is None:
-                obligation_spans = tuple(match_obligation(tokens))
+                obligation_spans = tuple(match_obligation(tokens)) + tuple(match_nakuteha_nakereba(tokens))
             if any(start <= particle['span'][0] and particle['span'][1] <= end
                    for start, end in obligation_spans):
                 continue

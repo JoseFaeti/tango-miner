@@ -1,11 +1,12 @@
 """Sentence-final elliptical verbal obligations."""
+from functools import lru_cache
+
 from src.GrammarConstants import ELLIPTICAL_OBLIGATION_EXPRESSION
 from src.grammar_rules.base import GrammarRule
 from src.grammar_rules.helpers import adjacent
 
 
 _FORMS = frozenset(('ないと', 'なくちゃ', 'なきゃ'))
-_PREFIXES = frozenset(form[:i] for form in _FORMS for i in range(1, len(form) + 1))
 _FINAL_PARTICLES = frozenset(('ね', 'な', 'よ', 'わ', 'ぞ', 'さ'))
 _END_MARKS = frozenset(('。', '！', '？', '!', '?', '…', '」', '』'))
 
@@ -24,10 +25,16 @@ def _at_utterance_end(tokens, index):
     return True
 
 
-def match_elliptical_obligation(tokens):
+@lru_cache(maxsize=None)
+def _prefixes(forms):
+    return frozenset(form[:i] for form in forms for i in range(1, len(form) + 1))
+
+
+def match_final_obligation(tokens, forms):
+    prefixes = _prefixes(forms)
     for i in range(1, len(tokens)):
         first_surface = tokens[i]['surface']
-        if first_surface and first_surface not in _PREFIXES:
+        if first_surface and first_surface not in prefixes:
             continue
         anchor = tokens[i - 1]
         pos = anchor['pos']
@@ -40,11 +47,15 @@ def match_elliptical_obligation(tokens):
             if j > i and not adjacent(tokens[j - 1], tokens[j]):
                 break
             surface += tokens[j]['surface']
-            if surface in _FORMS and _at_utterance_end(tokens, j):
+            if surface in forms and _at_utterance_end(tokens, j):
                 yield tokens[i]['span'][0], tokens[j]['span'][1]
                 break
-            if surface not in _PREFIXES:
+            if surface not in prefixes:
                 break
+
+
+def match_elliptical_obligation(tokens):
+    return match_final_obligation(tokens, _FORMS)
 
 
 RULE = GrammarRule(
