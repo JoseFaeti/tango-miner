@@ -33,6 +33,43 @@ class TokenizerIntegrationTests(unittest.TestCase):
         # These tests deliberately exercise the real Sudachi and JMdict data.
         cls.jmdict = get_jmdict()
 
+    def test_nemuri_ni_tsuku_inflections(self):
+        for sentence in [
+            'マナを生み出す新たなマナの樹となって眠りにつきます。',
+            '”“つぎの日、「朽ちし馬」は眠りにつき、大地の骨となる。',
+        ]:
+            with self.subTest(sentence=sentence):
+                merged = combine_tokens_jmdict(tokenize_sentence(sentence), self.jmdict)
+                expression = next(t for t in merged if t['lemma'] == '眠りにつく')
+                self.assertEqual(expression['surface'], '眠りにつき')
+                self.assertEqual(''.join(c.surface for c in expression['components']), '眠りにつき')
+                self.assertTrue(expression['dictionary_expression'])
+
+        for sentence in ['眠りにつく。', '眠りについた。', '眠りにつかない。']:
+            with self.subTest(sentence=sentence):
+                merged = combine_tokens_jmdict(tokenize_sentence(sentence), self.jmdict)
+                self.assertIn('眠りにつく', [t['lemma'] for t in merged])
+        for sentence in ['眠りがつづく。', '眠りに、つきます。', '仕事につきます。']:
+            with self.subTest(sentence=sentence):
+                merged = combine_tokens_jmdict(tokenize_sentence(sentence), self.jmdict)
+                self.assertNotIn('眠りにつく', [t['lemma'] for t in merged])
+        tokens = tokenize_sentence('眠りにつきます。')
+        tokens[2]['grammar_reserved'] = True
+        self.assertNotIn('眠りにつく', [t['lemma'] for t in combine_tokens_jmdict(tokens, self.jmdict)])
+
+        from pathlib import Path
+        from src.Artifact import Artifact
+        from src.Grammar import GrammarStep, ExcludeGrammarTokensStep
+        from src.steps.TokenizeStep.index import tokenize_raw_sentences
+
+        raw = tokenize_raw_sentences(['眠りにつきます。', '眠りにつき、大地の骨となる。'],
+                                     tag='source', source_path=Path('source.txt'))
+        stage = GrammarStep(prefer_expressions=True)
+        reserved = ExcludeGrammarTokensStep(stage).process(stage.process(Artifact(raw)))
+        for source in reserved.data:
+            merged = combine_tokens_jmdict(source.tokens, self.jmdict)
+            self.assertIn('眠りにつく', [t['lemma'] for t in merged])
+
     def test_kana_flower_offering_keeps_source_verb_evidence(self):
         for sentence in ['まいにちさいだんにおはなをそなえにくるよ',
                          '墓に花をそなえた。']:
