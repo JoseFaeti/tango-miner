@@ -33,6 +33,21 @@ class TokenizerIntegrationTests(unittest.TestCase):
         # These tests deliberately exercise the real Sudachi and JMdict data.
         cls.jmdict = get_jmdict()
 
+    def test_awasete_verb_and_adverb(self):
+        for sentence in ['自分の戦い方にあわせてちゃんと選ぶのが大切なんだ。',
+                         'となりの兵士と歩調をあわせておごそかに歩く。',
+                         '皆でちからをあわせてきっと守ってみせる！']:
+            with self.subTest(sentence=sentence):
+                merged = combine_tokens_jmdict(tokenize_sentence(sentence), self.jmdict)
+                verb = next(t for t in merged if t['lemma'] == 'あわせる')
+                self.assertEqual(verb['surface'], 'あわせ')
+                self.assertNotIn('あわせて', [t['lemma'] for t in merged])
+        for sentence in ['あわせて三人です。', '合計であわせて三人です。']:
+            with self.subTest(sentence=sentence):
+                merged = combine_tokens_jmdict(tokenize_sentence(sentence), self.jmdict)
+                expression = next(t for t in merged if t['lemma'] == 'あわせて')
+                self.assertEqual([c.surface for c in expression['components']], ['あわせ', 'て'])
+
     def test_nemuri_ni_tsuku_inflections(self):
         for sentence in [
             'マナを生み出す新たなマナの樹となって眠りにつきます。',

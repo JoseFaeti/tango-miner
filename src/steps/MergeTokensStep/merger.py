@@ -91,6 +91,17 @@ def _merge_candidate(token_list, i, j, combined_text, offsets, jmdict, rejected)
             and tuple(token_list[j]['pos'][:2]) == ('動詞', '非自立可能')):
         reject('te_oku_verb_not_adverb')
         return None
+    # A case-marked complement supports the verb rather than the adverb
+    # meaning "in total"; preserve the original verb and connective particle.
+    if (token_string == 'あわせて' and j - i == 2 and i > 0
+            and token_list[i]['lemma'] == 'あわせる'
+            and token_list[i]['pos'][0] == '動詞'
+            and token_list[i + 1]['surface'] == 'て'
+            and tuple(token_list[i + 1]['pos'][:2]) == ('助詞', '接続助詞')
+            and token_list[i - 1]['surface'] in {'を', 'に'}
+            and tuple(token_list[i - 1]['pos'][:2]) == ('助詞', '格助詞')):
+        reject('awasete_verb_with_complement')
+        return None
     if (_is_past_predicate_misread_as_expression(token_list, i, j, match_word)
             or _is_particle_boundary_misread(token_list, i, j)
             or _is_inflection_misread_as_noun(token_list, i, j, match_word)

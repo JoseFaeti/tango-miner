@@ -10,6 +10,8 @@ compatible source example is available, one conflicting occurrence is attached
 and the candidate is marked for review (`no_definition_compatible_example` in
 candidate diagnostics). Repeated identical lines do not create distinct examples;
 frequency therefore need not equal the number of available examples.
+The あわせて expression remains available for totals; after a case-marked を or
+に complement, its verb and connective particle remain separate for mining.
 Source-boundary repairs also distinguish the colloquial ズラかろう and selected
 からさ contexts from analyzer misreadings of からい. Other ambiguous からさ
 occurrences retain the analyzer's adjective analysis for review.
