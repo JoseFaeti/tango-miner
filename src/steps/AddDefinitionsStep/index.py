@@ -50,6 +50,7 @@ def add_and_filter_for_definitions(input: dict, progress_handler, on_definition_
             "kanji": [k["form"] for k in entry.get("kanji", [])],
             "readings": [r["form"] for r in entry.get("reading", [])]} if isinstance(entry, dict) else None)
         definition = jmdict.get_most_common_definition(word, component_counts=stats.component_counts)
+        stats.jmdict_definition = bool(definition)
         if not definition:
             stats.selected_dictionary_entry = None
         if not definition and stats.expression_definition:
@@ -70,7 +71,7 @@ def add_and_filter_for_definitions(input: dict, progress_handler, on_definition_
         progress_handler(i, total, f'{i}/{total} {total_valid} definitions found')
 
         stats.definition = definition
-        stats.needs_review = stats.coverage_review or stats.expression_review or not bool(definition)
+        stats.needs_review = not stats.jmdict_definition and (stats.coverage_review or stats.expression_review or not bool(definition))
         kept[word] = stats
 
     return kept, total_valid, total_invalid

@@ -282,7 +282,8 @@ def attach_sentences(word_data, segmented_sentences, progress_handler=None, conf
                     surface = seg.lemma_surfaces[lemma]
                     span = seg.lemma_spans.get(lemma)
                 ws.sentences = [Sentence(seg.text, seg.tag, seg.origin, surface, span)]
-                ws.needs_review = True
+                if not ws.jmdict_definition:
+                    ws.needs_review = True
                 ws.example_review = True
                 missing.remove(lemma)
             if not missing:

@@ -28,13 +28,15 @@ class AddDefinitionsStepTests(unittest.TestCase):
         dictionary.assert_called_once_with("custom.xml")
         self.assertEqual(words["猫"].definition, "cat")
 
-    def test_coverage_review_survives_dictionary_definition(self):
+    def test_dictionary_definition_keeps_candidate_with_review_evidence(self):
         stats = make_stats()
         stats.coverage_review = True
         with patch("src.steps.AddDefinitionsStep.index.get_jmdict", return_value=FakeJMDict(None)):
             Pipeline([AddDefinitionsStep()]).run(Artifact({"猫": stats}))
         self.assertEqual(stats.definition, "cat")
-        self.assertTrue(stats.needs_review)
+        self.assertFalse(stats.needs_review)
+        self.assertTrue(stats.coverage_review)
+        self.assertTrue(stats.jmdict_definition)
 
     def test_ambiguous_dictionary_match_is_not_sent_to_review(self):
         from src.JMDict import JMDict
@@ -54,6 +56,16 @@ class AddDefinitionsStepTests(unittest.TestCase):
             self.assertEqual(stats.definition, 'nearby')
             self.assertFalse(stats.needs_review)
             self.assertIsNone(stats.definition_components)
+
+    def test_archived_expression_with_jmdict_definition_is_kept_despite_coverage(self):
+        stats = make_stats(lemma='それもそうだ')
+        stats.coverage_review = True
+        stats.expression_review = True
+        Pipeline([AddDefinitionsStep()]).run(Artifact({'それもそうだ': stats}))
+        self.assertIn("that's true", stats.definition)
+        self.assertFalse(stats.needs_review)
+        self.assertTrue(stats.coverage_review)
+        self.assertTrue(stats.expression_review)
 
     def test_merge_and_definitions_share_dictionary(self):
         words = {"猫": make_stats()}

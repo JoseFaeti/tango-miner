@@ -7,8 +7,9 @@ Example selection ranks sentences that meet the normal quality checks ahead of
 short, long, or otherwise low-quality source lines, but retains those lines as
 fallbacks. It prefers occurrences supporting the selected definition. If no
 compatible source example is available, one conflicting occurrence is attached
-and the candidate is marked for review (`no_definition_compatible_example` in
-candidate diagnostics). Repeated identical lines do not create distinct examples;
+and recorded as `no_definition_compatible_example` in candidate diagnostics.
+Candidates with a JMdict definition remain eligible for output even when this
+or another review signal is present. Repeated identical lines do not create distinct examples;
 frequency therefore need not equal the number of available examples.
 Example labels show the source tag without a sentence score. Archive comparisons
 require score-free example labels. If the automatically selected baseline has
@@ -46,7 +47,7 @@ source reading and part of speech, then JMdict priority. Ambiguity alone no
 longer sends a candidate to review: the fallback can choose a definition for a
 different sense or homophone. It prefers senses compatible with the lookup form,
 but retains a gloss when every available sense has incompatible restrictions.
-Other review reasons still apply. Standalone proper nouns remain filtered earlier
+Review signals remain available in diagnostics. Standalone proper nouns remain filtered earlier
 in the pipeline, a known gap in recall.
 
 ## JMdict test baseline
@@ -248,13 +249,15 @@ and evaluation options, and the [pipeline improvement roadmap](../pipeline-impro
 for broader work.
 
 Dictionary-backed multi-token expressions that meet the frequency cutoff but
-fail the per-source coverage rule are retained in the review CSV. An inflected
-expression below the cutoff is also retained for review when its component
+fail the per-source coverage rule are retained. An inflected
+expression below the cutoff is also retained when its component
 evidence points to a sufficiently frequent dictionary-backed base expression.
 Their source
-examples can represent different senses, so they are not automatically added
-to Anki and existing notes are protected from pruning. This review path can
-retain additional expressions beyond the examples motivating it.
+examples can represent different senses. Candidates with a JMdict definition
+are eligible for normal CSV and Anki output; coverage and expression concerns
+remain visible in candidate diagnostics. Candidates without a JMdict definition
+may still be held for review. This path can retain additional expressions beyond
+the examples motivating it.
 
 The lexical merger also looks up adjacent noun and verb tokens as a JMdict
 expression with an omitted を, using the verb's dictionary form. The candidate

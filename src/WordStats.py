@@ -47,6 +47,7 @@ class WordStats:
     definition_components: set[tuple[TokenComponent, ...]] | None = None
     selected_dictionary_entry: dict | None = None
     needs_review: bool = False
+    jmdict_definition: bool = False
     reassigned_occurrences: int = 0
     reassigned_tags: set[str] = field(default_factory=set)
     scoring_tag_count: int | None = None

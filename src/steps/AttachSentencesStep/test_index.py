@@ -82,7 +82,7 @@ class AttachSentencesStepTests(unittest.TestCase):
         conflicting = [s for s in sentences if 'できた作品' in s.text]
         attach_sentences({'できた': stats}, conflicting)
         self.assertEqual([s.text for s in stats.sentences], [conflicting[0].text])
-        self.assertTrue(stats.needs_review)
+        self.assertFalse(stats.needs_review)
         self.assertTrue(stats.example_review)
 
     def test_configured_example_limit_and_length_affect_selection(self):

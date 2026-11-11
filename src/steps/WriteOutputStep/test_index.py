@@ -42,6 +42,18 @@ class WriteOutputStepTests(unittest.TestCase):
             row = json.loads(path.read_text(encoding='utf-8'))
         self.assertEqual(row['review_reasons'], ['expression_frequency_or_source_coverage'])
 
+    def test_kept_candidate_retains_review_signals_in_diagnostics(self):
+        stats = make_stats(definition='meaning')
+        stats.coverage_review = True
+        stats.example_review = True
+        with tempfile.TemporaryDirectory() as tmp:
+            path = Path(tmp) / 'candidates.jsonl'
+            write_candidate_diagnostics({'expression': stats}, path)
+            row = json.loads(path.read_text(encoding='utf-8'))
+        self.assertEqual(row['status'], 'valid')
+        self.assertEqual(row['review_reasons'], [
+            'expression_frequency_or_source_coverage', 'no_definition_compatible_example'])
+
     def test_write_final_file_sorts_by_score_and_splits_invalid_rows(self):
         with tempfile.TemporaryDirectory() as tmp:
             output = Path(tmp) / "out.csv"
