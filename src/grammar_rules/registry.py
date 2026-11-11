@@ -75,6 +75,7 @@ from src.grammar_rules.rules.te_hoshii.index import RULE as TE_HOSHII
 from src.grammar_rules.rules.hoshii.index import RULE as HOSHII
 from src.grammar_rules.rules.nda.index import RULE as NDA
 from src.grammar_rules.rules.tagaru.index import RULE as TAGARU
+from src.grammar_rules.rules.sugiru.index import RULE as SUGIRU
 from src.grammar_rules.rules.tai.index import RULE as TAI
 from src.grammar_rules.rules.te_shimau.index import RULE as TE_SHIMAU
 from src.grammar_rules.rules.monono.index import RULE as MONONO
@@ -101,7 +102,7 @@ RULES = (MITAI_NI, TSUPOI, NAOSU, MADENI, TOKI, TOIU, TTE, YOU_TO_OMOU, YOU_TO_S
 RULES = (NE_YO_YONE, SHIKANAI, SAE_SURA, NADO_NANKA_NANTE, DAKE_NOMI, HODO_KURAI_GURAI, YA_TOKA, GA, HA, KARA_MADE, YORI, BAKARI,) + RULES
 RULES = (TE_ITADAKEMASENKA, TE_KURENAI_TEMORAENAI, TE_GORAN, TE_CHOUDAI, TE_YARU,) + RULES
 RULES = RULES + (HOU_GA_II, SASERARERU, DAROU_DESHOU, DA_DESU, DATTA_DESHITA, JANAI_DEWANAI, ARU_IRU, MASEN_MASHITA, MASHOU_YOU, MASENKA_NAIKA, NASAI, HOSHII,)
-RULES = RULES + (RARERU_RERU,)
+RULES = RULES + (RARERU_RERU, SUGIRU,)
 
 if frozenset(rule.expression for rule in RULES) != GRAMMAR_EXPRESSIONS:
     raise ValueError('Registered grammar identities and Anki protections must match')
