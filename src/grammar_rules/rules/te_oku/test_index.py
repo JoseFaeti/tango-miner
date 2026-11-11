@@ -187,8 +187,10 @@ class TeOkuTests(unittest.TestCase):
         self.assertEqual([c.surface for c in next(iter(words['おけばよかった'].component_counts))],
                          ['おけ', 'ば', 'よかっ', 'た'])
         self.assertEqual(stage.occurrences[RULE.id].count, 1)
+        self.assertEqual(stage.occurrences['ne_yo_yone'].count, 1)
+        self.assertIn('買う', words)
         self.assertEqual([t['surface'] for t in reserved[-1].tokens if t.get('grammar_reserved')],
-                         ['ため', 'に', 'て', 'おく'])
+                         ['ため', 'に', 'て', 'おく', 'よ'])
 
 
 if __name__ == '__main__':
