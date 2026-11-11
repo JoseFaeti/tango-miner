@@ -33,6 +33,21 @@ class TokenizerIntegrationTests(unittest.TestCase):
         # These tests deliberately exercise the real Sudachi and JMdict data.
         cls.jmdict = get_jmdict()
 
+    def test_kana_flower_offering_keeps_source_verb_evidence(self):
+        for sentence in ['まいにちさいだんにおはなをそなえにくるよ',
+                         '墓に花をそなえた。']:
+            with self.subTest(sentence=sentence):
+                merged = combine_tokens_jmdict(tokenize_sentence(sentence), self.jmdict)
+                verb = next(t for t in merged if t['lemma'] == '供える')
+                self.assertEqual(verb['reading'], 'そなえる')
+                self.assertEqual(verb['components'][0].lemma, 'そなえる')
+                self.assertEqual(verb['components'][0].surface, verb['surface'])
+        for sentence in ['災害にそなえる。', '武器をそなえる。', '花がそなえられた。']:
+            with self.subTest(sentence=sentence):
+                merged = combine_tokens_jmdict(tokenize_sentence(sentence), self.jmdict)
+                self.assertNotIn('供える', [t['lemma'] for t in merged])
+                self.assertIn('そなえる', [t['lemma'] for t in merged])
+
     def test_split_adjective_stems_before_sou_and_garu(self):
         for sentence, surface in [
             ('風花は少し照れ臭そうにしている。', '照れ臭'),

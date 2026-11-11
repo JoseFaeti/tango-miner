@@ -365,6 +365,26 @@ def _recover_me_ni_mieru(tokens, jmdict):
     return result
 
 
+def _recover_flower_offering(tokens, jmdict):
+    """Resolve the kana verb when its direct object is explicitly flowers."""
+    if not jmdict.lookup_word('供える'):
+        return tokens
+    result = list(tokens)
+    for i, token in enumerate(tokens):
+        if (i < 2 or token.get('grammar_reserved') or token['lemma'] != 'そなえる'
+                or token['pos'][0] != '動詞' or tokens[i - 1]['surface'] != 'を'
+                or tokens[i - 1].get('grammar_reserved')
+                or tokens[i - 1]['pos'][0] != '助詞'):
+            continue
+        flower = tokens[i - 2]
+        if (flower.get('grammar_reserved') or flower['surface'] not in {'花', 'はな', 'お花', 'おはな'}
+                or flower['pos'][0] not in {'名詞', 'exp'}):
+            continue
+        result[i] = {**token, 'lemma': '供える', 'base_form': '供える',
+                     'components': token_components(token), 'analysis_rule': 'flower_offering'}
+    return result
+
+
 def prepare_tokens(token_list, jmdict):
     """Apply boundary and analysis repairs while preserving reserved tokens."""
     surfaces = {token['surface'] for token in token_list}
@@ -409,4 +429,6 @@ def prepare_tokens(token_list, jmdict):
                   for i, token in enumerate(token_list)]
     token_list = [_repair_tsurete_motion(token_list, i, jmdict) if not token.get('grammar_reserved') else token
                   for i, token in enumerate(token_list)]
+    if 'を' in surfaces:
+        token_list = _recover_flower_offering(token_list, jmdict)
     return token_list
