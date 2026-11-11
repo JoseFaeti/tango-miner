@@ -16,6 +16,7 @@
 
 - [~] [〜ほしい](points/hoshii.md)
 
+- [~] [〜られる / 〜れる](points/rareru-reru.md)
 - [~] [〜させられる](points/saserareru.md)
 
 - [~] [〜なさい](points/nasai.md)
