@@ -1,6 +1,7 @@
 """Stable identities for opt-in grammar notes."""
 
 MASEN_MASHITA_EXPRESSION = '〜ません / 〜ました / 〜ませんでした'
+MASHOU_YOU_EXPRESSION = '〜ましょう / 〜よう'
 
 DAROU_DESHOU_EXPRESSION = 'だろう / でしょう'
 DA_DESU_EXPRESSION = 'だ / です'
@@ -159,6 +160,7 @@ ARU_IRU_EXPRESSION = 'ある / いる'
 GRAMMAR_EXPRESSIONS = GRAMMAR_EXPRESSIONS | {ARU_IRU_EXPRESSION}
 
 GRAMMAR_EXPRESSIONS = GRAMMAR_EXPRESSIONS | {MASEN_MASHITA_EXPRESSION}
+GRAMMAR_EXPRESSIONS = GRAMMAR_EXPRESSIONS | {MASHOU_YOU_EXPRESSION}
 
 # Old identities remain protected and can be migrated in place.
 LEGACY_GRAMMAR_EXPRESSIONS = {expression + ' (grammar)': expression for expression in GRAMMAR_EXPRESSIONS}

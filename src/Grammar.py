@@ -220,6 +220,12 @@ class ExcludeGrammarTokensStep(PipelineStep):
             if error:
                 result.append(sentence)
                 continue
+            # Plain volition is a whole verb token; reserving it would remove
+            # the verb from lexical mining. The polite suffix remains reservable.
+            verb_spans = {tuple(t['span']) for t in aligned if t['pos'][:1] == ['動詞']}
+            spans = [(start, end) for rule_id, start, end in self.grammar.spans.get(index, ())
+                     if rule_id in active and rule_id not in ('naosu', 'aru_iru')
+                     and not (rule_id == 'mashou_you' and (start, end) in verb_spans)]
             boundaries = {point for token in aligned for point in token['span']}
             spans = [(start, end) for start, end in spans if start in boundaries and end in boundaries]
             reserved = {token['index'] for token in aligned

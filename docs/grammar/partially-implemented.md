@@ -30,6 +30,7 @@ indicate measured frequency.
 - [~] [〜とき](points/toki.md)
 - [~] [〜って](points/tsute.md)
 - [~] [〜という / 〜っていう](points/toiu-tsuteiu.md)
+- [~] [〜ましょう / 〜よう](points/mashiyou-you.md)
 - [~] [〜ようと思う](points/youtoomou.md)
 - [~] [〜ようとする](points/youtosuru.md)
 - [~] [〜ようにする](points/younisuru.md)
