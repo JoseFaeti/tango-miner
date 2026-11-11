@@ -5,6 +5,7 @@ linked specifications. Their order retains the previous queue order and does not
 indicate measured frequency.
 
 - [~] [しか〜ない](points/shikanai.md)
+- [~] [さえ / すら](points/sae-sura.md)
 - [~] [だけ / のみ](points/dake-nomi.md)
 - [~] [や / とか](points/ya-toka.md)
 - [~] [より](points/yori.md)
