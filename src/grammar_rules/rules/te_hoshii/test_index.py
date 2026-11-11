@@ -3,6 +3,7 @@ import unittest
 from src.Artifact import Artifact
 from src.Grammar import ExcludeGrammarTokensStep, GrammarStep
 from src.GrammarConstants import TE_HOSHII_GRAMMAR_EXPRESSION as EXPRESSION
+from src.GrammarConstants import HA_EXPRESSION
 from src.grammar_rules.alignment import aligned_tokens
 from src.grammar_rules.rules.te_hoshii.index import match_te_hoshii
 from src.grammar_rules.rules.te_iru.test_index import sentence, tok
@@ -66,12 +67,13 @@ class TeHoshiiTests(unittest.TestCase):
         ExcludeGrammarTokensStep(stage).process(artifact)
         reserved = [token['surface'] for token in artifact.data[0].tokens
                     if token.get('grammar_reserved')]
-        self.assertEqual(reserved, ['で', 'ほしい', 'と', '思い', 'ます'])
+        self.assertEqual(reserved, ['は', 'で', 'ほしい', 'と', '思い', 'ます'])
         self.assertFalse(next(token for token in artifact.data[0].tokens
                               if token['surface'] == '読ん').get('grammar_reserved', False))
         words = {'読む': object()}
         stage.add_cards(words)
         self.assertIn('読む', words)
+        self.assertEqual(words[HA_EXPRESSION].sentences[0].surface_form, 'は')
         self.assertEqual(words[EXPRESSION].sentences[0].surface_form, 'でほしい')
 
 
