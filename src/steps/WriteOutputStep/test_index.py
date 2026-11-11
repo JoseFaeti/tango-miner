@@ -30,7 +30,7 @@ class WriteOutputStepTests(unittest.TestCase):
             with (Path(tmp) / "out.dropped.csv").open(encoding="utf-8", newline="") as stream:
                 self.assertEqual(list(csv.reader(stream))[0][1], "会える")
             with (Path(tmp) / "out.sentence.csv").open(encoding="utf-8", newline="") as stream:
-                self.assertEqual(list(csv.reader(stream))[1][0], "review")
+                self.assertEqual(list(csv.reader(stream))[1][:3], ["会える", "0.0", "会えるかな"])
 
     def test_diagnostics_explain_coverage_review(self):
         stats = make_stats(definition='meaning')
@@ -80,9 +80,9 @@ class WriteOutputStepTests(unittest.TestCase):
         self.assertIn("<span class='highlight'>猫</span>", rows[0][8])
         self.assertEqual(
             sentence_rows[0],
-            ["status", "word", "score", "sentence", "tag", "origin", "surface_form"],
+            ["word", "score", "sentence", "tag", "origin", "surface_form"],
         )
-        self.assertEqual(sentence_rows[1][:4], ["kept", "high", "100", "猫がいる"])
+        self.assertEqual(sentence_rows[1][:3], ["high", "100", "猫がいる"])
         self.assertEqual(events[-1][0], 1)
 
 

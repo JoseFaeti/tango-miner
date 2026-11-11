@@ -85,7 +85,9 @@ baseline in its performance and configuration report.
 
 Each run writes the requested CSV and its `.dropped.csv` and `.sentence.csv`
 companions under `runs/<local-date>_<time>_<git-revision>/` beside the
-requested output path. Repeated runs in the same minute receive a numbered
+requested output path. The sentence CSV includes examples for both kept and
+dropped or reviewed candidates; use the candidate CSVs to determine status.
+Repeated runs in the same minute receive a numbered
 suffix rather than overwriting earlier files. The run copies the selected TOML
 configuration to `config.toml` and uses that snapshot for the run; later changes
 to the original file do not affect it. Command-line overrides and the optional
