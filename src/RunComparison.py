@@ -64,12 +64,14 @@ def report_examples(value):
     result = []
     for part in re.split(r"<br\s*/?>\s*<br\s*/?>", value, flags=re.I):
         match = re.fullmatch(
-            r"(.*?)<br\s*/?>\s*<span\s+class=['\"]tag sentence-tag['\"]>.*? - ([+-]?(?:\d+(?:\.\d*)?|\.\d+)(?:[eE][+-]?\d+)?)</span>",
+            r"(.*?)<br\s*/?>\s*<span\s+class=['\"]tag sentence-tag['\"]>(.*?)</span>",
             part, flags=re.I | re.S)
         if not match:
             raise ValueError(f"Malformed example: {part!r}")
+        if re.search(r" - [+-]?(?:\d+(?:\.\d*)?|\.\d+)(?:[eE][+-]?\d+)?$", match.group(2)):
+            raise ValueError(f"Scored example is not supported: {part!r}")
         text = re.sub(r"<(?!/?span\b)[^>]*>", "", match.group(1), flags=re.I)
-        result.append({"text": html.unescape(text), "score": float(match.group(2))})
+        result.append({"text": html.unescape(text)})
     return result
 
 
@@ -85,10 +87,10 @@ def report_row(row):
 def example_changes(before, after):
     changes = []
     for old, new in zip_longest(before, after):
-        old = old if old is not None else {"text": None, "score": None}
-        new = new if new is not None else {"text": None, "score": None}
+        old = old if old is not None else {"text": None}
+        new = new if new is not None else {"text": None}
         changes.append({key: [old[key]] if old[key] == new[key] else [old[key], new[key]]
-                        for key in ("text", "score")})
+                        for key in ("text",)})
     return changes
 
 
@@ -119,7 +121,7 @@ def build_change_report(before, after):
                 if fields:
                     changes["changed"].append({"candidate": word, "fields": fields})
     counts = {key: len(items) for key, items in changes.items()}
-    return unwrap_single_values({"schema_version": 3, "status": "compared" if before else "no_baseline",
+    return unwrap_single_values({"schema_version": 4, "status": "compared" if before else "no_baseline",
             "baseline": (before["path"].name if before["path"].resolve().parent == after["path"].resolve().parent else str(before["path"].resolve())) if before else None,
             "current": after["path"].name,
             "inputs_identical": before["manifest"] == after["manifest"] if before else None,

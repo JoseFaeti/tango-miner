@@ -339,7 +339,7 @@ class AddWordsToAnkiStepTests(unittest.TestCase):
         self.assertFalse(set(calls) & {"deleteNotes", "multi", "addNotes", "createModel"})
 
     def test_word_to_anki_fields_serializes_stats_and_sentences(self):
-        sentence = Sentence("猫がいる", "tag", "origin.txt", "猫", 100)
+        sentence = Sentence("猫がいる", "tag", "origin.txt", "猫")
         stats = make_stats(
             index=1,
             frequency=2,

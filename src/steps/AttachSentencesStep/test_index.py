@@ -41,7 +41,7 @@ class AttachSentencesStepTests(unittest.TestCase):
         self.assertEqual(grammar.sentences[0].text, better.text)
         self.assertEqual(grammar.sentences[0].origin, Path('second'))
         self.assertEqual(grammar.sentences[0].span, (7, 10))
-        self.assertEqual(grammar.sentences[0].score, words['本'].sentences[0].score)
+        self.assertEqual(grammar.sentences[0].text, words['本'].sentences[0].text)
 
     def test_examples_and_fallback_require_the_selected_occurrence_analysis(self):
         adverb = (TokenComponent("ようやく", "ようやく", "ようやく", "ようやく", ("副詞",)),)

@@ -12,15 +12,17 @@ from tests.helpers import make_stats
 
 class WriteOutputStepTests(unittest.TestCase):
     def test_highlight_uses_exact_occurrence_and_escapes_html(self):
-        sentence = Sentence("変わったら わった & <", "tag", "origin", "わっ", 1, (6, 8))
+        sentence = Sentence("変わったら わった & <", "tag", "origin", "わっ", (6, 8))
         self.assertIn("変わったら <span class='highlight'>わっ</span>た &amp; &lt;", sentence.to_html())
-        invalid = Sentence("変わったら", "tag", "origin", "わっ", 1, (-1, -1))
+        self.assertIn("<span class='tag sentence-tag'>tag</span>", sentence.to_html())
+        self.assertNotIn("tag - 1", sentence.to_html())
+        invalid = Sentence("変わったら", "tag", "origin", "わっ", (-1, -1))
         self.assertNotIn("highlight", invalid.to_html())
 
     def test_unresolved_candidate_is_written_for_review_with_examples(self):
         with tempfile.TemporaryDirectory() as tmp:
             path = Path(tmp) / "out.csv"
-            stats = make_stats(sentences=[Sentence("会えるかな", "tag", "origin", "会える", 1)])
+            stats = make_stats(sentences=[Sentence("会えるかな", "tag", "origin", "会える")])
             stats.needs_review = True
             write_final_file({"会える": stats}, path)
             with path.open(encoding="utf-8", newline="") as stream:
@@ -43,7 +45,7 @@ class WriteOutputStepTests(unittest.TestCase):
     def test_write_final_file_sorts_by_score_and_splits_invalid_rows(self):
         with tempfile.TemporaryDirectory() as tmp:
             output = Path(tmp) / "out.csv"
-            valid_sentence = Sentence("猫がいる", "tag", "origin.txt", "猫", 100)
+            valid_sentence = Sentence("猫がいる", "tag", "origin.txt", "猫")
             words = {
                 "low": make_stats(score=10, invalid=False),
                 "drop": make_stats(score=999, invalid=True),

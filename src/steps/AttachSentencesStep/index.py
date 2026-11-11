@@ -178,7 +178,6 @@ def attach_sentences(word_data, segmented_sentences, progress_handler=None, conf
                 tag = seg.tag,
                 origin = seg.origin,
                 surface_form = surface,
-                score = round(mean, 2),
                 span = span
             )
 
@@ -240,7 +239,6 @@ def attach_sentences(word_data, segmented_sentences, progress_handler=None, conf
                     tag = seg.tag,
                     origin = seg.origin,
                     surface_form = surface,
-                    score = ws.score * -1,
                     span = span
                 )
 
@@ -283,7 +281,7 @@ def attach_sentences(word_data, segmented_sentences, progress_handler=None, conf
                 else:
                     surface = seg.lemma_surfaces[lemma]
                     span = seg.lemma_spans.get(lemma)
-                ws.sentences = [Sentence(seg.text, seg.tag, seg.origin, surface, -ws.score, span)]
+                ws.sentences = [Sentence(seg.text, seg.tag, seg.origin, surface, span)]
                 ws.needs_review = True
                 ws.example_review = True
                 missing.remove(lemma)

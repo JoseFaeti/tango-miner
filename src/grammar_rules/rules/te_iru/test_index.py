@@ -172,7 +172,7 @@ class TeIruCardTests(unittest.TestCase):
         self.assertEqual(words[EXPRESSION].sentences[0].surface_form, 'でいる')
         self.assertEqual(words[EXPRESSION].sentences[0].span, (7, 10))
         self.assertEqual({s.tag for s in words[EXPRESSION].sentences}, {'source', 'other'})
-        self.assertEqual(words[EXPRESSION].sentences[0].score, words['読む'].sentences[0].score)
+        self.assertEqual(words[EXPRESSION].sentences[0].text, words['読む'].sentences[0].text)
 
     def test_grammar_spans_survive_word_collection_and_invalid_sentence_skips(self):
         from src.Grammar import ExcludeGrammarTokensStep

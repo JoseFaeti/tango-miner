@@ -144,7 +144,7 @@ class GrammarStep(PipelineStep):
                 if (len(group.examples) < self.max_examples and sentence.text not in group.example_texts
                         and is_valid_sentence(sentence.text)):
                     group.examples.append(Sentence(sentence.text, sentence.tag or '', str(sentence.origin or ''),
-                                                   sentence.text[start:end], 0.0, (start, end)))
+                                                   sentence.text[start:end], (start, end)))
                     group.example_texts.add(sentence.text)
             self.add_performance_time('aggregation', (perf_counter() if self._performance_enabled else 0.0) - started)
         self.done(f'{sum(g.count for g in self.occurrences.values())} source-supported grammar occurrences.')

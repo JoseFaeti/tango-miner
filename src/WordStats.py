@@ -10,7 +10,6 @@ class Sentence:
     tag: str
     origin: str
     surface_form: str
-    score: float
     span: tuple[int, int] | None = None
 
     def __str__(self) -> str:
@@ -29,7 +28,7 @@ class Sentence:
             pattern = re.escape(escape(self.surface_form))
             text = re.sub(pattern, lambda m: "<span class='highlight'>" + m.group(0) + "</span>", text, count=1)
 
-        return f"{text}<br><span class='tag sentence-tag'>{escape(self.tag)} - {self.score}</span>"
+        return f"{text}<br><span class='tag sentence-tag'>{escape(self.tag)}</span>"
 
 @dataclass(slots=True)
 class WordStats:

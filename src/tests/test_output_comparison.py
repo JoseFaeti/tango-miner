@@ -18,11 +18,11 @@ class OutputComparisonTests(unittest.TestCase):
             b = make_run(root, '2026-10-27_1201_b', [('猫', 2), ('犬', 1), ('新', 1)])
             with (b / 'output.csv').open('r', encoding='utf-8', newline='') as f:
                 rows = list(csv.reader(f))
-            rows[0] = ['99', '猫', 'ねこ', '2.00', '2', 'new\nmeaning', 'tag', 'sentences: 1', "<span class='highlight'>例</span><br><span class='tag sentence-tag'>source - 2.5</span>"]
+            rows[0] = ['99', '猫', 'ねこ', '2.00', '2', 'new\nmeaning', 'tag', 'sentences: 1', "<span class='highlight'>例</span><br><span class='tag sentence-tag'>source</span>"]
             with (b / 'output.csv').open('w', encoding='utf-8', newline='') as f:
                 csv.writer(f).writerows(rows)
             result = build_change_report(load_run(a), load_run(b))
-            self.assertEqual(result['schema_version'], 3)
+            self.assertEqual(result['schema_version'], 4)
             self.assertEqual(set(result['changes']), {'added', 'removed', 'changed'})
             entries = {x['candidate']: x for group in result['changes'].values()
                        for x in (group if isinstance(group, list) else [group])}
@@ -39,35 +39,40 @@ class OutputComparisonTests(unittest.TestCase):
             self.assertEqual(entries['新']['sentence_count'], 0)
             self.assertEqual(entries['旧']['score'], 0)
             self.assertNotIn('word', entries['新'])
-            self.assertEqual(entries['猫']['fields']['examples'], {'text': [None, "<span class='highlight'>例</span>"], 'score': [None, 2.5]})
+            self.assertEqual(entries['猫']['fields']['examples'], {'text': [None, "<span class='highlight'>例</span>"]})
 
     def test_example_changes_only_include_changed_properties(self):
         from src.RunComparison import example_changes, report_examples
-        before = [{'text': 'one', 'score': 1.0}, {'text': 'two', 'score': 2.0}]
-        after = [{'text': 'one', 'score': 3.0}, {'text': 'changed', 'score': 2.0}]
+        before = [{'text': 'one'}, {'text': 'two'}]
+        after = [{'text': 'one'}, {'text': 'changed'}]
         self.assertEqual(example_changes(before, after), [
-            {'text': ['one'], 'score': [1.0, 3.0]},
-            {'text': ['two', 'changed'], 'score': [2.0]},
+            {'text': ['one']},
+            {'text': ['two', 'changed']},
         ])
         self.assertEqual(example_changes(before[:1], []), [
-            {'text': ['one', None], 'score': [1.0, None]},
+            {'text': ['one', None]},
         ])
         self.assertEqual(example_changes(before, before[:1]), [
-            {'text': ['one'], 'score': [1.0]},
-            {'text': ['two', None], 'score': [2.0, None]},
+            {'text': ['one']},
+            {'text': ['two', None]},
         ])
         self.assertEqual(example_changes([], after[:1]), [
-            {'text': [None, 'one'], 'score': [None, 3.0]},
+            {'text': [None, 'one']},
         ])
-        self.assertEqual(report_examples("<span class='highlight'>猫</span> &amp; 犬<br><span class='tag sentence-tag'>source - -1.5</span>"),
-                         [{'text': "<span class='highlight'>猫</span> & 犬", 'score': -1.5}])
+        self.assertEqual(report_examples("<span class='highlight'>猫</span> &amp; 犬<br><span class='tag sentence-tag'>source</span>"),
+                         [{'text': "<span class='highlight'>猫</span> & 犬"}])
+
+    def test_scored_examples_are_rejected(self):
+        from src.RunComparison import report_examples
+        with self.assertRaisesRegex(ValueError, 'Scored example'):
+            report_examples("猫<br><span class='tag sentence-tag'>source - 2.5</span>")
 
     def test_single_values_are_unwrapped_recursively(self):
         from src.RunComparison import unwrap_single_values
         self.assertEqual(unwrap_single_values({'examples': [
-            {'text': ['unchanged'], 'score': [300, 310]},
+            {'text': ['unchanged']},
         ], 'empty': [], 'removed': [None, 'old']}),
-            {'examples': {'text': 'unchanged', 'score': [300, 310]},
+            {'examples': {'text': 'unchanged'},
              'empty': [], 'removed': [None, 'old']})
 
     def test_step_first_run_and_previous_completed(self):
