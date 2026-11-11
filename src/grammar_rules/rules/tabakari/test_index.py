@@ -2,7 +2,7 @@ import unittest
 
 from src.Artifact import Artifact
 from src.Grammar import ExcludeGrammarTokensStep, GrammarStep
-from src.GrammarConstants import TABAKARI_EXPRESSION
+from src.GrammarConstants import DA_DESU_EXPRESSION, TABAKARI_EXPRESSION
 from src.grammar_rules.alignment import aligned_tokens
 from src.grammar_rules.rules.tabakari.index import match_tabakari
 from src.grammar_rules.rules.te_iru.test_index import sentence, tok
@@ -47,12 +47,13 @@ class TabakariTests(unittest.TestCase):
         data = stage.process(Artifact([source, source]))
         ExcludeGrammarTokensStep(stage).process(data)
         self.assertEqual([t['surface'] for t in data.data[0].tokens if t.get('grammar_reserved')],
-                         ['ばかり'])
+                         ['ばかり', 'だ'])
         words = {'食べる': object()}
         stage.add_cards(words)
         self.assertIn('食べる', words)
         self.assertEqual(words[TABAKARI_EXPRESSION].frequency, 2)
         self.assertEqual(words[TABAKARI_EXPRESSION].sentences[0].surface_form, 'ばかり')
+        self.assertEqual(words[DA_DESU_EXPRESSION].sentences[0].surface_form, 'だ')
 
 
 if __name__ == '__main__':
