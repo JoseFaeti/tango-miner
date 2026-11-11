@@ -3,6 +3,21 @@
   "source": "Original verb entries: OpenMWE corpus idiom inventory, https://github.com/nlp-waseda/OpenMWE; see OPENMWE-LICENSE.txt. Additional entries cite sources individually.",
   "entries": [
     {
+      "expression": "命をつなぐ",
+      "reading": "いのちをつなぐ",
+      "noun": [
+        "命"
+      ],
+      "particle": "を",
+      "verb": [
+        "つなぐ",
+        "繋ぐ"
+      ],
+      "meaning": "to keep living; to sustain life",
+      "reference": "https://kotobank.jp/word/%E5%91%BD%E3%82%92%E7%B9%8B%E3%81%90-435465",
+      "verb_class": "godan"
+    },
+    {
       "expression": "幕を開ける",
       "reading": "まくをあける",
       "noun": [

@@ -40,12 +40,16 @@ class ExpressionMatchingTests(unittest.TestCase):
                 matches = self.match(entry['expression'] + '。')[0]
                 self.assertEqual([m[0] for m in matches], [entry['expression']])
 
-    def test_inventory_is_missing_from_tested_dictionary_in_writing_and_reading(self):
+    def test_inventory_dictionary_coverage(self):
         dictionary = get_jmdict()
         for entry in self.entries:
             with self.subTest(expression=entry['expression']):
-                self.assertFalse(dictionary.lookup_word(entry['expression']))
-                self.assertFalse(dictionary.lookup_word(entry['reading']))
+                if entry['expression'] == '命をつなぐ':
+                    self.assertTrue(dictionary.lookup_word(entry['expression']))
+                    self.assertTrue(dictionary.lookup_word(entry['reading']))
+                else:
+                    self.assertFalse(dictionary.lookup_word(entry['expression']))
+                    self.assertFalse(dictionary.lookup_word(entry['reading']))
 
     def test_inventory_rejects_malformed_and_duplicate_entries(self):
         valid = dict(self.entries[0])
@@ -74,6 +78,28 @@ class ExpressionMatchingTests(unittest.TestCase):
         self.assertTrue(results[8][0][2])
         self.assertEqual(results[1][0][1], '青筋を立てた')
         self.assertEqual(results[2][0][1], '青筋を立てない')
+
+    def test_inochi_wo_tsunagu_source_and_variants(self):
+        texts = ['ふたつの星が重なる異界の幻影ジタンテラに生まれガイアに生きて命をつなぐ。',
+                 '薬で命を繋いだ。', '命をつないでいる。', '糸をつなぐ。']
+        results = self.match(*texts)
+        for matches, surface in zip(results[:3], ('命をつなぐ', '命を繋いだ', '命をつないで')):
+            self.assertIn(('命をつなぐ', surface, False, surface), matches)
+        self.assertNotIn('命をつなぐ', [match[0] for match in results[3]])
+
+        raw = tokenize_raw_sentences([texts[0]], tag='source', source_path=Path('test.txt'))
+        artifact = Artifact(raw)
+        expression = ExpressionStep()
+        expression.process(artifact)
+        build = BuildWordStatsStep()
+        build.start_time = None
+        artifact = AddExpressionCandidatesStep(expression).process(build.process(artifact))
+        stats = artifact.data['命をつなぐ']
+        self.assertTrue(stats.expression_review)
+        self.assertEqual(stats.frequency, 1)
+        self.assertEqual(sum(stats.component_counts.values()), 1)
+        self.assertIn('命', artifact.data)
+        self.assertIn('つなぐ', artifact.data)
 
     def test_common_inflection_and_contraction_matrix(self):
         cases = {

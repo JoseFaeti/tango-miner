@@ -15,8 +15,12 @@ in their records. Additional eye-related expressions and 顎が外れる were
 selected from the idiom references linked in their records. These surface
 patterns can also have literal uses. The list is deliberately extensible and
 is not an exhaustive idiom dictionary.
+命をつなぐ is also recognized, including inflected and 繋ぐ spellings;
+its context may refer to sustaining life or continuing life across generations.
 The canonical spelling and reading of each inventory entry are checked against
-the tested JMdict snapshot. Absence from that snapshot does not prove that
+the tested JMdict snapshot. 命をつなぐ is present in that snapshot; its inventory
+entry also captures inflected occurrences while preserving component candidates.
+Absence from that snapshot does not prove that
 all spellings or synonymous expressions are absent from every JMdict edition.
 Run `python scripts/inspect_expression_coverage.py` to inspect current inventory
 coverage, or pass a UTF-8 file with one candidate per line. The script checks
