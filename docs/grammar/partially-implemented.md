@@ -1,5 +1,7 @@
 # Partially implemented grammar points
 
+- [~] [だろう / でしょう](points/darou-deshiyou.md)
+
 These points have existing implementations with remaining work described in their
 linked specifications. Their order retains the previous queue order and does not
 indicate measured frequency.
