@@ -26,6 +26,8 @@ The `〜直す`, `〜始める / 〜出す`, `〜続ける` and `〜終わる / 
 lexical processing so that the vocabulary reading is retained alongside grammar.
 Standalone `ある / いる` matches likewise remain available to lexical processing.
 The adjective in `〜ほしい` also remains available as vocabulary.
+The suffix in `〜方` remains available to lexical processing so the complete
+verb-and-suffix expression can be retained.
 The separate [curated expression inventory](../usage/expressions.md) is matched
 on raw tokens before reservation and added alongside grammar and component-word
 candidates. An inventory match does not suppress an overlapping grammar rule;

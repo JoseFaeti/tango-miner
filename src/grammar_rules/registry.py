@@ -1,4 +1,5 @@
 from src.grammar_rules.rules.kakeru.index import RULE as KAKERU
+from src.grammar_rules.rules.hou.index import RULE as HOU
 from src.grammar_rules.rules.tsuzukeru.index import RULE as TSUZUKERU
 from src.grammar_rules.rules.owaru_oeru.index import RULE as OWARU_OERU
 from src.grammar_rules.rules.nakuteha_nakereba.index import RULE as NAKUTEHA_NAKEREBA
@@ -108,7 +109,7 @@ RULES = (NE_YO_YONE, SHIKANAI, SAE_SURA, NADO_NANKA_NANTE, DAKE_NOMI, HODO_KURAI
 RULES = (TE_ITADAKEMASENKA, TE_KURENAI_TEMORAENAI, TE_GORAN, TE_CHOUDAI, TE_YARU,) + RULES
 RULES = RULES + (HOU_GA_II, SASERARERU, DAROU_DESHOU, DA_DESU, DATTA_DESHITA, JANAI_DEWANAI, ARU_IRU, MASEN_MASHITA, MASHOU_YOU, MASENKA_NAIKA, NASAI, HOSHII,)
 RULES = RULES + (RARERU_RERU, SUGIRU,)
-RULES = RULES + (HAJIMERU_DASU, TSUZUKERU, OWARU_OERU, KAKERU, AU,)
+RULES = RULES + (HAJIMERU_DASU, TSUZUKERU, OWARU_OERU, KAKERU, AU, HOU,)
 
 if frozenset(rule.expression for rule in RULES) != GRAMMAR_EXPRESSIONS:
     raise ValueError('Registered grammar identities and Anki protections must match')
