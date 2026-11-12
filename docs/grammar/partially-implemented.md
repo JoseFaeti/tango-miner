@@ -79,6 +79,7 @@
 - [~] [〜ほうがいい](points/hougaii.md)
 
 - [~] [〜なくては / 〜なければ](points/nakuteha-nakereba.md)
+- [~] [〜ては / 〜ちゃ / 〜じゃ](points/teha-chiya-jiya.md)
 
 - [~] [〜てやる](points/teyaru.md)
 
