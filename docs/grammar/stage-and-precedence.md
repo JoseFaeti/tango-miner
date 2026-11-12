@@ -22,7 +22,7 @@ a complete source-matched expression spanning the construction and its attached
 word. If it finds one, that occurrence is counted as the lexical expression
 instead of grammar. This is a heuristic: dictionary matches can be ambiguous.
 Remaining matched grammar tokens are reserved before lexical merging and collection.
-The `〜直す` and `〜始める / 〜出す` rules are exceptions: their whole compounds remain available to
+The `〜直す`, `〜始める / 〜出す` and `〜続ける` rules are exceptions: their whole compounds remain available to
 lexical processing so that the vocabulary reading is retained alongside grammar.
 Standalone `ある / いる` matches likewise remain available to lexical processing.
 The adjective in `〜ほしい` also remains available as vocabulary.
