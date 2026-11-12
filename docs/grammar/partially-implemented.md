@@ -1,5 +1,7 @@
 # Partially implemented grammar points
 
+- [~] [〜ように言う / 頼む](points/youniyuu-tanomu.md)
+
 - [~] [〜予定だ](points/yoteida.md)
 
 - [~] [〜ことはない](points/kotohanai.md)
