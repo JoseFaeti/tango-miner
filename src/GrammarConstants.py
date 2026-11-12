@@ -1,5 +1,7 @@
 """Stable identities for opt-in grammar notes."""
 
+KAINA_YAN_YARO_EXPRESSION = '〜かいな / 〜やん / 〜やろ'
+
 JIYAN_JIYANAIKA_EXPRESSION = '〜じゃん / 〜じゃないか'
 JIYANAITO_DENAITO_EXPRESSION = '〜じゃないと / 〜でないと'
 NJIYANAI_NODEHANAI_EXPRESSION = '〜んじゃない / 〜のではない'
@@ -287,6 +289,8 @@ TTEKOTO_TTEWAKE_EXPRESSION = '〜ってこと / 〜ってわけ'
 GRAMMAR_EXPRESSIONS = GRAMMAR_EXPRESSIONS | {TTEKOTO_TTEWAKE_EXPRESSION}
 WAKE_TSUTEWAKE_EXPRESSION = '〜わけ / 〜ってわけ'
 GRAMMAR_EXPRESSIONS = GRAMMAR_EXPRESSIONS | {WAKE_TSUTEWAKE_EXPRESSION}
+
+GRAMMAR_EXPRESSIONS = GRAMMAR_EXPRESSIONS | {KAINA_YAN_YARO_EXPRESSION}
 
 # Old identities remain protected and can be migrated in place.
 LEGACY_GRAMMAR_EXPRESSIONS = {expression + ' (grammar)': expression for expression in GRAMMAR_EXPRESSIONS}

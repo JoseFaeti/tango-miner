@@ -1,5 +1,6 @@
 # Partially implemented grammar points
 
+- [~] [〜かいな / 〜やん / 〜やろ](points/kaina-yan-yaro.md)
 - [~] [〜のだろうか](points/nodarouka.md)
 
 - [~] [〜のか / 〜んか](points/noka-nka.md)
