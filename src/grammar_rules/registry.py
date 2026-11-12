@@ -54,6 +54,7 @@ from src.grammar_rules.rules.you_ni_iu_tanomu.index import RULE as YOU_NI_IU_TAN
 from src.grammar_rules.rules.you_ni_naru.index import RULE as YOU_NI_NARU
 from src.grammar_rules.rules.you_ni_mieru.index import RULE as YOU_NI_MIERU
 from src.grammar_rules.rules.tsumorida.index import RULE as TSUMORIDA
+from src.grammar_rules.rules.kotoda.index import RULE as KOTODA
 from src.grammar_rules.rules.yoteida.index import RULE as YOTEIDA
 from src.grammar_rules.rules.tabakari.index import RULE as TABAKARI
 from src.grammar_rules.rules.bakari.index import RULE as BAKARI
@@ -139,7 +140,7 @@ RULES = (NE_YO_YONE, SHIKANAI, SAE_SURA, NADO_NANKA_NANTE, DAKE_NOMI, HODO_KURAI
 RULES = (WAKENIHAIKANAI, WAKEGANAI, HAZUGANAI, NICHIGAINAI, KADOUKA, TE_ITADAKEMASENKA, TE_KURENAI_TEMORAENAI, TE_GORAN, TE_CHOUDAI, TE_YARU,) + RULES
 RULES = RULES + (HOU_GA_II, SASERARERU, DAROU_DESHOU, DA_DESU, DATTA_DESHITA, JANAI_DEWANAI, ARU_IRU, MASEN_MASHITA, MASHOU_YOU, MASENKA_NAIKA, NASAI, HOSHII,)
 RULES = RULES + (RARERU_RERU, SUGIRU,)
-RULES = RULES + (HAJIMERU_DASU, TSUZUKERU, OWARU_OERU, KAKERU, AU, HOU, YOTEIDA,)
+RULES = RULES + (HAJIMERU_DASU, TSUZUKERU, OWARU_OERU, KAKERU, AU, HOU, YOTEIDA, KOTODA,)
 
 if frozenset(rule.expression for rule in RULES) != GRAMMAR_EXPRESSIONS:
     raise ValueError('Registered grammar identities and Anki protections must match')
