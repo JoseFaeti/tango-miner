@@ -1,5 +1,7 @@
 # Partially implemented grammar points
 
+- [~] [〜もんね](points/monne.md)
+
 - [~] [〜もの / 〜もん](points/mono-mon.md)
 
 - [~] [〜ものだから / 〜もんだから](points/monodakara-mondakara.md)
