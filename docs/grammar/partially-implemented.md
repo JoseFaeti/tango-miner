@@ -1,5 +1,7 @@
 # Partially implemented grammar points
 
+- [~] [〜のか / 〜んか](points/noka-nka.md)
+
 - [~] [〜かい / 〜だい](points/kai-dai.md)
 
 - [~] [〜かな / 〜かしら](points/kana-kashira.md)
