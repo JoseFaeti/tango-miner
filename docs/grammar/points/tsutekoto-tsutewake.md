@@ -22,4 +22,4 @@ Noun and adjectival-noun predicates, negative and other inflections, and
 embedded uses such as ってことは are not yet covered. Bare endings can be
 ambiguous with nominal uses; the rule accepts them only before punctuation or
 at the end of the token stream. The separate 〜わけ / 〜ってわけ point
-also includes non-contracted explanatory わけ and remains queued.
+handles bare non-contracted explanatory わけ.

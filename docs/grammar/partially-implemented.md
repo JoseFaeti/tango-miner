@@ -33,6 +33,7 @@
 - [~] [〜わけにはいかない](points/wakenihaikanai.md)
 
 - [~] [〜わけがない](points/wakeganai.md)
+- [~] [〜わけ / 〜ってわけ](points/wake-tsutewake.md)
 
 - [~] [〜はずがない](points/hazuganai.md)
 
