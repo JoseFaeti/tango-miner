@@ -1,5 +1,7 @@
 # Partially implemented grammar points
 
+- [~] [〜ものか / 〜もんか](points/monoka-monka.md)
+
 - [~] [〜わけにはいかない](points/wakenihaikanai.md)
 
 - [~] [〜わけがない](points/wakeganai.md)

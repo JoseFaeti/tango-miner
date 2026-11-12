@@ -1,7 +1,23 @@
 # 〜ものか / 〜もんか
 
-Status: [ ]
+Status: [~]
 
 ## Meaning
 
 Strong denial.
+
+## Tracked scope
+
+Matches adjacent terminal or attributive verb, adjective, or auxiliary followed
+by nominal `もの` or colloquial `もん` and sentence-final `か`. The span covers
+`ものか` or `もんか`; tokens are not reserved. Sudachi full-dictionary tests
+cover both spellings, predicate forms, and lexical controls.
+
+Literal questions such as `買ったものか` share this morphology and remain
+review candidates. Indirect questions with non-final `か` are excluded.
+Merged tokenizations and corpus precision and recall have not been evaluated.
+
+## Implementation
+
+- Rule and tests: [monoka_monka](../../../src/grammar_rules/rules/monoka_monka/)
+- Registry identity: `monoka_monka`; stable identity: `〜ものか / 〜もんか`.
