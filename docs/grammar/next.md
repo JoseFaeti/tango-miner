@@ -4,7 +4,6 @@ Ordered implementation queue for points not yet implemented. The order is an
 estimate of usefulness and frequency, not a measurement of corpus occurrences.
 Check each specification for overlap and source evidence before implementation.
 
-- [ ] [〜んじゃない / 〜のではない](points/njiyanai-nodehanai.md)
 - [ ] [〜じゃないと / 〜でないと](points/jiyanaito-denaito.md)
 - [ ] [〜んだけど / 〜んですが](points/ndakedo-ndesuga.md)
 - [ ] [〜んだって / 〜だって](points/ndatsute-datsute.md)

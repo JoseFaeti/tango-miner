@@ -24,7 +24,8 @@ explanatory construction.
 
 The `〜んだ` card covers explanatory んだ, a common conversational
 construction. Supported adjacent token analyses include ん/の with だ or です,
-past, conjectural and common negative forms, and のである. The written の
+past, conjectural and common negative forms, and のである. Negative forms can
+also produce the separate 〜んじゃない / 〜のではない card. The written の
 form requires a preceding predicate to limit possessive matches. The rule also
 recognizes single-token のだ and のです after a predicate, and a split の +
 だった analysis. Highlights include the recognized ending. This is a
