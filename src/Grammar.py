@@ -212,7 +212,7 @@ class ExcludeGrammarTokensStep(PipelineStep):
         count = 0
         for index, sentence in enumerate(artifact.data):
             spans = [(start, end) for rule_id, start, end in self.grammar.spans.get(index, ())
-                     if rule_id in active and rule_id not in ('naosu', 'hajimeru_dasu', 'tsuzukeru', 'owaru_oeru', 'aru_iru', 'hoshii')]
+                     if rule_id in active and rule_id not in ('naosu', 'hajimeru_dasu', 'tsuzukeru', 'owaru_oeru', 'kakeru', 'aru_iru', 'hoshii')]
             if not spans:
                 result.append(sentence)
                 continue
@@ -224,7 +224,7 @@ class ExcludeGrammarTokensStep(PipelineStep):
             # the verb from lexical mining. The polite suffix remains reservable.
             verb_spans = {tuple(t['span']) for t in aligned if t['pos'][:1] == ['動詞']}
             spans = [(start, end) for rule_id, start, end in self.grammar.spans.get(index, ())
-                     if rule_id in active and rule_id not in ('naosu', 'hajimeru_dasu', 'tsuzukeru', 'owaru_oeru', 'aru_iru', 'hoshii')
+                     if rule_id in active and rule_id not in ('naosu', 'hajimeru_dasu', 'tsuzukeru', 'owaru_oeru', 'kakeru', 'aru_iru', 'hoshii')
                      and not (rule_id == 'mashou_you' and (start, end) in verb_spans)]
             boundaries = {point for token in aligned for point in token['span']}
             spans = [(start, end) for start, end in spans if start in boundaries and end in boundaries]
