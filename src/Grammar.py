@@ -119,7 +119,7 @@ class GrammarStep(PipelineStep):
                 # the predicate, not interrogative 何だ. An exact JMdict
                 # spelling such as なんだって cannot override this analysis.
                 copular_starts = {t['span'][0] for t in tokens
-                                   if rule.id == 'explanatory_nda'
+                                   if rule.id in ('explanatory_nda', 'ndatte_datte')
                                    and t['span'][1] == start and t['surface'] == 'な'
                                    and t['lemma'] == 'だ' and t['pos'][:1] == ['助動詞']}
                 # ておく can overlap a longer dictionary expression beginning

@@ -1,5 +1,7 @@
 # Partially implemented grammar points
 
+- [~] [〜んだって / 〜だって](points/ndatsute-datsute.md)
+
 - [~] [〜んだけど / 〜んですが](points/ndakedo-ndesuga.md)
 
 - [~] [〜じゃないと / 〜でないと](points/jiyanaito-denaito.md)
