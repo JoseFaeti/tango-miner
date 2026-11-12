@@ -17,5 +17,6 @@ The ambiguous `なんとか` / `何とか` is excluded.
 Verb and clause listings, other tokenizations, spaced markers and markers
 without an adjacent nominal are unsupported. Some nominal `とか` uses can
 express quotation or uncertainty rather than listing; the rule does not
-resolve this ambiguity. Corpus precision, recall and lexical effects have not
+resolve this ambiguity. Clause-attached forms are covered separately by
+[〜とか](toka.md), with listing/report ambiguity. Corpus precision, recall and lexical effects have not
 been measured.
