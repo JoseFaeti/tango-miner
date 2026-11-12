@@ -1,5 +1,7 @@
 # Partially implemented grammar points
 
+- [~] [〜はずがない](points/hazuganai.md)
+
 - [~] [〜に違いない](points/nichigainai.md)
 
 - [~] [〜かもしれん / 〜かも](points/kamoshiren-kamo.md)
