@@ -17,7 +17,7 @@ matched span starts at the conditional, preserving the preceding predicate as
 component evidence. The conditional cards may also match the same sentence;
 dictionary-expression precedence can suppress an overlapping grammar proposal.
 
-Past `よかった` belongs to the separately queued point. Other inflections,
+Past `よかった` belongs to the [separate regret point](bayokatsuta-tarayokatsuta.md). Other inflections,
 contractions, and tokenizations are not covered. The matcher is morphological:
 it does not distinguish advice, wishes, and literal conditional evaluations.
 Corpus coverage and expression precedence for this point remain unmeasured.
