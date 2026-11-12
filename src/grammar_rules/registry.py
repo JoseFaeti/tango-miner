@@ -37,6 +37,7 @@ from src.grammar_rules.rules.you_ni_suru.index import RULE as YOU_NI_SURU
 """Explicit registry of grammar rules."""
 from src.grammar_rules.rules.you_ni_naru.index import RULE as YOU_NI_NARU
 from src.grammar_rules.rules.tsumorida.index import RULE as TSUMORIDA
+from src.grammar_rules.rules.yoteida.index import RULE as YOTEIDA
 from src.grammar_rules.rules.tabakari.index import RULE as TABAKARI
 from src.grammar_rules.rules.bakari.index import RULE as BAKARI
 from src.grammar_rules.rules.tokoroda.index import RULE as TOKORODA
@@ -113,7 +114,7 @@ RULES = (NE_YO_YONE, SHIKANAI, SAE_SURA, NADO_NANKA_NANTE, DAKE_NOMI, HODO_KURAI
 RULES = (TE_ITADAKEMASENKA, TE_KURENAI_TEMORAENAI, TE_GORAN, TE_CHOUDAI, TE_YARU,) + RULES
 RULES = RULES + (HOU_GA_II, SASERARERU, DAROU_DESHOU, DA_DESU, DATTA_DESHITA, JANAI_DEWANAI, ARU_IRU, MASEN_MASHITA, MASHOU_YOU, MASENKA_NAIKA, NASAI, HOSHII,)
 RULES = RULES + (RARERU_RERU, SUGIRU,)
-RULES = RULES + (HAJIMERU_DASU, TSUZUKERU, OWARU_OERU, KAKERU, AU, HOU,)
+RULES = RULES + (HAJIMERU_DASU, TSUZUKERU, OWARU_OERU, KAKERU, AU, HOU, YOTEIDA,)
 
 if frozenset(rule.expression for rule in RULES) != GRAMMAR_EXPRESSIONS:
     raise ValueError('Registered grammar identities and Anki protections must match')
