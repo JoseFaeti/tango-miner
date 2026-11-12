@@ -4,10 +4,11 @@ from src.grammar_rules.base import GrammarRule
 from src.grammar_rules.helpers import adjacent
 from src.grammar_rules.rules.toiukotoda.index import match_toiukotoda
 from src.grammar_rules.rules.toiukotoha.index import match_toiukotoha
+from src.grammar_rules.rules.toiunoha.index import match_toiunoha
 
 
 def match_toiu(tokens):
-    longer_starts = {start for matcher in (match_toiukotoda, match_toiukotoha)
+    longer_starts = {start for matcher in (match_toiukotoda, match_toiukotoha, match_toiunoha)
                      for start, _ in matcher(tokens)}
     for i in range(1, len(tokens) - 2):
         previous, particle, verb, noun = tokens[i - 1:i + 3]
