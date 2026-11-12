@@ -2,9 +2,11 @@
 from src.GrammarConstants import KOTO_NI_NARU_GRAMMAR_EXPRESSION
 from src.grammar_rules.base import GrammarRule
 from src.grammar_rules.helpers import adjacent, next_matches, positive_verb_end
+from src.grammar_rules.rules.toiukotoninaru.index import match_toiukotoninaru
 
 
 def match_koto_ni_naru(tokens):
+    longer_spans = list(match_toiukotoninaru(tokens))
     for i in range(1, len(tokens)):
         predicate, koto = tokens[i - 1:i + 1]
         if koto['surface'] not in ('こと', 'ことになる'):
@@ -36,7 +38,9 @@ def match_koto_ni_naru(tokens):
                 continue
         else:
             continue
-        yield koto['span'][0], tokens[end]['span'][1]
+        if not any(start <= koto['span'][0] and tokens[end]['span'][1] <= stop
+                   for start, stop in longer_spans):
+            yield koto['span'][0], tokens[end]['span'][1]
 
 
 RULE = GrammarRule(
