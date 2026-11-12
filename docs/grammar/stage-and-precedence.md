@@ -25,6 +25,8 @@ Remaining matched grammar tokens are reserved before lexical merging and collect
 The `〜直す`, `〜始める / 〜出す`, `〜続ける` and `〜終わる / 〜終える` rules are exceptions: their whole compounds remain available to
 lexical processing so that the vocabulary reading is retained alongside grammar.
 Standalone `ある / いる` matches likewise remain available to lexical processing.
+The ambiguous `〜ものだ` span also remains available; overlapping rules can
+still reserve tokens within it.
 The adjective in `〜ほしい` also remains available as vocabulary.
 The suffix in `〜方` remains available to lexical processing so the complete
 verb-and-suffix expression can be retained.

@@ -139,6 +139,7 @@ indicate measured frequency.
 - [~] [〜たい](points/tai.md)
 - [~] [〜てしまう](points/te-shimau.md)
 - [~] [〜てくる](points/te-kuru.md)
+- [~] [〜ものだ](points/monoda.md)
 - [~] [〜ものの](points/monono.md)
 - [~] [〜ない](points/nai.md)
 - [~] [〜たら](points/tara.md)
