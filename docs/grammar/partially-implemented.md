@@ -1,5 +1,7 @@
 # Partially implemented grammar points
 
+- [~] [〜ものだから / 〜もんだから](points/monodakara-mondakara.md)
+
 - [~] [〜ものか / 〜もんか](points/monoka-monka.md)
 
 - [~] [〜わけにはいかない](points/wakenihaikanai.md)
