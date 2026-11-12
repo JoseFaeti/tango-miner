@@ -1,0 +1,48 @@
+import unittest
+
+from src.Artifact import Artifact
+from src.Grammar import GrammarStep, ExcludeGrammarTokensStep
+from src.grammar_rules.alignment import aligned_tokens
+from src.grammar_rules.registry import RULES
+from src.grammar_rules.rules.kamoshiren_kamo.index import RULE, match_kamoshiren_kamo
+from src.grammar_rules.rules.te_iru.test_index import sentence, tok
+
+
+class KamoshirenKamoTests(unittest.TestCase):
+    def test_analyzer_forms_and_controls(self):
+        try:
+            from sudachipy import dictionary, tokenizer
+            analyzer = dictionary.Dictionary(config_path='sudachi.config.json', dict='full').create()
+        except (ImportError, OSError, RuntimeError) as exc:
+            self.skipTest(f'Sudachi full dictionary unavailable: {exc}')
+        cases = {
+            '行くかもしれん。': 'かもしれん', '雨かも。': 'かも',
+            'そうかもしれんね。': 'かもしれん', '行くかも知れん。': 'かも知れん',
+            '行くかもね。': 'かも', '行くかもしれない。': None,
+            '行くかもしれません。': None, '行くかもしれぬ。': None,
+            '行くかも しれない。': None,
+            '鴨を食べる。': None, '誰かも来る。': None, '行くかもしれ': None,
+        }
+        for text, expected in cases.items():
+            with self.subTest(text=text):
+                raw = [tok(m.surface(), m.dictionary_form(), m.part_of_speech())
+                       for m in analyzer.tokenize(text, tokenizer.Tokenizer.SplitMode.C)]
+                aligned, error = aligned_tokens(text, raw)
+                self.assertIsNone(error)
+                self.assertEqual([text[a:b] for a, b in match_kamoshiren_kamo(aligned)],
+                                 [] if expected is None else [expected])
+
+    def test_reservation_and_card_example(self):
+        source = sentence('明日は学校へ行くかもしれんよ。', [
+            tok('明日は学校へ', '学校', ('名詞',)), tok('行く', '行く', ('動詞',)), tok('か', 'か', ('助詞', '副助詞')),
+            tok('も', 'も', ('助詞', '係助詞')), tok('しれ', 'しれる', ('動詞',)),
+            tok('ん', 'ぬ', ('助動詞',)), tok('よ。', 'よ', ('助詞',))])
+        self.assertIn(RULE, RULES)
+        stage = GrammarStep(rules=(RULE,))
+        result = ExcludeGrammarTokensStep(stage).process(stage.process(Artifact([source])))
+        self.assertEqual([t['surface'] for t in result.data[0].tokens if t.get('grammar_reserved')],
+                         ['か', 'も', 'しれ', 'ん'])
+        words = {'行く': object()}
+        stage.add_cards(words)
+        self.assertIn('行く', words)
+        self.assertEqual(words[RULE.expression].sentences[0].surface_form, 'かもしれん')

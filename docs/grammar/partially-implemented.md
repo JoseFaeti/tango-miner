@@ -1,5 +1,7 @@
 # Partially implemented grammar points
 
+- [~] [〜かもしれん / 〜かも](points/kamoshiren-kamo.md)
+
 - [~] [〜かどうか](points/kadouka.md)
 
 - [~] [〜というより](points/toiuyori.md)
