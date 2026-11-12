@@ -1,5 +1,7 @@
 # Partially implemented grammar points
 
+- [~] [〜たりする](points/tarisuru.md)
+
 - [~] [〜ながらも](points/nagaramo.md)
 
 - [~] [〜方](points/hou.md)
