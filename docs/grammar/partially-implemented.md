@@ -1,5 +1,7 @@
 # Partially implemented grammar points
 
+- [~] [〜ということだ](points/toiukotoda.md)
+
 - [~] [〜と言う / 〜と聞く](points/toyuu-tokiku.md)
 
 - [~] [〜そうになる](points/souninaru.md)

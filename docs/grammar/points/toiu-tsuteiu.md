@@ -19,5 +19,5 @@ quotation, source spans, reservation, and unrelated or nonadjacent forms.
 Attributive literal speech (such as a person who says something) is ambiguous
 and can also match. Other inflections, sentence-final quotation, nominalized
 and longer constructions, and quoted material ending in punctuation are not
-specifically supported. Longer constructions may contain this shorter match;
-their own grammar cards are not yet implemented.
+specifically supported. The longer 〜ということだ rule takes precedence when it
+matches; other longer constructions may still contain this shorter match.

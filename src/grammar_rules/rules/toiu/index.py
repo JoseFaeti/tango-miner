@@ -2,9 +2,11 @@
 from src.GrammarConstants import TOIU_EXPRESSION
 from src.grammar_rules.base import GrammarRule
 from src.grammar_rules.helpers import adjacent
+from src.grammar_rules.rules.toiukotoda.index import match_toiukotoda
 
 
 def match_toiu(tokens):
+    longer_starts = {start for start, _ in match_toiukotoda(tokens)}
     for i in range(1, len(tokens) - 2):
         previous, particle, verb, noun = tokens[i - 1:i + 3]
         if (particle['surface'] not in ('と', 'って')
@@ -17,7 +19,8 @@ def match_toiu(tokens):
                 or not all(adjacent(a, b) for a, b in
                            ((previous, particle), (particle, verb), (verb, noun)))):
             continue
-        yield particle['span'][0], verb['span'][1]
+        if particle['span'][0] not in longer_starts:
+            yield particle['span'][0], verb['span'][1]
 
 
 RULE = GrammarRule(id='toiu', expression=TOIU_EXPRESSION, reading='という / っていう',
