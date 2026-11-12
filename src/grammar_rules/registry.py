@@ -72,6 +72,7 @@ from src.grammar_rules.rules.hazu_da.index import RULE as HAZU_DA
 from src.grammar_rules.rules.sou_da.index import APPEARANCE, HEARSAY
 from src.grammar_rules.rules.sou_mo_nai.index import RULE as SOU_MO_NAI
 from src.grammar_rules.rules.sou_ni_nai.index import RULE as SOU_NI_NAI
+from src.grammar_rules.rules.sou_ni_naru.index import RULE as SOU_NI_NARU
 from src.grammar_rules.rules.te_wa_ikenai.index import RULE as TE_WA_IKENAI
 from src.grammar_rules.rules.te_miru.index import RULE as TE_MIRU
 from src.grammar_rules.rules.koto_ni_suru.index import RULE as KOTO_NI_SURU
@@ -112,7 +113,7 @@ from src.grammar_rules.rules.yasui_nikui.index import RULE as YASUI_NIKUI
 from src.grammar_rules.rules.yori.index import RULE as YORI
 from src.grammar_rules.rules.aru_iru.index import RULE as ARU_IRU
 
-RULES = (SOU_MO_NAI, SOU_NI_NAI, NAGARAMO, NAGARA, TAGARU, WAKE_DA, WAKE_NEGATIVE, HAZU_DA, APPEARANCE, HEARSAY, TE_MO, NARA, BA, YOU_DA, KOTO_NI_SURU, KOTO_NI_NARU, TE_WA_IKENAI, TE_MIRU, TE_OKU, TE_MO_II, OBLIGATION, TO_OMOU, YOU_NI, KOTO_GA_ARU_OCCASIONAL, KOTO_GA_ARU, TE_IKU, TARA, NAI, TE_KURU, TE_IRU, NDA, TAI, TE_SHIMAU, MONONO,)
+RULES = (SOU_NI_NARU, SOU_MO_NAI, SOU_NI_NAI, NAGARAMO, NAGARA, TAGARU, WAKE_DA, WAKE_NEGATIVE, HAZU_DA, APPEARANCE, HEARSAY, TE_MO, NARA, BA, YOU_DA, KOTO_NI_SURU, KOTO_NI_NARU, TE_WA_IKENAI, TE_MIRU, TE_OKU, TE_MO_II, OBLIGATION, TO_OMOU, YOU_NI, KOTO_GA_ARU_OCCASIONAL, KOTO_GA_ARU, TE_IKU, TARA, NAI, TE_KURU, TE_IRU, NDA, TAI, TE_SHIMAU, MONONO,)
 
 RULES = (KOTO_WA_NAI, KOTO_GA_NAI, MITAI_NI, TSUPOI, NAOSU, MADENI, TOKI, TOIU, TTE, YOU_TO_OMOU, YOU_TO_SURU, YOU_NI_IU_TANOMU, YOU_NI_SURU, YOU_NI_NARU, TSUMORIDA, TABAKARI, TATOKORO, TOKORODA, UCHINI, TE_KARA, MAENI_ATODE, KEDO, KARA_NODE, TARITARISURU, YASUI_NIKUI, KOTO_GA_DEKIRU, TA_HOU_GA_II, NAKUTEHA_NAKEREBA, ELLIPTICAL_OBLIGATION, NAKUTEMOII, TE_HOSHII, TE_POLITE_BENEFACTIVE, TE_BENEFACTIVE, NAIDE, TE_KUDASAI, KAMOSHIRENAI, NONI, TAME_NI, TE_ARU,) + RULES
 RULES = (RASHII, YOU_NI_MIERU,) + RULES
