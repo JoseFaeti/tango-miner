@@ -5,11 +5,12 @@ from src.grammar_rules.helpers import adjacent
 from src.grammar_rules.rules.toiu.index import match_toiu
 from src.grammar_rules.rules.toiukotoha.index import match_toiukotoha
 from src.grammar_rules.rules.toiunoha.index import match_toiunoha
+from src.grammar_rules.rules.toiuyori.index import match_toiuyori
 from src.grammar_rules.rules.ttekoto_ttewake.index import match_ttekoto_ttewake
 
 
 def match_tte(tokens):
-    longer_starts = {start for matcher in (match_toiu, match_toiukotoha, match_toiunoha, match_ttekoto_ttewake)
+    longer_starts = {start for matcher in (match_toiu, match_toiukotoha, match_toiunoha, match_toiuyori, match_ttekoto_ttewake)
                      for start, _ in matcher(tokens)}
     for i in range(1, len(tokens)):
         previous, particle = tokens[i - 1:i + 1]
