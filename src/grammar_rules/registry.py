@@ -68,6 +68,7 @@ from src.grammar_rules.rules.uchini.index import RULE as UCHINI
 from src.grammar_rules.rules.maeni_atode.index import RULE as MAENI_ATODE
 from src.grammar_rules.rules.kedo_keredomo.index import RULE as KEDO
 from src.grammar_rules.rules.taritarisuru.index import RULE as TARITARISURU
+from src.grammar_rules.rules.tarinankashite.index import RULE as TARINANKASHITE
 from src.grammar_rules.rules.kara_node.index import RULE as KARA_NODE
 from src.grammar_rules.rules.kara_made.index import RULE as KARA_MADE
 from src.grammar_rules.rules.te_kara.index import RULE as TE_KARA
@@ -143,6 +144,7 @@ RULES = (KAMOSHIREN_KAMO, TOIUYORI, TTEKOTO_TTEWAKE, RASHII, YOU_NI_MIERU, TO_IU
 RULES = (KOTO_WA_GA, KOTONI, KOTOKA, MONNE, MONODAKARA_MONDAKARA, MONOKA_MONKA, MONODA, MONO_MON,) + RULES
 RULES = (NE_YO_YONE, SHIKANAI, SAE_SURA, NADO_NANKA_NANTE, DAKE_NOMI, HODO_KURAI_GURAI, YA_TOKA, GA, HA, KARA_MADE, YORI, BAKARI,) + RULES
 RULES = (WAKENIHAIKANAI, WAKEGANAI, HAZUGANAI, NICHIGAINAI, KADOUKA, TE_ITADAKEMASENKA, TE_KURENAI_TEMORAENAI, TE_GORAN, TE_CHOUDAI, TE_YARU,) + RULES
+RULES = (TARINANKASHITE,) + RULES
 RULES = RULES + (HOU_GA_II, SASERARERU, DAROU_DESHOU, DA_DESU, DATTA_DESHITA, JANAI_DEWANAI, ARU_IRU, MASEN_MASHITA, MASHOU_YOU, MASENKA_NAIKA, NASAI, HOSHII,)
 RULES = RULES + (RARERU_RERU, SUGIRU, TEHA_CHIYA_JIYA,)
 RULES = RULES + (HAJIMERU_DASU, TSUZUKERU, OWARU_OERU, KAKERU, AU, HOU, YOTEIDA, KOTODA,)

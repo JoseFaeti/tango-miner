@@ -1,5 +1,7 @@
 # Partially implemented grammar points
 
+- [~] [〜たりなんかして](points/tarinankashite.md)
+
 - [~] [〜ということになる](points/toiukotoninaru.md)
 
 - [~] [〜ことは〜が](points/kotohaga.md)
