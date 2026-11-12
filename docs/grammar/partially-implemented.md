@@ -1,5 +1,7 @@
 # Partially implemented grammar points
 
+- [~] [〜かい / 〜だい](points/kai-dai.md)
+
 - [~] [〜かな / 〜かしら](points/kana-kashira.md)
 
 - [~] [〜っけ](points/tsuke.md)
