@@ -25,9 +25,10 @@ The `〜ことがある` card recognizes a non-past verb with `時々`, `とき�
 stopping at sentence or quotation boundaries. It accepts merged `ことがある`
 and split positive present, past and polite forms through `ことがありました`. Negative experience forms are handled by [〜たことがある](ta-koto-ga-aru.md), not this occasional-occurrence rule.
 
+The separate [〜ことがない](kotoganai.md) rule covers some cued non-past negative uses.
 It reserves only the construction, leaving the verb and cue eligible. A cue
 can modify another clause or describe an existing matter, so it does not prove
-the intended meaning. Negative, uncued and other forms remain lexical. A replay
+the intended meaning. Uncued and other unsupported forms remain lexical. A replay
 of an older 521,821-sentence diagnostic archive found nine raw rule matches; this
 does not apply expression precedence or example eligibility, and is not an
 independent precision or recall evaluation. Dictionary expression precedence

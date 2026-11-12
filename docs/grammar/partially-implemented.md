@@ -105,6 +105,7 @@ indicate measured frequency.
 - [~] [〜ていく](points/te-iku.md)
 - [~] [〜たことがある](points/ta-koto-ga-aru.md)
 - [~] [〜ことがある](points/koto-ga-aru.md)
+- [~] [〜ことがない](points/kotoganai.md)
 - [~] [〜ように](points/you-ni.md)
 - [~] [〜と思う](points/to-omou.md)
 - [~] [〜なくてもいい](points/nakutemoii.md)
