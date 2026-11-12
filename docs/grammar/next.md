@@ -4,7 +4,6 @@ Ordered implementation queue for points not yet implemented. The order is an
 estimate of usefulness and frequency, not a measurement of corpus occurrences.
 Check each specification for overlap and source evidence before implementation.
 
-- [ ] [〜合う](points/au.md)
 - [ ] [〜方](points/hou.md)
 - [ ] [〜ながらも](points/nagaramo.md)
 - [ ] [〜たりする](points/tarisuru.md)

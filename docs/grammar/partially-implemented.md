@@ -1,5 +1,7 @@
 # Partially implemented grammar points
 
+- [~] [〜合う](points/au.md)
+
 - [~] [〜かける](points/kakeru.md)
 
 - [~] [〜終わる / 〜終える](points/owaru-oeru.md)
