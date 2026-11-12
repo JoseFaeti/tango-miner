@@ -1,5 +1,7 @@
 # Partially implemented grammar points
 
+- [~] [〜たらどう / 〜たらどうですか](points/taradou-taradoudesuka.md)
+
 - [~] [〜ばよかった / 〜たらよかった](points/bayokatsuta-tarayokatsuta.md)
 
 - [~] [〜ばいい / 〜たらいい](points/baii-taraii.md)
