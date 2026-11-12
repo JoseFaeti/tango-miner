@@ -3,10 +3,12 @@ from src.GrammarConstants import TTE_EXPRESSION
 from src.grammar_rules.base import GrammarRule
 from src.grammar_rules.helpers import adjacent
 from src.grammar_rules.rules.toiu.index import match_toiu
+from src.grammar_rules.rules.toiukotoha.index import match_toiukotoha
 
 
 def match_tte(tokens):
-    longer_starts = {start for start, _ in match_toiu(tokens)}
+    longer_starts = {start for matcher in (match_toiu, match_toiukotoha)
+                     for start, _ in matcher(tokens)}
     for i in range(1, len(tokens)):
         previous, particle = tokens[i - 1:i + 1]
         if (particle['surface'] != 'って' or particle['lemma'] != 'って'
