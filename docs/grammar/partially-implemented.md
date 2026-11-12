@@ -1,5 +1,7 @@
 # Partially implemented grammar points
 
+- [~] [〜ことは〜が](points/kotohaga.md)
+
 - [~] [〜ことに](points/kotoni.md)
 
 - [~] [〜ことか](points/kotoka.md)
