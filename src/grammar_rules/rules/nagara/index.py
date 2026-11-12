@@ -16,6 +16,12 @@ def match_nagara(tokens):
                 or particle['pos'][:2] != ['助詞', '接続助詞']
                 or following['surface'] == 'の'):
             continue
+        if (following['surface'] == 'も' and following['lemma'] == 'も'
+                and following['pos'][:2] == ['助詞', '係助詞']
+                and adjacent(particle, following)):
+            from src.grammar_rules.rules.nagaramo.index import match_nagaramo
+            if any(start == particle['span'][0] for start, _ in match_nagaramo(tokens)):
+                continue
         # Do not infer a following clause across sentence-ending punctuation.
         clause = []
         for token in tokens[i + 1:]:

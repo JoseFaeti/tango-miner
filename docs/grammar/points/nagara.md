@@ -18,3 +18,4 @@ simultaneous actions; distinguish concessive uses.
   express concession (知りながら); the card lists both meanings and does not
   distinguish them. Adjective and noun concessive uses, other tokenizations,
   and more reliable semantic disambiguation remain unimplemented.
+- The longer 〜ながらも has its own card and takes precedence when matched.
