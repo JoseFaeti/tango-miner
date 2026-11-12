@@ -16,7 +16,7 @@ class YouNiTests(unittest.TestCase):
             self.skipTest(f'Sudachi full dictionary unavailable: {exc}')
         cases = {'忘れないようにメモする。': True, '読めるように練習する。': True,
                  '先生が言ったように書く。': True, '早く来るように言った。': False,
-                 '雨が降るように見える。': True, '彼のように走る。': False,
+                 '雨が降るように見える。': False, '彼のように走る。': False,
                  'このようにする。': False, '読むように。': False}
         for text, expected in cases.items():
             with self.subTest(text=text):
