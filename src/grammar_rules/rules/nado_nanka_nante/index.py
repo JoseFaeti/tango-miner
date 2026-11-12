@@ -7,7 +7,7 @@ from src.grammar_rules.helpers import adjacent
 def match_nado_nanka_nante(tokens):
     for i in range(1, len(tokens)):
         previous, particle = tokens[i - 1:i + 1]
-        if (particle['surface'] not in ('など', 'なんか', 'なんて')
+        if (particle['surface'] not in ('など', 'なんか')
                 or particle['lemma'] != particle['surface']
                 or particle['pos'][:2] != ['助詞', '副助詞']
                 or not adjacent(previous, particle)

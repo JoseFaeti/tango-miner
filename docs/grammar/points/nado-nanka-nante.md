@@ -9,11 +9,12 @@ Non-exhaustive examples, emphasis or dismissal.
 ## Implementation
 
 The `nado_nanka_nante` rule recognizes source-aligned Sudachi adverbial
-particles など, なんか and なんて attached to a preceding token. It reserves
+particles など and なんか attached to a preceding token. Attached なんて is
+handled by the separate [〜なんて](nante.md) rule. This rule reserves
 the particle alone and retains the surrounding lexical evidence. The stable
-identity is `など / なんか / なんて`. Analyzer tests cover noun and clause
-attachments, sentence-initial なんか and なんて, interrogative forms, and
-whitespace; integration tests cover reservation and card identity.
+identity remains `など / なんか / なんて` for compatibility. Analyzer tests
+cover noun attachments, sentence-initial forms, interrogatives and whitespace;
+integration tests cover reservation and card identity.
 
 This does not identify sentence-initial discourse uses, other tokenizations,
 or distinguish examples from emphasis and dismissal. Particles merged into

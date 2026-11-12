@@ -4,7 +4,6 @@ Ordered implementation queue for points not yet implemented. The order is an
 estimate of usefulness and frequency, not a measurement of corpus occurrences.
 Check each specification for overlap and source evidence before implementation.
 
-- [ ] [〜なんて](points/nante.md)
 - [ ] [〜なんか](points/nanka.md)
 - [ ] [〜ばいい / 〜たらいい](points/baii-taraii.md)
 - [ ] [〜ばよかった / 〜たらよかった](points/bayokatsuta-tarayokatsuta.md)

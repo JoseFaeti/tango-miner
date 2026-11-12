@@ -17,7 +17,7 @@ class NadoNankaNanteTests(unittest.TestCase):
         except (ImportError, OSError, RuntimeError) as exc:
             self.skipTest(f'Sudachi full dictionary unavailable: {exc}')
         cases = {'本などを読む。': ['など'], '私なんかには無理だ。': ['なんか'],
-                 '行くなんて信じられない。': ['なんて'], '猫なんて嫌いだ。': ['なんて'],
+                 '行くなんて信じられない。': [], '猫なんて嫌いだ。': [],
                  'なんか食べたい。': [], 'なんて美しい。': [],
                  '何か食べたい。': [], '何て言った？': [], '本 などを読む。': []}
         for text, expected in cases.items():
