@@ -21,6 +21,7 @@ A source-aligned verb continuative followed by ては / では or contracted
 and polite present and past endings are supported; the verb remains available
 for lexical processing. Other forms and tokenizations remain lexical, and
 contextual ambiguity, expression precedence and corpus-level recall remain
-unmeasured.
+unmeasured. The general [〜ては](teha-chiya-jiya.md) rule can also match the
+suffix; [〜てはならない](te-wa-naranai.md) has a separate identity.
 
 See [stage and precedence](../stage-and-precedence.md) and [identity and review](../identity-and-review.md) for shared behavior.

@@ -6,13 +6,26 @@ from src.grammar_rules.helpers import adjacent
 
 _FORMS = frozenset(prefix + ending for prefix in ('ては', 'では', 'ちゃ', 'じゃ')
                    for ending in ('いけない', 'いけなかった', 'いけません', 'いけませんでした'))
-_PREFIXES = frozenset(form[:i] for form in _FORMS for i in range(len(form) + 1))
+_NARANAI_FORMS = frozenset(prefix + ending for prefix in ('ては', 'では', 'ちゃ', 'じゃ')
+                           for ending in ('ならない', 'ならなかった', 'なりません',
+                                          'なりませんでした', 'ならぬ', 'ならん'))
+_PREFIXES = {forms: frozenset(form[:i] for form in forms for i in range(len(form) + 1))
+             for forms in (_FORMS, _NARANAI_FORMS)}
 
 
 def match_te_wa_ikenai(tokens):
+    yield from _match_prohibition(tokens, _FORMS)
+
+
+def match_te_wa_naranai(tokens):
+    yield from _match_prohibition(tokens, _NARANAI_FORMS)
+
+
+def _match_prohibition(tokens, forms):
+    prefixes = _PREFIXES[forms]
     for i in range(1, len(tokens)):
         anchor, first = tokens[i - 1], tokens[i]
-        if first['surface'] not in _PREFIXES:
+        if first['surface'] not in prefixes:
             continue
         pos = anchor['pos']
         if (pos[:1] != ['動詞'] or len(pos) < 6 or not pos[5].startswith('連用形')
@@ -23,7 +36,7 @@ def match_te_wa_ikenai(tokens):
             if j > i and not adjacent(tokens[j - 1], tokens[j]):
                 break
             surface += tokens[j]['surface']
-            if surface in _FORMS:
+            if surface in forms:
                 if j + 1 < len(tokens) and adjacent(tokens[j], tokens[j + 1]):
                     following = tokens[j + 1]
                     if (following['surface'] in ('た', 'て', 'ば', 'でし')
@@ -31,7 +44,7 @@ def match_te_wa_ikenai(tokens):
                         continue
                 yield first['span'][0], tokens[j]['span'][1]
                 break
-            if surface not in _PREFIXES:
+            if surface not in prefixes:
                 break
 
 
@@ -41,4 +54,9 @@ RULE = GrammarRule(order=144,
     match=match_te_wa_ikenai,
 )
 
-RULES = (RULE,)
+NARANAI_RULE = GrammarRule(order=144,
+    id='te_wa_naranai', expression='〜てはならない', reading='てはならない',
+    meaning='must not; may not; not allowed to', match=match_te_wa_naranai,
+)
+
+RULES = (RULE, NARANAI_RULE)

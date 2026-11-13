@@ -4,12 +4,14 @@ Status: [~]
 
 ## Meaning and implementation
 
-Conditional or repeated action: if or whenever an action occurs, or doing it
-repeatedly. The rule recognizes verbal `ては`, `では`, `ちゃ`, and `じゃ`
+Conditional, repeated action, and negative constructions: the meaning depends
+on context, and is not always “if” or “whenever.” The rule recognizes verbal `ては`, `では`, `ちゃ`, and `じゃ`
 after an adjacent continuative verb, including split `て` / `で` plus `は`.
 It reserves the suffix while retaining the verb. These forms can overlap with
 prohibition and other grammar rules; the matcher does not distinguish meanings
-from context. Copular `じゃ` and the distinct `ちゃう` / `じゃう` auxiliary
+from context. Specific prohibition matches are also captured by
+[〜てはいけない](te-wa-ikenai.md) and [〜てはならない](te-wa-naranai.md).
+Copular `じゃ` and the distinct `ちゃう` / `じゃう` auxiliary
 are excluded. Adjective and negative predicates, merged verb-plus-suffix tokens,
 and broader contextual evaluation remain outstanding. Precision and recall have
 not been measured on a corpus.

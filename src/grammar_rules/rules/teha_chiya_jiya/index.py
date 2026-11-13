@@ -23,7 +23,7 @@ def match_teha(tokens):
 
 RULE = GrammarRule(order=176,
     id='teha_chiya_jiya', expression=TEHA_CHIYA_JIYA_EXPRESSION,
-    reading='ては / ちゃ / じゃ', meaning='if; whenever; repeatedly doing',
+    reading='ては / ちゃ / じゃ', meaning='if; when; repeated action; forms negative constructions',
     match=match_teha,
 )
 

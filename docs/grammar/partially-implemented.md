@@ -352,6 +352,7 @@ indicate measured frequency.
 - [~] [〜ないと / 〜なくちゃ / 〜なきゃ](points/naito-nakuchiya-nakiya.md)
 - [~] [〜てもいい](points/te-mo-ii.md)
 - [~] [〜てはいけない](points/te-wa-ikenai.md)
+- [~] [〜てはならない](points/te-wa-naranai.md)
 - [~] [〜ておく](points/te-oku.md)
 - [~] [〜てある](points/tearu.md)
 - [~] [〜てみる](points/te-miru.md)
