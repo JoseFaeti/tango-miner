@@ -1,5 +1,7 @@
 # Partially implemented grammar points
 
+- [~] [〜たびに](points/tabini.md)
+
 - [~] [〜に伴って](points/nitomonatsute.md)
 
 - [~] [〜にしたがって](points/nishitagatsute.md)

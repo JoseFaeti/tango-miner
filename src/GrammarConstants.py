@@ -113,6 +113,7 @@ from src.grammar_rules.rules.sou_ni_nai.index import SOU_NI_NAI_EXPRESSION
 from src.grammar_rules.rules.sou_ni_naru.index import SOU_NI_NARU_EXPRESSION
 from src.grammar_rules.rules.sugiru.index import SUGIRU_EXPRESSION
 from src.grammar_rules.rules.tabakari.index import TABAKARI_EXPRESSION
+from src.grammar_rules.rules.tabini.index import TABINI_EXPRESSION
 from src.grammar_rules.rules.tagaru.index import TAGARU_GRAMMAR_EXPRESSION
 from src.grammar_rules.rules.tai.index import TAI_GRAMMAR_EXPRESSION
 from src.grammar_rules.rules.tame_ni.index import TAME_NI_GRAMMAR_EXPRESSION
