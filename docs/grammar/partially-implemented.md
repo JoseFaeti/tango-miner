@@ -1,5 +1,7 @@
 # Partially implemented grammar points
 
+- [~] [〜をめぐって](points/omegutsute.md)
+
 - [~] [〜を通して / 〜を通じて](points/otooshite-otsuujite.md)
 
 - [~] [〜に基づいて](points/nimotozuite.md)

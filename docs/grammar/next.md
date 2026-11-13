@@ -4,7 +4,6 @@ Ordered implementation queue for points not yet implemented. The order is an
 estimate of usefulness and frequency, not a measurement of corpus occurrences.
 Check each specification for overlap and source evidence before implementation.
 
-- [ ] [〜をめぐって](points/omegutsute.md)
 - [ ] [〜にわたって](points/niwatatsute.md)
 - [ ] [〜にかけて](points/nikakete.md)
 - [ ] [〜につれて](points/nitsurete.md)
