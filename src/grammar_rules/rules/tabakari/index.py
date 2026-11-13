@@ -2,11 +2,15 @@
 TABAKARI_EXPRESSION = '〜たばかり'
 from src.grammar_rules.base import GrammarRule
 from src.grammar_rules.helpers import adjacent
+from src.grammar_rules.rules.bakaridenaku.index import match_bakaridenaku
 
 
 def match_tabakari(tokens):
+    additive_starts = {start for start, _ in match_bakaridenaku(tokens)}
     for i in range(2, len(tokens)):
         verb, past, marker = tokens[i - 2:i + 1]
+        if marker['span'][0] in additive_starts:
+            continue
         if marker['surface'] not in ('ばかり', 'ばっかり', 'ばっか'):
             continue
         if (verb['pos'][:1] != ['動詞']

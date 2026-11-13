@@ -16,3 +16,5 @@ Only, excessive or recent.
   can also mean repeated or exclusive activity. Causal ばかりに is excluded.
   The matcher does not disambiguate approximation or other meanings, and
   unrecognized tokenizations and additional variants remain unverified.
+
+- Additive ばかりでなく is handled by its separate card.

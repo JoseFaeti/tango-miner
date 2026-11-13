@@ -2,14 +2,17 @@
 BAKARI_EXPRESSION = '〜ばかり'
 from src.grammar_rules.base import GrammarRule
 from src.grammar_rules.helpers import adjacent
+from src.grammar_rules.rules.bakaridenaku.index import match_bakaridenaku
 from src.grammar_rules.rules.tabakari.index import match_tabakari
 
 
 def match_bakari(tokens):
     recent = set(match_tabakari(tokens))
+    additive_starts = {start for start, _ in match_bakaridenaku(tokens)}
     for i in range(1, len(tokens)):
         previous, marker = tokens[i - 1:i + 1]
-        if (marker['surface'] not in ('ばかり', 'ばっかり', 'ばっか')
+        if (marker['span'][0] in additive_starts
+                or marker['surface'] not in ('ばかり', 'ばっかり', 'ばっか')
                 or marker['lemma'] not in ('ばかり', 'ばっかり', 'ばっか')
                 or marker['pos'][:2] != ['助詞', '副助詞']
                 or not adjacent(previous, marker)

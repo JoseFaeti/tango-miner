@@ -17,3 +17,5 @@ Just did; the speaker considers the action recent.
   the rule cannot distinguish this reading from recency. It excludes ばかりに,
   which can express cause, and does not cover negative past forms or other
   variants. Further source evidence is needed to assess those cases.
+
+- Additive ばかりでなく is handled by its separate card.
