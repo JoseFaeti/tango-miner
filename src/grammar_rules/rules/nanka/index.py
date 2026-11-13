@@ -1,5 +1,5 @@
 """Attached なんか expressing examples, emphasis, or dismissal."""
-from src.GrammarConstants import NANKA_EXPRESSION
+NANKA_EXPRESSION = '〜なんか'
 from src.grammar_rules.base import GrammarRule
 from src.grammar_rules.helpers import adjacent
 
@@ -17,5 +17,7 @@ def match_nanka(tokens):
         yield tuple(particle['span'])
 
 
-RULE = GrammarRule(id='nanka', expression=NANKA_EXPRESSION, reading='なんか',
+RULE = GrammarRule(order=48, id='nanka', expression=NANKA_EXPRESSION, reading='なんか',
                    meaning='such as; emphasis or dismissal', match=match_nanka)
+
+RULES = (RULE,)

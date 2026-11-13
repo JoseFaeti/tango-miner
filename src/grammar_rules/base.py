@@ -9,3 +9,4 @@ class GrammarRule:
     reading: str
     meaning: str
     match: object
+    order: int = 1000000

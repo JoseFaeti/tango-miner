@@ -1,5 +1,5 @@
 """Source-aligned te-form + aru, indicating a resulting state."""
-from src.GrammarConstants import TE_ARU_GRAMMAR_EXPRESSION
+TE_ARU_GRAMMAR_EXPRESSION = '〜てある'
 from src.grammar_rules.base import GrammarRule
 from src.grammar_rules.helpers import adjacent, next_matches, polite_suffix_end
 
@@ -30,7 +30,9 @@ def match_te_aru(tokens):
             yield connective['span'][0], tokens[end]['span'][1]
 
 
-RULE = GrammarRule(
+RULE = GrammarRule(order=123,
     id='te_aru', expression=TE_ARU_GRAMMAR_EXPRESSION, reading='てある',
     meaning='be in a state resulting from an action', match=match_te_aru,
 )
+
+RULES = (RULE,)

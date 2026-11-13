@@ -1,5 +1,5 @@
 """Scheduled plans expressed with a finite 予定 copula."""
-from src.GrammarConstants import YOTEIDA_EXPRESSION
+YOTEIDA_EXPRESSION = '〜予定だ'
 from src.grammar_rules.base import GrammarRule
 from src.grammar_rules.helpers import adjacent, next_matches
 
@@ -35,5 +35,7 @@ def match_yoteida(tokens):
         yield noun['span'][0], tokens[end]['span'][1]
 
 
-RULE = GrammarRule(id='yoteida', expression=YOTEIDA_EXPRESSION,
+RULE = GrammarRule(order=183, id='yoteida', expression=YOTEIDA_EXPRESSION,
                    reading='よていだ', meaning='plan to; be scheduled to', match=match_yoteida)
+
+RULES = (RULE,)

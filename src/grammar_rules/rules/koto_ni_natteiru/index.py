@@ -1,5 +1,5 @@
 """An established rule or arrangement expressed with ことになっている."""
-from src.GrammarConstants import KOTO_NI_NATTEIRU_EXPRESSION
+KOTO_NI_NATTEIRU_EXPRESSION = '〜ことになっている'
 from src.grammar_rules.base import GrammarRule
 from src.grammar_rules.helpers import next_matches
 from src.grammar_rules.rules.koto_ni_suru.index import has_verbal_predicate
@@ -24,8 +24,10 @@ def match_koto_ni_natteiru(tokens):
             yield koto['span'][0], end
 
 
-RULE = GrammarRule(
+RULE = GrammarRule(order=140,
     id='koto_ni_natteiru', expression=KOTO_NI_NATTEIRU_EXPRESSION,
     reading='ことになっている', meaning='it is a rule or arrangement that',
     match=match_koto_ni_natteiru,
 )
+
+RULES = (RULE,)

@@ -1,5 +1,5 @@
 """Verb-stem そうになる, expressing a near occurrence."""
-from src.GrammarConstants import SOU_NI_NARU_EXPRESSION
+SOU_NI_NARU_EXPRESSION = '〜そうになる'
 from src.grammar_rules.base import GrammarRule
 from src.grammar_rules.helpers import adjacent, next_matches, positive_verb_end, negative_predicate_end
 
@@ -27,6 +27,8 @@ def match_sou_ni_naru(tokens):
             yield sou['span'][0], tokens[end]['span'][1]
 
 
-RULE = GrammarRule(id='sou_ni_naru', expression=SOU_NI_NARU_EXPRESSION,
+RULE = GrammarRule(order=125, id='sou_ni_naru', expression=SOU_NI_NARU_EXPRESSION,
                    reading='そうになる', meaning='almost; nearly; be on the verge of',
                    match=match_sou_ni_naru)
+
+RULES = (RULE,)

@@ -1,5 +1,5 @@
 """Attached temporal うちに expressions."""
-from src.GrammarConstants import UCHINI_EXPRESSION
+UCHINI_EXPRESSION = '〜うちに'
 from src.grammar_rules.base import GrammarRule
 from src.grammar_rules.helpers import adjacent
 
@@ -26,7 +26,9 @@ def match_uchini(tokens):
         yield noun['span'][0], particle['span'][1]
 
 
-RULE = GrammarRule(
+RULE = GrammarRule(order=103,
     id='uchini', expression=UCHINI_EXPRESSION, reading='うちに',
     meaning='while; before a change occurs', match=match_uchini,
 )
+
+RULES = (RULE,)

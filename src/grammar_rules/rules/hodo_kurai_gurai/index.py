@@ -1,5 +1,5 @@
 """Source-aligned degree and approximate-quantity particles."""
-from src.GrammarConstants import HODO_KURAI_GURAI_EXPRESSION
+HODO_KURAI_GURAI_EXPRESSION = 'ほど / くらい / ぐらい'
 from src.grammar_rules.base import GrammarRule
 from src.grammar_rules.helpers import adjacent
 
@@ -18,6 +18,8 @@ def match_hodo_kurai_gurai(tokens):
         yield tuple(particle['span'])
 
 
-RULE = GrammarRule(id='hodo_kurai_gurai', expression=HODO_KURAI_GURAI_EXPRESSION,
+RULE = GrammarRule(order=51, id='hodo_kurai_gurai', expression=HODO_KURAI_GURAI_EXPRESSION,
                    reading='ほど / くらい / ぐらい',
                    meaning='degree; extent; approximately', match=match_hodo_kurai_gurai)
+
+RULES = (RULE,)

@@ -1,5 +1,5 @@
 """Predicate quotation followed by an inflected form of 思う."""
-from src.GrammarConstants import TO_OMOU_GRAMMAR_EXPRESSION
+TO_OMOU_GRAMMAR_EXPRESSION = '〜と思う'
 from src.grammar_rules.base import GrammarRule
 from src.grammar_rules.helpers import adjacent, next_matches, positive_verb_end, negative_suffix_end
 
@@ -35,8 +35,10 @@ def match_to_omou(tokens):
     yield from _match_to_omou(tokens, intention=False)
 
 
-RULE = GrammarRule(
+RULE = GrammarRule(order=149,
     id='to_omou', expression=TO_OMOU_GRAMMAR_EXPRESSION, reading='とおもう',
     meaning='think that; believe that',
     match=match_to_omou,
 )
+
+RULES = (RULE,)

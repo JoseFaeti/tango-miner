@@ -1,5 +1,5 @@
 """Source-aligned recall and confirmation particle っけ."""
-from src.GrammarConstants import TSUKE_EXPRESSION
+TSUKE_EXPRESSION = '〜っけ'
 from src.grammar_rules.base import GrammarRule
 from src.grammar_rules.helpers import adjacent
 
@@ -13,5 +13,7 @@ def match_tsuke(tokens):
             yield marker['span'][0], marker['span'][1]
 
 
-RULE = GrammarRule(id='tsuke', expression=TSUKE_EXPRESSION,
+RULE = GrammarRule(order=43, id='tsuke', expression=TSUKE_EXPRESSION,
                    reading='っけ', meaning='recalling or confirming', match=match_tsuke)
+
+RULES = (RULE,)

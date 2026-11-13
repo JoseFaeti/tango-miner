@@ -1,5 +1,5 @@
 """Strong denial with ものか or colloquial もんか."""
-from src.GrammarConstants import MONOKA_MONKA_EXPRESSION
+MONOKA_MONKA_EXPRESSION = '〜ものか / 〜もんか'
 from src.grammar_rules.base import GrammarRule
 from src.grammar_rules.helpers import adjacent
 
@@ -19,6 +19,8 @@ def match_monoka_monka(tokens):
         yield mono['span'][0], ka['span'][1]
 
 
-RULE = GrammarRule(id='monoka_monka', expression=MONOKA_MONKA_EXPRESSION,
+RULE = GrammarRule(order=71, id='monoka_monka', expression=MONOKA_MONKA_EXPRESSION,
                    reading='ものか / もんか', meaning='never; absolutely not',
                    match=match_monoka_monka)
+
+RULES = (RULE,)

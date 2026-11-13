@@ -1,5 +1,5 @@
 """Resemblance or tendency expressed by the adjective-like suffix っぽい."""
-from src.GrammarConstants import TSUPOI_EXPRESSION
+TSUPOI_EXPRESSION = '〜っぽい'
 from src.grammar_rules.base import GrammarRule
 from src.grammar_rules.helpers import adjacent, adjective_inflection_end, next_matches
 
@@ -22,5 +22,7 @@ def match_tsupoi(tokens):
             yield suffix['span'][0], tokens[end]['span'][1]
 
 
-RULE = GrammarRule(id='tsupoi', expression=TSUPOI_EXPRESSION, reading='っぽい',
+RULE = GrammarRule(order=84, id='tsupoi', expression=TSUPOI_EXPRESSION, reading='っぽい',
                    meaning='resembling; tending to', match=match_tsupoi)
+
+RULES = (RULE,)

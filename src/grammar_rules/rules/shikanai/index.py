@@ -1,5 +1,5 @@
 """Local しか plus negative predicate; reserve only the limiting particle."""
-from src.GrammarConstants import SHIKANAI_EXPRESSION
+SHIKANAI_EXPRESSION = 'しか〜ない'
 from src.grammar_rules.base import GrammarRule
 from src.grammar_rules.helpers import adjacent, negative_suffix_end, polite_suffix_end
 
@@ -29,5 +29,7 @@ def match_shikanai(tokens):
                 break
 
 
-RULE = GrammarRule(id='shikanai', expression=SHIKANAI_EXPRESSION,
+RULE = GrammarRule(order=45, id='shikanai', expression=SHIKANAI_EXPRESSION,
                    reading='しかない', meaning='only; nothing but', match=match_shikanai)
+
+RULES = (RULE,)

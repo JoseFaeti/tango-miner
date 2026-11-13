@@ -1,5 +1,5 @@
 """Tentative examples ending in たりなんかして."""
-from src.GrammarConstants import TARINANKASHITE_EXPRESSION
+TARINANKASHITE_EXPRESSION = '〜たりなんかして'
 from src.grammar_rules.base import GrammarRule
 from src.grammar_rules.helpers import adjacent, next_matches
 
@@ -22,7 +22,9 @@ def match_tarinankashite(tokens):
         yield particle['span'][0], te['span'][1]
 
 
-RULE = GrammarRule(id='tarinankashite', expression=TARINANKASHITE_EXPRESSION,
+RULE = GrammarRule(order=30, id='tarinankashite', expression=TARINANKASHITE_EXPRESSION,
                    reading='たりなんかして',
                    meaning='perhaps do something like; a tentative suggestion or example',
                    match=match_tarinankashite)
+
+RULES = (RULE,)

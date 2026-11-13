@@ -1,5 +1,5 @@
 """Verb te-form followed by the benefactive or assertive auxiliary やる."""
-from src.GrammarConstants import TE_YARU_EXPRESSION
+TE_YARU_EXPRESSION = '〜てやる'
 from src.grammar_rules.base import GrammarRule
 from src.grammar_rules.helpers import adjacent, negative_suffix_end, positive_verb_end
 
@@ -27,7 +27,9 @@ def match_te_yaru(tokens):
             yield connective['span'][0], tokens[end]['span'][1]
 
 
-RULE = GrammarRule(
+RULE = GrammarRule(order=42,
     id='te_yaru', expression=TE_YARU_EXPRESSION, reading='てやる',
     meaning='do something for someone; resolve to do something', match=match_te_yaru,
 )
+
+RULES = (RULE,)

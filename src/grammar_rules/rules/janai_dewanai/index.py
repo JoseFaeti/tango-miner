@@ -1,5 +1,5 @@
 """Negative copula attached to a nominal predicate."""
-from src.GrammarConstants import JANAI_DEWANAI_EXPRESSION
+JANAI_DEWANAI_EXPRESSION = 'じゃない / ではない'
 from src.grammar_rules.base import GrammarRule
 from src.grammar_rules.helpers import adjacent, next_matches, negative_predicate_end
 
@@ -28,6 +28,8 @@ def match_janai_dewanai(tokens):
         yield copula['span'][0], tokens[end]['span'][1]
 
 
-RULE = GrammarRule(id='janai_dewanai', expression=JANAI_DEWANAI_EXPRESSION,
+RULE = GrammarRule(order=167, id='janai_dewanai', expression=JANAI_DEWANAI_EXPRESSION,
                    reading='じゃない / ではない', meaning='negative copula; is not',
                    match=match_janai_dewanai)
+
+RULES = (RULE,)

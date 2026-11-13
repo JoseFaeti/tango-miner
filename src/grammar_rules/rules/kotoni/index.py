@@ -1,5 +1,5 @@
 """Speaker-reaction expressions ending in ことに."""
-from src.GrammarConstants import KOTONI_EXPRESSION
+KOTONI_EXPRESSION = '〜ことに'
 from src.grammar_rules.base import GrammarRule
 from src.grammar_rules.helpers import adjacent
 
@@ -34,5 +34,7 @@ def match_kotoni(tokens):
         yield koto['span'][0], ni['span'][1]
 
 
-RULE = GrammarRule(id='kotoni', expression=KOTONI_EXPRESSION, reading='ことに',
+RULE = GrammarRule(order=67, id='kotoni', expression=KOTONI_EXPRESSION, reading='ことに',
                    meaning='to the speaker’s surprise, regret, delight, etc.', match=match_kotoni)
+
+RULES = (RULE,)

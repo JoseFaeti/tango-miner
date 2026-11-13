@@ -1,5 +1,5 @@
 """Verbal conditional or repeated-action ては and its contractions."""
-from src.GrammarConstants import TEHA_CHIYA_JIYA_EXPRESSION
+TEHA_CHIYA_JIYA_EXPRESSION = '〜ては / 〜ちゃ / 〜じゃ'
 from src.grammar_rules.base import GrammarRule
 from src.grammar_rules.helpers import adjacent
 
@@ -21,8 +21,10 @@ def match_teha(tokens):
             yield first['span'][0], tokens[i + 1]['span'][1]
 
 
-RULE = GrammarRule(
+RULE = GrammarRule(order=176,
     id='teha_chiya_jiya', expression=TEHA_CHIYA_JIYA_EXPRESSION,
     reading='ては / ちゃ / じゃ', meaning='if; whenever; repeatedly doing',
     match=match_teha,
 )
+
+RULES = (RULE,)

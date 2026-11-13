@@ -1,5 +1,5 @@
 """Noun or pronoun + にとって: from the perspective of."""
-from src.GrammarConstants import NITOTSUTE_EXPRESSION
+NITOTSUTE_EXPRESSION = '〜にとって'
 from src.grammar_rules.base import GrammarRule
 from src.grammar_rules.helpers import adjacent
 
@@ -22,6 +22,8 @@ def match_nitotsute(tokens):
             yield ni['span'][0], tail[-1]['span'][1]
 
 
-RULE = GrammarRule(id='nitotsute', expression=NITOTSUTE_EXPRESSION,
+RULE = GrammarRule(order=12, id='nitotsute', expression=NITOTSUTE_EXPRESSION,
                    reading='にとって', meaning='for; from the perspective of',
                    match=match_nitotsute)
+
+RULES = (RULE,)

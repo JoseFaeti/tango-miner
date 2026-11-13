@@ -1,5 +1,5 @@
 """Desire for a thing, expressed by the adjective 欲しい."""
-from src.GrammarConstants import HOSHII_GRAMMAR_EXPRESSION
+HOSHII_GRAMMAR_EXPRESSION = '〜ほしい'
 from src.grammar_rules.base import GrammarRule
 from src.grammar_rules.helpers import adjective_inflection_end, next_matches
 from src.grammar_rules.rules.te_hoshii.index import match_te_hoshii
@@ -25,7 +25,9 @@ def match_hoshii(tokens):
         yield start, tokens[end]['span'][1]
 
 
-RULE = GrammarRule(
+RULE = GrammarRule(order=173,
     id='hoshii', expression=HOSHII_GRAMMAR_EXPRESSION, reading='ほしい',
     meaning='want; desire something', match=match_hoshii,
 )
+
+RULES = (RULE,)

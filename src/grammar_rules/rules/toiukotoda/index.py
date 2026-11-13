@@ -1,5 +1,5 @@
 """Reported information or an explanation with ということだ."""
-from src.GrammarConstants import TOIUKOTODA_EXPRESSION
+TOIUKOTODA_EXPRESSION = '〜ということだ'
 from src.grammar_rules.base import GrammarRule
 from src.grammar_rules.helpers import adjacent, next_matches
 
@@ -27,6 +27,8 @@ def match_toiukotoda(tokens):
         yield particle['span'][0], tokens[end]['span'][1]
 
 
-RULE = GrammarRule(id='toiukotoda', expression=TOIUKOTODA_EXPRESSION,
+RULE = GrammarRule(order=89, id='toiukotoda', expression=TOIUKOTODA_EXPRESSION,
                    reading='ということだ', meaning='that means; it is said that',
                    match=match_toiukotoda)
+
+RULES = (RULE,)

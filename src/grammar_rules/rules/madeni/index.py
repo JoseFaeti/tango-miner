@@ -1,5 +1,5 @@
 """Deadline expressions with separately tokenized までに."""
-from src.GrammarConstants import MADENI_EXPRESSION
+MADENI_EXPRESSION = '〜までに'
 from src.grammar_rules.base import GrammarRule
 from src.grammar_rules.helpers import adjacent
 
@@ -22,7 +22,9 @@ def match_madeni(tokens):
         yield made['span'][0], ni['span'][1]
 
 
-RULE = GrammarRule(
+RULE = GrammarRule(order=86,
     id='madeni', expression=MADENI_EXPRESSION, reading='までに',
     meaning='by; no later than (a deadline)', match=match_madeni,
 )
+
+RULES = (RULE,)

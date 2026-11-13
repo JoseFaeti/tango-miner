@@ -1,5 +1,5 @@
 """Source-aligned exemplifying and emphatic particles."""
-from src.GrammarConstants import NADO_NANKA_NANTE_EXPRESSION
+NADO_NANKA_NANTE_EXPRESSION = 'など / なんか / なんて'
 from src.grammar_rules.base import GrammarRule
 from src.grammar_rules.helpers import adjacent
 
@@ -18,7 +18,9 @@ def match_nado_nanka_nante(tokens):
         yield tuple(particle['span'])
 
 
-RULE = GrammarRule(id='nado_nanka_nante', expression=NADO_NANKA_NANTE_EXPRESSION,
+RULE = GrammarRule(order=49, id='nado_nanka_nante', expression=NADO_NANKA_NANTE_EXPRESSION,
                    reading='など / なんか / なんて',
                    meaning='such as; things like; emphasis or dismissal',
                    match=match_nado_nanka_nante)
+
+RULES = (RULE,)

@@ -1,5 +1,5 @@
 """Completion expressed by a verb compound with 終わる or 終える."""
-from src.GrammarConstants import OWARU_OERU_EXPRESSION
+OWARU_OERU_EXPRESSION = '〜終わる / 〜終える'
 from src.grammar_rules.base import GrammarRule
 from src.grammar_rules.helpers import adjacent, next_matches, negative_suffix_end, polite_suffix_end
 
@@ -41,6 +41,8 @@ def match_owaru_oeru(tokens):
             yield start, tokens[end]['span'][1]
 
 
-RULE = GrammarRule(id='owaru_oeru', expression=OWARU_OERU_EXPRESSION,
+RULE = GrammarRule(order=179, id='owaru_oeru', expression=OWARU_OERU_EXPRESSION,
                    reading='おわる / おえる', meaning='finish doing',
                    match=match_owaru_oeru)
+
+RULES = (RULE,)

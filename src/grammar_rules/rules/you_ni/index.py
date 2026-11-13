@@ -1,5 +1,5 @@
 """Predicate-attached ように, preserving noun comparisons as lexical uses."""
-from src.GrammarConstants import YOU_NI_GRAMMAR_EXPRESSION
+YOU_NI_GRAMMAR_EXPRESSION = '〜ように'
 from src.grammar_rules.base import GrammarRule
 from src.grammar_rules.helpers import adjacent
 from src.grammar_rules.rules.you_ni_naru.index import match_you_ni_naru
@@ -8,7 +8,7 @@ from src.grammar_rules.rules.you_ni_iu_tanomu.index import match_you_ni_iu_tanom
 from src.grammar_rules.rules.you_ni_mieru.index import match_you_ni_mieru
 
 
-RULE = GrammarRule(
+RULE = GrammarRule(order=150,
     id='you_ni', expression=YOU_NI_GRAMMAR_EXPRESSION, reading='ように',
     meaning='so that; in order to; as; like; (in a request) to do something',
     match=lambda tokens: match_you_ni(tokens),
@@ -44,3 +44,5 @@ def match_you_ni(tokens):
                             for start, _ in matcher(tokens)}
         if token['span'][0] not in owned_starts:
             yield token['span'][0], tokens[end]['span'][1]
+
+RULES = (RULE,)

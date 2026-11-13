@@ -1,5 +1,5 @@
 """Noun + に限らず: not limited to the named example."""
-from src.GrammarConstants import NIKAGIRAZU_EXPRESSION
+NIKAGIRAZU_EXPRESSION = '〜に限らず'
 from src.grammar_rules.base import GrammarRule
 from src.grammar_rules.helpers import adjacent
 
@@ -16,6 +16,8 @@ def match_nikagirazu(tokens):
             yield ni['span'][0], zu['span'][1]
 
 
-RULE = GrammarRule(id='nikagirazu', expression=NIKAGIRAZU_EXPRESSION,
+RULE = GrammarRule(order=1, id='nikagirazu', expression=NIKAGIRAZU_EXPRESSION,
                    reading='にかぎらず', meaning='not limited to; not only',
                    match=match_nikagirazu)
+
+RULES = (RULE,)

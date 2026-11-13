@@ -1,10 +1,10 @@
 """Rule for nda."""
-from src.GrammarConstants import NDA_GRAMMAR_EXPRESSION
+NDA_GRAMMAR_EXPRESSION = '〜んだ'
 from src.grammar_rules.base import GrammarRule
 from src.grammar_rules.helpers import adjacent, negative_suffix_end, negative_predicate_end
 
 
-RULE = GrammarRule(
+RULE = GrammarRule(order=158,
     id='explanatory_nda', expression=NDA_GRAMMAR_EXPRESSION, reading='んだ',
     meaning='it is that; the reason is; (adds explanation or emphasis)',
     match=lambda tokens: match_nda(tokens),
@@ -73,3 +73,5 @@ def match_nda(tokens):
         elif surface not in ('だ', 'です', 'だろう', 'でしょう', 'でしょ'):
             continue
         yield particle['span'][0], tokens[end]['span'][1]
+
+RULES = (RULE,)

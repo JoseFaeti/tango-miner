@@ -1,5 +1,5 @@
 """Selected predicate-attached concessive te mo constructions."""
-from src.GrammarConstants import TE_MO_GRAMMAR_EXPRESSION
+TE_MO_GRAMMAR_EXPRESSION = '〜ても'
 from src.grammar_rules.base import GrammarRule
 from src.grammar_rules.helpers import adjacent, next_matches
 from src.grammar_rules.rules.te_mo_ii.index import match_te_mo_ii
@@ -34,7 +34,9 @@ def match_te_mo(tokens):
         yield connective['span'][0], tokens[i + 1]['span'][1]
 
 
-RULE = GrammarRule(
+RULE = GrammarRule(order=136,
     id='te_mo', expression=TE_MO_GRAMMAR_EXPRESSION, reading='ても',
     meaning='even if; even though', match=match_te_mo,
 )
+
+RULES = (RULE,)

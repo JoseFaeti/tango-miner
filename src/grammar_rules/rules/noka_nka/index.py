@@ -1,5 +1,5 @@
 """Explanatory questions and realizations with のか or んか."""
-from src.GrammarConstants import NOKA_NKA_EXPRESSION
+NOKA_NKA_EXPRESSION = '〜のか / 〜んか'
 from src.grammar_rules.base import GrammarRule
 from src.grammar_rules.helpers import adjacent
 
@@ -20,6 +20,8 @@ def match_noka_nka(tokens):
         yield marker['span'][0], ka['span'][1]
 
 
-RULE = GrammarRule(id='noka_nka', expression=NOKA_NKA_EXPRESSION,
+RULE = GrammarRule(order=60, id='noka_nka', expression=NOKA_NKA_EXPRESSION,
                    reading='のか / んか', meaning='explanatory question; realization',
                    match=match_noka_nka)
+
+RULES = (RULE,)

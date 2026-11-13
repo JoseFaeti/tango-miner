@@ -1,5 +1,5 @@
 """Representative predicates followed by たり / だり and する."""
-from src.GrammarConstants import TARITARISURU_EXPRESSION
+TARITARISURU_EXPRESSION = '〜たり〜たりする'
 from src.grammar_rules.base import GrammarRule
 from src.grammar_rules.helpers import adjacent, next_matches, positive_verb_end, negative_predicate_end
 
@@ -27,8 +27,10 @@ def match_taritarisuru(tokens):
             yield particle['span'][0], tokens[end]['span'][1]
 
 
-RULE = GrammarRule(
+RULE = GrammarRule(order=108,
     id='taritarisuru', expression=TARITARISURU_EXPRESSION, reading='たりたりする',
     meaning='do things like; sometimes (representative actions or states)',
     match=match_taritarisuru,
 )
+
+RULES = (RULE,)

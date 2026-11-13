@@ -1,5 +1,5 @@
 """Implication introduced by ということは."""
-from src.GrammarConstants import TOIUKOTOHA_EXPRESSION
+TOIUKOTOHA_EXPRESSION = '〜ということは'
 from src.grammar_rules.base import GrammarRule
 from src.grammar_rules.helpers import adjacent, next_matches
 
@@ -21,6 +21,8 @@ def match_toiukotoha(tokens):
         yield particle['span'][0], topic['span'][1]
 
 
-RULE = GrammarRule(id='toiukotoha', expression=TOIUKOTOHA_EXPRESSION,
+RULE = GrammarRule(order=90, id='toiukotoha', expression=TOIUKOTOHA_EXPRESSION,
                    reading='ということは', meaning='that means; if that is the case',
                    match=match_toiukotoha)
+
+RULES = (RULE,)

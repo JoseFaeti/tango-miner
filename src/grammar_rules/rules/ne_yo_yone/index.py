@@ -1,5 +1,5 @@
 """Source-aligned discourse-final particles ね, よ and よね."""
-from src.GrammarConstants import NE_YO_YONE_EXPRESSION
+NE_YO_YONE_EXPRESSION = 'ね / よ / よね'
 from src.grammar_rules.base import GrammarRule
 from src.grammar_rules.helpers import adjacent
 
@@ -27,6 +27,8 @@ def match_ne_yo_yone(tokens):
         i += 1
 
 
-RULE = GrammarRule(id='ne_yo_yone', expression=NE_YO_YONE_EXPRESSION,
+RULE = GrammarRule(order=44, id='ne_yo_yone', expression=NE_YO_YONE_EXPRESSION,
                    reading='ね / よ / よね',
                    meaning='seeking agreement; informing or emphasizing', match=match_ne_yo_yone)
+
+RULES = (RULE,)

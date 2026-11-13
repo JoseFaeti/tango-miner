@@ -1,5 +1,5 @@
 """Verb-attached intention with a finite つもり copula."""
-from src.GrammarConstants import TSUMORIDA_EXPRESSION
+TSUMORIDA_EXPRESSION = '〜つもりだ'
 from src.grammar_rules.base import GrammarRule
 from src.grammar_rules.helpers import adjacent, next_matches
 
@@ -34,5 +34,7 @@ def match_tsumorida(tokens):
         yield noun['span'][0], tokens[end]['span'][1]
 
 
-RULE = GrammarRule(id='tsumorida', expression=TSUMORIDA_EXPRESSION,
+RULE = GrammarRule(order=99, id='tsumorida', expression=TSUMORIDA_EXPRESSION,
                    reading='つもりだ', meaning='intend to; plan to', match=match_tsumorida)
+
+RULES = (RULE,)

@@ -1,5 +1,5 @@
 """Noun + に向かって / に向けて: toward or aimed at."""
-from src.GrammarConstants import NIMUKATTE_NIMUKETE_EXPRESSION
+NIMUKATTE_NIMUKETE_EXPRESSION = '〜に向かって / 〜に向けて'
 from src.grammar_rules.base import GrammarRule
 from src.grammar_rules.helpers import adjacent
 
@@ -18,6 +18,8 @@ def match_nimukatte_nimukete(tokens):
             yield ni['span'][0], te['span'][1]
 
 
-RULE = GrammarRule(id='nimukatte_nimukete', expression=NIMUKATTE_NIMUKETE_EXPRESSION,
+RULE = GrammarRule(order=5, id='nimukatte_nimukete', expression=NIMUKATTE_NIMUKETE_EXPRESSION,
                    reading='にむかって / にむけて', meaning='toward; aimed at',
                    match=match_nimukatte_nimukete)
+
+RULES = (RULE,)

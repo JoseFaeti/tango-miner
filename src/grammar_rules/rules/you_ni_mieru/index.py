@@ -1,5 +1,5 @@
 """Predicate-attached ように見える expressing an appearance."""
-from src.GrammarConstants import YOU_NI_MIERU_EXPRESSION
+YOU_NI_MIERU_EXPRESSION = '〜ように見える'
 from src.grammar_rules.base import GrammarRule
 from src.grammar_rules.helpers import adjacent, next_matches, positive_verb_end, negative_predicate_end
 
@@ -38,6 +38,8 @@ def match_you_ni_mieru(tokens):
             yield you['span'][0], tokens[end]['span'][1]
 
 
-RULE = GrammarRule(id='you_ni_mieru', expression=YOU_NI_MIERU_EXPRESSION,
+RULE = GrammarRule(order=79, id='you_ni_mieru', expression=YOU_NI_MIERU_EXPRESSION,
                    reading='ようにみえる', meaning='looks as if; appears to be',
                    match=match_you_ni_mieru)
+
+RULES = (RULE,)

@@ -1,5 +1,5 @@
 """Advice and exclamations ending in ことだ."""
-from src.GrammarConstants import KOTODA_EXPRESSION
+KOTODA_EXPRESSION = '〜ことだ'
 from src.grammar_rules.base import GrammarRule
 from src.grammar_rules.helpers import adjacent
 
@@ -35,5 +35,7 @@ def match_kotoda(tokens):
         yield koto['span'][0], copula['span'][1]
 
 
-RULE = GrammarRule(id='kotoda', expression=KOTODA_EXPRESSION,
+RULE = GrammarRule(order=184, id='kotoda', expression=KOTODA_EXPRESSION,
                    reading='ことだ', meaning='should; how (exclamation)', match=match_kotoda)
+
+RULES = (RULE,)

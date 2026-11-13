@@ -1,5 +1,5 @@
 """Reported speech or information after a finite predicate."""
-from src.GrammarConstants import TO_IU_KIKU_EXPRESSION
+TO_IU_KIKU_EXPRESSION = '〜と言う / 〜と聞く'
 from src.grammar_rules.base import GrammarRule
 from src.grammar_rules.helpers import adjacent, next_matches, positive_verb_end, negative_predicate_end
 
@@ -36,6 +36,8 @@ def match_to_iu_kiku(tokens):
             yield particle['span'][0], tokens[end]['span'][1]
 
 
-RULE = GrammarRule(id='to_iu_kiku', expression=TO_IU_KIKU_EXPRESSION,
+RULE = GrammarRule(order=80, id='to_iu_kiku', expression=TO_IU_KIKU_EXPRESSION,
                    reading='という / ときく', meaning='say that; hear that',
                    match=match_to_iu_kiku)
+
+RULES = (RULE,)

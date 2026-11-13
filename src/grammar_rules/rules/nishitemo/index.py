@@ -1,5 +1,5 @@
 """Concessive にしても, retaining possible literal interpretations."""
-from src.GrammarConstants import NISHITEMO_EXPRESSION
+NISHITEMO_EXPRESSION = '〜にしても'
 from src.grammar_rules.base import GrammarRule
 from src.grammar_rules.helpers import adjacent
 
@@ -17,6 +17,8 @@ def match_nishitemo(tokens):
         yield ni['span'][0], mo['span'][1]
 
 
-RULE = GrammarRule(id='nishitemo', expression=NISHITEMO_EXPRESSION,
+RULE = GrammarRule(order=18, id='nishitemo', expression=NISHITEMO_EXPRESSION,
                    reading='にしても', meaning='even if; even assuming',
                    match=match_nishitemo)
+
+RULES = (RULE,)

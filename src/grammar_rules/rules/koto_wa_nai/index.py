@@ -1,5 +1,5 @@
 """Verb + ことはない, including no need and non-occurrence readings."""
-from src.GrammarConstants import KOTO_WA_NAI
+KOTO_WA_NAI = '〜ことはない'
 from src.grammar_rules.base import GrammarRule
 from src.grammar_rules.helpers import adjacent, negative_predicate_end, next_matches
 
@@ -20,6 +20,8 @@ def match_koto_wa_nai(tokens):
             yield koto['span'][0], tokens[end]['span'][1]
 
 
-RULE = GrammarRule(id='koto_wa_nai', expression=KOTO_WA_NAI,
+RULE = GrammarRule(order=81, id='koto_wa_nai', expression=KOTO_WA_NAI,
                    reading='ことはない', meaning='there is no need to; never happens',
                    match=match_koto_wa_nai)
+
+RULES = (RULE,)

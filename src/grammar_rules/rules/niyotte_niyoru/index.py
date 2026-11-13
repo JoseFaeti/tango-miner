@@ -1,5 +1,5 @@
 """Noun + によって / による, with bounded lexical controls."""
-from src.GrammarConstants import NIYOTTE_NIYORU_EXPRESSION
+NIYOTTE_NIYORU_EXPRESSION = '〜によって / 〜による'
 from src.grammar_rules.base import GrammarRule
 from src.grammar_rules.helpers import adjacent
 
@@ -25,6 +25,8 @@ def match_niyotte_niyoru(tokens):
             yield ni['span'][0], verb['span'][1]
 
 
-RULE = GrammarRule(id='niyotte_niyoru', expression=NIYOTTE_NIYORU_EXPRESSION,
+RULE = GrammarRule(order=9, id='niyotte_niyoru', expression=NIYOTTE_NIYORU_EXPRESSION,
                    reading='によって / による', meaning='by; depending on; due to',
                    match=match_niyotte_niyoru)
+
+RULES = (RULE,)

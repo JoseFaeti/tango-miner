@@ -1,5 +1,5 @@
 """Noun + として: in the role or capacity of."""
-from src.GrammarConstants import TOSHITE_EXPRESSION
+TOSHITE_EXPRESSION = '〜として'
 from src.grammar_rules.base import GrammarRule
 from src.grammar_rules.helpers import adjacent
 
@@ -17,6 +17,8 @@ def match_toshite(tokens):
         yield to['span'][0], te['span'][1]
 
 
-RULE = GrammarRule(id='toshite', expression=TOSHITE_EXPRESSION,
+RULE = GrammarRule(order=16, id='toshite', expression=TOSHITE_EXPRESSION,
                    reading='として', meaning='as; in the capacity of',
                    match=match_toshite)
+
+RULES = (RULE,)

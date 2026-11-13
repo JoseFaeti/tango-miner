@@ -1,5 +1,5 @@
 """Desire for someone to perform a benefactive action."""
-from src.GrammarConstants import TEMORAITAI_EXPRESSION
+TEMORAITAI_EXPRESSION = '〜てもらいたい'
 from src.grammar_rules.base import GrammarRule
 from src.grammar_rules.helpers import adjacent
 from src.grammar_rules.rules.tai.index import match_tai
@@ -23,6 +23,8 @@ def match_temoraitai(tokens):
             yield connective['span'][0], end
 
 
-RULE = GrammarRule(id='temoraitai', expression=TEMORAITAI_EXPRESSION,
+RULE = GrammarRule(order=27, id='temoraitai', expression=TEMORAITAI_EXPRESSION,
                    reading='てもらいたい', meaning='want someone to do something for me',
                    match=match_temoraitai)
+
+RULES = (RULE,)

@@ -1,372 +1,192 @@
-"""Stable identities for opt-in grammar notes."""
+"""Grammar identities and compatibility aliases."""
+from src.grammar_rules.rules.aru_iru.index import ARU_IRU_EXPRESSION
+from src.grammar_rules.rules.au.index import AU_GRAMMAR_EXPRESSION
+from src.grammar_rules.rules.baii_taraii.index import BAII_TARAII_EXPRESSION
+from src.grammar_rules.rules.bakari.index import BAKARI_EXPRESSION
+from src.grammar_rules.rules.bayokatta_tarayokatta.index import BAYOKATTA_TARAYOKATTA_EXPRESSION
+from src.grammar_rules.rules.ba.index import BA_GRAMMAR_EXPRESSION
+from src.grammar_rules.rules.dake_nomi.index import DAKE_NOMI_EXPRESSION
+from src.grammar_rules.rules.darou_deshou.index import DAROU_DESHOU_EXPRESSION
+from src.grammar_rules.rules.datta_deshita.index import DATTA_DESHITA_EXPRESSION
+from src.grammar_rules.rules.da_desu.index import DA_DESU_EXPRESSION
+from src.grammar_rules.rules.elliptical_obligation.index import ELLIPTICAL_OBLIGATION_EXPRESSION
+from src.grammar_rules.rules.ga.index import GA_EXPRESSION
+from src.grammar_rules.rules.hajimeru_dasu.index import HAJIMERU_DASU_EXPRESSION
+from src.grammar_rules.rules.hazuganai.index import HAZUGANAI_EXPRESSION
+from src.grammar_rules.rules.hazu_da.index import HAZU_DA_GRAMMAR_EXPRESSION
+from src.grammar_rules.rules.ha.index import HA_EXPRESSION
+from src.grammar_rules.rules.hodo_kurai_gurai.index import HODO_KURAI_GURAI_EXPRESSION
+from src.grammar_rules.rules.hoshii.index import HOSHII_GRAMMAR_EXPRESSION
+from src.grammar_rules.rules.hou.index import HOU_EXPRESSION
+from src.grammar_rules.rules.hou_ga_ii.index import HOU_GA_II_EXPRESSION
+from src.grammar_rules.rules.janai_dewanai.index import JANAI_DEWANAI_EXPRESSION
+from src.grammar_rules.rules.jiyanaito_denaito.index import JIYANAITO_DENAITO_EXPRESSION
+from src.grammar_rules.rules.jiyan_jiyanaika.index import JIYAN_JIYANAIKA_EXPRESSION
+from src.grammar_rules.rules.kadouka.index import KADOUKA_EXPRESSION
+from src.grammar_rules.rules.kaina_yan_yaro.index import KAINA_YAN_YARO_EXPRESSION
+from src.grammar_rules.rules.kai_dai.index import KAI_DAI_EXPRESSION
+from src.grammar_rules.rules.kakeru.index import KAKERU_EXPRESSION
+from src.grammar_rules.rules.kamoshirenai.index import KAMOSHIRENAI_GRAMMAR_EXPRESSION
+from src.grammar_rules.rules.kamoshiren_kamo.index import KAMOSHIREN_KAMO_EXPRESSION
+from src.grammar_rules.rules.kana_kashira.index import KANA_KASHIRA_EXPRESSION
+from src.grammar_rules.rules.kara_made.index import KARA_MADE_EXPRESSION
+from src.grammar_rules.rules.kara_node.index import KARA_NODE_EXPRESSION
+from src.grammar_rules.rules.kedo_keredomo.index import KEDO_EXPRESSION
+from src.grammar_rules.rules.kotoda.index import KOTODA_EXPRESSION
+from src.grammar_rules.rules.kotoka.index import KOTOKA_EXPRESSION
+from src.grammar_rules.rules.kotoni.index import KOTONI_EXPRESSION
+from src.grammar_rules.rules.koto_ga_aru.index import KOTO_GA_ARU_EXPERIENCE
+from src.grammar_rules.rules.koto_ga_aru_occasional.index import KOTO_GA_ARU_OCCASIONAL
+from src.grammar_rules.rules.koto_ga_dekiru.index import KOTO_GA_DEKIRU_EXPRESSION
+from src.grammar_rules.rules.koto_ga_nai.index import KOTO_GA_NAI
+from src.grammar_rules.rules.koto_ni_naru.index import KOTO_NI_NARU_GRAMMAR_EXPRESSION
+from src.grammar_rules.rules.koto_ni_natteiru.index import KOTO_NI_NATTEIRU_EXPRESSION
+from src.grammar_rules.rules.koto_ni_shiteiru.index import KOTO_NI_SHITEIRU_EXPRESSION
+from src.grammar_rules.rules.koto_ni_suru.index import KOTO_NI_SURU_GRAMMAR_EXPRESSION
+from src.grammar_rules.rules.koto_wa_ga.index import KOTO_WA_GA
+from src.grammar_rules.rules.koto_wa_nai.index import KOTO_WA_NAI
+from src.grammar_rules.rules.kunaru_ninaru.index import KUNARU_NINARU_EXPRESSION
+from src.grammar_rules.rules.kusuru_nisuru.index import KUSURU_NISURU_EXPRESSION
+from src.grammar_rules.rules.madeni.index import MADENI_EXPRESSION
+from src.grammar_rules.rules.maeni_atode.index import MAENI_ATODE_EXPRESSION
+from src.grammar_rules.rules.masenka_naika.index import MASENKA_NAIKA_EXPRESSION
+from src.grammar_rules.rules.masen_mashita.index import MASEN_MASHITA_EXPRESSION
+from src.grammar_rules.rules.mashou_you.index import MASHOU_YOU_EXPRESSION
+from src.grammar_rules.rules.mitai_ni.index import MITAI_NI_EXPRESSION
+from src.grammar_rules.rules.monne.index import MONNE_EXPRESSION
+from src.grammar_rules.rules.monodakara_mondakara.index import MONODAKARA_MONDAKARA_EXPRESSION
+from src.grammar_rules.rules.monoda.index import MONODA_EXPRESSION
+from src.grammar_rules.rules.monoka_monka.index import MONOKA_MONKA_EXPRESSION
+from src.grammar_rules.rules.monono.index import MONONO_GRAMMAR_EXPRESSION
+from src.grammar_rules.rules.mono_mon.index import MONO_MON_EXPRESSION
+from src.grammar_rules.rules.nado_nanka_nante.index import NADO_NANKA_NANTE_EXPRESSION
+from src.grammar_rules.rules.nagaramo.index import NAGARAMO_EXPRESSION
+from src.grammar_rules.rules.nagara.index import NAGARA_GRAMMAR_EXPRESSION
+from src.grammar_rules.rules.naide.index import NAIDE_GRAMMAR_EXPRESSION
+from src.grammar_rules.rules.naikana.index import NAIKANA_EXPRESSION
+from src.grammar_rules.rules.nai.index import NAI_GRAMMAR_EXPRESSION
+from src.grammar_rules.rules.nakunaru.index import NAKUNARU_EXPRESSION
+from src.grammar_rules.rules.nakuteha_nakereba.index import NAKUTEHA_NAKEREBA_EXPRESSION
+from src.grammar_rules.rules.nakutemoii.index import NAKUTEMOII_GRAMMAR_EXPRESSION
+from src.grammar_rules.rules.nanka.index import NANKA_EXPRESSION
+from src.grammar_rules.rules.nante.index import NANTE_EXPRESSION
+from src.grammar_rules.rules.naosu.index import NAOSU_GRAMMAR_EXPRESSION
+from src.grammar_rules.rules.nara.index import NARA_GRAMMAR_EXPRESSION
+from src.grammar_rules.rules.nasai.index import NASAI_EXPRESSION
+from src.grammar_rules.rules.ndakedo_ndesuga.index import NDAKEDO_NDESUGA_EXPRESSION
+from src.grammar_rules.rules.ndatte_datte.index import NDATTE_DATTE_EXPRESSION
+from src.grammar_rules.rules.nda.index import NDA_GRAMMAR_EXPRESSION
+from src.grammar_rules.rules.ne_yo_yone.index import NE_YO_YONE_EXPRESSION
+from src.grammar_rules.rules.nichigainai.index import NICHIGAINAI_EXPRESSION
+from src.grammar_rules.rules.nikagirazu.index import NIKAGIRAZU_EXPRESSION
+from src.grammar_rules.rules.nikagiru.index import NIKAGIRU_EXPRESSION
+from src.grammar_rules.rules.nikagitsute.index import NIKAGITTSUTE_EXPRESSION
+from src.grammar_rules.rules.nikanshite_nikansuru.index import NIKANSHITE_NIKANSURU_EXPRESSION
+from src.grammar_rules.rules.nikawatte_nokawarini.index import NIKAWATTE_NOKAWARINI_EXPRESSION
+from src.grammar_rules.rules.nikurabete.index import NIKURABETE_EXPRESSION
+from src.grammar_rules.rules.nikuwaete.index import NIKUWAETE_EXPRESSION
+from src.grammar_rules.rules.nimuiteiru_muki.index import NIMUITEIRU_MUKI_EXPRESSION
+from src.grammar_rules.rules.nimukatte_nimukete.index import NIMUKATTE_NIMUKETE_EXPRESSION
+from src.grammar_rules.rules.nishiteha.index import NISHITEHA_EXPRESSION
+from src.grammar_rules.rules.nishitemonishitemo.index import NISHITEMONISHITEMO_EXPRESSION
+from src.grammar_rules.rules.nishitemo.index import NISHITEMO_EXPRESSION
+from src.grammar_rules.rules.nitaishite.index import NITAISHITE_EXPRESSION
+from src.grammar_rules.rules.nitotsute.index import NITOTSUTE_EXPRESSION
+from src.grammar_rules.rules.nitsuite.index import NITSUITE_EXPRESSION
+from src.grammar_rules.rules.niyoruto_niyoreba.index import NIYORUTO_NIYOREBA_EXPRESSION
+from src.grammar_rules.rules.niyotte_niyoru.index import NIYOTTE_NIYORU_EXPRESSION
+from src.grammar_rules.rules.njiyanai_nodehanai.index import NJIYANAI_NODEHANAI_EXPRESSION
+from src.grammar_rules.rules.nodarouka.index import NODAROUKA_EXPRESSION
+from src.grammar_rules.rules.noka_nka.index import NOKA_NKA_EXPRESSION
+from src.grammar_rules.rules.noni.index import NONI_GRAMMAR_EXPRESSION
+from src.grammar_rules.rules.obligation.index import OBLIGATION_GRAMMAR_EXPRESSION
+from src.grammar_rules.rules.owaru_oeru.index import OWARU_OERU_EXPRESSION
+from src.grammar_rules.rules.rareru_reru.index import RARERU_RERU_EXPRESSION
+from src.grammar_rules.rules.rashii.index import RASHII_EXPRESSION
+from src.grammar_rules.rules.sae_sura.index import SAE_SURA_EXPRESSION
+from src.grammar_rules.rules.saserareru.index import SASERARERU_EXPRESSION
+from src.grammar_rules.rules.shikanai.index import SHIKANAI_EXPRESSION
+from src.grammar_rules.rules.sou_da.index import SOU_APPEARANCE
+from src.grammar_rules.rules.sou_da.index import SOU_HEARSAY
+from src.grammar_rules.rules.sou_mo_nai.index import SOU_MO_NAI_EXPRESSION
+from src.grammar_rules.rules.sou_ni_nai.index import SOU_NI_NAI_EXPRESSION
+from src.grammar_rules.rules.sou_ni_naru.index import SOU_NI_NARU_EXPRESSION
+from src.grammar_rules.rules.sugiru.index import SUGIRU_EXPRESSION
+from src.grammar_rules.rules.tabakari.index import TABAKARI_EXPRESSION
+from src.grammar_rules.rules.tagaru.index import TAGARU_GRAMMAR_EXPRESSION
+from src.grammar_rules.rules.tai.index import TAI_GRAMMAR_EXPRESSION
+from src.grammar_rules.rules.tame_ni.index import TAME_NI_GRAMMAR_EXPRESSION
+from src.grammar_rules.rules.taradou.index import TARADOU_EXPRESSION
+from src.grammar_rules.rules.tara.index import TARA_GRAMMAR_EXPRESSION
+from src.grammar_rules.rules.tarinankashite.index import TARINANKASHITE_EXPRESSION
+from src.grammar_rules.rules.taritarisuru.index import TARITARISURU_EXPRESSION
+from src.grammar_rules.rules.tatokoro.index import TATOKORO_EXPRESSION
+from src.grammar_rules.rules.tatsute_datsute.index import TATSUTE_DATSUTE_EXPRESSION
+from src.grammar_rules.rules.ta_hou_ga_ii.index import TA_HOU_GA_II_EXPRESSION
+from src.grammar_rules.rules.teha_chiya_jiya.index import TEHA_CHIYA_JIYA_EXPRESSION
+from src.grammar_rules.rules.temoraitai.index import TEMORAITAI_EXPRESSION
+from src.grammar_rules.rules.te_aru.index import TE_ARU_GRAMMAR_EXPRESSION
+from src.grammar_rules.rules.te_benefactive.index import TE_BENEFACTIVE_EXPRESSION
+from src.grammar_rules.rules.te_choudai.index import TE_CHOUDAI_EXPRESSION
+from src.grammar_rules.rules.te_goran.index import TE_GORAN_EXPRESSION
+from src.grammar_rules.rules.te_hoshii.index import TE_HOSHII_GRAMMAR_EXPRESSION
+from src.grammar_rules.rules.te_iku.index import TE_IKU_GRAMMAR_EXPRESSION
+from src.grammar_rules.rules.te_iru.index import TE_IRU_GRAMMAR_EXPRESSION
+from src.grammar_rules.rules.te_itadakemasenka.index import TE_ITADAKEMASENKA_EXPRESSION
+from src.grammar_rules.rules.te_kara.index import TE_KARA_EXPRESSION
+from src.grammar_rules.rules.te_kudasai.index import TE_KUDASAI_GRAMMAR_EXPRESSION
+from src.grammar_rules.rules.te_kurenai_temoraenai.index import TE_KURENAI_TEMORAENAI_EXPRESSION
+from src.grammar_rules.rules.te_kuru.index import TE_KURU_GRAMMAR_EXPRESSION
+from src.grammar_rules.rules.te_miru.index import TE_MIRU_GRAMMAR_EXPRESSION
+from src.grammar_rules.rules.te_mo.index import TE_MO_GRAMMAR_EXPRESSION
+from src.grammar_rules.rules.te_mo_ii.index import TE_MO_II_GRAMMAR_EXPRESSION
+from src.grammar_rules.rules.te_oku.index import TE_OKU_GRAMMAR_EXPRESSION
+from src.grammar_rules.rules.te_polite_benefactive.index import TE_POLITE_BENEFACTIVE_EXPRESSION
+from src.grammar_rules.rules.te_shimau.index import TE_SHIMAU_GRAMMAR_EXPRESSION
+from src.grammar_rules.rules.te_wa_ikenai.index import TE_WA_IKENAI_GRAMMAR_EXPRESSION
+from src.grammar_rules.rules.te_yaru.index import TE_YARU_EXPRESSION
+from src.grammar_rules.rules.toii_toiina.index import TOII_TOIINA_EXPRESSION
+from src.grammar_rules.rules.toiukotoda.index import TOIUKOTODA_EXPRESSION
+from src.grammar_rules.rules.toiukotoha.index import TOIUKOTOHA_EXPRESSION
+from src.grammar_rules.rules.toiukotoninaru.index import TOIUKOTONINARU_EXPRESSION
+from src.grammar_rules.rules.toiunoha.index import TOIUNOHA_EXPRESSION
+from src.grammar_rules.rules.toiuyori.index import TOIUYORI_EXPRESSION
+from src.grammar_rules.rules.toiu.index import TOIU_EXPRESSION
+from src.grammar_rules.rules.toka.index import TOKA_EXPRESSION
+from src.grammar_rules.rules.toki.index import TOKI_EXPRESSION
+from src.grammar_rules.rules.tokoroda.index import TOKORODA_EXPRESSION
+from src.grammar_rules.rules.toshitara_tosureba.index import TOSHITARA_TOSUREBA_EXPRESSION
+from src.grammar_rules.rules.toshitemo.index import TOSHITEMO_EXPRESSION
+from src.grammar_rules.rules.toshite.index import TOSHITE_EXPRESSION
+from src.grammar_rules.rules.tosuruto.index import TOSURUTO_EXPRESSION
+from src.grammar_rules.rules.to_iu_kiku.index import TO_IU_KIKU_EXPRESSION
+from src.grammar_rules.rules.to_omou.index import TO_OMOU_GRAMMAR_EXPRESSION
+from src.grammar_rules.rules.tsuke.index import TSUKE_EXPRESSION
+from src.grammar_rules.rules.tsumorida.index import TSUMORIDA_EXPRESSION
+from src.grammar_rules.rules.tsupoi.index import TSUPOI_EXPRESSION
+from src.grammar_rules.rules.tsuzukeru.index import TSUZUKERU_EXPRESSION
+from src.grammar_rules.rules.ttekoto_ttewake.index import TTEKOTO_TTEWAKE_EXPRESSION
+from src.grammar_rules.rules.tte.index import TTE_EXPRESSION
+from src.grammar_rules.rules.uchini.index import UCHINI_EXPRESSION
+from src.grammar_rules.rules.wakeganai.index import WAKEGANAI_EXPRESSION
+from src.grammar_rules.rules.wakenihaikanai.index import WAKENIHAIKANAI_EXPRESSION
+from src.grammar_rules.rules.wake_da.index import WAKE_DA
+from src.grammar_rules.rules.wake_da.index import WAKE_NEGATIVE
+from src.grammar_rules.rules.wake_tsutewake.index import WAKE_TSUTEWAKE_EXPRESSION
+from src.grammar_rules.rules.yasui_nikui.index import YASUI_NIKUI_EXPRESSION
+from src.grammar_rules.rules.ya_toka.index import YA_TOKA_EXPRESSION
+from src.grammar_rules.rules.yori.index import YORI_EXPRESSION
+from src.grammar_rules.rules.yoteida.index import YOTEIDA_EXPRESSION
+from src.grammar_rules.rules.you_da.index import YOU_DA_GRAMMAR_EXPRESSION
+from src.grammar_rules.rules.you_ni.index import YOU_NI_GRAMMAR_EXPRESSION
+from src.grammar_rules.rules.you_ni_iu_tanomu.index import YOU_NI_IU_TANOMU_EXPRESSION
+from src.grammar_rules.rules.you_ni_mieru.index import YOU_NI_MIERU_EXPRESSION
+from src.grammar_rules.rules.you_ni_naru.index import YOU_NI_NARU_EXPRESSION
+from src.grammar_rules.rules.you_ni_suru.index import YOU_NI_SURU_EXPRESSION
+from src.grammar_rules.rules.you_to_omou.index import YOU_TO_OMOU_EXPRESSION
+from src.grammar_rules.rules.you_to_suru.index import YOU_TO_SURU_EXPRESSION
 
-KAINA_YAN_YARO_EXPRESSION = '〜かいな / 〜やん / 〜やろ'
+from src.grammar_rules.registry import RULES
 
-JIYAN_JIYANAIKA_EXPRESSION = '〜じゃん / 〜じゃないか'
-JIYANAITO_DENAITO_EXPRESSION = '〜じゃないと / 〜でないと'
-NJIYANAI_NODEHANAI_EXPRESSION = '〜んじゃない / 〜のではない'
-KANA_KASHIRA_EXPRESSION = '〜かな / 〜かしら'
-NAIKANA_EXPRESSION = '〜ないかな'
-KAI_DAI_EXPRESSION = '〜かい / 〜だい'
-NOKA_NKA_EXPRESSION = '〜のか / 〜んか'
-NODAROUKA_EXPRESSION = '〜のだろうか'
-MONNE_EXPRESSION = '〜もんね'
-KOTONI_EXPRESSION = '〜ことに'
-KOTOKA_EXPRESSION = '〜ことか'
-TOKA_EXPRESSION = '〜とか'
-MONOKA_MONKA_EXPRESSION = '〜ものか / 〜もんか'
-MONO_MON_EXPRESSION = '〜もの / 〜もん'
-MONODAKARA_MONDAKARA_EXPRESSION = '〜ものだから / 〜もんだから'
-KADOUKA_EXPRESSION = '〜かどうか'
-NICHIGAINAI_EXPRESSION = '〜に違いない'
-WAKEGANAI_EXPRESSION = '〜わけがない'
-WAKENIHAIKANAI_EXPRESSION = '〜わけにはいかない'
-HAZUGANAI_EXPRESSION = '〜はずがない'
-
-
-MASENKA_NAIKA_EXPRESSION = '〜ませんか / 〜ないか'
-NASAI_EXPRESSION = '〜なさい'
-MASEN_MASHITA_EXPRESSION = '〜ません / 〜ました / 〜ませんでした'
-MASHOU_YOU_EXPRESSION = '〜ましょう / 〜よう'
-
-DAROU_DESHOU_EXPRESSION = 'だろう / でしょう'
-DA_DESU_EXPRESSION = 'だ / です'
-DATTA_DESHITA_EXPRESSION = 'だった / でした'
-JANAI_DEWANAI_EXPRESSION = 'じゃない / ではない'
-
-TE_POLITE_BENEFACTIVE_EXPRESSION = '〜ていただく / 〜てくださる / 〜て差し上げる'
-TE_ITADAKEMASENKA_EXPRESSION = '〜ていただけませんか'
-TE_KURENAI_TEMORAENAI_EXPRESSION = '〜てくれない / 〜てもらえない'
-TE_BENEFACTIVE_EXPRESSION = '〜てあげる / 〜てくれる / 〜てもらう'
-TE_YARU_EXPRESSION = '〜てやる'
-NAIDE_GRAMMAR_EXPRESSION = '〜ないでください / 〜ないで'
-KAMOSHIRENAI_GRAMMAR_EXPRESSION = '〜かもしれない'
-KAMOSHIREN_KAMO_EXPRESSION = '〜かもしれん / 〜かも'
-TE_KUDASAI_GRAMMAR_EXPRESSION = '〜てください / 〜てくれ'
-TE_CHOUDAI_EXPRESSION = '〜てちょうだい'
-NONI_GRAMMAR_EXPRESSION = '〜のに'
-TAME_NI_GRAMMAR_EXPRESSION = '〜ために'
-NAGARA_GRAMMAR_EXPRESSION = '〜ながら'
-NAGARAMO_EXPRESSION = '〜ながらも'
-NAOSU_GRAMMAR_EXPRESSION = '〜直す'
-AU_GRAMMAR_EXPRESSION = '〜合う'
-TSUZUKERU_EXPRESSION = '〜続ける'
-HAJIMERU_DASU_EXPRESSION = '〜始める / 〜出す'
-OWARU_OERU_EXPRESSION = '〜終わる / 〜終える'
-TSUPOI_EXPRESSION = '〜っぽい'
-RASHII_EXPRESSION = '〜らしい'
-MITAI_NI_EXPRESSION = '〜みたいに / 〜みたいな'
-HA_EXPRESSION = '〜は'
-GA_EXPRESSION = '〜が'
-SAE_SURA_EXPRESSION = 'さえ / すら'
-NADO_NANKA_NANTE_EXPRESSION = 'など / なんか / なんて'
-NANKA_EXPRESSION = '〜なんか'
-NANTE_EXPRESSION = '〜なんて'
-DAKE_NOMI_EXPRESSION = 'だけ / のみ'
-HODO_KURAI_GURAI_EXPRESSION = 'ほど / くらい / ぐらい'
-
-WAKE_DA = '〜わけだ'
-WAKE_NEGATIVE = '〜わけではない'
-HAZU_DA_GRAMMAR_EXPRESSION = '〜はずだ'
-SOU_APPEARANCE = '〜そうだ (appearance)'
-SOU_HEARSAY = '〜そうだ (hearsay)'
-TE_WA_IKENAI_GRAMMAR_EXPRESSION = '〜てはいけない'
-TE_MIRU_GRAMMAR_EXPRESSION = '〜てみる'
-TE_GORAN_EXPRESSION = '〜てごらん'
-KOTO_NI_SURU_GRAMMAR_EXPRESSION = '〜ことにする'
-KOTO_NI_SHITEIRU_EXPRESSION = '〜ことにしている'
-KOTO_NI_NATTEIRU_EXPRESSION = '〜ことになっている'
-KOTO_NI_NARU_GRAMMAR_EXPRESSION = '〜ことになる'
-TE_OKU_GRAMMAR_EXPRESSION = '〜ておく'
-TE_ARU_GRAMMAR_EXPRESSION = '〜てある'
-TE_MO_GRAMMAR_EXPRESSION = '〜ても'
-NAKUTEMOII_GRAMMAR_EXPRESSION = '〜なくてもいい'
-TE_MO_II_GRAMMAR_EXPRESSION = '〜てもいい'
-OBLIGATION_GRAMMAR_EXPRESSION = '〜なければならない'
-ELLIPTICAL_OBLIGATION_EXPRESSION = '〜ないと / 〜なくちゃ / 〜なきゃ'
-TO_OMOU_GRAMMAR_EXPRESSION = '〜と思う'
-TO_IU_KIKU_EXPRESSION = '〜と言う / 〜と聞く'
-TE_IRU_GRAMMAR_EXPRESSION = '〜ている'
-TE_HOSHII_GRAMMAR_EXPRESSION = '〜てほしい'
-HOSHII_GRAMMAR_EXPRESSION = '〜ほしい'
-NDA_GRAMMAR_EXPRESSION = '〜んだ'
-TAGARU_GRAMMAR_EXPRESSION = '〜たがる'
-TAI_GRAMMAR_EXPRESSION = '〜たい'
-TE_SHIMAU_GRAMMAR_EXPRESSION = '〜てしまう'
-MONONO_GRAMMAR_EXPRESSION = '〜ものの'
-MONODA_EXPRESSION = '〜ものだ'
-TE_KURU_GRAMMAR_EXPRESSION = '〜てくる'
-TE_IKU_GRAMMAR_EXPRESSION = '〜ていく'
-NAI_GRAMMAR_EXPRESSION = '〜ない'
-YOU_DA_GRAMMAR_EXPRESSION = '〜ようだ'
-YOU_NI_GRAMMAR_EXPRESSION = '〜ように'
-NARA_GRAMMAR_EXPRESSION = '〜なら'
-BA_GRAMMAR_EXPRESSION = '〜ば'
-TARA_GRAMMAR_EXPRESSION = '〜たら'
-BAII_TARAII_EXPRESSION = '〜ばいい / 〜たらいい'
-TOII_TOIINA_EXPRESSION = '〜といい / 〜といいな'
-BAYOKATTA_TARAYOKATTA_EXPRESSION = '〜ばよかった / 〜たらよかった'
-KOTO_GA_ARU_EXPERIENCE = '〜たことがある'
-KOTO_GA_ARU_OCCASIONAL = '〜ことがある'
-KOTO_GA_NAI = '〜ことがない'
-KOTO_WA_NAI = '〜ことはない'
-KOTO_WA_GA = '〜ことは〜が'
-GRAMMAR_EXPRESSIONS = frozenset({TAGARU_GRAMMAR_EXPRESSION, WAKE_DA, WAKE_NEGATIVE, HAZU_DA_GRAMMAR_EXPRESSION, SOU_APPEARANCE, SOU_HEARSAY, TE_MO_GRAMMAR_EXPRESSION, NARA_GRAMMAR_EXPRESSION, BA_GRAMMAR_EXPRESSION, YOU_DA_GRAMMAR_EXPRESSION, KOTO_NI_SURU_GRAMMAR_EXPRESSION, KOTO_NI_NARU_GRAMMAR_EXPRESSION, TE_WA_IKENAI_GRAMMAR_EXPRESSION, TE_MIRU_GRAMMAR_EXPRESSION, TE_OKU_GRAMMAR_EXPRESSION, TE_MO_II_GRAMMAR_EXPRESSION, OBLIGATION_GRAMMAR_EXPRESSION, TO_OMOU_GRAMMAR_EXPRESSION, YOU_NI_GRAMMAR_EXPRESSION, KOTO_GA_ARU_OCCASIONAL, KOTO_GA_ARU_EXPERIENCE, TE_IKU_GRAMMAR_EXPRESSION, TARA_GRAMMAR_EXPRESSION, NAI_GRAMMAR_EXPRESSION, TE_KURU_GRAMMAR_EXPRESSION, MONONO_GRAMMAR_EXPRESSION, TE_IRU_GRAMMAR_EXPRESSION, NDA_GRAMMAR_EXPRESSION, TAI_GRAMMAR_EXPRESSION, TE_SHIMAU_GRAMMAR_EXPRESSION})
-GRAMMAR_EXPRESSIONS = GRAMMAR_EXPRESSIONS | {NODAROUKA_EXPRESSION, NOKA_NKA_EXPRESSION, KAI_DAI_EXPRESSION, KANA_KASHIRA_EXPRESSION, KOTOKA_EXPRESSION, KADOUKA_EXPRESSION, MONOKA_MONKA_EXPRESSION, MONODAKARA_MONDAKARA_EXPRESSION}
-GRAMMAR_EXPRESSIONS = GRAMMAR_EXPRESSIONS | {KOTONI_EXPRESSION, JIYAN_JIYANAIKA_EXPRESSION, NJIYANAI_NODEHANAI_EXPRESSION, JIYANAITO_DENAITO_EXPRESSION}
-GRAMMAR_EXPRESSIONS = GRAMMAR_EXPRESSIONS | {NAIKANA_EXPRESSION}
-GRAMMAR_EXPRESSIONS = GRAMMAR_EXPRESSIONS | {MONODA_EXPRESSION, MONO_MON_EXPRESSION, MONNE_EXPRESSION}
-GRAMMAR_EXPRESSIONS = GRAMMAR_EXPRESSIONS | {NICHIGAINAI_EXPRESSION}
-GRAMMAR_EXPRESSIONS = GRAMMAR_EXPRESSIONS | {BAII_TARAII_EXPRESSION, BAYOKATTA_TARAYOKATTA_EXPRESSION, TOII_TOIINA_EXPRESSION}
-GRAMMAR_EXPRESSIONS = GRAMMAR_EXPRESSIONS | {HAZUGANAI_EXPRESSION, WAKEGANAI_EXPRESSION, WAKENIHAIKANAI_EXPRESSION}
-GRAMMAR_EXPRESSIONS = GRAMMAR_EXPRESSIONS | {NAGARA_GRAMMAR_EXPRESSION, NAGARAMO_EXPRESSION}
-GRAMMAR_EXPRESSIONS = GRAMMAR_EXPRESSIONS | {NASAI_EXPRESSION}
-GRAMMAR_EXPRESSIONS = GRAMMAR_EXPRESSIONS | {DATTA_DESHITA_EXPRESSION}
-GRAMMAR_EXPRESSIONS = GRAMMAR_EXPRESSIONS | {DAKE_NOMI_EXPRESSION, SAE_SURA_EXPRESSION, NADO_NANKA_NANTE_EXPRESSION}
-GRAMMAR_EXPRESSIONS = GRAMMAR_EXPRESSIONS | {NANTE_EXPRESSION, NANKA_EXPRESSION}
-GRAMMAR_EXPRESSIONS = GRAMMAR_EXPRESSIONS | {HODO_KURAI_GURAI_EXPRESSION}
-GRAMMAR_EXPRESSIONS = GRAMMAR_EXPRESSIONS | {NAOSU_GRAMMAR_EXPRESSION}
-GRAMMAR_EXPRESSIONS = GRAMMAR_EXPRESSIONS | {AU_GRAMMAR_EXPRESSION}
-GRAMMAR_EXPRESSIONS = GRAMMAR_EXPRESSIONS | {HAJIMERU_DASU_EXPRESSION, TSUZUKERU_EXPRESSION, OWARU_OERU_EXPRESSION}
-GRAMMAR_EXPRESSIONS = GRAMMAR_EXPRESSIONS | {TSUPOI_EXPRESSION}
-GRAMMAR_EXPRESSIONS = GRAMMAR_EXPRESSIONS | {RASHII_EXPRESSION}
-GRAMMAR_EXPRESSIONS = GRAMMAR_EXPRESSIONS | {MITAI_NI_EXPRESSION}
-GRAMMAR_EXPRESSIONS = GRAMMAR_EXPRESSIONS | {TAME_NI_GRAMMAR_EXPRESSION}
-
-GRAMMAR_EXPRESSIONS = GRAMMAR_EXPRESSIONS | {NONI_GRAMMAR_EXPRESSION}
-GRAMMAR_EXPRESSIONS = GRAMMAR_EXPRESSIONS | {KAMOSHIRENAI_GRAMMAR_EXPRESSION}
-GRAMMAR_EXPRESSIONS = GRAMMAR_EXPRESSIONS | {KAMOSHIREN_KAMO_EXPRESSION}
-GRAMMAR_EXPRESSIONS = GRAMMAR_EXPRESSIONS | {TE_KUDASAI_GRAMMAR_EXPRESSION}
-GRAMMAR_EXPRESSIONS = GRAMMAR_EXPRESSIONS | {TE_CHOUDAI_EXPRESSION}
-
-GRAMMAR_EXPRESSIONS = GRAMMAR_EXPRESSIONS | {NAIDE_GRAMMAR_EXPRESSION, TE_ARU_GRAMMAR_EXPRESSION, TE_BENEFACTIVE_EXPRESSION, TE_YARU_EXPRESSION}
-GRAMMAR_EXPRESSIONS = GRAMMAR_EXPRESSIONS | {TE_HOSHII_GRAMMAR_EXPRESSION, NAKUTEMOII_GRAMMAR_EXPRESSION}
-GRAMMAR_EXPRESSIONS = GRAMMAR_EXPRESSIONS | {HOSHII_GRAMMAR_EXPRESSION}
-GRAMMAR_EXPRESSIONS = GRAMMAR_EXPRESSIONS | {ELLIPTICAL_OBLIGATION_EXPRESSION}
-
-TA_HOU_GA_II_EXPRESSION = '〜たほうがいい / 〜ないほうがいい'
-GRAMMAR_EXPRESSIONS = GRAMMAR_EXPRESSIONS | {TA_HOU_GA_II_EXPRESSION}
-HOU_GA_II_EXPRESSION = '〜ほうがいい'
-GRAMMAR_EXPRESSIONS = GRAMMAR_EXPRESSIONS | {HOU_GA_II_EXPRESSION}
-
-KOTO_GA_DEKIRU_EXPRESSION = '〜ことができる'
-GRAMMAR_EXPRESSIONS = GRAMMAR_EXPRESSIONS | {KOTO_GA_NAI}
-GRAMMAR_EXPRESSIONS = GRAMMAR_EXPRESSIONS | {KOTO_WA_NAI}
-GRAMMAR_EXPRESSIONS = GRAMMAR_EXPRESSIONS | {KOTO_WA_GA}
-GRAMMAR_EXPRESSIONS = GRAMMAR_EXPRESSIONS | {KOTO_GA_DEKIRU_EXPRESSION}
-
-YASUI_NIKUI_EXPRESSION = '〜やすい / 〜にくい'
-GRAMMAR_EXPRESSIONS = GRAMMAR_EXPRESSIONS | {YASUI_NIKUI_EXPRESSION}
-
-TARITARISURU_EXPRESSION = '〜たり〜たりする'
-GRAMMAR_EXPRESSIONS = GRAMMAR_EXPRESSIONS | {TARITARISURU_EXPRESSION}
-TARINANKASHITE_EXPRESSION = '〜たりなんかして'
-GRAMMAR_EXPRESSIONS = GRAMMAR_EXPRESSIONS | {TARINANKASHITE_EXPRESSION}
-
-KARA_NODE_EXPRESSION = '〜から / 〜ので'
-GRAMMAR_EXPRESSIONS = GRAMMAR_EXPRESSIONS | {KARA_NODE_EXPRESSION}
-KARA_MADE_EXPRESSION = 'から / まで'
-GRAMMAR_EXPRESSIONS = GRAMMAR_EXPRESSIONS | {KARA_MADE_EXPRESSION}
-TE_KARA_EXPRESSION = '〜てから'
-GRAMMAR_EXPRESSIONS = GRAMMAR_EXPRESSIONS | {TE_KARA_EXPRESSION}
-
-KEDO_EXPRESSION = '〜けど / 〜けれども'
-GRAMMAR_EXPRESSIONS = GRAMMAR_EXPRESSIONS | {KEDO_EXPRESSION}
-NDAKEDO_NDESUGA_EXPRESSION = '〜んだけど / 〜んですが'
-GRAMMAR_EXPRESSIONS = GRAMMAR_EXPRESSIONS | {NDAKEDO_NDESUGA_EXPRESSION}
-NDATTE_DATTE_EXPRESSION = '〜んだって / 〜だって'
-GRAMMAR_EXPRESSIONS = GRAMMAR_EXPRESSIONS | {NDATTE_DATTE_EXPRESSION}
-
-MAENI_ATODE_EXPRESSION = '〜前に / 〜後で'
-GRAMMAR_EXPRESSIONS = GRAMMAR_EXPRESSIONS | {MAENI_ATODE_EXPRESSION}
-
-UCHINI_EXPRESSION = '〜うちに'
-GRAMMAR_EXPRESSIONS = GRAMMAR_EXPRESSIONS | {UCHINI_EXPRESSION}
-
-TOKORODA_EXPRESSION = '〜ところだ'
-GRAMMAR_EXPRESSIONS = GRAMMAR_EXPRESSIONS | {TOKORODA_EXPRESSION}
-TATOKORO_EXPRESSION = '〜たところ'
-GRAMMAR_EXPRESSIONS = GRAMMAR_EXPRESSIONS | {TATOKORO_EXPRESSION}
-
-TABAKARI_EXPRESSION = '〜たばかり'
-GRAMMAR_EXPRESSIONS = GRAMMAR_EXPRESSIONS | {TABAKARI_EXPRESSION}
-BAKARI_EXPRESSION = '〜ばかり'
-GRAMMAR_EXPRESSIONS = GRAMMAR_EXPRESSIONS | {BAKARI_EXPRESSION}
-
-TSUMORIDA_EXPRESSION = '〜つもりだ'
-GRAMMAR_EXPRESSIONS = GRAMMAR_EXPRESSIONS | {TSUMORIDA_EXPRESSION}
-KOTODA_EXPRESSION = '〜ことだ'
-GRAMMAR_EXPRESSIONS = GRAMMAR_EXPRESSIONS | {KOTODA_EXPRESSION}
-YOTEIDA_EXPRESSION = '〜予定だ'
-GRAMMAR_EXPRESSIONS = GRAMMAR_EXPRESSIONS | {YOTEIDA_EXPRESSION}
-
-YOU_NI_NARU_EXPRESSION = '〜ようになる'
-GRAMMAR_EXPRESSIONS = GRAMMAR_EXPRESSIONS | {YOU_NI_NARU_EXPRESSION}
-NAKUNARU_EXPRESSION = '〜なくなる'
-GRAMMAR_EXPRESSIONS = GRAMMAR_EXPRESSIONS | {NAKUNARU_EXPRESSION}
-KUNARU_NINARU_EXPRESSION = '〜くなる / 〜になる'
-GRAMMAR_EXPRESSIONS = GRAMMAR_EXPRESSIONS | {KUNARU_NINARU_EXPRESSION}
-KUSURU_NISURU_EXPRESSION = '〜くする / 〜にする'
-GRAMMAR_EXPRESSIONS = GRAMMAR_EXPRESSIONS | {KUSURU_NISURU_EXPRESSION}
-YOU_NI_MIERU_EXPRESSION = '〜ように見える'
-GRAMMAR_EXPRESSIONS = GRAMMAR_EXPRESSIONS | {YOU_NI_MIERU_EXPRESSION}
-
-YOU_TO_SURU_EXPRESSION = '〜ようとする'
-GRAMMAR_EXPRESSIONS = GRAMMAR_EXPRESSIONS | {YOU_TO_SURU_EXPRESSION}
-
-YOU_NI_SURU_EXPRESSION = '〜ようにする'
-GRAMMAR_EXPRESSIONS = GRAMMAR_EXPRESSIONS | {YOU_NI_SURU_EXPRESSION}
-YOU_NI_IU_TANOMU_EXPRESSION = '〜ように言う / 頼む'
-GRAMMAR_EXPRESSIONS = GRAMMAR_EXPRESSIONS | {YOU_NI_IU_TANOMU_EXPRESSION}
-
-YOU_TO_OMOU_EXPRESSION = '〜ようと思う'
-GRAMMAR_EXPRESSIONS = GRAMMAR_EXPRESSIONS | {TO_IU_KIKU_EXPRESSION}
-GRAMMAR_EXPRESSIONS = GRAMMAR_EXPRESSIONS | {YOU_TO_OMOU_EXPRESSION}
-
-TOIU_EXPRESSION = '〜という / 〜っていう'
-GRAMMAR_EXPRESSIONS = GRAMMAR_EXPRESSIONS | {TOIU_EXPRESSION}
-TOIUYORI_EXPRESSION = '〜というより'
-GRAMMAR_EXPRESSIONS = GRAMMAR_EXPRESSIONS | {TOIUYORI_EXPRESSION}
-NISHITEHA_EXPRESSION = '〜にしては'
-GRAMMAR_EXPRESSIONS = GRAMMAR_EXPRESSIONS | {NISHITEHA_EXPRESSION}
-TOSHITE_EXPRESSION = '〜として'
-GRAMMAR_EXPRESSIONS = GRAMMAR_EXPRESSIONS | {TOSHITE_EXPRESSION}
-TOSHITEMO_EXPRESSION = '〜としても'
-GRAMMAR_EXPRESSIONS = GRAMMAR_EXPRESSIONS | {TOSHITEMO_EXPRESSION}
-TOSHITARA_TOSUREBA_EXPRESSION = '〜としたら / 〜とすれば'
-GRAMMAR_EXPRESSIONS = GRAMMAR_EXPRESSIONS | {TOSHITARA_TOSUREBA_EXPRESSION}
-TOSURUTO_EXPRESSION = '〜とすると'
-GRAMMAR_EXPRESSIONS = GRAMMAR_EXPRESSIONS | {TOSURUTO_EXPRESSION}
-TOIUKOTODA_EXPRESSION = '〜ということだ'
-GRAMMAR_EXPRESSIONS = GRAMMAR_EXPRESSIONS | {TOIUKOTODA_EXPRESSION}
-TOIUKOTONINARU_EXPRESSION = '〜ということになる'
-GRAMMAR_EXPRESSIONS = GRAMMAR_EXPRESSIONS | {TOIUKOTONINARU_EXPRESSION}
-TOIUKOTOHA_EXPRESSION = '〜ということは'
-GRAMMAR_EXPRESSIONS = GRAMMAR_EXPRESSIONS | {TOIUKOTOHA_EXPRESSION}
-TOIUNOHA_EXPRESSION = '〜というのは'
-GRAMMAR_EXPRESSIONS = GRAMMAR_EXPRESSIONS | {TOIUNOHA_EXPRESSION}
-
-TTE_EXPRESSION = '〜って'
-GRAMMAR_EXPRESSIONS = GRAMMAR_EXPRESSIONS | {TTE_EXPRESSION}
-
-TOKI_EXPRESSION = '〜とき'
-GRAMMAR_EXPRESSIONS = GRAMMAR_EXPRESSIONS | {TOKI_EXPRESSION}
-
-MADENI_EXPRESSION = '〜までに'
-GRAMMAR_EXPRESSIONS = GRAMMAR_EXPRESSIONS | {MADENI_EXPRESSION}
-GRAMMAR_EXPRESSIONS = GRAMMAR_EXPRESSIONS | {HA_EXPRESSION}
-GRAMMAR_EXPRESSIONS = GRAMMAR_EXPRESSIONS | {GA_EXPRESSION}
-
-YORI_EXPRESSION = '〜より'
-GRAMMAR_EXPRESSIONS = GRAMMAR_EXPRESSIONS | {YORI_EXPRESSION}
-
-YA_TOKA_EXPRESSION = 'や / とか'
-GRAMMAR_EXPRESSIONS = GRAMMAR_EXPRESSIONS | {YA_TOKA_EXPRESSION}
-GRAMMAR_EXPRESSIONS = GRAMMAR_EXPRESSIONS | {DA_DESU_EXPRESSION, DAROU_DESHOU_EXPRESSION}
-GRAMMAR_EXPRESSIONS = GRAMMAR_EXPRESSIONS | {JANAI_DEWANAI_EXPRESSION}
-
-SHIKANAI_EXPRESSION = 'しか〜ない'
-GRAMMAR_EXPRESSIONS = GRAMMAR_EXPRESSIONS | {SHIKANAI_EXPRESSION}
-
-NE_YO_YONE_EXPRESSION = 'ね / よ / よね'
-GRAMMAR_EXPRESSIONS = GRAMMAR_EXPRESSIONS | {NE_YO_YONE_EXPRESSION}
-TSUKE_EXPRESSION = '〜っけ'
-GRAMMAR_EXPRESSIONS = GRAMMAR_EXPRESSIONS | {TSUKE_EXPRESSION}
-
-ARU_IRU_EXPRESSION = 'ある / いる'
-GRAMMAR_EXPRESSIONS = GRAMMAR_EXPRESSIONS | {ARU_IRU_EXPRESSION}
-
-GRAMMAR_EXPRESSIONS = GRAMMAR_EXPRESSIONS | {MASEN_MASHITA_EXPRESSION}
-GRAMMAR_EXPRESSIONS = GRAMMAR_EXPRESSIONS | {MASHOU_YOU_EXPRESSION, MASENKA_NAIKA_EXPRESSION}
-
-SASERARERU_EXPRESSION = '〜させられる'
-GRAMMAR_EXPRESSIONS = GRAMMAR_EXPRESSIONS | {SASERARERU_EXPRESSION}
-
-GRAMMAR_EXPRESSIONS = GRAMMAR_EXPRESSIONS | {TE_POLITE_BENEFACTIVE_EXPRESSION}
-GRAMMAR_EXPRESSIONS = GRAMMAR_EXPRESSIONS | {TE_ITADAKEMASENKA_EXPRESSION}
-GRAMMAR_EXPRESSIONS = GRAMMAR_EXPRESSIONS | {TE_KURENAI_TEMORAENAI_EXPRESSION}
-GRAMMAR_EXPRESSIONS = GRAMMAR_EXPRESSIONS | {TE_GORAN_EXPRESSION}
-
-NAKUTEHA_NAKEREBA_EXPRESSION = '〜なくては / 〜なければ'
-GRAMMAR_EXPRESSIONS = GRAMMAR_EXPRESSIONS | {NAKUTEHA_NAKEREBA_EXPRESSION}
-TEHA_CHIYA_JIYA_EXPRESSION = '〜ては / 〜ちゃ / 〜じゃ'
-GRAMMAR_EXPRESSIONS = GRAMMAR_EXPRESSIONS | {TEHA_CHIYA_JIYA_EXPRESSION}
-
-RARERU_RERU_EXPRESSION = '〜られる / 〜れる'
-GRAMMAR_EXPRESSIONS = GRAMMAR_EXPRESSIONS | {RARERU_RERU_EXPRESSION}
-
-SUGIRU_EXPRESSION = '〜すぎる'
-GRAMMAR_EXPRESSIONS = GRAMMAR_EXPRESSIONS | {SUGIRU_EXPRESSION}
-
-KAKERU_EXPRESSION = '〜かける'
-GRAMMAR_EXPRESSIONS = GRAMMAR_EXPRESSIONS | {KAKERU_EXPRESSION}
-
-HOU_EXPRESSION = '〜方'
-GRAMMAR_EXPRESSIONS = GRAMMAR_EXPRESSIONS | {HOU_EXPRESSION}
-
-SOU_NI_NAI_EXPRESSION = '〜そうにない'
-GRAMMAR_EXPRESSIONS = GRAMMAR_EXPRESSIONS | {SOU_NI_NAI_EXPRESSION}
-
-SOU_MO_NAI_EXPRESSION = '〜そうもない'
-GRAMMAR_EXPRESSIONS = GRAMMAR_EXPRESSIONS | {SOU_MO_NAI_EXPRESSION}
-
-SOU_NI_NARU_EXPRESSION = '〜そうになる'
-GRAMMAR_EXPRESSIONS = GRAMMAR_EXPRESSIONS | {SOU_NI_NARU_EXPRESSION}
-
-TTEKOTO_TTEWAKE_EXPRESSION = '〜ってこと / 〜ってわけ'
-GRAMMAR_EXPRESSIONS = GRAMMAR_EXPRESSIONS | {TTEKOTO_TTEWAKE_EXPRESSION}
-WAKE_TSUTEWAKE_EXPRESSION = '〜わけ / 〜ってわけ'
-GRAMMAR_EXPRESSIONS = GRAMMAR_EXPRESSIONS | {WAKE_TSUTEWAKE_EXPRESSION}
-
-GRAMMAR_EXPRESSIONS = GRAMMAR_EXPRESSIONS | {KAINA_YAN_YARO_EXPRESSION}
-GRAMMAR_EXPRESSIONS = GRAMMAR_EXPRESSIONS | {TOKA_EXPRESSION}
-
-TARADOU_EXPRESSION = '〜たらどう / 〜たらどうですか'
-GRAMMAR_EXPRESSIONS = GRAMMAR_EXPRESSIONS | {TARADOU_EXPRESSION}
-
-TATSUTE_DATSUTE_EXPRESSION = '〜たって / 〜だって'
-GRAMMAR_EXPRESSIONS = GRAMMAR_EXPRESSIONS | {TATSUTE_DATSUTE_EXPRESSION}
-
-TEMORAITAI_EXPRESSION = '〜てもらいたい'
-GRAMMAR_EXPRESSIONS = GRAMMAR_EXPRESSIONS | {TEMORAITAI_EXPRESSION}
-GRAMMAR_EXPRESSIONS = GRAMMAR_EXPRESSIONS | {KOTO_NI_SHITEIRU_EXPRESSION}
-GRAMMAR_EXPRESSIONS = GRAMMAR_EXPRESSIONS | {KOTO_NI_NATTEIRU_EXPRESSION}
-
-NISHITEMO_EXPRESSION = '〜にしても'
-GRAMMAR_EXPRESSIONS = GRAMMAR_EXPRESSIONS | {NISHITEMO_EXPRESSION}
-
-NISHITEMONISHITEMO_EXPRESSION = '〜にしても〜にしても'
-GRAMMAR_EXPRESSIONS = GRAMMAR_EXPRESSIONS | {NISHITEMONISHITEMO_EXPRESSION}
-
-NITOTSUTE_EXPRESSION = '〜にとって'
-GRAMMAR_EXPRESSIONS = GRAMMAR_EXPRESSIONS | {NITOTSUTE_EXPRESSION}
-NITSUITE_EXPRESSION = '〜について'
-GRAMMAR_EXPRESSIONS = GRAMMAR_EXPRESSIONS | {NITSUITE_EXPRESSION}
-NIYOTTE_NIYORU_EXPRESSION = '〜によって / 〜による'
-GRAMMAR_EXPRESSIONS = GRAMMAR_EXPRESSIONS | {NIYOTTE_NIYORU_EXPRESSION}
-NIYORUTO_NIYOREBA_EXPRESSION = '〜によると / 〜によれば'
-GRAMMAR_EXPRESSIONS = GRAMMAR_EXPRESSIONS | {NIYORUTO_NIYOREBA_EXPRESSION}
-NITAISHITE_EXPRESSION = '〜に対して'
-GRAMMAR_EXPRESSIONS = GRAMMAR_EXPRESSIONS | {NITAISHITE_EXPRESSION}
-NIKURABETE_EXPRESSION = '〜に比べて'
-GRAMMAR_EXPRESSIONS = GRAMMAR_EXPRESSIONS | {NIKURABETE_EXPRESSION}
-NIKUWAETE_EXPRESSION = '〜に加えて'
-GRAMMAR_EXPRESSIONS = GRAMMAR_EXPRESSIONS | {NIKUWAETE_EXPRESSION}
-NIKAGIRU_EXPRESSION = '〜に限る'
-GRAMMAR_EXPRESSIONS = GRAMMAR_EXPRESSIONS | {NIKAGIRU_EXPRESSION}
-NIKAGIRAZU_EXPRESSION = '〜に限らず'
-GRAMMAR_EXPRESSIONS = GRAMMAR_EXPRESSIONS | {NIKAGIRAZU_EXPRESSION}
-NIKAGITTSUTE_EXPRESSION = '〜に限って'
-GRAMMAR_EXPRESSIONS = GRAMMAR_EXPRESSIONS | {NIKAGITTSUTE_EXPRESSION}
-NIKANSHITE_NIKANSURU_EXPRESSION = '〜に関して / 〜に関する'
-GRAMMAR_EXPRESSIONS = GRAMMAR_EXPRESSIONS | {NIKANSHITE_NIKANSURU_EXPRESSION}
-NIMUKATTE_NIMUKETE_EXPRESSION = '〜に向かって / 〜に向けて'
-GRAMMAR_EXPRESSIONS = GRAMMAR_EXPRESSIONS | {NIMUKATTE_NIMUKETE_EXPRESSION}
-NIMUITEIRU_MUKI_EXPRESSION = '〜に向いている / 〜向き'
-GRAMMAR_EXPRESSIONS = GRAMMAR_EXPRESSIONS | {NIMUITEIRU_MUKI_EXPRESSION}
-
-NIKAWATTE_NOKAWARINI_EXPRESSION = '〜に代わって / 〜の代わりに'
-GRAMMAR_EXPRESSIONS = GRAMMAR_EXPRESSIONS | {NIKAWATTE_NOKAWARINI_EXPRESSION}
-
-# Old identities remain protected and can be migrated in place.
+GRAMMAR_EXPRESSIONS = frozenset(rule.expression for rule in RULES)
 LEGACY_GRAMMAR_EXPRESSIONS = {expression + ' (grammar)': expression for expression in GRAMMAR_EXPRESSIONS}

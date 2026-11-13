@@ -1,10 +1,10 @@
 """Source-aligned verb て-form + くる construction."""
-from src.GrammarConstants import TE_KURU_GRAMMAR_EXPRESSION
+TE_KURU_GRAMMAR_EXPRESSION = '〜てくる'
 from src.grammar_rules.base import GrammarRule
 from src.grammar_rules.helpers import polite_suffix_end, adjacent, next_matches, negative_predicate_end, positive_verb_end
 
 
-RULE = GrammarRule(
+RULE = GrammarRule(order=156,
     id='te_kuru', expression=TE_KURU_GRAMMAR_EXPRESSION, reading='てくる',
     meaning='come and do; do and come back; begin to; continue up to the present',
     match=lambda tokens: match_te_kuru(tokens),
@@ -53,3 +53,5 @@ def match_te_kuru(tokens):
         else:
             continue
         yield connective['span'][0], tokens[end]['span'][1]
+
+RULES = (RULE,)

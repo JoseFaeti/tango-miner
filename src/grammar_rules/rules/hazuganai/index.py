@@ -1,5 +1,5 @@
 """Predicate-attached inference that something cannot be the case."""
-from src.GrammarConstants import HAZUGANAI_EXPRESSION
+HAZUGANAI_EXPRESSION = '〜はずがない'
 from src.grammar_rules.base import GrammarRule
 from src.grammar_rules.helpers import adjacent, adjective_inflection_end
 
@@ -24,5 +24,7 @@ def match_hazuganai(tokens):
             yield hazu['span'][0], tokens[end]['span'][1]
 
 
-RULE = GrammarRule(id='hazuganai', expression=HAZUGANAI_EXPRESSION,
+RULE = GrammarRule(order=35, id='hazuganai', expression=HAZUGANAI_EXPRESSION,
                    reading='はずがない', meaning='cannot be; there is no way that', match=match_hazuganai)
+
+RULES = (RULE,)

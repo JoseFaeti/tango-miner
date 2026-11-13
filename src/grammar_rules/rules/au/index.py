@@ -1,5 +1,5 @@
 """Mutual action expressed by a compound verb ending in 合う."""
-from src.GrammarConstants import AU_GRAMMAR_EXPRESSION
+AU_GRAMMAR_EXPRESSION = '〜合う'
 from src.grammar_rules.base import GrammarRule
 from src.grammar_rules.helpers import adjacent, next_matches, negative_suffix_end, polite_suffix_end
 
@@ -38,5 +38,7 @@ def match_au(tokens):
             yield start, tokens[end]['span'][1]
 
 
-RULE = GrammarRule(id='au', expression=AU_GRAMMAR_EXPRESSION,
+RULE = GrammarRule(order=181, id='au', expression=AU_GRAMMAR_EXPRESSION,
                    reading='あう', meaning='do together; do to each other', match=match_au)
+
+RULES = (RULE,)

@@ -1,10 +1,10 @@
 """Rule for te_shimau."""
-from src.GrammarConstants import TE_SHIMAU_GRAMMAR_EXPRESSION
+TE_SHIMAU_GRAMMAR_EXPRESSION = '〜てしまう'
 from src.grammar_rules.base import GrammarRule
 from src.grammar_rules.helpers import polite_suffix_end, has_next, next_matches, negative_suffix_end, positive_verb_end
 
 
-RULE = GrammarRule(
+RULE = GrammarRule(order=160,
     id='te_shimau', expression=TE_SHIMAU_GRAMMAR_EXPRESSION, reading='てしまう',
     meaning='finish doing; do completely; do unintentionally or with regret',
     match=lambda tokens: match_te_shimau(tokens),
@@ -59,3 +59,5 @@ def match_te_shimau(tokens):
         else:
             continue
         yield first['span'][0], tokens[end]['span'][1]
+
+RULES = (RULE,)

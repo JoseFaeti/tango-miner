@@ -1,5 +1,5 @@
 """Desire for another person to perform an action."""
-from src.GrammarConstants import TE_HOSHII_GRAMMAR_EXPRESSION
+TE_HOSHII_GRAMMAR_EXPRESSION = '〜てほしい'
 from src.grammar_rules.base import GrammarRule
 from src.grammar_rules.helpers import adjacent, adjective_inflection_end, next_matches
 
@@ -30,7 +30,9 @@ def match_te_hoshii(tokens):
         yield connective['span'][0], tokens[end]['span'][1]
 
 
-RULE = GrammarRule(
+RULE = GrammarRule(order=115,
     id='te_hoshii', expression=TE_HOSHII_GRAMMAR_EXPRESSION,
     reading='てほしい', meaning='want someone to do', match=match_te_hoshii,
 )
+
+RULES = (RULE,)

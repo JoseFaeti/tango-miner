@@ -1,5 +1,5 @@
 """Negative explanatory copula, including conjectural and prohibitive uses."""
-from src.GrammarConstants import NJIYANAI_NODEHANAI_EXPRESSION
+NJIYANAI_NODEHANAI_EXPRESSION = '〜んじゃない / 〜のではない'
 from src.grammar_rules.base import GrammarRule
 from src.grammar_rules.rules.nda.index import match_nda
 
@@ -14,7 +14,9 @@ def match_njiyanai_nodehanai(tokens):
                 yield start, end
 
 
-RULE = GrammarRule(id='njiyanai_nodehanai', expression=NJIYANAI_NODEHANAI_EXPRESSION,
+RULE = GrammarRule(order=65, id='njiyanai_nodehanai', expression=NJIYANAI_NODEHANAI_EXPRESSION,
                    reading='んじゃない / のではない',
                    meaning='explanatory negation; perhaps; do not (depending on context)',
                    match=match_njiyanai_nodehanai)
+
+RULES = (RULE,)

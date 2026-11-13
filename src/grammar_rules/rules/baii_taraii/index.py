@@ -1,5 +1,5 @@
 """Conditional plus いい for suggestions, wishes, and sufficiency."""
-from src.GrammarConstants import BAII_TARAII_EXPRESSION
+BAII_TARAII_EXPRESSION = '〜ばいい / 〜たらいい'
 from src.grammar_rules.base import GrammarRule
 from src.grammar_rules.helpers import adjacent
 from src.grammar_rules.rules.ba.index import match_ba
@@ -17,7 +17,9 @@ def match_baii_taraii(tokens):
             yield conditional['span'][0], adjective['span'][1]
 
 
-RULE = GrammarRule(id='baii_taraii', expression=BAII_TARAII_EXPRESSION,
+RULE = GrammarRule(order=26, id='baii_taraii', expression=BAII_TARAII_EXPRESSION,
                    reading='ばいい / たらいい',
                    meaning='should; it would be good if; all one needs to do',
                    match=match_baii_taraii)
+
+RULES = (RULE,)

@@ -1,5 +1,5 @@
 """Ability expressed by a verb followed by ことができる."""
-from src.GrammarConstants import KOTO_GA_DEKIRU_EXPRESSION
+KOTO_GA_DEKIRU_EXPRESSION = '〜ことができる'
 from src.grammar_rules.base import GrammarRule
 from src.grammar_rules.helpers import adjacent, next_matches, negative_suffix_end, polite_suffix_end
 
@@ -40,6 +40,8 @@ def match_koto_ga_dekiru(tokens):
             yield koto['span'][0], tokens[end]['span'][1]
 
 
-RULE = GrammarRule(id='koto_ga_dekiru', expression=KOTO_GA_DEKIRU_EXPRESSION,
+RULE = GrammarRule(order=110, id='koto_ga_dekiru', expression=KOTO_GA_DEKIRU_EXPRESSION,
                    reading='ことができる', meaning='can do; be able to do',
                    match=match_koto_ga_dekiru)
+
+RULES = (RULE,)

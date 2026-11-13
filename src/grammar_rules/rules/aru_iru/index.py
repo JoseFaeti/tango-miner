@@ -1,5 +1,5 @@
 """Standalone existence predicates following a subject, topic or location marker."""
-from src.GrammarConstants import ARU_IRU_EXPRESSION
+ARU_IRU_EXPRESSION = 'ある / いる'
 from src.grammar_rules.base import GrammarRule
 from src.grammar_rules.helpers import adjacent, next_matches, negative_suffix_end, polite_suffix_end
 
@@ -34,5 +34,7 @@ def match_aru_iru(tokens):
             yield verb['span'][0], tokens[end]['span'][1]
 
 
-RULE = GrammarRule(id='aru_iru', expression=ARU_IRU_EXPRESSION, reading='ある / いる',
+RULE = GrammarRule(order=168, id='aru_iru', expression=ARU_IRU_EXPRESSION, reading='ある / いる',
                    meaning='exist; be present', match=match_aru_iru)
+
+RULES = (RULE,)

@@ -1,5 +1,5 @@
 """Noun + に加えて: in addition to."""
-from src.GrammarConstants import NIKUWAETE_EXPRESSION
+NIKUWAETE_EXPRESSION = '〜に加えて'
 from src.grammar_rules.base import GrammarRule
 from src.grammar_rules.helpers import adjacent
 
@@ -23,6 +23,8 @@ def match_nikuwaete(tokens):
                 break
 
 
-RULE = GrammarRule(id='nikuwaete', expression=NIKUWAETE_EXPRESSION,
+RULE = GrammarRule(order=-1, id='nikuwaete', expression=NIKUWAETE_EXPRESSION,
                    reading='にくわえて', meaning='in addition to',
                    match=match_nikuwaete)
+
+RULES = (RULE,)

@@ -1,5 +1,5 @@
 """〜に限る: the best choice or a restriction."""
-from src.GrammarConstants import NIKAGIRU_EXPRESSION
+NIKAGIRU_EXPRESSION = '〜に限る'
 from src.grammar_rules.base import GrammarRule
 from src.grammar_rules.helpers import adjacent
 
@@ -22,6 +22,8 @@ def match_nikagiru(tokens):
                 yield ni['span'][0], polite['span'][1]
 
 
-RULE = GrammarRule(id='nikagiru', expression=NIKAGIRU_EXPRESSION,
+RULE = GrammarRule(order=3, id='nikagiru', expression=NIKAGIRU_EXPRESSION,
                    reading='にかぎる', meaning='best to; limited to',
                    match=match_nikagiru)
+
+RULES = (RULE,)

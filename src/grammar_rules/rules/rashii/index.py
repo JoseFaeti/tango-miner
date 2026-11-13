@@ -1,5 +1,5 @@
 """Hearsay or characteristic expressed by らしい."""
-from src.GrammarConstants import RASHII_EXPRESSION
+RASHII_EXPRESSION = '〜らしい'
 from src.grammar_rules.base import GrammarRule
 from src.grammar_rules.helpers import adjacent, adjective_inflection_end, next_matches
 
@@ -26,5 +26,7 @@ def match_rashii(tokens):
             yield suffix['span'][0], tokens[end]['span'][1]
 
 
-RULE = GrammarRule(id='rashii', expression=RASHII_EXPRESSION, reading='らしい',
+RULE = GrammarRule(order=78, id='rashii', expression=RASHII_EXPRESSION, reading='らしい',
                    meaning='apparently; characteristic of', match=match_rashii)
+
+RULES = (RULE,)

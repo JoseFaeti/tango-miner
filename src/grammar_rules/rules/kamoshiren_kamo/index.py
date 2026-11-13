@@ -1,5 +1,5 @@
 """Colloquial possibility with かもしれん or sentence-final かも."""
-from src.GrammarConstants import KAMOSHIREN_KAMO_EXPRESSION
+KAMOSHIREN_KAMO_EXPRESSION = '〜かもしれん / 〜かも'
 from src.grammar_rules.base import GrammarRule
 from src.grammar_rules.helpers import adjacent
 
@@ -25,6 +25,8 @@ def match_kamoshiren_kamo(tokens):
         yield ka['span'][0], tokens[end]['span'][1]
 
 
-RULE = GrammarRule(id='kamoshiren_kamo', expression=KAMOSHIREN_KAMO_EXPRESSION,
+RULE = GrammarRule(order=74, id='kamoshiren_kamo', expression=KAMOSHIREN_KAMO_EXPRESSION,
                    reading='かもしれん / かも', meaning='might; maybe (colloquial)',
                    match=match_kamoshiren_kamo)
+
+RULES = (RULE,)

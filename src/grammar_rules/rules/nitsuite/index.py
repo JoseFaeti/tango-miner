@@ -1,5 +1,5 @@
 """Noun or pronoun + について: concerning a topic."""
-from src.GrammarConstants import NITSUITE_EXPRESSION
+NITSUITE_EXPRESSION = '〜について'
 from src.grammar_rules.base import GrammarRule
 from src.grammar_rules.helpers import adjacent
 
@@ -22,6 +22,8 @@ def match_nitsuite(tokens):
             yield ni['span'][0], tail[-1]['span'][1]
 
 
-RULE = GrammarRule(id='nitsuite', expression=NITSUITE_EXPRESSION,
+RULE = GrammarRule(order=11, id='nitsuite', expression=NITSUITE_EXPRESSION,
                    reading='について', meaning='about; concerning',
                    match=match_nitsuite)
+
+RULES = (RULE,)

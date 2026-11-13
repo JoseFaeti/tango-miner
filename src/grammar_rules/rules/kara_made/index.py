@@ -1,5 +1,5 @@
 """Source and endpoint particles with source-aligned attachment."""
-from src.GrammarConstants import KARA_MADE_EXPRESSION
+KARA_MADE_EXPRESSION = 'から / まで'
 from src.grammar_rules.base import GrammarRule
 from src.grammar_rules.helpers import adjacent
 
@@ -33,5 +33,7 @@ def match_kara_made(tokens):
         yield tuple(particle['span'])
 
 
-RULE = GrammarRule(id='kara_made', expression=KARA_MADE_EXPRESSION,
+RULE = GrammarRule(order=55, id='kara_made', expression=KARA_MADE_EXPRESSION,
                    reading='から / まで', meaning='from; until; up to', match=match_kara_made)
+
+RULES = (RULE,)

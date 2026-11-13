@@ -1,5 +1,5 @@
 """Verb te-form plus mo ii, expressing permission or acceptance."""
-from src.GrammarConstants import TE_MO_II_GRAMMAR_EXPRESSION
+TE_MO_II_GRAMMAR_EXPRESSION = '〜てもいい'
 from src.grammar_rules.base import GrammarRule
 from src.grammar_rules.helpers import adjacent, next_matches
 from src.grammar_rules.rules.nakutemoii.index import match_nakutemoii
@@ -38,8 +38,10 @@ def match_te_mo_ii(tokens):
         yield token['span'][0], tokens[end]['span'][1]
 
 
-RULE = GrammarRule(
+RULE = GrammarRule(order=147,
     id='te_mo_ii', expression=TE_MO_II_GRAMMAR_EXPRESSION, reading='てもいい',
     meaning='may; can; it is all right to; even if',
     match=match_te_mo_ii,
 )
+
+RULES = (RULE,)

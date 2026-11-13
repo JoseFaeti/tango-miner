@@ -1,5 +1,5 @@
 """Source-aligned verb te-form + non-independent miru (try doing)."""
-from src.GrammarConstants import TE_MIRU_GRAMMAR_EXPRESSION
+TE_MIRU_GRAMMAR_EXPRESSION = '〜てみる'
 from src.grammar_rules.base import GrammarRule
 from src.grammar_rules.helpers import adjacent, negative_suffix_end, positive_verb_end
 
@@ -31,8 +31,10 @@ def match_te_miru(tokens):
             yield connective['span'][0], tokens[end]['span'][1]
 
 
-RULE = GrammarRule(
+RULE = GrammarRule(order=145,
     id='te_miru', expression=TE_MIRU_GRAMMAR_EXPRESSION, reading='てみる',
     meaning='try doing; have a go at; do and see what happens',
     match=match_te_miru,
 )
+
+RULES = (RULE,)

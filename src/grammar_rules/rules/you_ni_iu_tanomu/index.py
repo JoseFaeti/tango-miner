@@ -1,5 +1,5 @@
 """Indirect instructions with ように言う or 頼む."""
-from src.GrammarConstants import YOU_NI_IU_TANOMU_EXPRESSION
+YOU_NI_IU_TANOMU_EXPRESSION = '〜ように言う / 頼む'
 from src.grammar_rules.base import GrammarRule
 from src.grammar_rules.helpers import adjacent, next_matches, positive_verb_end, negative_predicate_end
 
@@ -56,6 +56,8 @@ def match_you_ni_iu_tanomu(tokens):
             yield you['span'][0], tokens[end]['span'][1]
 
 
-RULE = GrammarRule(id='you_ni_iu_tanomu', expression=YOU_NI_IU_TANOMU_EXPRESSION,
+RULE = GrammarRule(order=96, id='you_ni_iu_tanomu', expression=YOU_NI_IU_TANOMU_EXPRESSION,
                    reading='ようにいう・たのむ', meaning='tell or ask someone to do',
                    match=match_you_ni_iu_tanomu)
+
+RULES = (RULE,)

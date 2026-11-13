@@ -1,5 +1,5 @@
 """Informal questions ending in かい or だい."""
-from src.GrammarConstants import KAI_DAI_EXPRESSION
+KAI_DAI_EXPRESSION = '〜かい / 〜だい'
 from src.grammar_rules.base import GrammarRule
 from src.grammar_rules.helpers import adjacent
 
@@ -24,5 +24,7 @@ def match_kai_dai(tokens):
         yield marker['span'][0], final['span'][1]
 
 
-RULE = GrammarRule(id='kai_dai', expression=KAI_DAI_EXPRESSION,
+RULE = GrammarRule(order=61, id='kai_dai', expression=KAI_DAI_EXPRESSION,
                    reading='かい / だい', meaning='informal question', match=match_kai_dai)
+
+RULES = (RULE,)

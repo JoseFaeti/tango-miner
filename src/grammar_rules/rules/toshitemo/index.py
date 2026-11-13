@@ -1,5 +1,5 @@
 """Concessive としても, retaining ambiguous capacity readings."""
-from src.GrammarConstants import TOSHITEMO_EXPRESSION
+TOSHITEMO_EXPRESSION = '〜としても'
 from src.grammar_rules.base import GrammarRule
 from src.grammar_rules.helpers import adjacent
 
@@ -17,6 +17,8 @@ def match_toshitemo(tokens):
         yield to['span'][0], mo['span'][1]
 
 
-RULE = GrammarRule(id='toshitemo', expression=TOSHITEMO_EXPRESSION,
+RULE = GrammarRule(order=15, id='toshitemo', expression=TOSHITEMO_EXPRESSION,
                    reading='としても', meaning='even if; even assuming',
                    match=match_toshitemo)
+
+RULES = (RULE,)

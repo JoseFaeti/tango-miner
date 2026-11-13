@@ -1,5 +1,5 @@
 """Noun-attached non-exhaustive listing particles."""
-from src.GrammarConstants import YA_TOKA_EXPRESSION
+YA_TOKA_EXPRESSION = 'や / とか'
 from src.grammar_rules.base import GrammarRule
 from src.grammar_rules.helpers import adjacent
 
@@ -23,5 +23,7 @@ def match_ya_toka(tokens):
                 yield (particle['span'][0], end['span'][1])
 
 
-RULE = GrammarRule(id='ya_toka', expression=YA_TOKA_EXPRESSION, reading='や / とか',
+RULE = GrammarRule(order=52, id='ya_toka', expression=YA_TOKA_EXPRESSION, reading='や / とか',
                    meaning='and such things as; non-exhaustive listing', match=match_ya_toka)
+
+RULES = (RULE,)

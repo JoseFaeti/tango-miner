@@ -1,10 +1,10 @@
 """Rule for te_iru."""
-from src.GrammarConstants import TE_IRU_GRAMMAR_EXPRESSION
+TE_IRU_GRAMMAR_EXPRESSION = '〜ている'
 from src.grammar_rules.base import GrammarRule
 from src.grammar_rules.helpers import polite_suffix_end, has_next, negative_suffix_end
 
 
-RULE = GrammarRule(
+RULE = GrammarRule(order=157,
     id='te_iru', expression=TE_IRU_GRAMMAR_EXPRESSION, reading='ている',
     meaning='be doing; be in a resulting state; do habitually',
     match=lambda tokens: match_te_iru(tokens),
@@ -83,3 +83,5 @@ def match_te_iru(tokens):
                 end = i + 1
         if end is not None:
             yield token['span'][0], tokens[end]['span'][1]
+
+RULES = (RULE,)

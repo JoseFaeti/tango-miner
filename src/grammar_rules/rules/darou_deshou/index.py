@@ -1,5 +1,5 @@
 """Conjectural and confirmation auxiliary endings."""
-from src.GrammarConstants import DAROU_DESHOU_EXPRESSION
+DAROU_DESHOU_EXPRESSION = 'だろう / でしょう'
 from src.grammar_rules.base import GrammarRule
 
 
@@ -11,6 +11,8 @@ def match_darou_deshou(tokens):
             yield tuple(token['span'])
 
 
-RULE = GrammarRule(id='darou_deshou', expression=DAROU_DESHOU_EXPRESSION,
+RULE = GrammarRule(order=164, id='darou_deshou', expression=DAROU_DESHOU_EXPRESSION,
                    reading='だろう / でしょう', meaning='probably; I suppose; right?',
                    match=match_darou_deshou)
+
+RULES = (RULE,)

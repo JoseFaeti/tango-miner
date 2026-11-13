@@ -1,5 +1,5 @@
 """Polite requests using the potential of いただく."""
-from src.GrammarConstants import TE_ITADAKEMASENKA_EXPRESSION
+TE_ITADAKEMASENKA_EXPRESSION = '〜ていただけませんか'
 from src.grammar_rules.base import GrammarRule
 from src.grammar_rules.helpers import adjacent, polite_suffix_end
 
@@ -26,6 +26,8 @@ def match_te_itadakemasenka(tokens):
             yield connective['span'][0], question['span'][1]
 
 
-RULE = GrammarRule(id='te_itadakemasenka', expression=TE_ITADAKEMASENKA_EXPRESSION,
+RULE = GrammarRule(order=38, id='te_itadakemasenka', expression=TE_ITADAKEMASENKA_EXPRESSION,
                    reading='ていただけませんか', meaning='could you please do',
                    match=match_te_itadakemasenka)
+
+RULES = (RULE,)

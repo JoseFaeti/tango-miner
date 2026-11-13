@@ -1,5 +1,5 @@
 """Negative wondering that can express a wish or an indirect request."""
-from src.GrammarConstants import NAIKANA_EXPRESSION
+NAIKANA_EXPRESSION = '〜ないかな'
 from src.grammar_rules.base import GrammarRule
 from src.grammar_rules.helpers import adjacent
 from src.grammar_rules.rules.kana_kashira.index import match_kana_kashira
@@ -16,6 +16,8 @@ def match_naikana(tokens):
             yield negative['span'][0], endings[marker['span'][0]]
 
 
-RULE = GrammarRule(id='naikana', expression=NAIKANA_EXPRESSION,
+RULE = GrammarRule(order=58, id='naikana', expression=NAIKANA_EXPRESSION,
                    reading='ないかな', meaning='I hope; I wonder if; an indirect request',
                    match=match_naikana)
+
+RULES = (RULE,)

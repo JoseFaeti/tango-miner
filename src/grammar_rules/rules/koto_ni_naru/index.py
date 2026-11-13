@@ -1,5 +1,5 @@
 """A verb followed by ことになる, describing an outcome or decision."""
-from src.GrammarConstants import KOTO_NI_NARU_GRAMMAR_EXPRESSION
+KOTO_NI_NARU_GRAMMAR_EXPRESSION = '〜ことになる'
 from src.grammar_rules.base import GrammarRule
 from src.grammar_rules.helpers import adjacent, next_matches, positive_verb_end
 from src.grammar_rules.rules.toiukotoninaru.index import match_toiukotoninaru
@@ -43,8 +43,10 @@ def match_koto_ni_naru(tokens):
             yield koto['span'][0], tokens[end]['span'][1]
 
 
-RULE = GrammarRule(
+RULE = GrammarRule(order=143,
     id='koto_ni_naru', expression=KOTO_NI_NARU_GRAMMAR_EXPRESSION,
     reading='ことになる', meaning='it is decided that; it turns out that; end up doing',
     match=match_koto_ni_naru,
 )
+
+RULES = (RULE,)

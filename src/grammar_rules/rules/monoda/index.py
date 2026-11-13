@@ -1,5 +1,5 @@
 """Predicate followed by finite ものだ, with inherent nominal ambiguity."""
-from src.GrammarConstants import MONODA_EXPRESSION
+MONODA_EXPRESSION = '〜ものだ'
 from src.grammar_rules.base import GrammarRule
 from src.grammar_rules.helpers import adjacent, next_matches
 
@@ -28,5 +28,7 @@ def match_monoda(tokens):
         yield mono['span'][0], tokens[end]['span'][1]
 
 
-RULE = GrammarRule(id='monoda', expression=MONODA_EXPRESSION, reading='ものだ',
+RULE = GrammarRule(order=72, id='monoda', expression=MONODA_EXPRESSION, reading='ものだ',
                    meaning='generally; used to; should; how (it is)', match=match_monoda)
+
+RULES = (RULE,)

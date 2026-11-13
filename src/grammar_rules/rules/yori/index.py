@@ -1,5 +1,5 @@
 """A conservative comparison use of the particle より."""
-from src.GrammarConstants import YORI_EXPRESSION
+YORI_EXPRESSION = '〜より'
 from src.grammar_rules.base import GrammarRule
 from src.grammar_rules.helpers import adjacent
 
@@ -16,5 +16,7 @@ def match_yori(tokens):
             yield tuple(particle['span'])
 
 
-RULE = GrammarRule(id='yori', expression=YORI_EXPRESSION, reading='より',
+RULE = GrammarRule(order=56, id='yori', expression=YORI_EXPRESSION, reading='より',
                    meaning='than; compared with', match=match_yori)
+
+RULES = (RULE,)

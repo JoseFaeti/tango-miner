@@ -1,5 +1,5 @@
 """Imperative requests following a verb's te-form."""
-from src.GrammarConstants import TE_KUDASAI_GRAMMAR_EXPRESSION
+TE_KUDASAI_GRAMMAR_EXPRESSION = '〜てください / 〜てくれ'
 from src.grammar_rules.base import GrammarRule
 from src.grammar_rules.helpers import adjacent
 
@@ -24,8 +24,10 @@ def match_te_kudasai(tokens):
         yield connective['span'][0], request['span'][1]
 
 
-RULE = GrammarRule(
+RULE = GrammarRule(order=119,
     id='te_kudasai', expression=TE_KUDASAI_GRAMMAR_EXPRESSION,
     reading='てください / てくれ', meaning='please do; do (a request)',
     match=match_te_kudasai,
 )
+
+RULES = (RULE,)

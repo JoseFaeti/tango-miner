@@ -1,5 +1,5 @@
 """Sentence-final conversational explanation with もの or もん."""
-from src.GrammarConstants import MONO_MON_EXPRESSION
+MONO_MON_EXPRESSION = '〜もの / 〜もん'
 from src.grammar_rules.base import GrammarRule
 from src.grammar_rules.helpers import adjacent
 
@@ -20,6 +20,8 @@ def match_mono_mon(tokens):
         yield mono['span'][0], mono['span'][1]
 
 
-RULE = GrammarRule(id='mono_mon', expression=MONO_MON_EXPRESSION,
+RULE = GrammarRule(order=73, id='mono_mon', expression=MONO_MON_EXPRESSION,
                    reading='もの / もん', meaning='because; since (conversational explanation or excuse)',
                    match=match_mono_mon)
+
+RULES = (RULE,)

@@ -1,5 +1,5 @@
 """Noun + によると / によれば, with bounded lexical controls."""
-from src.GrammarConstants import NIYORUTO_NIYOREBA_EXPRESSION
+NIYORUTO_NIYOREBA_EXPRESSION = '〜によると / 〜によれば'
 from src.grammar_rules.base import GrammarRule
 from src.grammar_rules.helpers import adjacent
 
@@ -18,6 +18,8 @@ def match_niyoruto_niyoreba(tokens):
         yield ni['span'][0], ending['span'][1]
 
 
-RULE = GrammarRule(id='niyoruto_niyoreba', expression=NIYORUTO_NIYOREBA_EXPRESSION,
+RULE = GrammarRule(order=8, id='niyoruto_niyoreba', expression=NIYORUTO_NIYOREBA_EXPRESSION,
                    reading='によると / によれば', meaning='according to',
                    match=match_niyoruto_niyoreba)
+
+RULES = (RULE,)

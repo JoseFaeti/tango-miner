@@ -1,5 +1,5 @@
 """Selected colloquial predicate-attached concessive forms."""
-from src.GrammarConstants import TATSUTE_DATSUTE_EXPRESSION
+TATSUTE_DATSUTE_EXPRESSION = '〜たって / 〜だって'
 from src.grammar_rules.base import GrammarRule
 from src.grammar_rules.helpers import adjacent
 
@@ -32,6 +32,8 @@ def match_tatsute_datsute(tokens):
         yield suffix['span'][0], tokens[end]['span'][1]
 
 
-RULE = GrammarRule(id='tatsute_datsute', expression=TATSUTE_DATSUTE_EXPRESSION,
+RULE = GrammarRule(order=124, id='tatsute_datsute', expression=TATSUTE_DATSUTE_EXPRESSION,
                    reading='たって / だって', meaning='even if; even though',
                    match=match_tatsute_datsute)
+
+RULES = (RULE,)

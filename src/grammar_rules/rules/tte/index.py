@@ -1,5 +1,5 @@
 """Colloquial quotation, topic and reported speech particle って."""
-from src.GrammarConstants import TTE_EXPRESSION
+TTE_EXPRESSION = '〜って'
 from src.grammar_rules.base import GrammarRule
 from src.grammar_rules.helpers import adjacent
 from src.grammar_rules.rules.toiu.index import match_toiu
@@ -28,5 +28,7 @@ def match_tte(tokens):
         yield particle['span']
 
 
-RULE = GrammarRule(id='tte', expression=TTE_EXPRESSION, reading='って',
+RULE = GrammarRule(order=93, id='tte', expression=TTE_EXPRESSION, reading='って',
                    meaning='quoting; as for; I hear that', match=match_tte)
+
+RULES = (RULE,)

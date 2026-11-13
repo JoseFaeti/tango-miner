@@ -1,5 +1,5 @@
 """Topic or explanation introduced by というのは."""
-from src.GrammarConstants import TOIUNOHA_EXPRESSION
+TOIUNOHA_EXPRESSION = '〜というのは'
 from src.grammar_rules.base import GrammarRule
 from src.grammar_rules.helpers import adjacent
 
@@ -19,6 +19,8 @@ def match_toiunoha(tokens):
         yield particle['span'][0], topic['span'][1]
 
 
-RULE = GrammarRule(id='toiunoha', expression=TOIUNOHA_EXPRESSION,
+RULE = GrammarRule(order=91, id='toiunoha', expression=TOIUNOHA_EXPRESSION,
                    reading='というのは', meaning='as for; what is meant by',
                    match=match_toiunoha)
+
+RULES = (RULE,)

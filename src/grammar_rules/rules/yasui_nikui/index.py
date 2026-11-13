@@ -1,10 +1,10 @@
 """Ease and difficulty expressed by an adjective-like suffix."""
-from src.GrammarConstants import YASUI_NIKUI_EXPRESSION
+YASUI_NIKUI_EXPRESSION = '〜やすい / 〜にくい'
 from src.grammar_rules.base import GrammarRule
 from src.grammar_rules.helpers import adjacent, adjective_inflection_end, next_matches
 
 
-RULE = GrammarRule(
+RULE = GrammarRule(order=109,
     id='yasui_nikui', expression=YASUI_NIKUI_EXPRESSION,
     reading='やすい / にくい', meaning='easy to do / difficult to do',
     match=lambda tokens: match_yasui_nikui(tokens),
@@ -32,3 +32,5 @@ def match_yasui_nikui(tokens):
         if next_matches(tokens, end, 'です', '助動詞', 'です'):
             end += 1
         yield suffix['span'][0], tokens[end]['span'][1]
+
+RULES = (RULE,)

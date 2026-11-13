@@ -1,10 +1,10 @@
 """Cued habitual non-occurrence, distinct from past experience."""
-from src.GrammarConstants import KOTO_GA_NAI
+KOTO_GA_NAI = '〜ことがない'
 from src.grammar_rules.base import GrammarRule
 from src.grammar_rules.helpers import adjacent, negative_predicate_end, next_matches
 
 
-RULE = GrammarRule(id='koto_ga_nai', expression=KOTO_GA_NAI,
+RULE = GrammarRule(order=82, id='koto_ga_nai', expression=KOTO_GA_NAI,
                    reading='ことがない', meaning='never do; never happens',
                    match=lambda tokens: match_never(tokens))
 
@@ -41,3 +41,5 @@ def match_never(tokens):
         else:
             continue
         yield koto['span'][0], tokens[end]['span'][1]
+
+RULES = (RULE,)

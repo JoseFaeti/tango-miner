@@ -1,5 +1,5 @@
 """Attributive quotation and naming with という or っていう."""
-from src.GrammarConstants import TOIU_EXPRESSION
+TOIU_EXPRESSION = '〜という / 〜っていう'
 from src.grammar_rules.base import GrammarRule
 from src.grammar_rules.helpers import adjacent
 from src.grammar_rules.rules.toiukotoda.index import match_toiukotoda
@@ -28,5 +28,7 @@ def match_toiu(tokens):
             yield particle['span'][0], verb['span'][1]
 
 
-RULE = GrammarRule(id='toiu', expression=TOIU_EXPRESSION, reading='という / っていう',
+RULE = GrammarRule(order=92, id='toiu', expression=TOIU_EXPRESSION, reading='という / っていう',
                    meaning='called; named; that is; saying that', match=match_toiu)
+
+RULES = (RULE,)
