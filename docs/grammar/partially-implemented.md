@@ -1,5 +1,7 @@
 # Partially implemented grammar points
 
+- [~] [〜一方だ](points/itsupouda.md)
+
 - [~] [〜反面 / 〜一方で](points/hanmen-itsupoude.md)
 
 - [~] [〜うえは](points/ueha.md)
