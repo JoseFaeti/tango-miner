@@ -19,6 +19,7 @@ from src.grammar_rules.rules.hodo_kurai_gurai.index import HODO_KURAI_GURAI_EXPR
 from src.grammar_rules.rules.hoshii.index import HOSHII_GRAMMAR_EXPRESSION
 from src.grammar_rules.rules.hou.index import HOU_EXPRESSION
 from src.grammar_rules.rules.hou_ga_ii.index import HOU_GA_II_EXPRESSION
+from src.grammar_rules.rules.irai.index import IRAI_EXPRESSION
 from src.grammar_rules.rules.janai_dewanai.index import JANAI_DEWANAI_EXPRESSION
 from src.grammar_rules.rules.jiyanaito_denaito.index import JIYANAITO_DENAITO_EXPRESSION
 from src.grammar_rules.rules.jiyan_jiyanaika.index import JIYAN_JIYANAIKA_EXPRESSION
