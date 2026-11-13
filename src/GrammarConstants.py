@@ -32,6 +32,7 @@ from src.grammar_rules.rules.kamoshiren_kamo.index import KAMOSHIREN_KAMO_EXPRES
 from src.grammar_rules.rules.kana_kashira.index import KANA_KASHIRA_EXPRESSION
 from src.grammar_rules.rules.kara_made.index import KARA_MADE_EXPRESSION
 from src.grammar_rules.rules.kara_node.index import KARA_NODE_EXPRESSION
+from src.grammar_rules.rules.karakoso.index import KARAKOSO_EXPRESSION
 from src.grammar_rules.rules.kedo_keredomo.index import KEDO_EXPRESSION
 from src.grammar_rules.rules.kotoda.index import KOTODA_EXPRESSION
 from src.grammar_rules.rules.kotoka.index import KOTOKA_EXPRESSION
