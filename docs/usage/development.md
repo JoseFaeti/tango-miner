@@ -75,6 +75,16 @@ After each optimization, analyze the remaining bottlenecks and propose the
 most useful next step. Report measurement limitations, including differences in
 inputs, configuration, dependencies, cache state and machine load where relevant.
 
+Use `python scripts/profile_expressions.py RUN_DIR/input.sentence.csv --repeat 3`
+to time expression matching on a bounded sample of archived examples. The
+checksum covers complete match records; tokenization, position aggregation and
+checksum calculation are outside the timed section. Archived examples are a
+selected sample, not the full corpus. On a 5,000-sentence sample with no
+matches, skipping entries whose nouns are absent reduced matching from about
+0.61 to 0.13 seconds. The expression step still aligns and counts eligible tokens
+for source positions on every sentence; profile that work on representative raw
+input before changing it.
+
 To time word-stat aggregation without rerunning the pipeline, use
 `python scripts/profile_word_stats.py RUN_DIR/input.sentence.csv --repeat 3`.
 This tokenizes a bounded sample of exported examples and times aggregation with

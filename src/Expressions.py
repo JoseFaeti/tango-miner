@@ -200,6 +200,12 @@ def _recover_surface_matches(sentence, aligned, entries, found):
 def find_expressions(sentence, entries=None):
     """Return complete, source-aligned matches without consuming lexical tokens."""
     entries = inventory() if entries is None else entries
+    # Both normal matching and boundary recovery require a literal noun spelling.
+    # Most sentences contain none, so avoid alignment and per-token inventory scans.
+    entries = tuple(entry for entry in entries
+                    if any(noun in sentence.text for noun in entry['noun']))
+    if not entries:
+        return []
     aligned, error = aligned_tokens(sentence.text, sentence.tokens)
     if error:
         return []
