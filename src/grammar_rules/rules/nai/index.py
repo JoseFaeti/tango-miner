@@ -3,6 +3,7 @@ from src.GrammarConstants import NAI_GRAMMAR_EXPRESSION
 from src.grammar_rules.base import GrammarRule
 from src.grammar_rules.helpers import adjacent, negative_suffix_end
 from src.grammar_rules.rules.nakutemoii.index import match_nakutemoii
+from src.grammar_rules.rules.nakunaru.index import match_nakunaru
 
 
 RULE = GrammarRule(
@@ -31,5 +32,6 @@ def match_nai(tokens):
             continue
         if no_obligation_starts is None:
             no_obligation_starts = {start for start, _ in match_nakutemoii(tokens)}
+            no_obligation_starts.update(start for start, _ in match_nakunaru(tokens))
         if negative['span'][0] not in no_obligation_starts:
             yield negative['span'][0], tokens[end]['span'][1]
