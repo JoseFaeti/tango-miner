@@ -6,6 +6,7 @@ from src.grammar_rules.rules.bakari.index import BAKARI_EXPRESSION
 from src.grammar_rules.rules.bayokatta_tarayokatta.index import BAYOKATTA_TARAYOKATTA_EXPRESSION
 from src.grammar_rules.rules.ba.index import BA_GRAMMAR_EXPRESSION
 from src.grammar_rules.rules.dake_nomi.index import DAKE_NOMI_EXPRESSION
+from src.grammar_rules.rules.dokoroka.index import DOKOROKA_EXPRESSION
 from src.grammar_rules.rules.darou_deshou.index import DAROU_DESHOU_EXPRESSION
 from src.grammar_rules.rules.datta_deshita.index import DATTA_DESHITA_EXPRESSION
 from src.grammar_rules.rules.da_desu.index import DA_DESU_EXPRESSION
