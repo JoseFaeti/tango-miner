@@ -29,6 +29,6 @@ def match_tte(tokens):
 
 
 RULE = GrammarRule(order=93, id='tte', expression=TTE_EXPRESSION, reading='って',
-                   meaning='quoting; as for; I hear that', match=match_tte)
+                   meaning='that (quoting someone); as for; I hear that', match=match_tte)
 
 RULES = (RULE,)

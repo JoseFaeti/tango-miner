@@ -24,6 +24,6 @@ def match_ya_toka(tokens):
 
 
 RULE = GrammarRule(order=52, id='ya_toka', expression=YA_TOKA_EXPRESSION, reading='や / とか',
-                   meaning='and such things as; non-exhaustive listing', match=match_ya_toka)
+                   meaning='and; such things as; and so on', match=match_ya_toka)
 
 RULES = (RULE,)

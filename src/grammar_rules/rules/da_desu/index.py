@@ -14,7 +14,7 @@ def match_da_desu(tokens):
 
 
 RULE = GrammarRule(order=165, id='da_desu', expression=DA_DESU_EXPRESSION,
-                   reading='だ / です', meaning='copula; polite predicate ending',
+                   reading='だ / です', meaning='is; am; are (です is polite)',
                    match=match_da_desu)
 
 RULES = (RULE,)

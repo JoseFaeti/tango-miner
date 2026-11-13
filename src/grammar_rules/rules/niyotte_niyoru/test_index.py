@@ -44,6 +44,8 @@ class NiyotteNiyoruTests(unittest.TestCase):
         self.assertIn('事故', words)
         self.assertIn('影響', words)
         self.assertEqual(words[RULE.expression].sentences[0].surface_form, 'による')
+        self.assertEqual(words[RULE.expression].definition,
+                         'according to; due to; by (means of); because of; via; on the basis of; depending on')
         self.assertIn(RULE, RULES)
         self.assertIn(RULE.expression, GRAMMAR_EXPRESSIONS)
         self.assertEqual(LEGACY_GRAMMAR_EXPRESSIONS[RULE.expression + ' (grammar)'], RULE.expression)

@@ -4,7 +4,9 @@ Status: [~]
 
 ## Meaning
 
-By, depending on or due to.
+According to; due to; by means of; because of; via; on the basis of; depending on.
+These glosses follow the JMdict entry for によって (1009640); the separate
+による entry (1009660) covers overlapping senses.
 
 ## Verified coverage
 

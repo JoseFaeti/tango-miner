@@ -16,7 +16,7 @@ def match_datta_deshita(tokens):
 
 
 RULE = GrammarRule(order=166, id='datta_deshita', expression=DATTA_DESHITA_EXPRESSION,
-                   reading='だった / でした', meaning='past copula; polite past predicate ending',
+                   reading='だった / でした', meaning='was; were (でした is polite)',
                    match=match_datta_deshita)
 
 RULES = (RULE,)

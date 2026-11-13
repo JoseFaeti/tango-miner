@@ -29,7 +29,7 @@ def match_janai_dewanai(tokens):
 
 
 RULE = GrammarRule(order=167, id='janai_dewanai', expression=JANAI_DEWANAI_EXPRESSION,
-                   reading='じゃない / ではない', meaning='negative copula; is not',
+                   reading='じゃない / ではない', meaning='is not; am not; are not',
                    match=match_janai_dewanai)
 
 RULES = (RULE,)

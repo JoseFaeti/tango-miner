@@ -7,6 +7,10 @@ Grammar is a standard part of the pipeline and runs by default; pass
 Anki is enabled, to the normal plan. Grammar meanings use short dictionary-style
 glosses; new cards and CSV output use the current glosses, and existing grammar
 note meanings and metrics can be refreshed under the [identity policy](identity-and-review.md).
+Where a JMdict entry corresponds to a grammar rule, its glosses can inform the
+curated rule meaning. Selection is manual: matching spellings can have unrelated
+senses, and a rule may cover only part of a dictionary entry. Grammar cards do
+not dynamically look up their meanings in the configured dictionary.
 
 An eligible source example must also pass the existing sentence-validity check. No card is emitted
 without an eligible example. Its frequency counts only the supported subset,

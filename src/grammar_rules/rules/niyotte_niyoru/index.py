@@ -26,7 +26,7 @@ def match_niyotte_niyoru(tokens):
 
 
 RULE = GrammarRule(order=9, id='niyotte_niyoru', expression=NIYOTTE_NIYORU_EXPRESSION,
-                   reading='によって / による', meaning='by; depending on; due to',
+                   reading='によって / による', meaning='according to; due to; by (means of); because of; via; on the basis of; depending on',
                    match=match_niyotte_niyoru)
 
 RULES = (RULE,)
