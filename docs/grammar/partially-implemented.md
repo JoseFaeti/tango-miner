@@ -1,5 +1,7 @@
 # Partially implemented grammar points
 
+- [~] [〜まま](points/mama.md)
+
 - [~] [〜かけだ](points/kakeda.md)
 
 - [~] [〜ている間に](points/teiruaidani.md)
