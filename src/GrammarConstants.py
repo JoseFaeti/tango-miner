@@ -164,6 +164,7 @@ from src.grammar_rules.rules.tokoroda.index import TOKORODA_EXPRESSION
 from src.grammar_rules.rules.toshitara_tosureba.index import TOSHITARA_TOSUREBA_EXPRESSION
 from src.grammar_rules.rules.toshitemo.index import TOSHITEMO_EXPRESSION
 from src.grammar_rules.rules.toshite.index import TOSHITE_EXPRESSION
+from src.grammar_rules.rules.toshiteha.index import TOSHITEHA_EXPRESSION
 from src.grammar_rules.rules.tosuruto.index import TOSURUTO_EXPRESSION
 from src.grammar_rules.rules.to_iu_kiku.index import TO_IU_KIKU_EXPRESSION
 from src.grammar_rules.rules.to_omou.index import TO_OMOU_GRAMMAR_EXPRESSION
