@@ -1,6 +1,7 @@
 # Partially implemented grammar points
 
 - [~] [〜どころか](points/dokoroka.md)
+- [~] [〜どころではない](points/dokorodehanai.md)
 
 - [~] [〜はもちろん](points/hamochiron.md)
 
