@@ -4,7 +4,6 @@ Ordered implementation queue for points not yet implemented. The order is an
 estimate of usefulness and frequency, not a measurement of corpus occurrences.
 Check each specification for overlap and source evidence before implementation.
 
-- [ ] [〜において / 〜における](points/nioite-niokeru.md)
 - [ ] [〜を中心に](points/ochiyuushinni.md)
 - [ ] [〜をはじめ](points/ohajime.md)
 - [ ] [〜をもとに](points/omotoni.md)
