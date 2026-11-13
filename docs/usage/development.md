@@ -5,8 +5,11 @@
 
 Example selection ranks sentences that meet the normal quality checks ahead of
 short, long, or otherwise low-quality source lines, but retains those lines as
-fallbacks. It prefers occurrences supporting the selected definition. If no
-compatible source example is available, one conflicting occurrence is attached
+fallbacks. Lines containing the Unicode replacement character are also ranked
+as low quality; recover their original text from an intact source to repair
+them. Input decoding itself is strict. The selector prefers occurrences
+supporting the selected definition. If no compatible source example is
+available, one conflicting occurrence is attached
 and recorded as `no_definition_compatible_example` in candidate diagnostics.
 Candidates with a JMdict definition remain eligible for output even when this
 or another review signal is present. Repeated identical lines do not create distinct examples;

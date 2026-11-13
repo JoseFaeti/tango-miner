@@ -27,6 +27,18 @@ def seg(text, lemma_surfaces, tag="tag"):
 
 
 class AttachSentencesStepTests(unittest.TestCase):
+    def test_replacement_character_examples_rank_below_clean_and_remain_fallbacks(self):
+        damaged = 'ハハ、なんかコレ、いつまでも傷�めてるって感じかも。'
+        clean = 'なんかコレ、いつまでも傷をつけてるって感じかも。'
+        target = make_stats(score=500, lemma='感じ')
+        examples = [seg(damaged, {'感じ': '感じ'}), seg(clean, {'感じ': '感じ'})]
+        attach_sentences({'感じ': target}, examples, config=SentencesConfig(max_sentences=2))
+        self.assertEqual([s.text for s in target.sentences], [clean, damaged])
+
+        only = make_stats(score=500, lemma='感じ')
+        attach_sentences({'感じ': only}, examples[:1])
+        self.assertEqual([s.text for s in only.sentences], [damaged])
+
     def test_grammar_examples_use_the_same_ranking_as_lexical_examples(self):
         grammar = make_stats(score=700, lemma='〜ている')
         grammar.pos = ('grammar',)

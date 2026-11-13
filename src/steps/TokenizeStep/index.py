@@ -357,6 +357,9 @@ def has_kanji(text: str) -> bool:
 
 
 def is_valid_sentence(text: str) -> bool:
+    if "\ufffd" in text:
+        return False
+
     if not contains_japanese_script(text):
         return False
 
