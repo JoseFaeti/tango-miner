@@ -22,7 +22,8 @@ or supported verbal negative, followed by merged ことにする or split こと
 に + する. Selected present, past and polite positive endings are supported.
 The predicate remains available as a lexical candidate; the matched suffix is
 reserved, subject to dictionary expression precedence. Noun-based uses,
-continuing ことにしている, negative endings and other analyses remain lexical.
+negative endings and other analyses remain lexical. Continuing ことにしている
+is handled separately by [〜ことにしている](kotonishiteiru.md).
 A decision reading is context dependent; precision and recall are not measured.
 
 See [stage and precedence](../stage-and-precedence.md) and [identity and review](../identity-and-review.md) for shared behavior.

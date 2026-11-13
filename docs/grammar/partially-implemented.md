@@ -220,6 +220,7 @@ indicate measured frequency.
 - [~] [〜てみる](points/te-miru.md)
 - [~] [〜ことになる](points/koto-ni-naru.md)
 - [~] [〜ことにする](points/koto-ni-suru.md)
+- [~] [〜ことにしている](points/kotonishiteiru.md)
 - [~] [〜ば](points/ba.md)
 - [~] [〜なら](points/nara.md)
 - [~] [〜ても](points/te-mo.md)

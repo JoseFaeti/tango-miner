@@ -4,24 +4,25 @@ from src.grammar_rules.base import GrammarRule
 from src.grammar_rules.helpers import adjacent, next_matches, positive_verb_end
 
 
+def has_verbal_predicate(tokens, i):
+    predicate, koto = tokens[i - 1:i + 1]
+    pos = predicate['pos']
+    if not adjacent(predicate, koto) or len(pos) < 6:
+        return False
+    if pos[:1] == ['動詞'] and pos[5].startswith(('終止形', '連体形')):
+        return True
+    return (predicate['lemma'] == 'ない' and predicate['surface'] == 'ない'
+            and pos[:1] == ['助動詞'] and pos[5].startswith(('終止形', '連体形'))
+            and i >= 2 and adjacent(tokens[i - 2], predicate)
+            and tokens[i - 2]['pos'][:1] == ['動詞']
+            and len(tokens[i - 2]['pos']) >= 6
+            and tokens[i - 2]['pos'][5].startswith('未然形'))
+
+
 def match_koto_ni_suru(tokens):
     for i in range(1, len(tokens)):
-        predicate, koto = tokens[i - 1:i + 1]
-        if koto['surface'] not in ('こと', 'ことにする'):
-            continue
-        pos = predicate['pos']
-        if not adjacent(predicate, koto) or len(pos) < 6:
-            continue
-        if pos[:1] == ['動詞'] and pos[5].startswith(('終止形', '連体形')):
-            pass
-        elif (predicate['lemma'] == 'ない' and predicate['surface'] == 'ない'
-              and pos[:1] == ['助動詞'] and pos[5].startswith(('終止形', '連体形'))
-              and i >= 2 and adjacent(tokens[i - 2], predicate)
-              and tokens[i - 2]['pos'][:1] == ['動詞']
-              and len(tokens[i - 2]['pos']) >= 6
-              and tokens[i - 2]['pos'][5].startswith('未然形')):
-            pass
-        else:
+        koto = tokens[i]
+        if koto['surface'] not in ('こと', 'ことにする') or not has_verbal_predicate(tokens, i):
             continue
         if koto['surface'] == 'ことにする' and koto['lemma'] == 'ことにする':
             end = i
