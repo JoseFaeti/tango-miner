@@ -117,6 +117,7 @@ from src.grammar_rules.rules.tabakari.index import TABAKARI_EXPRESSION
 from src.grammar_rules.rules.tabini.index import TABINI_EXPRESSION
 from src.grammar_rules.rules.tagaru.index import TAGARU_GRAMMAR_EXPRESSION
 from src.grammar_rules.rules.tai.index import TAI_GRAMMAR_EXPRESSION
+from src.grammar_rules.rules.tame.index import TAME_EXPRESSION
 from src.grammar_rules.rules.tame_ni.index import TAME_NI_GRAMMAR_EXPRESSION
 from src.grammar_rules.rules.taradou.index import TARADOU_EXPRESSION
 from src.grammar_rules.rules.tara.index import TARA_GRAMMAR_EXPRESSION

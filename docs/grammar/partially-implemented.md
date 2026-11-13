@@ -1,5 +1,7 @@
 # Partially implemented grammar points
 
+- [~] [〜ため](points/tame.md)
+
 - [~] [〜せいで](points/seide.md)
 
 - [~] [〜おかげで](points/okagede.md)
