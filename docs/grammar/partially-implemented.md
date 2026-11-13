@@ -1,5 +1,7 @@
 # Partially implemented grammar points
 
+- [~] [〜くなる / 〜になる](points/kunaru-ninaru.md)
+
 - [~] [〜なくなる / 〜ようになる](points/nakunaru-youninaru.md)
 
 - [~] [〜ことになっている](points/kotoninatsuteiru.md)
