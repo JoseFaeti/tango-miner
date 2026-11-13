@@ -15,6 +15,7 @@ from src.grammar_rules.rules.hajimeru_dasu.index import HAJIMERU_DASU_EXPRESSION
 from src.grammar_rules.rules.hazuganai.index import HAZUGANAI_EXPRESSION
 from src.grammar_rules.rules.hazu_da.index import HAZU_DA_GRAMMAR_EXPRESSION
 from src.grammar_rules.rules.ha.index import HA_EXPRESSION
+from src.grammar_rules.rules.hamochiron.index import HAMOCHIRON_EXPRESSION
 from src.grammar_rules.rules.hodo_kurai_gurai.index import HODO_KURAI_GURAI_EXPRESSION
 from src.grammar_rules.rules.hoshii.index import HOSHII_GRAMMAR_EXPRESSION
 from src.grammar_rules.rules.hou.index import HOU_EXPRESSION

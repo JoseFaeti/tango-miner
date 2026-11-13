@@ -1,5 +1,7 @@
 # Partially implemented grammar points
 
+- [~] [〜はもちろん](points/hamochiron.md)
+
 - [~] [〜ばかりでなく](points/bakaridenaku.md)
 
 - [~] [〜だけでなく](points/dakedenaku.md)
