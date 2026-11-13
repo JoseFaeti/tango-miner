@@ -1,5 +1,5 @@
 """Source-aligned focus particles さえ and すら."""
-from src.GrammarConstants import SAE_SURA_EXPRESSION
+SAE_SURA_EXPRESSION = 'さえ / すら'
 from src.grammar_rules.base import GrammarRule
 from src.grammar_rules.helpers import adjacent
 
@@ -18,5 +18,7 @@ def match_sae_sura(tokens):
         yield tuple(particle['span'])
 
 
-RULE = GrammarRule(id='sae_sura', expression=SAE_SURA_EXPRESSION,
+RULE = GrammarRule(order=46, id='sae_sura', expression=SAE_SURA_EXPRESSION,
                    reading='さえ / すら', meaning='even', match=match_sae_sura)
+
+RULES = (RULE,)

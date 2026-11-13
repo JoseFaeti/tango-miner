@@ -1,5 +1,5 @@
 """Source-aligned verb て-form + おく, including supported contractions."""
-from src.GrammarConstants import TE_OKU_GRAMMAR_EXPRESSION
+TE_OKU_GRAMMAR_EXPRESSION = '〜ておく'
 from src.grammar_rules.base import GrammarRule
 from src.grammar_rules.helpers import adjacent, next_matches, polite_suffix_end, negative_suffix_end
 
@@ -54,8 +54,10 @@ def match_te_oku(tokens):
         yield first['span'][0], tokens[end]['span'][1]
 
 
-RULE = GrammarRule(
+RULE = GrammarRule(order=146,
     id='te_oku', expression=TE_OKU_GRAMMAR_EXPRESSION, reading='ておく',
     meaning='do in advance; do in preparation; leave something in a resulting state',
     match=match_te_oku,
 )
+
+RULES = (RULE,)

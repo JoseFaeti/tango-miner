@@ -1,5 +1,5 @@
 """Noun + に代わって / の代わりに: substitution or representation."""
-from src.GrammarConstants import NIKAWATTE_NOKAWARINI_EXPRESSION
+NIKAWATTE_NOKAWARINI_EXPRESSION = '〜に代わって / 〜の代わりに'
 from src.grammar_rules.base import GrammarRule
 from src.grammar_rules.helpers import adjacent
 
@@ -26,6 +26,8 @@ def match_nikawatte_nokawarini(tokens):
             yield particle['span'][0], tail['span'][1]
 
 
-RULE = GrammarRule(id='nikawatte_nokawarini', expression=NIKAWATTE_NOKAWARINI_EXPRESSION,
+RULE = GrammarRule(order=0, id='nikawatte_nokawarini', expression=NIKAWATTE_NOKAWARINI_EXPRESSION,
                    reading='にかわって / のかわりに',
                    meaning='in place of; on behalf of', match=match_nikawatte_nokawarini)
+
+RULES = (RULE,)

@@ -1,5 +1,5 @@
 """Past verb followed by ところ, including resultative uses."""
-from src.GrammarConstants import TATOKORO_EXPRESSION
+TATOKORO_EXPRESSION = '〜たところ'
 from src.grammar_rules.base import GrammarRule
 from src.grammar_rules.helpers import adjacent
 
@@ -18,6 +18,8 @@ def match_tatokoro(tokens):
             yield marker['span'][0], marker['span'][1]
 
 
-RULE = GrammarRule(id='tatokoro', expression=TATOKORO_EXPRESSION,
+RULE = GrammarRule(order=101, id='tatokoro', expression=TATOKORO_EXPRESSION,
                    reading='たところ', meaning='just did; upon doing, found that',
                    match=match_tatokoro)
+
+RULES = (RULE,)

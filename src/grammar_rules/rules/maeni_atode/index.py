@@ -1,5 +1,5 @@
 """Attached temporal before/after expressions."""
-from src.GrammarConstants import MAENI_ATODE_EXPRESSION
+MAENI_ATODE_EXPRESSION = '〜前に / 〜後で'
 from src.grammar_rules.base import GrammarRule
 from src.grammar_rules.helpers import adjacent
 
@@ -30,7 +30,9 @@ def match_maeni_atode(tokens):
         yield noun['span'][0], particle['span'][1]
 
 
-RULE = GrammarRule(
+RULE = GrammarRule(order=105,
     id='maeni_atode', expression=MAENI_ATODE_EXPRESSION, reading='まえに / あとで',
     meaning='before; after', match=match_maeni_atode,
 )
+
+RULES = (RULE,)

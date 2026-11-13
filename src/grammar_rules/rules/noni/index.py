@@ -1,5 +1,5 @@
 """Attached のに, including ambiguous nominal uses."""
-from src.GrammarConstants import NONI_GRAMMAR_EXPRESSION
+NONI_GRAMMAR_EXPRESSION = '〜のに'
 from src.grammar_rules.base import GrammarRule
 from src.grammar_rules.helpers import adjacent
 
@@ -21,7 +21,9 @@ def match_noni(tokens):
         yield no['span'][0], ni['span'][1]
 
 
-RULE = GrammarRule(
+RULE = GrammarRule(order=121,
     id='noni', expression=NONI_GRAMMAR_EXPRESSION, reading='のに',
     meaning='although; even though; for (doing)', match=match_noni,
 )
+
+RULES = (RULE,)

@@ -1,5 +1,5 @@
 """Verb-attached ところ with a finite copula."""
-from src.GrammarConstants import TOKORODA_EXPRESSION
+TOKORODA_EXPRESSION = '〜ところだ'
 from src.grammar_rules.base import GrammarRule
 from src.grammar_rules.helpers import adjacent, next_matches
 
@@ -31,6 +31,8 @@ def match_tokoroda(tokens):
         yield noun['span'][0], tokens[end]['span'][1]
 
 
-RULE = GrammarRule(id='tokoroda', expression=TOKORODA_EXPRESSION,
+RULE = GrammarRule(order=102, id='tokoroda', expression=TOKORODA_EXPRESSION,
                    reading='ところだ', meaning='about to; in the middle of; just finished',
                    match=match_tokoroda)
+
+RULES = (RULE,)

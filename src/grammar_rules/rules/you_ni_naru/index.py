@@ -1,5 +1,5 @@
 """Verb-attached ようになる expressing a change of ability or habit."""
-from src.GrammarConstants import YOU_NI_NARU_EXPRESSION
+YOU_NI_NARU_EXPRESSION = '〜ようになる'
 from src.grammar_rules.base import GrammarRule
 from src.grammar_rules.helpers import adjacent, next_matches, positive_verb_end, negative_predicate_end
 
@@ -46,6 +46,8 @@ def match_you_ni_naru(tokens):
             yield you['span'][0], tokens[end]['span'][1]
 
 
-RULE = GrammarRule(id='you_ni_naru', expression=YOU_NI_NARU_EXPRESSION,
+RULE = GrammarRule(order=98, id='you_ni_naru', expression=YOU_NI_NARU_EXPRESSION,
                    reading='ようになる', meaning='come to; become able to; begin to habitually',
                    match=match_you_ni_naru)
+
+RULES = (RULE,)

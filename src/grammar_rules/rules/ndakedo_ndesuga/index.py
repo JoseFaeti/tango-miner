@@ -1,5 +1,5 @@
 """Explanatory clauses followed by a softening or contrastive connective."""
-from src.GrammarConstants import NDAKEDO_NDESUGA_EXPRESSION
+NDAKEDO_NDESUGA_EXPRESSION = '〜んだけど / 〜んですが'
 from src.grammar_rules.base import GrammarRule
 from src.grammar_rules.helpers import adjacent
 from src.grammar_rules.rules.nda.index import match_nda
@@ -27,6 +27,8 @@ def match_ndakedo_ndesuga(tokens):
             yield start, marker_end
 
 
-RULE = GrammarRule(id='ndakedo_ndesuga', expression=NDAKEDO_NDESUGA_EXPRESSION,
+RULE = GrammarRule(order=64, id='ndakedo_ndesuga', expression=NDAKEDO_NDESUGA_EXPRESSION,
                    reading='んだけど / んですが',
                    meaning='explanatory introduction; but; softening', match=match_ndakedo_ndesuga)
+
+RULES = (RULE,)

@@ -1,5 +1,5 @@
 """Noun + に対して: toward, regarding, or in contrast with."""
-from src.GrammarConstants import NITAISHITE_EXPRESSION
+NITAISHITE_EXPRESSION = '〜に対して'
 from src.grammar_rules.base import GrammarRule
 from src.grammar_rules.helpers import adjacent
 
@@ -22,6 +22,8 @@ def match_nitaishite(tokens):
                 break
 
 
-RULE = GrammarRule(id='nitaishite', expression=NITAISHITE_EXPRESSION,
+RULE = GrammarRule(order=10, id='nitaishite', expression=NITAISHITE_EXPRESSION,
                    reading='にたいして', meaning='toward; regarding; in contrast to',
                    match=match_nitaishite)
+
+RULES = (RULE,)

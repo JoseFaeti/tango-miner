@@ -1,5 +1,6 @@
 '''Predicate-attached explanatory and partial-negative わけ.'''
-from src.GrammarConstants import WAKE_DA, WAKE_NEGATIVE
+WAKE_DA = '〜わけだ'
+WAKE_NEGATIVE = '〜わけではない'
 from src.grammar_rules.base import GrammarRule
 from src.grammar_rules.helpers import adjacent, next_matches, negative_predicate_end
 
@@ -53,7 +54,9 @@ def match_negative(tokens):
     yield from matches(tokens, True)
 
 
-EXPLANATION = GrammarRule(id='wake_da', expression=WAKE_DA, reading='わけだ',
+EXPLANATION = GrammarRule(order=131, id='wake_da', expression=WAKE_DA, reading='わけだ',
                           meaning='that is why; it follows that', match=match_explanation)
-NEGATIVE = GrammarRule(id='wake_dewa_nai', expression=WAKE_NEGATIVE, reading='わけではない',
+NEGATIVE = GrammarRule(order=132, id='wake_dewa_nai', expression=WAKE_NEGATIVE, reading='わけではない',
                        meaning='it does not mean that; not necessarily', match=match_negative)
+
+RULES = (EXPLANATION, NEGATIVE,)

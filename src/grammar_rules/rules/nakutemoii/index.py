@@ -1,5 +1,5 @@
 """Selected complete verbal no-obligation constructions."""
-from src.GrammarConstants import NAKUTEMOII_GRAMMAR_EXPRESSION
+NAKUTEMOII_GRAMMAR_EXPRESSION = '〜なくてもいい'
 from src.grammar_rules.base import GrammarRule
 from src.grammar_rules.helpers import adjacent
 
@@ -33,8 +33,10 @@ def match_nakutemoii(tokens):
                 break
 
 
-RULE = GrammarRule(
+RULE = GrammarRule(order=114,
     id='nakutemoii', expression=NAKUTEMOII_GRAMMAR_EXPRESSION,
     reading='なくてもいい', meaning='do not have to; need not',
     match=match_nakutemoii,
 )
+
+RULES = (RULE,)

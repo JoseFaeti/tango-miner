@@ -1,5 +1,5 @@
 """Explanatory reason with ものだから or colloquial もんだから."""
-from src.GrammarConstants import MONODAKARA_MONDAKARA_EXPRESSION
+MONODAKARA_MONDAKARA_EXPRESSION = '〜ものだから / 〜もんだから'
 from src.grammar_rules.base import GrammarRule
 from src.grammar_rules.helpers import adjacent
 
@@ -22,6 +22,8 @@ def match_monodakara_mondakara(tokens):
         yield mono['span'][0], kara['span'][1]
 
 
-RULE = GrammarRule(id='monodakara_mondakara', expression=MONODAKARA_MONDAKARA_EXPRESSION,
+RULE = GrammarRule(order=70, id='monodakara_mondakara', expression=MONODAKARA_MONDAKARA_EXPRESSION,
                    reading='ものだから / もんだから', meaning='because; since (explanation or excuse)',
                    match=match_monodakara_mondakara)
+
+RULES = (RULE,)

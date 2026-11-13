@@ -1,5 +1,5 @@
 """Non-past verb recommendations with 方がいい."""
-from src.GrammarConstants import HOU_GA_II_EXPRESSION
+HOU_GA_II_EXPRESSION = '〜ほうがいい'
 from src.grammar_rules.base import GrammarRule
 from src.grammar_rules.helpers import adjacent, next_matches
 
@@ -21,6 +21,8 @@ def match_hou_ga_ii(tokens):
             yield hou['span'][0], ii['span'][1]
 
 
-RULE = GrammarRule(id='hou_ga_ii', expression=HOU_GA_II_EXPRESSION,
+RULE = GrammarRule(order=162, id='hou_ga_ii', expression=HOU_GA_II_EXPRESSION,
                    reading='ほうがいい', meaning='it is better to; should',
                    match=match_hou_ga_ii)
+
+RULES = (RULE,)

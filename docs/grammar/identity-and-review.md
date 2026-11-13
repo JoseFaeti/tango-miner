@@ -28,11 +28,18 @@ records `grammar_migration_conflicts` and leaves them untouched. Both old and
 new identities are protected from pruning, including when grammar is disabled.
 Plans still require the normal approval before any Anki mutation.
 The shared grammar stage collects all registered rules in one pass; the output
-card stage adds its cards before scoring. Each matcher and its metadata live in a separate module under `src/grammar_rules/rules/`;
-`registry.py` lists the rules used by the shared stage. The corresponding
-`src/grammar_rules/rules/<point>/test_index.py` checks each rule. When adding a rule, register it
-and its identity in the Anki protection set; startup validates that both
-registrations match.
+card stage adds its cards before scoring. Each matcher and its metadata live in
+`src/grammar_rules/rules/<point>/index.py`, which exports a nonempty `RULES`
+tuple. The registry discovers these modules automatically, checks for duplicate
+IDs and expressions, and derives the Anki protection sets from their expressions.
+Add the corresponding `test_index.py` and document the point. An expression is
+a stable Anki identity; changing it requires an explicit migration.
+
+Rules run in ascending `order`, with IDs breaking ties. Existing rules retain
+their previous sequence through explicit order values; new rules default to
+running afterward. If an overlap requires a different order, set `order` on the
+new rule and test the interaction. Some rules share match helpers or require
+special precedence handling, so a point can still require changes elsewhere.
 
 For a bounded proposal-review sample from an existing historical diagnostic archive
 (new runs no longer create these proposals):

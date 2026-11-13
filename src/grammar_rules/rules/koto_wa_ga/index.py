@@ -1,5 +1,5 @@
 """Repeated predicate + ことは + predicate + concessive connector."""
-from src.GrammarConstants import KOTO_WA_GA
+KOTO_WA_GA = '〜ことは〜が'
 from src.grammar_rules.base import GrammarRule
 from src.grammar_rules.helpers import adjacent
 
@@ -44,5 +44,7 @@ def match_koto_wa_ga(tokens):
         yield koto['span'][0], wa['span'][1]
 
 
-RULE = GrammarRule(id='koto_wa_ga', expression=KOTO_WA_GA, reading='ことはが',
+RULE = GrammarRule(order=66, id='koto_wa_ga', expression=KOTO_WA_GA, reading='ことはが',
                    meaning='although; admittedly ... but', match=match_koto_wa_ga)
+
+RULES = (RULE,)

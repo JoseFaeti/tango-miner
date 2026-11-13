@@ -1,5 +1,5 @@
 """Continuation expressed by a verb compound with 続ける."""
-from src.GrammarConstants import TSUZUKERU_EXPRESSION
+TSUZUKERU_EXPRESSION = '〜続ける'
 from src.grammar_rules.base import GrammarRule
 from src.grammar_rules.helpers import adjacent, next_matches, negative_suffix_end, polite_suffix_end
 
@@ -40,6 +40,8 @@ def match_tsuzukeru(tokens):
             yield start, tokens[end]['span'][1]
 
 
-RULE = GrammarRule(id='tsuzukeru', expression=TSUZUKERU_EXPRESSION,
+RULE = GrammarRule(order=178, id='tsuzukeru', expression=TSUZUKERU_EXPRESSION,
                    reading='つづける', meaning='continue doing',
                    match=match_tsuzukeru)
+
+RULES = (RULE,)

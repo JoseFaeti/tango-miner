@@ -1,5 +1,5 @@
 """Inability to act because of circumstances or social obligations."""
-from src.GrammarConstants import WAKENIHAIKANAI_EXPRESSION
+WAKENIHAIKANAI_EXPRESSION = '〜わけにはいかない'
 from src.grammar_rules.base import GrammarRule
 from src.grammar_rules.helpers import adjacent
 
@@ -38,6 +38,8 @@ def match_wakenihaikanai(tokens):
                 break
 
 
-RULE = GrammarRule(id='wakenihaikanai', expression=WAKENIHAIKANAI_EXPRESSION,
+RULE = GrammarRule(order=33, id='wakenihaikanai', expression=WAKENIHAIKANAI_EXPRESSION,
                    reading='わけにはいかない', meaning='cannot reasonably do; cannot bring oneself to do',
                    match=match_wakenihaikanai)
+
+RULES = (RULE,)

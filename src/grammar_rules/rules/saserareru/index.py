@@ -1,9 +1,9 @@
 """Source-aligned causative followed by passive auxiliaries."""
-from src.GrammarConstants import SASERARERU_EXPRESSION
+SASERARERU_EXPRESSION = '〜させられる'
 from src.grammar_rules.base import GrammarRule
 from src.grammar_rules.helpers import adjacent
 
-RULE = GrammarRule(id='saserareru', expression=SASERARERU_EXPRESSION,
+RULE = GrammarRule(order=163, id='saserareru', expression=SASERARERU_EXPRESSION,
                    reading='させられる', meaning='be made to do; be forced to do',
                    match=lambda tokens: match_saserareru(tokens))
 
@@ -21,3 +21,5 @@ def match_saserareru(tokens):
                 and passive['surface'] in ('られる', 'られ', 'られれ', 'られよ')
                 and adjacent(verb, causative) and adjacent(causative, passive)):
             yield causative['span'][0], passive['span'][1]
+
+RULES = (RULE,)

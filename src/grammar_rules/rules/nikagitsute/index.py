@@ -1,5 +1,5 @@
 """Noun + に限って: only, or unexpectedly in this particular case."""
-from src.GrammarConstants import NIKAGITTSUTE_EXPRESSION
+NIKAGITTSUTE_EXPRESSION = '〜に限って'
 from src.grammar_rules.base import GrammarRule
 from src.grammar_rules.helpers import adjacent
 
@@ -16,6 +16,8 @@ def match_nikagitsute(tokens):
             yield ni['span'][0], te['span'][1]
 
 
-RULE = GrammarRule(id='nikagitsute', expression=NIKAGITTSUTE_EXPRESSION,
+RULE = GrammarRule(order=2, id='nikagitsute', expression=NIKAGITTSUTE_EXPRESSION,
                    reading='にかぎって', meaning='only; particularly (contrary to expectation)',
                    match=match_nikagitsute)
+
+RULES = (RULE,)

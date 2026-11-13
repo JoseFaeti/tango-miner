@@ -1,5 +1,5 @@
 """Apparent desire expressed by a verb stem and the auxiliary たがる."""
-from src.GrammarConstants import TAGARU_GRAMMAR_EXPRESSION
+TAGARU_GRAMMAR_EXPRESSION = '〜たがる'
 from src.grammar_rules.base import GrammarRule
 from src.grammar_rules.helpers import adjacent, next_matches, negative_suffix_end, polite_suffix_end
 
@@ -28,6 +28,8 @@ def match_tagaru(tokens):
             yield desire['span'][0], tokens[end]['span'][1]
 
 
-RULE = GrammarRule(id='tagaru', expression=TAGARU_GRAMMAR_EXPRESSION,
+RULE = GrammarRule(order=130, id='tagaru', expression=TAGARU_GRAMMAR_EXPRESSION,
                    reading='たがる', meaning='show signs of wanting to do',
                    match=match_tagaru)
+
+RULES = (RULE,)

@@ -1,10 +1,10 @@
 """Source-aligned hypothetical た / だ auxiliary after a predicate."""
-from src.GrammarConstants import TARA_GRAMMAR_EXPRESSION
+TARA_GRAMMAR_EXPRESSION = '〜たら'
 from src.grammar_rules.base import GrammarRule
 from src.grammar_rules.helpers import adjacent
 
 
-RULE = GrammarRule(
+RULE = GrammarRule(order=154,
     id='conditional_tara', expression=TARA_GRAMMAR_EXPRESSION, reading='たら',
     meaning='if; when; after; once',
     match=lambda tokens: match_tara(tokens),
@@ -29,3 +29,5 @@ def match_tara(tokens):
         if not any(t['pos'][:1] != ['補助記号'] for t in following):
             continue
         yield tuple(conditional['span'])
+
+RULES = (RULE,)

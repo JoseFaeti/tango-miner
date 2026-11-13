@@ -1,5 +1,5 @@
 """Suggestions and instructions with verb-te + ごらん."""
-from src.GrammarConstants import TE_GORAN_EXPRESSION
+TE_GORAN_EXPRESSION = '〜てごらん'
 from src.grammar_rules.base import GrammarRule
 from src.grammar_rules.helpers import adjacent
 
@@ -26,5 +26,7 @@ def match_te_goran(tokens):
         yield te['span'][0], tokens[end]['span'][1]
 
 
-RULE = GrammarRule(id='te_goran', expression=TE_GORAN_EXPRESSION, reading='てごらん',
+RULE = GrammarRule(order=40, id='te_goran', expression=TE_GORAN_EXPRESSION, reading='てごらん',
                    meaning='try doing; go ahead and do', match=match_te_goran)
+
+RULES = (RULE,)

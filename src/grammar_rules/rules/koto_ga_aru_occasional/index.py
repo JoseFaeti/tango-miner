@@ -1,10 +1,10 @@
 """Occasional occurrence supported by a nearby frequency cue."""
-from src.GrammarConstants import KOTO_GA_ARU_OCCASIONAL
+KOTO_GA_ARU_OCCASIONAL = '〜ことがある'
 from src.grammar_rules.base import GrammarRule
 from src.grammar_rules.helpers import adjacent, next_matches, positive_verb_end
 
 
-RULE = GrammarRule(
+RULE = GrammarRule(order=151,
     id='koto_ga_aru_occasional', expression=KOTO_GA_ARU_OCCASIONAL,
     reading='ことがある',
     meaning='sometimes do; there are times when something happens',
@@ -56,3 +56,5 @@ def match_occasional(tokens):
         else:
             continue
         yield koto['span'][0], tokens[end]['span'][1]
+
+RULES = (RULE,)

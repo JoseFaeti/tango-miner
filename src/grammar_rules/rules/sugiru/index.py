@@ -1,5 +1,5 @@
 """Excess expressed by a verb or adjective followed by すぎる."""
-from src.GrammarConstants import SUGIRU_EXPRESSION
+SUGIRU_EXPRESSION = '〜すぎる'
 from src.grammar_rules.base import GrammarRule
 from src.grammar_rules.helpers import adjacent, next_matches, negative_suffix_end, polite_suffix_end
 
@@ -43,5 +43,7 @@ def match_sugiru(tokens):
             yield start, tokens[end]['span'][1]
 
 
-RULE = GrammarRule(id='sugiru', expression=SUGIRU_EXPRESSION, reading='すぎる',
+RULE = GrammarRule(order=175, id='sugiru', expression=SUGIRU_EXPRESSION, reading='すぎる',
                    meaning='too much; excessively', match=match_sugiru)
+
+RULES = (RULE,)

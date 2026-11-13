@@ -1,5 +1,5 @@
 """Colloquial explanatory ってこと / ってわけ."""
-from src.GrammarConstants import TTEKOTO_TTEWAKE_EXPRESSION
+TTEKOTO_TTEWAKE_EXPRESSION = '〜ってこと / 〜ってわけ'
 from src.grammar_rules.base import GrammarRule
 from src.grammar_rules.helpers import adjacent, next_matches
 
@@ -30,6 +30,8 @@ def match_ttekoto_ttewake(tokens):
         yield particle['span'][0], tokens[end]['span'][1]
 
 
-RULE = GrammarRule(id='ttekoto_ttewake', expression=TTEKOTO_TTEWAKE_EXPRESSION,
+RULE = GrammarRule(order=76, id='ttekoto_ttewake', expression=TTEKOTO_TTEWAKE_EXPRESSION,
                    reading='ってこと / ってわけ', meaning='that means; that is why',
                    match=match_ttekoto_ttewake)
+
+RULES = (RULE,)

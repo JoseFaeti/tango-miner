@@ -1,5 +1,5 @@
 """Colloquial reported or emphatic んだって and copular だって."""
-from src.GrammarConstants import NDATTE_DATTE_EXPRESSION
+NDATTE_DATTE_EXPRESSION = '〜んだって / 〜だって'
 from src.grammar_rules.base import GrammarRule
 from src.grammar_rules.helpers import adjacent
 from src.grammar_rules.rules.nda.index import match_nda
@@ -28,6 +28,8 @@ def match_ndatte_datte(tokens):
             yield copula['span'][0], particle['span'][1]
 
 
-RULE = GrammarRule(id='ndatte_datte', expression=NDATTE_DATTE_EXPRESSION,
+RULE = GrammarRule(order=63, id='ndatte_datte', expression=NDATTE_DATTE_EXPRESSION,
                    reading='んだって / だって', meaning='I hear that; (emphatic assertion)',
                    match=match_ndatte_datte)
+
+RULES = (RULE,)

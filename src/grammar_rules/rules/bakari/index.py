@@ -1,5 +1,5 @@
 """Limiting and excessive ばかり and colloquial variants."""
-from src.GrammarConstants import BAKARI_EXPRESSION
+BAKARI_EXPRESSION = '〜ばかり'
 from src.grammar_rules.base import GrammarRule
 from src.grammar_rules.helpers import adjacent
 from src.grammar_rules.rules.tabakari.index import match_tabakari
@@ -25,6 +25,8 @@ def match_bakari(tokens):
         yield tuple(marker['span'])
 
 
-RULE = GrammarRule(id='bakari', expression=BAKARI_EXPRESSION,
+RULE = GrammarRule(order=57, id='bakari', expression=BAKARI_EXPRESSION,
                    reading='ばかり', meaning='only; nothing but; excessively',
                    match=match_bakari)
+
+RULES = (RULE,)

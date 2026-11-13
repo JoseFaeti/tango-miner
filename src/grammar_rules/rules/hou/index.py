@@ -1,5 +1,5 @@
 """Verb-stem + 方, expressing a way of doing something."""
-from src.GrammarConstants import HOU_EXPRESSION
+HOU_EXPRESSION = '〜方'
 from src.grammar_rules.base import GrammarRule
 from src.grammar_rules.helpers import adjacent
 
@@ -14,5 +14,7 @@ def match_hou(tokens):
             yield suffix['span'][0], suffix['span'][1]
 
 
-RULE = GrammarRule(id='hou', expression=HOU_EXPRESSION, reading='かた',
+RULE = GrammarRule(order=182, id='hou', expression=HOU_EXPRESSION, reading='かた',
                    meaning='way of doing', match=match_hou)
+
+RULES = (RULE,)

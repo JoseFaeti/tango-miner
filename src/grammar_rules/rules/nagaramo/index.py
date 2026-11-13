@@ -1,5 +1,5 @@
 """Concessive nagara followed by the focusing particle mo."""
-from src.GrammarConstants import NAGARAMO_EXPRESSION
+NAGARAMO_EXPRESSION = '〜ながらも'
 from src.grammar_rules.base import GrammarRule
 from src.grammar_rules.helpers import adjacent
 
@@ -27,6 +27,8 @@ def match_nagaramo(tokens):
                 break
 
 
-RULE = GrammarRule(id='nagaramo', expression=NAGARAMO_EXPRESSION,
+RULE = GrammarRule(order=128, id='nagaramo', expression=NAGARAMO_EXPRESSION,
                    reading='ながらも', meaning='although; even though',
                    match=match_nagaramo)
+
+RULES = (RULE,)

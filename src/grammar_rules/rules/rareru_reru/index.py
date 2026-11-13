@@ -1,9 +1,9 @@
 """Source-aligned potential/passive auxiliary, without semantic disambiguation."""
-from src.GrammarConstants import RARERU_RERU_EXPRESSION
+RARERU_RERU_EXPRESSION = '〜られる / 〜れる'
 from src.grammar_rules.base import GrammarRule
 from src.grammar_rules.helpers import adjacent
 
-RULE = GrammarRule(id='rareru_reru', expression=RARERU_RERU_EXPRESSION,
+RULE = GrammarRule(order=174, id='rareru_reru', expression=RARERU_RERU_EXPRESSION,
                    reading='られる / れる',
                    meaning='can do; also passive or honorific (context dependent)',
                    match=lambda tokens: match_rareru_reru(tokens))
@@ -20,3 +20,5 @@ def match_rareru_reru(tokens):
                                           'れる', 'れ', 'れれ', 'れよ')
                 and adjacent(verb, suffix)):
             yield suffix['span'][0], suffix['span'][1]
+
+RULES = (RULE,)

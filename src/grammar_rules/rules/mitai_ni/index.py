@@ -1,5 +1,5 @@
 """Resemblance expressed by みたいに or みたいな."""
-from src.GrammarConstants import MITAI_NI_EXPRESSION
+MITAI_NI_EXPRESSION = '〜みたいに / 〜みたいな'
 from src.grammar_rules.base import GrammarRule
 from src.grammar_rules.helpers import adjacent
 
@@ -21,5 +21,7 @@ def match_mitai_ni(tokens):
             yield mitai['span'][0], ending['span'][1]
 
 
-RULE = GrammarRule(id='mitai_ni', expression=MITAI_NI_EXPRESSION,
+RULE = GrammarRule(order=83, id='mitai_ni', expression=MITAI_NI_EXPRESSION,
                    reading='みたいに / みたいな', meaning='like; resembling', match=match_mitai_ni)
+
+RULES = (RULE,)

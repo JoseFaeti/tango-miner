@@ -1,5 +1,5 @@
 """Source-aligned limiting particles だけ and のみ."""
-from src.GrammarConstants import DAKE_NOMI_EXPRESSION
+DAKE_NOMI_EXPRESSION = 'だけ / のみ'
 from src.grammar_rules.base import GrammarRule
 from src.grammar_rules.helpers import adjacent
 
@@ -18,5 +18,7 @@ def match_dake_nomi(tokens):
         yield tuple(particle['span'])
 
 
-RULE = GrammarRule(id='dake_nomi', expression=DAKE_NOMI_EXPRESSION,
+RULE = GrammarRule(order=50, id='dake_nomi', expression=DAKE_NOMI_EXPRESSION,
                    reading='だけ / のみ', meaning='only; just', match=match_dake_nomi)
+
+RULES = (RULE,)

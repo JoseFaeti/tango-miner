@@ -1,5 +1,5 @@
 """Conditional suggestions ending in どう or どうですか."""
-from src.GrammarConstants import TARADOU_EXPRESSION
+TARADOU_EXPRESSION = '〜たらどう / 〜たらどうですか'
 from src.grammar_rules.base import GrammarRule
 from src.grammar_rules.helpers import adjacent
 from src.grammar_rules.rules.tara.index import match_tara
@@ -26,6 +26,8 @@ def match_taradou(tokens):
         yield conditional['span'][0], tokens[end - 1]['span'][1]
 
 
-RULE = GrammarRule(id='taradou', expression=TARADOU_EXPRESSION,
+RULE = GrammarRule(order=24, id='taradou', expression=TARADOU_EXPRESSION,
                    reading='たらどう / たらどうですか',
                    meaning='why not; how about doing', match=match_taradou)
+
+RULES = (RULE,)

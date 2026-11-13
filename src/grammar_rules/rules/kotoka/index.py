@@ -1,5 +1,5 @@
 """Exclamations ending in ことか."""
-from src.GrammarConstants import KOTOKA_EXPRESSION
+KOTOKA_EXPRESSION = '〜ことか'
 from src.grammar_rules.base import GrammarRule
 from src.grammar_rules.helpers import adjacent
 
@@ -22,6 +22,8 @@ def match_kotoka(tokens):
         yield koto['span'][0], ka['span'][1]
 
 
-RULE = GrammarRule(id='kotoka', expression=KOTOKA_EXPRESSION,
+RULE = GrammarRule(order=68, id='kotoka', expression=KOTOKA_EXPRESSION,
                    reading='ことか', meaning='how; what an (exclamation)',
                    match=match_kotoka)
+
+RULES = (RULE,)

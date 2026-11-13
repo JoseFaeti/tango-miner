@@ -1,5 +1,5 @@
 """A verb followed by ことにする, describing a decision."""
-from src.GrammarConstants import KOTO_NI_SURU_GRAMMAR_EXPRESSION
+KOTO_NI_SURU_GRAMMAR_EXPRESSION = '〜ことにする'
 from src.grammar_rules.base import GrammarRule
 from src.grammar_rules.helpers import adjacent, next_matches, positive_verb_end
 
@@ -40,8 +40,10 @@ def match_koto_ni_suru(tokens):
         yield koto['span'][0], tokens[end]['span'][1]
 
 
-RULE = GrammarRule(
+RULE = GrammarRule(order=142,
     id='koto_ni_suru', expression=KOTO_NI_SURU_GRAMMAR_EXPRESSION,
     reading='ことにする', meaning='decide to do; make it a rule to do',
     match=match_koto_ni_suru,
 )
+
+RULES = (RULE,)

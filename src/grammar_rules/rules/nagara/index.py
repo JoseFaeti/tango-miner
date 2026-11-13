@@ -1,5 +1,5 @@
 """Verb continuative + nagara, including its ambiguous concessive reading."""
-from src.GrammarConstants import NAGARA_GRAMMAR_EXPRESSION
+NAGARA_GRAMMAR_EXPRESSION = '〜ながら'
 from src.grammar_rules.base import GrammarRule
 from src.grammar_rules.helpers import adjacent
 
@@ -33,7 +33,9 @@ def match_nagara(tokens):
         yield tuple(particle['span'])
 
 
-RULE = GrammarRule(
+RULE = GrammarRule(order=129,
     id='nagara', expression=NAGARA_GRAMMAR_EXPRESSION, reading='ながら',
     meaning='while doing; although (depending on context)', match=match_nagara,
 )
+
+RULES = (RULE,)

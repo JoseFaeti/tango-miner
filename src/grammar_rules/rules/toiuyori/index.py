@@ -1,5 +1,5 @@
 """Correction or preference expressed with というより."""
-from src.GrammarConstants import TOIUYORI_EXPRESSION
+TOIUYORI_EXPRESSION = '〜というより'
 from src.grammar_rules.base import GrammarRule
 from src.grammar_rules.helpers import adjacent
 
@@ -19,6 +19,8 @@ def match_toiuyori(tokens):
         yield particle['span'][0], yori['span'][1]
 
 
-RULE = GrammarRule(id='toiuyori', expression=TOIUYORI_EXPRESSION,
+RULE = GrammarRule(order=75, id='toiuyori', expression=TOIUYORI_EXPRESSION,
                    reading='というより', meaning='rather than; more accurately',
                    match=match_toiuyori)
+
+RULES = (RULE,)

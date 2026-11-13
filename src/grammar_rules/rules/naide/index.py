@@ -1,5 +1,5 @@
 """Verbal negative requests and negative connective expressions."""
-from src.GrammarConstants import NAIDE_GRAMMAR_EXPRESSION
+NAIDE_GRAMMAR_EXPRESSION = '〜ないでください / 〜ないで'
 from src.grammar_rules.base import GrammarRule
 from src.grammar_rules.helpers import adjacent
 from src.grammar_rules.rules.nai.index import match_nai
@@ -32,8 +32,10 @@ def match_naide(tokens):
         yield negative['span'][0], end
 
 
-RULE = GrammarRule(
+RULE = GrammarRule(order=118,
     id='naide', expression=NAIDE_GRAMMAR_EXPRESSION,
     reading='ないでください / ないで',
     meaning='please do not; without doing', match=match_naide,
 )
+
+RULES = (RULE,)

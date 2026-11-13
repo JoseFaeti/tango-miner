@@ -1,5 +1,5 @@
 """Temporal て-form + から, retaining the preceding verb as lexical evidence."""
-from src.GrammarConstants import TE_KARA_EXPRESSION
+TE_KARA_EXPRESSION = '〜てから'
 from src.grammar_rules.base import GrammarRule
 from src.grammar_rules.helpers import adjacent
 
@@ -20,5 +20,7 @@ def match_te_kara(tokens):
             yield te['span'][0], kara['span'][1]
 
 
-RULE = GrammarRule(id='te_kara', expression=TE_KARA_EXPRESSION, reading='てから',
+RULE = GrammarRule(order=104, id='te_kara', expression=TE_KARA_EXPRESSION, reading='てから',
                    meaning='after doing; since doing', match=match_te_kara)
+
+RULES = (RULE,)

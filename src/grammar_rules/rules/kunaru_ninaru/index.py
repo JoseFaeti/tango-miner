@@ -1,5 +1,5 @@
 """Changes of state with an adjective or nominal predicate."""
-from src.GrammarConstants import KUNARU_NINARU_EXPRESSION
+KUNARU_NINARU_EXPRESSION = '〜くなる / 〜になる'
 from src.grammar_rules.base import GrammarRule
 from src.grammar_rules.helpers import adjacent, next_matches, positive_verb_end, negative_predicate_end
 
@@ -32,6 +32,8 @@ def match_kunaru_ninaru(tokens):
             yield tokens[start]['span'][0], tokens[end]['span'][1]
 
 
-RULE = GrammarRule(id='kunaru_ninaru', expression=KUNARU_NINARU_EXPRESSION,
+RULE = GrammarRule(order=21, id='kunaru_ninaru', expression=KUNARU_NINARU_EXPRESSION,
                    reading='くなる / になる', meaning='become; change state',
                    match=match_kunaru_ninaru)
+
+RULES = (RULE,)

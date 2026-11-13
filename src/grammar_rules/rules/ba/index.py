@@ -1,5 +1,5 @@
 """Conditional ば after an aligned hypothetical predicate."""
-from src.GrammarConstants import BA_GRAMMAR_EXPRESSION
+BA_GRAMMAR_EXPRESSION = '〜ば'
 from src.grammar_rules.base import GrammarRule
 from src.grammar_rules.helpers import adjacent
 from src.grammar_rules.rules.obligation.index import match_obligation
@@ -29,5 +29,7 @@ def match_ba(tokens):
         yield tuple(particle['span'])
 
 
-RULE = GrammarRule(id='conditional_ba', expression=BA_GRAMMAR_EXPRESSION,
+RULE = GrammarRule(order=138, id='conditional_ba', expression=BA_GRAMMAR_EXPRESSION,
                    reading='ば', meaning='if; when; provided that', match=match_ba)
+
+RULES = (RULE,)

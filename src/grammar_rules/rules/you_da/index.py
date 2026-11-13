@@ -1,5 +1,5 @@
 """Source-aligned predicate or noun comparison followed by a finite よう copula."""
-from src.GrammarConstants import YOU_DA_GRAMMAR_EXPRESSION
+YOU_DA_GRAMMAR_EXPRESSION = '〜ようだ'
 from src.grammar_rules.base import GrammarRule
 from src.grammar_rules.helpers import adjacent, next_matches
 
@@ -32,5 +32,7 @@ def match_you_da(tokens):
         yield you['span'][0], tokens[end]['span'][1]
 
 
-RULE = GrammarRule(id='you_da', expression=YOU_DA_GRAMMAR_EXPRESSION,
+RULE = GrammarRule(order=139, id='you_da', expression=YOU_DA_GRAMMAR_EXPRESSION,
                    reading='ようだ', meaning='seems; appears; is like', match=match_you_da)
+
+RULES = (RULE,)

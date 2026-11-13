@@ -1,5 +1,5 @@
 """Predicate-attached inference that something cannot be the case."""
-from src.GrammarConstants import WAKEGANAI_EXPRESSION
+WAKEGANAI_EXPRESSION = '〜わけがない'
 from src.grammar_rules.base import GrammarRule
 from src.grammar_rules.helpers import adjacent, adjective_inflection_end
 
@@ -24,5 +24,7 @@ def match_wakeganai(tokens):
             yield wake['span'][0], tokens[end]['span'][1]
 
 
-RULE = GrammarRule(id='wakeganai', expression=WAKEGANAI_EXPRESSION,
+RULE = GrammarRule(order=34, id='wakeganai', expression=WAKEGANAI_EXPRESSION,
                    reading='わけがない', meaning='cannot be; there is no way that', match=match_wakeganai)
+
+RULES = (RULE,)

@@ -1,5 +1,5 @@
 """Strong inference expressed by に違いない."""
-from src.GrammarConstants import NICHIGAINAI_EXPRESSION
+NICHIGAINAI_EXPRESSION = '〜に違いない'
 from src.grammar_rules.base import GrammarRule
 from src.grammar_rules.helpers import adjacent, adjective_inflection_end
 
@@ -27,5 +27,7 @@ def match_nichigainai(tokens):
             yield ni['span'][0], tokens[end]['span'][1]
 
 
-RULE = GrammarRule(id='nichigainai', expression=NICHIGAINAI_EXPRESSION,
+RULE = GrammarRule(order=36, id='nichigainai', expression=NICHIGAINAI_EXPRESSION,
                    reading='にちがいない', meaning='must be; surely', match=match_nichigainai)
+
+RULES = (RULE,)

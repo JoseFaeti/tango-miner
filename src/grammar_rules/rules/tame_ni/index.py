@@ -1,5 +1,5 @@
 """Attached ために for purpose, benefit or cause."""
-from src.GrammarConstants import TAME_NI_GRAMMAR_EXPRESSION
+TAME_NI_GRAMMAR_EXPRESSION = '〜ために'
 from src.grammar_rules.base import GrammarRule
 from src.grammar_rules.helpers import adjacent
 
@@ -26,7 +26,9 @@ def match_tame_ni(tokens):
         yield tame['span'][0], ni['span'][1]
 
 
-RULE = GrammarRule(
+RULE = GrammarRule(order=122,
     id='tame_ni', expression=TAME_NI_GRAMMAR_EXPRESSION, reading='ために',
     meaning='for; in order to; because of', match=match_tame_ni,
 )
+
+RULES = (RULE,)

@@ -1,5 +1,5 @@
 """Bare predicate-attached explanatory わけ."""
-from src.GrammarConstants import WAKE_TSUTEWAKE_EXPRESSION
+WAKE_TSUTEWAKE_EXPRESSION = '〜わけ / 〜ってわけ'
 from src.grammar_rules.base import GrammarRule
 from src.grammar_rules.helpers import adjacent
 
@@ -20,6 +20,8 @@ def match_wake(tokens):
         yield wake['span'][0], wake['span'][1]
 
 
-RULE = GrammarRule(id='wake_tsutewake', expression=WAKE_TSUTEWAKE_EXPRESSION,
+RULE = GrammarRule(order=77, id='wake_tsutewake', expression=WAKE_TSUTEWAKE_EXPRESSION,
                    reading='わけ / ってわけ', meaning='that is why; that means',
                    match=match_wake)
+
+RULES = (RULE,)

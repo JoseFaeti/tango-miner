@@ -1,5 +1,5 @@
 """Commands formed with a verb's continuative and なさい."""
-from src.GrammarConstants import NASAI_EXPRESSION
+NASAI_EXPRESSION = '〜なさい'
 from src.grammar_rules.base import GrammarRule
 from src.grammar_rules.helpers import adjacent
 
@@ -15,5 +15,7 @@ def match_nasai(tokens):
             yield command['span'][0], command['span'][1]
 
 
-RULE = GrammarRule(id='nasai', expression=NASAI_EXPRESSION, reading='なさい',
+RULE = GrammarRule(order=172, id='nasai', expression=NASAI_EXPRESSION, reading='なさい',
                    meaning='do (an instruction or command)', match=match_nasai)
+
+RULES = (RULE,)

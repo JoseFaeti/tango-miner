@@ -1,5 +1,5 @@
 """Conditional supposition with としたら or とすれば."""
-from src.GrammarConstants import TOSHITARA_TOSUREBA_EXPRESSION
+TOSHITARA_TOSUREBA_EXPRESSION = '〜としたら / 〜とすれば'
 from src.grammar_rules.base import GrammarRule
 from src.grammar_rules.helpers import adjacent
 
@@ -18,6 +18,8 @@ def match_toshitara_tosureba(tokens):
         yield to['span'][0], ending['span'][1]
 
 
-RULE = GrammarRule(id='toshitara_tosureba', expression=TOSHITARA_TOSUREBA_EXPRESSION,
+RULE = GrammarRule(order=14, id='toshitara_tosureba', expression=TOSHITARA_TOSUREBA_EXPRESSION,
                    reading='としたら / とすれば', meaning='if one supposes; assuming that',
                    match=match_toshitara_tosureba)
+
+RULES = (RULE,)

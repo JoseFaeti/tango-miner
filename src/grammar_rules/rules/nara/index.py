@@ -1,5 +1,5 @@
 """Conditional or topic-based なら with an aligned antecedent."""
-from src.GrammarConstants import NARA_GRAMMAR_EXPRESSION
+NARA_GRAMMAR_EXPRESSION = '〜なら'
 from src.grammar_rules.base import GrammarRule
 from src.grammar_rules.helpers import adjacent
 
@@ -29,5 +29,7 @@ def match_nara(tokens):
         yield tuple(conditional['span'])
 
 
-RULE = GrammarRule(id='conditional_nara', expression=NARA_GRAMMAR_EXPRESSION,
+RULE = GrammarRule(order=137, id='conditional_nara', expression=NARA_GRAMMAR_EXPRESSION,
                    reading='なら', meaning='if; as for; supposing that', match=match_nara)
+
+RULES = (RULE,)

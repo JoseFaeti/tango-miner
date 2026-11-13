@@ -1,5 +1,5 @@
 """Polite benefactive auxiliaries following a verb's te-form."""
-from src.GrammarConstants import TE_POLITE_BENEFACTIVE_EXPRESSION
+TE_POLITE_BENEFACTIVE_EXPRESSION = '〜ていただく / 〜てくださる / 〜て差し上げる'
 from src.grammar_rules.base import GrammarRule
 from src.grammar_rules.helpers import adjacent, next_matches, negative_suffix_end, polite_suffix_end, positive_verb_end
 
@@ -43,9 +43,11 @@ def match_te_polite_benefactive(tokens):
             yield connective['span'][0], tokens[end]['span'][1]
 
 
-RULE = GrammarRule(
+RULE = GrammarRule(order=116,
     id='te_polite_benefactive', expression=TE_POLITE_BENEFACTIVE_EXPRESSION,
     reading='ていただく / てくださる / てさしあげる',
     meaning='humbly receive an action; someone respectfully does for me; humbly do for someone',
     match=match_te_polite_benefactive,
 )
+
+RULES = (RULE,)

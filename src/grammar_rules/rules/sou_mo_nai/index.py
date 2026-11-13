@@ -1,5 +1,5 @@
 """Verb-stem そうもない, expressing an unlikely event."""
-from src.GrammarConstants import SOU_MO_NAI_EXPRESSION
+SOU_MO_NAI_EXPRESSION = '〜そうもない'
 from src.grammar_rules.base import GrammarRule
 from src.grammar_rules.helpers import adjacent, next_matches, adjective_inflection_end
 
@@ -22,6 +22,8 @@ def match_sou_mo_nai(tokens):
             yield sou['span'][0], tokens[end]['span'][1]
 
 
-RULE = GrammarRule(id='sou_mo_nai', expression=SOU_MO_NAI_EXPRESSION,
+RULE = GrammarRule(order=126, id='sou_mo_nai', expression=SOU_MO_NAI_EXPRESSION,
                    reading='そうもない', meaning='unlikely to; shows no sign of',
                    match=match_sou_mo_nai)
+
+RULES = (RULE,)

@@ -1,5 +1,5 @@
 """Recommendations with a past or negative verb followed by 方がいい."""
-from src.GrammarConstants import TA_HOU_GA_II_EXPRESSION
+TA_HOU_GA_II_EXPRESSION = '〜たほうがいい / 〜ないほうがいい'
 from src.grammar_rules.base import GrammarRule
 from src.grammar_rules.helpers import adjacent, next_matches
 
@@ -33,9 +33,11 @@ def match_ta_hou_ga_ii(tokens):
         yield suffix['span'][0], ii['span'][1]
 
 
-RULE = GrammarRule(
+RULE = GrammarRule(order=111,
     id='ta_hou_ga_ii', expression=TA_HOU_GA_II_EXPRESSION,
     reading='たほうがいい / ないほうがいい',
     meaning='had better do; should do; had better not do',
     match=match_ta_hou_ga_ii,
 )
+
+RULES = (RULE,)

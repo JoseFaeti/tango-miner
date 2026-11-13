@@ -1,5 +1,5 @@
 """Informal requests with verb-te + ちょうだい."""
-from src.GrammarConstants import TE_CHOUDAI_EXPRESSION
+TE_CHOUDAI_EXPRESSION = '〜てちょうだい'
 from src.grammar_rules.base import GrammarRule
 from src.grammar_rules.helpers import adjacent
 from src.grammar_rules.rules.nai.index import match_nai
@@ -34,6 +34,8 @@ def match_te_choudai(tokens):
         yield start, request['span'][1]
 
 
-RULE = GrammarRule(id='te_choudai', expression=TE_CHOUDAI_EXPRESSION,
+RULE = GrammarRule(order=41, id='te_choudai', expression=TE_CHOUDAI_EXPRESSION,
                    reading='てちょうだい', meaning='please do (an informal request)',
                    match=match_te_choudai)
+
+RULES = (RULE,)

@@ -1,5 +1,5 @@
 """Noun + に関して / に関する: concerning a topic."""
-from src.GrammarConstants import NIKANSHITE_NIKANSURU_EXPRESSION
+NIKANSHITE_NIKANSURU_EXPRESSION = '〜に関して / 〜に関する'
 from src.grammar_rules.base import GrammarRule
 from src.grammar_rules.helpers import adjacent
 
@@ -24,6 +24,8 @@ def match_nikanshite_nikansuru(tokens):
                     break
 
 
-RULE = GrammarRule(id='nikanshite_nikansuru', expression=NIKANSHITE_NIKANSURU_EXPRESSION,
+RULE = GrammarRule(order=7, id='nikanshite_nikansuru', expression=NIKANSHITE_NIKANSURU_EXPRESSION,
                    reading='にかんして / にかんする', meaning='about; concerning',
                    match=match_nikanshite_nikansuru)
+
+RULES = (RULE,)

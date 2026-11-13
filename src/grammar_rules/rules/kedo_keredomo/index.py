@@ -1,5 +1,5 @@
 """Concessive and softening clause-final kedo forms."""
-from src.GrammarConstants import KEDO_EXPRESSION
+KEDO_EXPRESSION = '〜けど / 〜けれども'
 from src.grammar_rules.base import GrammarRule
 from src.grammar_rules.helpers import adjacent
 
@@ -24,5 +24,7 @@ def match_kedo(tokens):
             yield marker['span'][0], end
 
 
-RULE = GrammarRule(id='kedo_keredomo', expression=KEDO_EXPRESSION,
+RULE = GrammarRule(order=106, id='kedo_keredomo', expression=KEDO_EXPRESSION,
                    reading='けど / けれども', meaning='but; although; softening', match=match_kedo)
+
+RULES = (RULE,)

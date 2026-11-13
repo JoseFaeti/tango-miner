@@ -1,5 +1,5 @@
 """Volitional verb + とする: attempt or be about to do something."""
-from src.GrammarConstants import YOU_TO_SURU_EXPRESSION
+YOU_TO_SURU_EXPRESSION = '〜ようとする'
 from src.grammar_rules.base import GrammarRule
 from src.grammar_rules.helpers import next_matches, positive_verb_end, negative_predicate_end
 
@@ -23,6 +23,8 @@ def match_you_to_suru(tokens):
             yield tokens[i + 1]['span'][0], tokens[end]['span'][1]
 
 
-RULE = GrammarRule(id='you_to_suru', expression=YOU_TO_SURU_EXPRESSION,
+RULE = GrammarRule(order=95, id='you_to_suru', expression=YOU_TO_SURU_EXPRESSION,
                    reading='ようとする', meaning='try to do; be about to do',
                    match=match_you_to_suru)
+
+RULES = (RULE,)

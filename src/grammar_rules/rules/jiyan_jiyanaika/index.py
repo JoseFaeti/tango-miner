@@ -1,5 +1,5 @@
 """Conversational recognition or appeal with じゃん and じゃないか."""
-from src.GrammarConstants import JIYAN_JIYANAIKA_EXPRESSION
+JIYAN_JIYANAIKA_EXPRESSION = '〜じゃん / 〜じゃないか'
 from src.grammar_rules.base import GrammarRule
 from src.grammar_rules.helpers import adjacent
 
@@ -33,7 +33,9 @@ def match_jiyan_jiyanaika(tokens):
         yield suffix['span'][0], tokens[end]['span'][1]
 
 
-RULE = GrammarRule(id='jiyan_jiyanaika', expression=JIYAN_JIYANAIKA_EXPRESSION,
+RULE = GrammarRule(order=31, id='jiyan_jiyanaika', expression=JIYAN_JIYANAIKA_EXPRESSION,
                    reading='じゃん / じゃないか',
                    meaning='recognition, emphasis, or appeal to shared understanding',
                    match=match_jiyan_jiyanaika)
+
+RULES = (RULE,)

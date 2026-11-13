@@ -1,5 +1,5 @@
 """A consequence or implication expressed with ということになる."""
-from src.GrammarConstants import TOIUKOTONINARU_EXPRESSION
+TOIUKOTONINARU_EXPRESSION = '〜ということになる'
 from src.grammar_rules.base import GrammarRule
 from src.grammar_rules.helpers import adjacent, next_matches, positive_verb_end
 
@@ -29,6 +29,8 @@ def match_toiukotoninaru(tokens):
         yield particle['span'][0], tokens[end]['span'][1]
 
 
-RULE = GrammarRule(id='toiukotoninaru', expression=TOIUKOTONINARU_EXPRESSION,
+RULE = GrammarRule(order=88, id='toiukotoninaru', expression=TOIUKOTONINARU_EXPRESSION,
                    reading='ということになる', meaning='that means; it follows that; it turns out that',
                    match=match_toiukotoninaru)
+
+RULES = (RULE,)

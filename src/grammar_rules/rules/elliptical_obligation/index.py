@@ -1,7 +1,7 @@
 """Sentence-final elliptical verbal obligations."""
 from functools import lru_cache
 
-from src.GrammarConstants import ELLIPTICAL_OBLIGATION_EXPRESSION
+ELLIPTICAL_OBLIGATION_EXPRESSION = '〜ないと / 〜なくちゃ / 〜なきゃ'
 from src.grammar_rules.base import GrammarRule
 from src.grammar_rules.helpers import adjacent
 
@@ -58,8 +58,10 @@ def match_elliptical_obligation(tokens):
     return match_final_obligation(tokens, _FORMS)
 
 
-RULE = GrammarRule(
+RULE = GrammarRule(order=113,
     id='elliptical_obligation', expression=ELLIPTICAL_OBLIGATION_EXPRESSION,
     reading='ないと / なくちゃ / なきゃ',
     meaning='must; have to; need to (elliptical)', match=match_elliptical_obligation,
 )
+
+RULES = (RULE,)

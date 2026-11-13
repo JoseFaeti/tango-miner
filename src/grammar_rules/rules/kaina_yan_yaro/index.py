@@ -1,5 +1,5 @@
 """Selected Kansai-style sentence endings."""
-from src.GrammarConstants import KAINA_YAN_YARO_EXPRESSION
+KAINA_YAN_YARO_EXPRESSION = '〜かいな / 〜やん / 〜やろ'
 from src.grammar_rules.base import GrammarRule
 from src.grammar_rules.helpers import adjacent
 
@@ -43,7 +43,9 @@ def match_kaina_yan_yaro(tokens):
         yield marker['span'][0], tokens[end]['span'][1]
 
 
-RULE = GrammarRule(id='kaina_yan_yaro', expression=KAINA_YAN_YARO_EXPRESSION,
+RULE = GrammarRule(order=29, id='kaina_yan_yaro', expression=KAINA_YAN_YARO_EXPRESSION,
                    reading='かいな / やん / やろ',
                    meaning='dialectal wondering, shared recognition, or conjecture',
                    match=match_kaina_yan_yaro)
+
+RULES = (RULE,)

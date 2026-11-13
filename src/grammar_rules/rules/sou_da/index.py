@@ -1,5 +1,6 @@
 """Conservative source-aligned appearance and hearsay そうだ forms."""
-from src.GrammarConstants import SOU_APPEARANCE, SOU_HEARSAY
+SOU_APPEARANCE = '〜そうだ (appearance)'
+SOU_HEARSAY = '〜そうだ (hearsay)'
 from src.grammar_rules.base import GrammarRule
 from src.grammar_rules.helpers import adjacent, next_matches
 
@@ -42,7 +43,9 @@ def match_hearsay(tokens):
     return _match(tokens, False)
 
 
-APPEARANCE = GrammarRule(id='sou_da_appearance', expression=SOU_APPEARANCE,
+APPEARANCE = GrammarRule(order=134, id='sou_da_appearance', expression=SOU_APPEARANCE,
                          reading='そうだ', meaning='looks as if; seems likely', match=match_appearance)
-HEARSAY = GrammarRule(id='sou_da_hearsay', expression=SOU_HEARSAY,
+HEARSAY = GrammarRule(order=135, id='sou_da_hearsay', expression=SOU_HEARSAY,
                       reading='そうだ', meaning='it is said that; reportedly', match=match_hearsay)
+
+RULES = (APPEARANCE, HEARSAY,)

@@ -39,9 +39,10 @@ Investigate dictionary precedence, grammar reservation, lexical frequency and
 caching dependencies when the change can affect them. Match counts alone do not
 establish precision or recall.
 
-Add or extend a focused rule under `src/grammar_rules/rules/`, register it in
-`src/grammar_rules/registry.py`, and add a stable identity to
-`src/GrammarConstants.py` where needed. Reuse shared helpers where appropriate.
+Add or extend a focused rule under `src/grammar_rules/rules/`. Declare its
+stable expression and export it in the module’s `RULES` tuple; the registry
+and Anki protections are derived automatically. Reuse shared helpers where
+appropriate and test any ordering or precedence interactions.
 
 ## Test and document
 

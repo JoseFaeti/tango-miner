@@ -1,5 +1,5 @@
 """Conditional negative copula: unless; otherwise."""
-from src.GrammarConstants import JIYANAITO_DENAITO_EXPRESSION
+JIYANAITO_DENAITO_EXPRESSION = '〜じゃないと / 〜でないと'
 from src.grammar_rules.base import GrammarRule
 from src.grammar_rules.helpers import adjacent
 
@@ -33,6 +33,8 @@ def match_jiyanaito_denaito(tokens):
         yield copula['span'][0], particle['span'][1]
 
 
-RULE = GrammarRule(id='jiyanaito_denaito', expression=JIYANAITO_DENAITO_EXPRESSION,
+RULE = GrammarRule(order=32, id='jiyanaito_denaito', expression=JIYANAITO_DENAITO_EXPRESSION,
                    reading='じゃないと / でないと', meaning='unless; otherwise',
                    match=match_jiyanaito_denaito)
+
+RULES = (RULE,)

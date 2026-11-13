@@ -1,5 +1,5 @@
 """Verbal negative followed by なる, expressing cessation."""
-from src.GrammarConstants import NAKUNARU_EXPRESSION
+NAKUNARU_EXPRESSION = '〜なくなる'
 from src.grammar_rules.base import GrammarRule
 from src.grammar_rules.helpers import adjacent, next_matches, positive_verb_end, negative_predicate_end
 
@@ -26,5 +26,7 @@ def match_nakunaru(tokens):
             yield negative['span'][0], tokens[end]['span'][1]
 
 
-RULE = GrammarRule(id='nakunaru', expression=NAKUNARU_EXPRESSION,
+RULE = GrammarRule(order=22, id='nakunaru', expression=NAKUNARU_EXPRESSION,
                    reading='なくなる', meaning='stop doing; cease to', match=match_nakunaru)
+
+RULES = (RULE,)

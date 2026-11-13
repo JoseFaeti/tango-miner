@@ -1,5 +1,5 @@
 """Verb negative questions used for invitations."""
-from src.GrammarConstants import MASENKA_NAIKA_EXPRESSION
+MASENKA_NAIKA_EXPRESSION = '〜ませんか / 〜ないか'
 from src.grammar_rules.base import GrammarRule
 from src.grammar_rules.helpers import adjacent, polite_suffix_end
 
@@ -32,6 +32,8 @@ def match_masenka_naika(tokens):
         yield suffix['span'][0], question['span'][1]
 
 
-RULE = GrammarRule(id='masenka_naika', expression=MASENKA_NAIKA_EXPRESSION,
+RULE = GrammarRule(order=171, id='masenka_naika', expression=MASENKA_NAIKA_EXPRESSION,
                    reading='ませんか / ないか', meaning='would you like to; shall we',
                    match=match_masenka_naika)
+
+RULES = (RULE,)

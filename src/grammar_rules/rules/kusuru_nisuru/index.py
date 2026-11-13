@@ -1,5 +1,5 @@
 """Making something a state, or choosing a noun."""
-from src.GrammarConstants import KUSURU_NISURU_EXPRESSION
+KUSURU_NISURU_EXPRESSION = '〜くする / 〜にする'
 from src.grammar_rules.base import GrammarRule
 from src.grammar_rules.helpers import adjacent, positive_verb_end, negative_predicate_end
 
@@ -32,6 +32,8 @@ def match_kusuru_nisuru(tokens):
             yield tokens[start]['span'][0], tokens[end]['span'][1]
 
 
-RULE = GrammarRule(id='kusuru_nisuru', expression=KUSURU_NISURU_EXPRESSION,
+RULE = GrammarRule(order=20, id='kusuru_nisuru', expression=KUSURU_NISURU_EXPRESSION,
                    reading='くする / にする', meaning='make; choose',
                    match=match_kusuru_nisuru)
+
+RULES = (RULE,)

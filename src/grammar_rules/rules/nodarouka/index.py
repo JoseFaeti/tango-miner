@@ -1,5 +1,5 @@
 """Explanatory questions expressing uncertainty or wondering."""
-from src.GrammarConstants import NODAROUKA_EXPRESSION
+NODAROUKA_EXPRESSION = '〜のだろうか'
 from src.grammar_rules.base import GrammarRule
 from src.grammar_rules.helpers import adjacent
 
@@ -24,6 +24,8 @@ def match_nodarouka(tokens):
         yield marker['span'][0], ka['span'][1]
 
 
-RULE = GrammarRule(id='nodarouka', expression=NODAROUKA_EXPRESSION,
+RULE = GrammarRule(order=59, id='nodarouka', expression=NODAROUKA_EXPRESSION,
                    reading='のだろうか', meaning='I wonder whether; why might it be',
                    match=match_nodarouka)
+
+RULES = (RULE,)

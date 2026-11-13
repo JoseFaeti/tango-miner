@@ -1,10 +1,10 @@
 """Rule for tai."""
-from src.GrammarConstants import TAI_GRAMMAR_EXPRESSION
+TAI_GRAMMAR_EXPRESSION = '〜たい'
 from src.grammar_rules.base import GrammarRule
 from src.grammar_rules.helpers import adjacent, next_matches, adjective_inflection_end
 
 
-RULE = GrammarRule(
+RULE = GrammarRule(order=159,
     id='tai', expression=TAI_GRAMMAR_EXPRESSION, reading='たい',
     meaning='want to do; wish to do',
     match=lambda tokens: match_tai(tokens),
@@ -28,3 +28,5 @@ def match_tai(tokens):
         if next_matches(tokens, end, 'です', '助動詞', 'です'):
             end += 1
         yield desire['span'][0], tokens[end]['span'][1]
+
+RULES = (RULE,)

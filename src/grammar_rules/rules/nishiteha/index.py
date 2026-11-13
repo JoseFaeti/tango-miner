@@ -1,5 +1,5 @@
 """Unexpected result relative to a standard expressed with にしては."""
-from src.GrammarConstants import NISHITEHA_EXPRESSION
+NISHITEHA_EXPRESSION = '〜にしては'
 from src.grammar_rules.base import GrammarRule
 from src.grammar_rules.helpers import adjacent
 
@@ -17,6 +17,8 @@ def match_nishiteha(tokens):
         yield ni['span'][0], ha['span'][1]
 
 
-RULE = GrammarRule(id='nishiteha', expression=NISHITEHA_EXPRESSION,
+RULE = GrammarRule(order=19, id='nishiteha', expression=NISHITEHA_EXPRESSION,
                    reading='にしては', meaning='considering; for (something unexpected)',
                    match=match_nishiteha)
+
+RULES = (RULE,)

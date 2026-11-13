@@ -1,5 +1,5 @@
 """An action started but unfinished, or on the verge of happening."""
-from src.GrammarConstants import KAKERU_EXPRESSION
+KAKERU_EXPRESSION = '〜かける'
 from src.grammar_rules.base import GrammarRule
 from src.grammar_rules.helpers import adjacent, next_matches, negative_suffix_end, polite_suffix_end
 
@@ -38,6 +38,8 @@ def match_kakeru(tokens):
             yield start, tokens[end]['span'][1]
 
 
-RULE = GrammarRule(id='kakeru', expression=KAKERU_EXPRESSION, reading='かける',
+RULE = GrammarRule(order=180, id='kakeru', expression=KAKERU_EXPRESSION, reading='かける',
                    meaning='start doing but leave unfinished; be on the verge of doing',
                    match=match_kakeru)
+
+RULES = (RULE,)

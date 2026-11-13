@@ -1,5 +1,5 @@
 """Embedded whether questions with かどうか."""
-from src.GrammarConstants import KADOUKA_EXPRESSION
+KADOUKA_EXPRESSION = '〜かどうか'
 from src.grammar_rules.base import GrammarRule
 from src.grammar_rules.helpers import adjacent
 
@@ -17,5 +17,7 @@ def match_kadouka(tokens):
         yield ka['span'][0], final_ka['span'][1]
 
 
-RULE = GrammarRule(id='kadouka', expression=KADOUKA_EXPRESSION,
+RULE = GrammarRule(order=37, id='kadouka', expression=KADOUKA_EXPRESSION,
                    reading='かどうか', meaning='whether or not', match=match_kadouka)
+
+RULES = (RULE,)

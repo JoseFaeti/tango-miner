@@ -1,5 +1,5 @@
 """Verb-attached ようにする expressing an effort or habit."""
-from src.GrammarConstants import YOU_NI_SURU_EXPRESSION
+YOU_NI_SURU_EXPRESSION = '〜ようにする'
 from src.grammar_rules.base import GrammarRule
 from src.grammar_rules.helpers import adjacent, next_matches, positive_verb_end, negative_predicate_end
 
@@ -46,6 +46,8 @@ def match_you_ni_suru(tokens):
             yield you['span'][0], tokens[end]['span'][1]
 
 
-RULE = GrammarRule(id='you_ni_suru', expression=YOU_NI_SURU_EXPRESSION,
+RULE = GrammarRule(order=97, id='you_ni_suru', expression=YOU_NI_SURU_EXPRESSION,
                    reading='ようにする', meaning='try to; make a habit of',
                    match=match_you_ni_suru)
+
+RULES = (RULE,)

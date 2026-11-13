@@ -1,5 +1,5 @@
 """Recently completed actions expressed by verb + たばかり."""
-from src.GrammarConstants import TABAKARI_EXPRESSION
+TABAKARI_EXPRESSION = '〜たばかり'
 from src.grammar_rules.base import GrammarRule
 from src.grammar_rules.helpers import adjacent
 
@@ -25,6 +25,8 @@ def match_tabakari(tokens):
         yield marker['span'][0], marker['span'][1]
 
 
-RULE = GrammarRule(id='tabakari', expression=TABAKARI_EXPRESSION,
+RULE = GrammarRule(order=100, id='tabakari', expression=TABAKARI_EXPRESSION,
                    reading='たばかり', meaning='just did; recently completed',
                    match=match_tabakari)
+
+RULES = (RULE,)

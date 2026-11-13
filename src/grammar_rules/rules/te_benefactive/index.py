@@ -1,5 +1,5 @@
 """Source-aligned benefactive auxiliaries after a verb's te-form."""
-from src.GrammarConstants import TE_BENEFACTIVE_EXPRESSION
+TE_BENEFACTIVE_EXPRESSION = '〜てあげる / 〜てくれる / 〜てもらう'
 from src.grammar_rules.base import GrammarRule
 from src.grammar_rules.helpers import adjacent, next_matches, polite_suffix_end, negative_suffix_end, positive_verb_end
 
@@ -38,9 +38,11 @@ def match_te_benefactive(tokens):
             yield connective['span'][0], tokens[end]['span'][1]
 
 
-RULE = GrammarRule(
+RULE = GrammarRule(order=117,
     id='te_benefactive', expression=TE_BENEFACTIVE_EXPRESSION,
     reading='てあげる / てくれる / てもらう',
     meaning='do for someone; someone does for me; have someone do for me',
     match=match_te_benefactive,
 )
+
+RULES = (RULE,)

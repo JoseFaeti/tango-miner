@@ -1,5 +1,5 @@
 """Reason clauses marked by から or ので."""
-from src.GrammarConstants import KARA_NODE_EXPRESSION
+KARA_NODE_EXPRESSION = '〜から / 〜ので'
 from src.grammar_rules.base import GrammarRule
 from src.grammar_rules.helpers import adjacent
 
@@ -27,5 +27,7 @@ def match_kara_node(tokens):
                 yield token['span'][0], de['span'][1]
 
 
-RULE = GrammarRule(id='reason_kara_node', expression=KARA_NODE_EXPRESSION,
+RULE = GrammarRule(order=107, id='reason_kara_node', expression=KARA_NODE_EXPRESSION,
                    reading='から / ので', meaning='because; since', match=match_kara_node)
+
+RULES = (RULE,)

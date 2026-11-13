@@ -1,5 +1,5 @@
 """Conditional といい expressing a hoped-for outcome."""
-from src.GrammarConstants import TOII_TOIINA_EXPRESSION
+TOII_TOIINA_EXPRESSION = '〜といい / 〜といいな'
 from src.grammar_rules.base import GrammarRule
 from src.grammar_rules.helpers import adjacent
 
@@ -25,6 +25,8 @@ def match_toii_toiina(tokens):
         yield particle['span'][0], tokens[end]['span'][1]
 
 
-RULE = GrammarRule(id='toii_toiina', expression=TOII_TOIINA_EXPRESSION,
+RULE = GrammarRule(order=23, id='toii_toiina', expression=TOII_TOIINA_EXPRESSION,
                    reading='といい / といいな', meaning='hope that; it would be good if',
                    match=match_toii_toiina)
+
+RULES = (RULE,)

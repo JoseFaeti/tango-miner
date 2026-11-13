@@ -1,5 +1,5 @@
 """Wondering with the final particles かな and かしら."""
-from src.GrammarConstants import KANA_KASHIRA_EXPRESSION
+KANA_KASHIRA_EXPRESSION = '〜かな / 〜かしら'
 from src.grammar_rules.base import GrammarRule
 from src.grammar_rules.helpers import adjacent
 
@@ -20,6 +20,8 @@ def match_kana_kashira(tokens):
                 yield marker['span'][0], final['span'][1]
 
 
-RULE = GrammarRule(id='kana_kashira', expression=KANA_KASHIRA_EXPRESSION,
+RULE = GrammarRule(order=62, id='kana_kashira', expression=KANA_KASHIRA_EXPRESSION,
                    reading='かな / かしら', meaning='I wonder; wondering whether',
                    match=match_kana_kashira)
+
+RULES = (RULE,)

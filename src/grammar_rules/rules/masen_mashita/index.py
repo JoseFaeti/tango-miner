@@ -1,5 +1,5 @@
 """Polite negative and past verbal endings."""
-from src.GrammarConstants import MASEN_MASHITA_EXPRESSION
+MASEN_MASHITA_EXPRESSION = '〜ません / 〜ました / 〜ませんでした'
 from src.grammar_rules.base import GrammarRule
 from src.grammar_rules.helpers import adjacent, polite_suffix_end
 
@@ -16,7 +16,9 @@ def match_masen_mashita(tokens):
             yield suffix['span'][0], tokens[end]['span'][1]
 
 
-RULE = GrammarRule(id='masen_mashita', expression=MASEN_MASHITA_EXPRESSION,
+RULE = GrammarRule(order=169, id='masen_mashita', expression=MASEN_MASHITA_EXPRESSION,
                    reading='ません / ました / ませんでした',
                    meaning='polite negative, past, or past negative verb ending',
                    match=match_masen_mashita)
+
+RULES = (RULE,)

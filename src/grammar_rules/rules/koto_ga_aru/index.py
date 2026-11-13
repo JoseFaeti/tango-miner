@@ -1,10 +1,10 @@
 """Past experience expressed by a verb + たことがある."""
-from src.GrammarConstants import KOTO_GA_ARU_EXPERIENCE
+KOTO_GA_ARU_EXPERIENCE = '〜たことがある'
 from src.grammar_rules.base import GrammarRule
 from src.grammar_rules.helpers import adjacent, next_matches, positive_verb_end, negative_predicate_end
 
 
-RULE = GrammarRule(
+RULE = GrammarRule(order=152,
     id='koto_ga_aru_experience', expression=KOTO_GA_ARU_EXPERIENCE,
     reading='たことがある',
     meaning='have done before; have experienced doing; (negative) have never done',
@@ -67,3 +67,5 @@ def match_experience(tokens):
                          and adjacent(tokens[i - 3], verb))):
             continue
         yield koto['span'][0], tokens[end]['span'][1]
+
+RULES = (RULE,)

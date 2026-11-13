@@ -1,5 +1,5 @@
 """Source-aligned subject and focus particle が."""
-from src.GrammarConstants import GA_EXPRESSION
+GA_EXPRESSION = '〜が'
 from src.grammar_rules.base import GrammarRule
 from src.grammar_rules.helpers import adjacent
 
@@ -17,5 +17,7 @@ def match_ga(tokens):
         yield tuple(particle['span'])
 
 
-RULE = GrammarRule(id='ga', expression=GA_EXPRESSION, reading='が',
+RULE = GrammarRule(order=53, id='ga', expression=GA_EXPRESSION, reading='が',
                    meaning='subject or focus marker', match=match_ga)
+
+RULES = (RULE,)

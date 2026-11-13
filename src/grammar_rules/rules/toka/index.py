@@ -1,5 +1,5 @@
 """Clause-attached とか for quotation or uncertain reports."""
-from src.GrammarConstants import TOKA_EXPRESSION
+TOKA_EXPRESSION = '〜とか'
 from src.grammar_rules.base import GrammarRule
 from src.grammar_rules.helpers import adjacent
 
@@ -17,5 +17,7 @@ def match_toka(tokens):
             yield particle['span'][0], ending['span'][1]
 
 
-RULE = GrammarRule(id='toka', expression=TOKA_EXPRESSION, reading='とか',
+RULE = GrammarRule(order=28, id='toka', expression=TOKA_EXPRESSION, reading='とか',
                    meaning='(they say) that; reportedly', match=match_toka)
+
+RULES = (RULE,)

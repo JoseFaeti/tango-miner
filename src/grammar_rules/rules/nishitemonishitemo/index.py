@@ -1,5 +1,5 @@
 """Paired alternatives marked by にしても."""
-from src.GrammarConstants import NISHITEMONISHITEMO_EXPRESSION
+NISHITEMONISHITEMO_EXPRESSION = '〜にしても〜にしても'
 from src.grammar_rules.base import GrammarRule
 from src.grammar_rules.rules.nishitemo.index import match_nishitemo
 
@@ -16,6 +16,8 @@ def match_nishitemonishitemo(tokens):
         yield start, end
 
 
-RULE = GrammarRule(id='nishitemonishitemo', expression=NISHITEMONISHITEMO_EXPRESSION,
+RULE = GrammarRule(order=17, id='nishitemonishitemo', expression=NISHITEMONISHITEMO_EXPRESSION,
                    reading='にしてもにしても', meaning='whether ... or ...',
                    match=match_nishitemonishitemo)
+
+RULES = (RULE,)

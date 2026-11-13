@@ -1,5 +1,5 @@
 """Beginning expressed by a verb compound with 始める or 出す."""
-from src.GrammarConstants import HAJIMERU_DASU_EXPRESSION
+HAJIMERU_DASU_EXPRESSION = '〜始める / 〜出す'
 from src.grammar_rules.base import GrammarRule
 from src.grammar_rules.helpers import adjacent, next_matches, negative_suffix_end, polite_suffix_end
 
@@ -50,6 +50,8 @@ def match_hajimeru_dasu(tokens):
             yield start, tokens[end]['span'][1]
 
 
-RULE = GrammarRule(id='hajimeru_dasu', expression=HAJIMERU_DASU_EXPRESSION,
+RULE = GrammarRule(order=177, id='hajimeru_dasu', expression=HAJIMERU_DASU_EXPRESSION,
                    reading='はじめる / だす', meaning='begin to do; start doing',
                    match=match_hajimeru_dasu)
+
+RULES = (RULE,)

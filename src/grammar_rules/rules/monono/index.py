@@ -1,10 +1,10 @@
 """Rule for monono."""
-from src.GrammarConstants import MONONO_GRAMMAR_EXPRESSION
+MONONO_GRAMMAR_EXPRESSION = '〜ものの'
 from src.grammar_rules.base import GrammarRule
 from src.grammar_rules.helpers import adjacent
 
 
-RULE = GrammarRule(
+RULE = GrammarRule(order=161,
     id='concessive_monono', expression=MONONO_GRAMMAR_EXPRESSION, reading='ものの',
     meaning='although; even though; but',
     match=lambda tokens: match_monono(tokens),
@@ -27,3 +27,5 @@ def match_monono(tokens):
         if not any(t['pos'][:1] != ['補助記号'] for t in tokens[i + 1:]):
             continue
         yield tuple(token['span'])
+
+RULES = (RULE,)

@@ -1,5 +1,5 @@
 """Conversational explanation or shared understanding with もんね."""
-from src.GrammarConstants import MONNE_EXPRESSION
+MONNE_EXPRESSION = '〜もんね'
 from src.grammar_rules.base import GrammarRule
 from src.grammar_rules.helpers import adjacent
 
@@ -19,6 +19,8 @@ def match_monne(tokens):
         yield mon['span'][0], ne['span'][1]
 
 
-RULE = GrammarRule(id='monne', expression=MONNE_EXPRESSION, reading='もんね',
+RULE = GrammarRule(order=69, id='monne', expression=MONNE_EXPRESSION, reading='もんね',
                    meaning='because; after all (shared explanation or understanding)',
                    match=match_monne)
+
+RULES = (RULE,)

@@ -1,5 +1,5 @@
 """Source-aligned predicate expectation followed by a finite はず copula."""
-from src.GrammarConstants import HAZU_DA_GRAMMAR_EXPRESSION
+HAZU_DA_GRAMMAR_EXPRESSION = '〜はずだ'
 from src.grammar_rules.base import GrammarRule
 from src.grammar_rules.helpers import adjacent, next_matches
 
@@ -28,5 +28,7 @@ def match_hazu_da(tokens):
         yield hazu['span'][0], tokens[end]['span'][1]
 
 
-RULE = GrammarRule(id='hazu_da', expression=HAZU_DA_GRAMMAR_EXPRESSION,
+RULE = GrammarRule(order=133, id='hazu_da', expression=HAZU_DA_GRAMMAR_EXPRESSION,
                    reading='はずだ', meaning='should be; expected to; must be', match=match_hazu_da)
+
+RULES = (RULE,)

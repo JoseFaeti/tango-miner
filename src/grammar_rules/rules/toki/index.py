@@ -1,5 +1,5 @@
 """Attached temporal とき expressions."""
-from src.GrammarConstants import TOKI_EXPRESSION
+TOKI_EXPRESSION = '〜とき'
 from src.grammar_rules.base import GrammarRule
 from src.grammar_rules.helpers import adjacent
 
@@ -22,7 +22,9 @@ def match_toki(tokens):
             yield noun['span'][0], noun['span'][1]
 
 
-RULE = GrammarRule(
+RULE = GrammarRule(order=87,
     id='toki', expression=TOKI_EXPRESSION, reading='とき',
     meaning='when; at the time that', match=match_toki,
 )
+
+RULES = (RULE,)

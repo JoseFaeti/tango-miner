@@ -1,5 +1,5 @@
 """Present-tense finite copula and polite predicate ending."""
-from src.GrammarConstants import DA_DESU_EXPRESSION
+DA_DESU_EXPRESSION = 'だ / です'
 from src.grammar_rules.base import GrammarRule
 from src.grammar_rules.helpers import adjacent
 
@@ -13,6 +13,8 @@ def match_da_desu(tokens):
             yield token['span'][0], token['span'][1]
 
 
-RULE = GrammarRule(id='da_desu', expression=DA_DESU_EXPRESSION,
+RULE = GrammarRule(order=165, id='da_desu', expression=DA_DESU_EXPRESSION,
                    reading='だ / です', meaning='copula; polite predicate ending',
                    match=match_da_desu)
+
+RULES = (RULE,)

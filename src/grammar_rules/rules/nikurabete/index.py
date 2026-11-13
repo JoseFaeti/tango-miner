@@ -1,5 +1,5 @@
 """Noun + に比べて: compared with."""
-from src.GrammarConstants import NIKURABETE_EXPRESSION
+NIKURABETE_EXPRESSION = '〜に比べて'
 from src.grammar_rules.base import GrammarRule
 from src.grammar_rules.helpers import adjacent
 
@@ -23,6 +23,8 @@ def match_nikurabete(tokens):
                 break
 
 
-RULE = GrammarRule(id='nikurabete', expression=NIKURABETE_EXPRESSION,
+RULE = GrammarRule(order=6, id='nikurabete', expression=NIKURABETE_EXPRESSION,
                    reading='にくらべて', meaning='compared with',
                    match=match_nikurabete)
+
+RULES = (RULE,)

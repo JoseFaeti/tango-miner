@@ -1,5 +1,5 @@
 """Selected complete verbal obligation constructions."""
-from src.GrammarConstants import OBLIGATION_GRAMMAR_EXPRESSION
+OBLIGATION_GRAMMAR_EXPRESSION = '〜なければならない'
 from src.grammar_rules.base import GrammarRule
 from src.grammar_rules.helpers import adjacent
 
@@ -45,8 +45,10 @@ def match_obligation(tokens):
                 break
 
 
-RULE = GrammarRule(
+RULE = GrammarRule(order=148,
     id='obligation', expression=OBLIGATION_GRAMMAR_EXPRESSION, reading='なければならない',
     meaning='must; have to; need to',
     match=match_obligation,
 )
+
+RULES = (RULE,)

@@ -1,5 +1,5 @@
 """Selected verb prohibition constructions."""
-from src.GrammarConstants import TE_WA_IKENAI_GRAMMAR_EXPRESSION
+TE_WA_IKENAI_GRAMMAR_EXPRESSION = '〜てはいけない'
 from src.grammar_rules.base import GrammarRule
 from src.grammar_rules.helpers import adjacent
 
@@ -35,8 +35,10 @@ def match_te_wa_ikenai(tokens):
                 break
 
 
-RULE = GrammarRule(
+RULE = GrammarRule(order=144,
     id='te_wa_ikenai', expression=TE_WA_IKENAI_GRAMMAR_EXPRESSION, reading='てはいけない',
     meaning='must not; may not; not allowed to',
     match=match_te_wa_ikenai,
 )
+
+RULES = (RULE,)

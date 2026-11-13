@@ -1,5 +1,5 @@
 """Verb volitional and polite invitation forms."""
-from src.GrammarConstants import MASHOU_YOU_EXPRESSION
+MASHOU_YOU_EXPRESSION = '〜ましょう / 〜よう'
 from src.grammar_rules.base import GrammarRule
 from src.grammar_rules.helpers import adjacent
 
@@ -19,6 +19,8 @@ def match_mashou_you(tokens):
                 yield token['span']
 
 
-RULE = GrammarRule(id='mashou_you', expression=MASHOU_YOU_EXPRESSION,
+RULE = GrammarRule(order=170, id='mashou_you', expression=MASHOU_YOU_EXPRESSION,
                    reading='ましょう / よう', meaning='let us; intend to do',
                    match=match_mashou_you)
+
+RULES = (RULE,)

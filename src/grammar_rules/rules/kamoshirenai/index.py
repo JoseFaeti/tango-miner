@@ -1,5 +1,5 @@
 """Possibility expressed by an attached かもしれない."""
-from src.GrammarConstants import KAMOSHIRENAI_GRAMMAR_EXPRESSION
+KAMOSHIRENAI_GRAMMAR_EXPRESSION = '〜かもしれない'
 from src.grammar_rules.base import GrammarRule
 from src.grammar_rules.helpers import adjacent, negative_predicate_end
 
@@ -22,5 +22,7 @@ def match_kamoshirenai(tokens):
             yield ka['span'][0], tokens[end]['span'][1]
 
 
-RULE = GrammarRule(id='kamoshirenai', expression=KAMOSHIRENAI_GRAMMAR_EXPRESSION,
+RULE = GrammarRule(order=120, id='kamoshirenai', expression=KAMOSHIRENAI_GRAMMAR_EXPRESSION,
                    reading='かもしれない', meaning='might; may; perhaps', match=match_kamoshirenai)
+
+RULES = (RULE,)

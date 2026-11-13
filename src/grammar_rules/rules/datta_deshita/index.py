@@ -1,5 +1,5 @@
 """Past copula and polite predicate ending."""
-from src.GrammarConstants import DATTA_DESHITA_EXPRESSION
+DATTA_DESHITA_EXPRESSION = 'だった / でした'
 from src.grammar_rules.base import GrammarRule
 from src.grammar_rules.helpers import adjacent, next_matches
 
@@ -15,6 +15,8 @@ def match_datta_deshita(tokens):
             yield copula['span'][0], tokens[i + 1]['span'][1]
 
 
-RULE = GrammarRule(id='datta_deshita', expression=DATTA_DESHITA_EXPRESSION,
+RULE = GrammarRule(order=166, id='datta_deshita', expression=DATTA_DESHITA_EXPRESSION,
                    reading='だった / でした', meaning='past copula; polite past predicate ending',
                    match=match_datta_deshita)
+
+RULES = (RULE,)

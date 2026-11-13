@@ -1,5 +1,5 @@
 """Repeated action expressed by a compound verb ending in 直す."""
-from src.GrammarConstants import NAOSU_GRAMMAR_EXPRESSION
+NAOSU_GRAMMAR_EXPRESSION = '〜直す'
 from src.grammar_rules.base import GrammarRule
 from src.grammar_rules.helpers import adjacent, next_matches, negative_suffix_end, polite_suffix_end
 
@@ -38,5 +38,7 @@ def match_naosu(tokens):
             yield start, tokens[end]['span'][1]
 
 
-RULE = GrammarRule(id='naosu', expression=NAOSU_GRAMMAR_EXPRESSION,
+RULE = GrammarRule(order=85, id='naosu', expression=NAOSU_GRAMMAR_EXPRESSION,
                    reading='なおす', meaning='do again; redo', match=match_naosu)
+
+RULES = (RULE,)

@@ -1,5 +1,5 @@
 """Attached なんて expressing examples, surprise, or dismissal."""
-from src.GrammarConstants import NANTE_EXPRESSION
+NANTE_EXPRESSION = '〜なんて'
 from src.grammar_rules.base import GrammarRule
 from src.grammar_rules.helpers import adjacent
 
@@ -17,5 +17,7 @@ def match_nante(tokens):
         yield tuple(particle['span'])
 
 
-RULE = GrammarRule(id='nante', expression=NANTE_EXPRESSION, reading='なんて',
+RULE = GrammarRule(order=47, id='nante', expression=NANTE_EXPRESSION, reading='なんて',
                    meaning='such as; surprise or dismissal', match=match_nante)
+
+RULES = (RULE,)

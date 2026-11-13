@@ -1,5 +1,5 @@
 """Conditional supposition with とすると."""
-from src.GrammarConstants import TOSURUTO_EXPRESSION
+TOSURUTO_EXPRESSION = '〜とすると'
 from src.grammar_rules.base import GrammarRule
 from src.grammar_rules.helpers import adjacent
 
@@ -18,6 +18,8 @@ def match_tosuruto(tokens):
         yield to['span'][0], ending['span'][1]
 
 
-RULE = GrammarRule(id='tosuruto', expression=TOSURUTO_EXPRESSION,
+RULE = GrammarRule(order=13, id='tosuruto', expression=TOSURUTO_EXPRESSION,
                    reading='とすると', meaning='assuming that; if so',
                    match=match_tosuruto)
+
+RULES = (RULE,)
