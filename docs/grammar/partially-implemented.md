@@ -318,3 +318,4 @@ indicate measured frequency.
 - [~] [〜のに](points/noni.md)
 - [~] [〜かもしれない](points/kamoshirenai.md)
 - [~] [〜ないでください / 〜ないで](points/naidekudasai-naide.md)
+- [~] [〜きり](points/kiri.md)
