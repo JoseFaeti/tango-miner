@@ -1,5 +1,7 @@
 # Partially implemented grammar points
 
+- [~] [〜て以来](points/teirai.md)
+
 - [~] [〜以来](points/irai.md)
 
 - [~] [〜っぱなし](points/tsupanashi.md)

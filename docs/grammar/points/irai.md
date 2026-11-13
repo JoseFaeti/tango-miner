@@ -16,4 +16,4 @@ Since a time or event.
   can also mean 依頼, so kana readings need further disambiguation. Other
   tokenizations and semantic restrictions on nominal anchors remain unverified;
   a nominal adjacency alone does not establish a temporal meaning.
-- 〜て以来 is a separate scheduled point and is not matched by this rule.
+- 〜て以来 is handled by a separate rule and is not matched by this rule.
