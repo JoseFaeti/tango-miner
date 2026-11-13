@@ -1,5 +1,7 @@
 # Partially implemented grammar points
 
+- [~] [〜結果](points/ketsuka.md)
+
 - [~] [〜末に](points/sueni.md)
 
 - [~] [〜あげく](points/ageku.md)
