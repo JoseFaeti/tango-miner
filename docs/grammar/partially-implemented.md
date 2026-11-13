@@ -1,5 +1,7 @@
 # Partially implemented grammar points
 
+- [~] [〜をきっかけに](points/okitsukakeni.md)
+
 - [~] [〜をもとに](points/omotoni.md)
 
 - [~] [〜をはじめ](points/ohajime.md)
