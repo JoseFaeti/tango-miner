@@ -165,6 +165,7 @@ from src.grammar_rules.rules.to_omou.index import TO_OMOU_GRAMMAR_EXPRESSION
 from src.grammar_rules.rules.tsuke.index import TSUKE_EXPRESSION
 from src.grammar_rules.rules.tsumorida.index import TSUMORIDA_EXPRESSION
 from src.grammar_rules.rules.tsupoi.index import TSUPOI_EXPRESSION
+from src.grammar_rules.rules.tsupanashi.index import TSUPANASHI_EXPRESSION
 from src.grammar_rules.rules.tsuzukeru.index import TSUZUKERU_EXPRESSION
 from src.grammar_rules.rules.ttekoto_ttewake.index import TTEKOTO_TTEWAKE_EXPRESSION
 from src.grammar_rules.rules.tte.index import TTE_EXPRESSION
