@@ -60,6 +60,7 @@ from src.grammar_rules.rules.you_to_suru.index import RULE as YOU_TO_SURU
 from src.grammar_rules.rules.toiu.index import RULE as TOIU
 from src.grammar_rules.rules.toiuyori.index import RULE as TOIUYORI
 from src.grammar_rules.rules.nishiteha.index import RULE as NISHITEHA
+from src.grammar_rules.rules.nishitemo.index import RULE as NISHITEMO
 from src.grammar_rules.rules.toiukotoda.index import RULE as TOIUKOTODA
 from src.grammar_rules.rules.toiukotoninaru.index import RULE as TOIUKOTONINARU
 from src.grammar_rules.rules.toiukotoha.index import RULE as TOIUKOTOHA
@@ -176,7 +177,7 @@ RULES = (TEMORAITAI, TOKA, KAINA_YAN_YARO, TARINANKASHITE, JIYAN_JIYANAIKA, JIYA
 RULES = (TOII_TOIINA, TARADOU, BAYOKATTA_TARAYOKATTA, BAII_TARAII,) + RULES
 RULES = (NAKUNARU,) + RULES
 RULES = (KUNARU_NINARU,) + RULES
-RULES = (NISHITEHA, KUSURU_NISURU,) + RULES
+RULES = (NISHITEMO, NISHITEHA, KUSURU_NISURU,) + RULES
 RULES = RULES + (HOU_GA_II, SASERARERU, DAROU_DESHOU, DA_DESU, DATTA_DESHITA, JANAI_DEWANAI, ARU_IRU, MASEN_MASHITA, MASHOU_YOU, MASENKA_NAIKA, NASAI, HOSHII,)
 RULES = RULES + (RARERU_RERU, SUGIRU, TEHA_CHIYA_JIYA,)
 RULES = RULES + (HAJIMERU_DASU, TSUZUKERU, OWARU_OERU, KAKERU, AU, HOU, YOTEIDA, KOTODA,)
