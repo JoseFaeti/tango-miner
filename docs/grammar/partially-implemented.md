@@ -1,5 +1,7 @@
 # Partially implemented grammar points
 
+- [~] [〜最中に](points/saichiyuuni.md)
+
 - [~] [〜次第](points/shidai.md)
 
 - [~] [〜たびに](points/tabini.md)
