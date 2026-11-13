@@ -21,6 +21,8 @@ The あわせて expression remains available for totals; after a case-marked �
 Source-boundary repairs also distinguish the colloquial ズラかろう and selected
 からさ contexts from analyzer misreadings of からい. Other ambiguous からさ
 occurrences retain the analyzer's adjective analysis for review.
+Dictionary expression merging recognizes なんでもありません and 何でもありません
+as なんでもない, retaining the source components.
 Dictionary expression merging recognizes inflected 目をつぶる while retaining
 the source components. It also recognizes inflected ピンと来る, including
 the dialectal negative ピンとこん, while retaining the source components.

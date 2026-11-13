@@ -33,6 +33,39 @@ class TokenizerIntegrationTests(unittest.TestCase):
         # These tests deliberately exercise the real Sudachi and JMdict data.
         cls.jmdict = get_jmdict()
 
+    def test_nandemo_arimasen_recovers_negative_expression(self):
+        for sentence in ['おっとっと、危ない危ないなんでもありませんよ。',
+                         'べつになんでもありませんよ。', '何でもありません。']:
+            with self.subTest(sentence=sentence):
+                merged = combine_tokens_jmdict(tokenize_sentence(sentence), self.jmdict)
+                expression = next(t for t in merged if t['lemma'] == 'なんでもない')
+                self.assertTrue(expression['dictionary_expression'])
+                self.assertEqual(''.join(c.surface for c in expression['components']),
+                                 expression['surface'])
+                self.assertNotIn('なんでもあり', [t['lemma'] for t in merged])
+        for sentence in ['なんでもあります。', 'なんでもあり。', 'なんでもありませんか。']:
+            with self.subTest(sentence=sentence):
+                merged = combine_tokens_jmdict(tokenize_sentence(sentence), self.jmdict)
+                if sentence != 'なんでもありませんか。':
+                    self.assertNotIn('なんでもない', [t['lemma'] for t in merged])
+                else:
+                    self.assertIn('なんでもない', [t['lemma'] for t in merged])
+        from pathlib import Path
+        from src.Artifact import Artifact
+        from src.Grammar import GrammarStep, ExcludeGrammarTokensStep
+        from src.steps.TokenizeStep.index import tokenize_raw_sentences
+
+        raw = tokenize_raw_sentences(['べつになんでもありませんよ。'],
+                                     tag='source', source_path=Path('source.txt'))
+        stage = GrammarStep(prefer_expressions=True)
+        reserved = ExcludeGrammarTokensStep(stage).process(stage.process(Artifact(raw)))
+        merged = combine_tokens_jmdict(reserved.data[0].tokens, self.jmdict)
+        self.assertIn('なんでもない', [t['lemma'] for t in merged])
+
+        tokens = tokenize_sentence('なんでもありません。')
+        tokens[4]['grammar_reserved'] = True
+        self.assertNotIn('なんでもない', [t['lemma'] for t in combine_tokens_jmdict(tokens, self.jmdict)])
+
     def test_awasete_verb_and_adverb(self):
         for sentence in ['自分の戦い方にあわせてちゃんと選ぶのが大切なんだ。',
                          'となりの兵士と歩調をあわせておごそかに歩く。',

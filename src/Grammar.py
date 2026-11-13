@@ -111,7 +111,8 @@ class GrammarStep(PipelineStep):
                     expression_spans = [(t['span'][0], t['span'][1],
                                          merged[t['index']].get('dictionary_expression', False))
                                         for t in aligned
-                                        if merged[t['index']].get('analysis_rule') == 'jmdict_surface_merge']
+                                        if merged[t['index']].get('analysis_rule') in
+                                        ('jmdict_surface_merge', 'jmdict_nandemo_arimasen')]
             self.add_performance_time('expression_precedence', (perf_counter() if self._performance_enabled else 0.0) - started)
             started = (perf_counter() if self._performance_enabled else 0.0)
             for rule, start, end in proposals:

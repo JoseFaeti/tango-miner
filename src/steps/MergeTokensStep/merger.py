@@ -151,6 +151,25 @@ def _merge_candidate(token_list, i, j, combined_text, offsets, jmdict, rejected)
     }
 
 
+def _merge_nandemo_arimasen(parts, jmdict):
+    if not (parts[0]['surface'] in ('なん', '何')
+            and [t['surface'] for t in parts[1:]] == ['で', 'も', 'あり', 'ませ', 'ん']
+            and parts[0]['pos'][0] == '代名詞'
+            and [t['lemma'] for t in parts[3:]] == ['ある', 'ます', 'ぬ']):
+        return None
+    word = 'なんでもない'
+    entry = jmdict.get_best_entry(word) if jmdict.lookup_word(word) else None
+    if not is_dictionary_expression(entry):
+        return None
+    return {
+        'surface': ''.join(t['surface'] for t in parts),
+        'lemma': word, 'base_form': word, 'reading': jmdict.get_reading(entry, word),
+        'pos': ['exp', '*', '*', '*', '*', '*'], 'dictionary_expression': True,
+        'analysis_rule': 'jmdict_nandemo_arimasen',
+        'components': tuple(c for token in parts for c in token_components(token)),
+    }
+
+
 def _merge_me_wo_tsuburu(parts, jmdict):
     """Recover the expression when its final verb is inflected."""
     noun, particle, verb = parts
@@ -329,6 +348,12 @@ def combine_tokens_jmdict(
             merged_tokens.append(token_list[i])
             i += 1
             continue
+        if i + 6 <= min(n, i + max_lookahead, next_merge_boundary[i]):
+            candidate = _merge_nandemo_arimasen(token_list[i:i + 6], jmdict)
+            if candidate is not None:
+                merged_tokens.append(candidate)
+                i += 6
+                continue
         if i + 3 <= min(n, i + max_lookahead, next_merge_boundary[i]):
             candidate = (_merge_me_wo_tsuburu(token_list[i:i + 3], jmdict)
                          or _merge_me_wo_samasu(token_list[i:i + 3], jmdict)
