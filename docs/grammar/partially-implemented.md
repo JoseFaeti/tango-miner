@@ -1,5 +1,6 @@
 # Partially implemented grammar points
 
+- [~] [〜に基づいて](points/nimotozuite.md)
 - [~] [〜に沿って](points/nisotsute.md)
 
 - [~] [〜に応じて](points/nioujite.md)
