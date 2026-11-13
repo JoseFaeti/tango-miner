@@ -1,5 +1,7 @@
 # Partially implemented grammar points
 
+- [~] [〜に向いている / 〜向き](points/nimuiteiru-muki.md)
+
 - [~] [〜に向かって / 〜に向けて](points/nimukatsute-nimukete.md)
 
 - [~] [〜に比べて](points/nikurabete.md)
