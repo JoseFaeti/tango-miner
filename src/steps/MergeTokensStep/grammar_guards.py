@@ -79,6 +79,15 @@ def _is_particle_boundary_misread(tokens, start, end):
     if (first['surface'] == 'から' and tuple(first['pos'][:2]) == ('助詞', '格助詞')
             and second['surface'] == 'は' and second['pos'][0] == '助詞'):
         return True
+    # A book can specify a method or contain a named place.
+    if (first['surface'] == first['lemma'] == '本'
+            and first['pos'][0] == '名詞' and second['surface'] == 'の'
+            and tuple(second['pos'][:2]) == ('助詞', '格助詞')
+            and end < len(tokens)):
+        following = tokens[end]
+        if ((following['lemma'] == '通り' and following['pos'][0] == '名詞')
+                or tuple(following['pos'][:2]) == ('名詞', '固有名詞')):
+            return True
     # A past relative clause before ときより supplies a comparative time anchor.
     return (first['surface'] == 'とき' and second['surface'] == 'より'
             and first['pos'][0] == '名詞' and second['pos'][0] == '助詞'

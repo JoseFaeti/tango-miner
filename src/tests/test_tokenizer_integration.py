@@ -66,6 +66,21 @@ class TokenizerIntegrationTests(unittest.TestCase):
         tokens[4]['grammar_reserved'] = True
         self.assertNotIn('なんでもない', [t['lemma'] for t in combine_tokens_jmdict(tokens, self.jmdict)])
 
+    def test_hon_possessive_and_modifier(self):
+        for sentence in [
+            '本の通りに作ったら、意外に簡単に出来上がりそうだ。',
+            '店自体を、本のトランクルムのように見立てている訳か。',
+            '風花が持ってきた本の通りに作ってみることにした。',
+        ]:
+            with self.subTest(sentence=sentence):
+                merged = combine_tokens_jmdict(tokenize_sentence(sentence), self.jmdict)
+                self.assertIn('本', [t['lemma'] for t in merged])
+                self.assertNotIn('本の', [t['lemma'] for t in merged])
+        for sentence in ['本の少しだけ待ってください。', 'ほんの少しだけ待ってください。']:
+            with self.subTest(sentence=sentence):
+                merged = combine_tokens_jmdict(tokenize_sentence(sentence), self.jmdict)
+                self.assertTrue(any(t['lemma'] in {'本の少し', 'ほんの少し'} for t in merged))
+
     def test_awasete_verb_and_adverb(self):
         for sentence in ['自分の戦い方にあわせてちゃんと選ぶのが大切なんだ。',
                          'となりの兵士と歩調をあわせておごそかに歩く。',
