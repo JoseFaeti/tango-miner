@@ -4,7 +4,6 @@ Ordered implementation queue for points not yet implemented. The order is an
 estimate of usefulness and frequency, not a measurement of corpus occurrences.
 Check each specification for overlap and source evidence before implementation.
 
-- [ ] [〜上に](points/ueni.md)
 - [ ] [〜うえは](points/ueha.md)
 - [ ] [〜反面 / 〜一方で](points/hanmen-itsupoude.md)
 - [ ] [〜一方だ](points/itsupouda.md)
