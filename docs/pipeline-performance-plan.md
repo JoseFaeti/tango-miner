@@ -1,5 +1,7 @@
 # Pipeline performance measurement plan
 
+[Documentation index](index.md)
+
 This documentation describes performance measurement and the grammar pilot.
 
 - [Measurement and comparison](performance/measurement-and-comparison.md)

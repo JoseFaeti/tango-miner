@@ -1,5 +1,14 @@
 # Pipeline improvement roadmap
 
+[Documentation index](index.md)
+
+- [Purpose](#purpose)
+- [Highest-priority work](#highest-priority-work)
+- [Command-line interface](#command-line-interface)
+- [Pipeline-specific quality improvements](#pipeline-specific-quality-improvements)
+- [Engineering foundation](#engineering-foundation)
+- [Test plan and implementation order](#test-plan-and-implementation-order)
+
 ## Purpose
 
 See [purpose](roadmap/purpose.md).

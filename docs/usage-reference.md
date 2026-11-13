@@ -1,5 +1,13 @@
 # Pipeline usage reference
 
+[Documentation index](index.md)
+
+- [Running](#running)
+- [Run configuration](#run-configuration)
+- [Development](#development)
+- [Unresolved definitions](#unresolved-definitions)
+- [Expression inventory](#expression-inventory)
+
 Tango Miner mines Japanese learning candidates from material the learner intends
 to read. It extracts and normalizes sentences, tokenizes them with Sudachi,
 merges dictionary-backed expressions, aggregates and filters candidates, adds

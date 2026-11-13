@@ -50,6 +50,7 @@ Notification delivery is best effort; a
 network error is reported without changing the pipeline result. The topic URL is
 not saved in the run archive. Without `NTFY_URL`, notifications are disabled.
 
+Browse the [documentation index](docs/index.md) for usage, plans, and research.
 For configuration, output, diagnostics and development tools, see the
 [usage reference](docs/usage-reference.md). For agent-facing command modules,
 see the [agent command reference](agent_commands/README.md). For ongoing work and issue tracking,
