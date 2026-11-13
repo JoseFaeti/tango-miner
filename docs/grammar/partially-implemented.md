@@ -1,5 +1,7 @@
 # Partially implemented grammar points
 
+- [~] [〜について](points/nitsuite.md)
+
 - [~] [〜にとって](points/nitotsute.md)
 
 - [~] [〜とすると](points/tosuruto.md)
