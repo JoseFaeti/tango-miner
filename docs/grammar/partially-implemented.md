@@ -1,5 +1,7 @@
 # Partially implemented grammar points
 
+- [~] [〜を中心に](points/ochiyuushinni.md)
+
 - [~] [〜において / 〜における](points/nioite-niokeru.md)
 
 - [~] [〜としては](points/toshiteha.md)
