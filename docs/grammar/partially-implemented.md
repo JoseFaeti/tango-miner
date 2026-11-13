@@ -1,5 +1,7 @@
 # Partially implemented grammar points
 
+- [~] [〜によると / 〜によれば](points/niyoruto-niyoreba.md)
+
 - [~] [〜によって / 〜による](points/niyotsute-niyoru.md)
 
 - [~] [〜に対して](points/nitaishite.md)
