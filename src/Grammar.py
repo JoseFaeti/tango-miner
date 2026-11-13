@@ -130,11 +130,16 @@ class GrammarStep(PipelineStep):
                                    if rule.id == 'te_oku' and t['span'][0] == start
                                    and t['surface'] in ('て', 'で')}
                 # A dictionary expression may end inside the grammar span.
+                # ところでは is only a partial expression when the following
+                # negative completes a copula; retain the nominal predicate.
                 if any((a <= start and end <= b and (a < start or end < b)
                         and a not in copular_starts)
                        or (is_expression and a in connective_ends and a < end < b)
                        or (is_expression and a < start < b < end)
-                       for a, b, is_expression in expression_spans):
+                       for a, b, is_expression in expression_spans
+                       if not (rule.id == 'janai_dewanai'
+                               and sentence.text[a:b] == 'ところでは'
+                               and sentence.text[start:b] == 'では')):
                     continue
                 group = self.occurrences[rule.id]
                 group.count += 1

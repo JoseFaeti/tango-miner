@@ -51,6 +51,10 @@ useful lexical analysis when the rule is wrong; unmatched uses remain eligible.
 
 Dictionary expressions can also take precedence when they start before a grammar span and end inside it, as with ではなさそう + だ and 命に代えて + も. This preserves lexical components but suppresses the overlapping grammar occurrence; the effect on other expressions remains unmeasured.
 
+For negative copulas, a partial ところでは dictionary match does not suppress
+ではない or ではありません. Other dictionary expression precedence remains
+in effect; the preceding ところ remains available to lexical processing.
+
 An exact kana-only dictionary verb marked as an abbreviation can also take
 precedence when Sudachi splits it into a verb and a supported contracted
 auxiliary. For example, ほっとく remains a lexical candidate with component

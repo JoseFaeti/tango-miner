@@ -19,6 +19,9 @@ class JanaiDewanaiTests(unittest.TestCase):
             '学生じゃない。': 'じゃない', '学生ではない。': 'ではない',
             '静かじゃなかった。': 'じゃなかった', '学生ではなかったです。': 'ではなかったです',
             '学生ではありません。': 'ではありません', '学生じゃありませんでした。': 'じゃありませんでした',
+            '確かに聞こえた…まだ来るべきところではない…と。': 'ではない',
+            'ここはあなたがたの来るようなところではありません。': 'ではありません',
+            'おもしろ半分に立ち入るところではありませんよ。': 'ではありません',
             '本を読んではない。': None, 'お金がない。': None,
             '学生 じゃない。': None, '学生ではなかっ': None,
         }
@@ -45,3 +48,30 @@ class JanaiDewanaiTests(unittest.TestCase):
         stage.add_cards(words)
         self.assertEqual(words[RULE.expression].sentences[0].surface_form, 'じゃない')
         self.assertIn('学生', words)
+
+    def test_reported_sentences_survive_expression_precedence(self):
+        try:
+            from sudachipy import dictionary, tokenizer
+            analyzer = dictionary.Dictionary(config_path='sudachi.config.json', dict='full').create()
+        except (ImportError, OSError, RuntimeError) as exc:
+            self.skipTest(f'Sudachi full dictionary unavailable: {exc}')
+        cases = (
+            ('確かに聞こえた…まだ来るべきところではない…と。', 'ではない'),
+            ('ここはあなたがたの来るようなところではありません。', 'ではありません'),
+            ('おもしろ半分に立ち入るところではありませんよ。', 'ではありません'),
+        )
+        for text, expected in cases:
+            with self.subTest(text=text):
+                tokens = [dict(tok(m.surface(), m.dictionary_form(), m.part_of_speech()),
+                               base_form=m.dictionary_form(), reading=m.reading_form())
+                          for m in analyzer.tokenize(text, tokenizer.Tokenizer.SplitMode.C)]
+                stage = GrammarStep(prefer_expressions=True)
+                result = ExcludeGrammarTokensStep(stage).process(
+                    stage.process(Artifact([sentence(text, tokens)])))
+                matches = [(a, b) for rule_id, a, b in stage.spans.get(0, ())
+                           if rule_id == RULE.id]
+                self.assertEqual([text[a:b] for a, b in matches], [expected])
+                self.assertTrue(any(t.get('grammar_reserved') and t['surface'] == 'で'
+                                    for t in result.data[0].tokens))
+                self.assertTrue(any(t['surface'] == 'ところ' and not t.get('grammar_reserved')
+                                    for t in result.data[0].tokens))
