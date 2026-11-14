@@ -1,5 +1,7 @@
 # Partially implemented grammar points
 
+- [~] [〜ようものなら](points/youmononara.md)
+
 - [~] [〜ものなら](points/mononara.md)
 
 - [~] [〜っこない](points/tsukonai.md)
