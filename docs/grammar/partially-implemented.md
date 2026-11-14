@@ -1,5 +1,7 @@
 # Partially implemented grammar points
 
+- [~] [〜てすむ](points/tesumu.md)
+
 - [~] [〜てならない](points/tenaranai.md)
 
 - [~] [〜てしかたがない / 〜てしょうがない](points/teshikataganai-teshiyouganai.md)
