@@ -41,7 +41,8 @@ class UchiniTests(unittest.TestCase):
         data = stage.process(Artifact([source, source]))
         ExcludeGrammarTokensStep(stage).process(data)
         self.assertEqual([t['surface'] for t in data.data[0].tokens if t.get('grammar_reserved')],
-                         ['うち', 'に'])
+                         ['の', 'うち', 'に'])
+        self.assertEqual(stage.occurrences['no'].count, 2)
         words = {'休み': object()}
         stage.add_cards(words)
         self.assertIn('休み', words)

@@ -188,9 +188,10 @@ class TeOkuTests(unittest.TestCase):
                          ['おけ', 'ば', 'よかっ', 'た'])
         self.assertEqual(stage.occurrences[RULE.id].count, 1)
         self.assertEqual(stage.occurrences['ne_yo_yone'].count, 1)
+        self.assertTrue(any(rule_id == 'no' for rule_id, _, _ in stage.spans[len(raw) - 1]))
         self.assertIn('買う', words)
         self.assertEqual([t['surface'] for t in reserved[-1].tokens if t.get('grammar_reserved')],
-                         ['ため', 'に', 'を', 'て', 'おく', 'よ'])
+                         ['の', 'ため', 'に', 'を', 'て', 'おく', 'よ'])
 
 
 if __name__ == '__main__':

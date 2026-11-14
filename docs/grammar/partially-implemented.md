@@ -1,5 +1,7 @@
 # Partially implemented grammar points
 
+- [~] [の](points/no.md)
+
 - [~] [へ](points/he.md)
 
 - [~] [で](points/de.md)
