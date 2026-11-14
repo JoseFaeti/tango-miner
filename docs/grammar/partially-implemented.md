@@ -1,5 +1,6 @@
 # Partially implemented grammar points
 
+- [~] [〜は別として](points/habetsutoshite.md)
 - [~] [〜を問わず](points/otowazu.md)
 
 - [~] [〜にかかわらず](points/nikakawarazu.md)
