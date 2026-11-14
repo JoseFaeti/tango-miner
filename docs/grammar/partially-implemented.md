@@ -1,5 +1,7 @@
 # Partially implemented grammar points
 
+- [~] [〜かねない](points/kanenai.md)
+
 - [~] [〜かねる](points/kaneru.md)
 
 - [~] [〜ないですむ](points/naidesumu.md)
