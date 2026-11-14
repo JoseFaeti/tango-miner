@@ -390,3 +390,4 @@ indicate measured frequency.
 - [~] [〜かもしれない](points/kamoshirenai.md)
 - [~] [〜ないでください / 〜ないで](points/naidekudasai-naide.md)
 - [~] [〜きり](points/kiri.md)
+- [~] [〜気味](points/kimi.md)
