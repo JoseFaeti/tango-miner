@@ -1,5 +1,7 @@
 # Partially implemented grammar points
 
+- [~] [〜まみれ](points/mamire.md)
+
 - [~] [〜だらけ](points/darake.md)
 
 - [~] [〜向け / 〜向き](points/muke-muki.md)
