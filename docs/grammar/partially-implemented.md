@@ -314,6 +314,8 @@
 
 - [~] [〜に違いない](points/nichigainai.md)
 
+- [~] [〜に決まっている](points/nikimatsuteiru.md)
+
 - [~] [〜かもしれん / 〜かも](points/kamoshiren-kamo.md)
 
 - [~] [〜かどうか](points/kadouka.md)
