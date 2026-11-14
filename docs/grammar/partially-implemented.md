@@ -1,5 +1,7 @@
 # Partially implemented grammar points
 
+- [~] [〜といっても](points/toitsutemo.md)
+
 - [~] [〜とはいえ](points/tohaie.md)
 
 - [~] [〜ようものなら](points/youmononara.md)
