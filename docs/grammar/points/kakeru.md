@@ -19,6 +19,8 @@ includes the preceding verb. Tokens are not reserved, preserving lexical evidenc
 Standalone かける is excluded. Lexical verbs such as 話しかける also match;
 matches need review because form alone cannot determine the meaning. Sudachi
 can analyze 死にかける as a noun and particle followed by かける, which is
-missed. Nominal 〜かけ and other inflections and segmentations remain unsupported.
+missed. Attributive nominal 〜かけの is supported as described in
+[〜かけ / 〜かける](kake-kakeru.md); other inflections and segmentations remain
+unverified.
 
 See [stage and precedence](../stage-and-precedence.md) and [identity and review](../identity-and-review.md) for shared behavior.

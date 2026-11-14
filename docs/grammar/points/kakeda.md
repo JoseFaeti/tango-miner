@@ -19,4 +19,5 @@ retained. Sudachi full dictionary produces merged nouns for 読みかけ and
 avoid nouns such as 仕掛け, but this surface heuristic cannot establish the
 meaning: words such as きっかけ can still match and need review. Separate
 tokenizations, including Sudachi's 死にかけだ analysis, other copular forms,
-and attributive 〜かけの remain unsupported.
+remain unsupported. Attributive 〜かけの is handled by the
+[〜かける rule](kakeru.md).

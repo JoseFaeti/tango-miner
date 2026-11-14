@@ -7,6 +7,17 @@ from src.grammar_rules.helpers import adjacent, next_matches, negative_suffix_en
 def match_kakeru(tokens):
     for i, token in enumerate(tokens):
         lemma = token['lemma']
+        # Nominal 〜かけの is distinct from a bare continuative verb form.
+        surface = token['surface']
+        if (token['pos'][:1] == ['名詞'] and surface.endswith(('かけ', '掛け'))
+                and next_matches(tokens, i, 'の', '助詞', 'の')):
+            if (len(surface) > 2 and 'ぁ' <= surface[-3] <= 'ゖ'):
+                yield token['span'][0], tokens[i + 1]['span'][1]
+            elif surface in ('かけ', '掛け') and i:
+                previous = tokens[i - 1]
+                if (adjacent(previous, token) and previous['pos'][:1] == ['動詞']
+                        and len(previous['pos']) >= 6 and previous['pos'][5].startswith('連用形')):
+                    yield previous['span'][0], tokens[i + 1]['span'][1]
         if token['pos'][:1] != ['動詞'] or not isinstance(lemma, str):
             continue
         suffix = next((s for s in ('かける', '掛ける') if lemma.endswith(s)), None)
