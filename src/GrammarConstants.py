@@ -62,6 +62,7 @@ from src.grammar_rules.rules.monodakara_mondakara.index import MONODAKARA_MONDAK
 from src.grammar_rules.rules.monoda.index import MONODA_EXPRESSION
 from src.grammar_rules.rules.monoka_monka.index import MONOKA_MONKA_EXPRESSION
 from src.grammar_rules.rules.monono.index import MONONO_GRAMMAR_EXPRESSION
+from src.grammar_rules.rules.mononara.index import MONONARA_EXPRESSION
 from src.grammar_rules.rules.mono_mon.index import MONO_MON_EXPRESSION
 from src.grammar_rules.rules.nado_nanka_nante.index import NADO_NANKA_NANTE_EXPRESSION
 from src.grammar_rules.rules.nagaramo.index import NAGARAMO_EXPRESSION
