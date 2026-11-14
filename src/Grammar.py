@@ -113,7 +113,8 @@ class GrammarStep(PipelineStep):
                                         for t in aligned
                                         if merged[t['index']].get('analysis_rule') in
                                         ('jmdict_surface_merge', 'jmdict_nandemo_arimasen',
-                                         'jmdict_me_wo_samasu', 'jmdict_me_wo_tsuburu')]
+                                         'jmdict_me_wo_samasu', 'jmdict_me_wo_tsuburu',
+                                         'jmdict_nemuri_ni_tsuku')]
             self.add_performance_time('expression_precedence', (perf_counter() if self._performance_enabled else 0.0) - started)
             started = (perf_counter() if self._performance_enabled else 0.0)
             for rule, start, end in proposals:

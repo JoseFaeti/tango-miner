@@ -1,5 +1,7 @@
 # Partially implemented grammar points
 
+- [~] [に](points/ni.md)
+
 - [~] [を](points/o.md)
 
 - [~] [〜に決まってる](points/nikimatsuteru.md)

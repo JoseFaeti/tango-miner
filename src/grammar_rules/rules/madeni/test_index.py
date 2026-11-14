@@ -60,7 +60,7 @@ class MadeniTests(unittest.TestCase):
             self.assertIsNone(error)
             self.assertEqual(list(match_madeni(tokens)), [])
 
-    def test_degree_expression_is_not_reserved(self):
+    def test_degree_expression_is_not_a_deadline(self):
         source = sentence('これはここまでに美しいものです。', [
             tok('これは', 'これ', ('代名詞',)), tok('ここ', 'ここ', ('代名詞',)),
             tok('まで', 'まで', ('助詞', '副助詞')),
@@ -69,5 +69,7 @@ class MadeniTests(unittest.TestCase):
         stage = GrammarStep()
         data = stage.process(Artifact([source]))
         ExcludeGrammarTokensStep(stage).process(data)
-        self.assertFalse(any(t.get('grammar_reserved') for t in data.data[0].tokens))
+        self.assertEqual([t['surface'] for t in data.data[0].tokens if t.get('grammar_reserved')],
+                         ['に'])
         self.assertEqual(stage.occurrences['madeni'].count, 0)
+        self.assertEqual(stage.occurrences['ni'].count, 1)
