@@ -1,5 +1,7 @@
 # Partially implemented grammar points
 
+- [~] [〜くせに](points/kuseni.md)
+
 - [~] [〜にもかかわらず](points/nimokakawarazu.md)
 
 - [~] [〜といっても](points/toitsutemo.md)
