@@ -13,7 +13,6 @@ ambiguity and recall before implementing a rule.
 
 ## General and conversational candidates
 
-- [ ] [で](points/de.md)
 - [ ] [へ](points/he.md)
 - [ ] [と](points/to.md)
 - [ ] [の](points/no.md)
