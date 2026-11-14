@@ -1,5 +1,7 @@
 # Partially implemented grammar points
 
+- [~] [〜ずにはいられない](points/zunihairarenai.md)
+
 - [~] [〜ざるを得ない](points/zaruoenai.md)
 
 - [~] [〜ほかない / 〜しかない](points/hokanai-shikanai.md)
