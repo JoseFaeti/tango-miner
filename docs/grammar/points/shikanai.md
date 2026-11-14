@@ -19,5 +19,8 @@ intervening phrases, all negative variants, or clause structure; unrelated
 nearby negatives can still cause false matches. Merged analyzer tokens are not
 matched. These limitations remain for further work.
 
+Verb + しかない may also produce the separate no-choice card
+[〜ほかない / 〜しかない](hokanai-shikanai.md).
+
 - [Rule](../../../src/grammar_rules/rules/shikanai/index.py)
 - [Tests](../../../src/grammar_rules/rules/shikanai/test_index.py)
