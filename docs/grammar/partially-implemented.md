@@ -34,6 +34,8 @@
 
 - [~] [〜てたまらない](points/tetamaranai.md)
 
+- [~] [〜ず](points/zu.md)
+
 - [~] [〜ずに](points/zuni.md)
 
 - [~] [〜ずにはいられない](points/zunihairarenai.md)
