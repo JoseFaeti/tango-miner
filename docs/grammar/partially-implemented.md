@@ -56,6 +56,7 @@
 - [~] [〜どころか](points/dokoroka.md)
 - [~] [〜どころではない](points/dokorodehanai.md)
 
+- [~] [〜はともかく](points/hatomokaku.md)
 - [~] [〜はもちろん](points/hamochiron.md)
 
 - [~] [〜ばかりでなく](points/bakaridenaku.md)
