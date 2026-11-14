@@ -182,6 +182,7 @@ from src.grammar_rules.rules.wake_da.index import WAKE_DA
 from src.grammar_rules.rules.wake_da.index import WAKE_NEGATIVE
 from src.grammar_rules.rules.wake_tsutewake.index import WAKE_TSUTEWAKE_EXPRESSION
 from src.grammar_rules.rules.yasui_nikui.index import YASUI_NIKUI_EXPRESSION
+from src.grammar_rules.rules.gachi.index import GACHI_EXPRESSION
 from src.grammar_rules.rules.ya_toka.index import YA_TOKA_EXPRESSION
 from src.grammar_rules.rules.yori.index import YORI_EXPRESSION
 from src.grammar_rules.rules.yoteida.index import YOTEIDA_EXPRESSION

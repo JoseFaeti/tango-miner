@@ -4,7 +4,6 @@ Ordered implementation queue for points not yet implemented. The order is an
 estimate of usefulness and frequency, not a measurement of corpus occurrences.
 Check each specification for overlap and source evidence before implementation.
 
-- [ ] [〜がち](points/gachi.md)
 - [ ] [〜気味](points/kimi.md)
 - [ ] [〜げ](points/ge.md)
 - [ ] [〜がる](points/garu.md)

@@ -341,6 +341,7 @@ indicate measured frequency.
 - [~] [〜けど / 〜けれども](points/kedo-keredomo.md)
 - [~] [〜から / 〜ので](points/kara-node.md)
 - [~] [〜たり〜たりする](points/taritarisuru.md)
+- [~] [〜がち](points/gachi.md)
 - [~] [〜やすい / 〜にくい](points/yasui-nikui.md)
 - [~] [〜ことができる](points/kotogadekiru.md)
 - [~] [〜たほうがいい / 〜ないほうがいい](points/tahougaii-naihougaii.md)
