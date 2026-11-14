@@ -51,6 +51,7 @@
 - [~] [〜ずに](points/zuni.md)
 
 - [~] [〜ずにはいられない](points/zunihairarenai.md)
+- [~] [〜ないではいられない](points/naidehairarenai.md)
 
 - [~] [〜ざるを得ない](points/zaruoenai.md)
 
