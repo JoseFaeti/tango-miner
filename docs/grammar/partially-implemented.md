@@ -250,6 +250,7 @@
 - [~] [〜ものか / 〜もんか](points/monoka-monka.md)
 
 - [~] [〜わけにはいかない](points/wakenihaikanai.md)
+- [~] [〜ないわけにはいかない](points/naiwakenihaikanai.md)
 
 - [~] [〜わけがない](points/wakeganai.md)
 - [~] [〜わけ / 〜ってわけ](points/wake-tsutewake.md)

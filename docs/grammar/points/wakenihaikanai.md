@@ -16,7 +16,7 @@ dictionary expression precedence. Focused tests cover Sudachi full dictionary
 analyses, negative-predicate and lexical controls, reservation and card identity.
 
 Negative predicates are excluded: 〜ないわけにはいかない expresses an
-obligation and is a separate point. Other inflections and merged analyzer
+obligation and is covered by a separate rule. Other inflections and merged analyzer
 tokens are not covered. Contextual ambiguity remains, and independent precision
 and recall evaluation is outstanding.
 

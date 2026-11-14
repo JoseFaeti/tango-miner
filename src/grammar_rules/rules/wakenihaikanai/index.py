@@ -22,20 +22,25 @@ def match_wakenihaikanai(tokens):
                 or wake['lemma'] not in ('わけ', '訳')
                 or wake['pos'][:2] != ['名詞', '普通名詞']):
             continue
-        surface = ''
-        for j in range(i, min(len(tokens), i + 10)):
-            if j > i and not adjacent(tokens[j - 1], tokens[j]):
-                break
-            surface += tokens[j]['surface']
-            if surface in _FORMS:
-                if j + 1 < len(tokens) and adjacent(tokens[j], tokens[j + 1]):
-                    following = tokens[j + 1]
-                    if following['surface'] in ('た', 'でし') and following['pos'][:1] == ['助動詞']:
-                        continue
-                yield wake['span'][0], tokens[j]['span'][1]
-                break
-            if surface not in _PREFIXES:
-                break
+        yield from match_ending(tokens, i)
+
+
+def match_ending(tokens, i):
+    wake = tokens[i]
+    surface = ''
+    for j in range(i, min(len(tokens), i + 10)):
+        if j > i and not adjacent(tokens[j - 1], tokens[j]):
+            break
+        surface += tokens[j]['surface']
+        if surface in _FORMS:
+            if j + 1 < len(tokens) and adjacent(tokens[j], tokens[j + 1]):
+                following = tokens[j + 1]
+                if following['surface'] in ('た', 'でし') and following['pos'][:1] == ['助動詞']:
+                    continue
+            yield wake['span'][0], tokens[j]['span'][1]
+            break
+        if surface not in _PREFIXES:
+            break
 
 
 RULE = GrammarRule(order=33, id='wakenihaikanai', expression=WAKENIHAIKANAI_EXPRESSION,
