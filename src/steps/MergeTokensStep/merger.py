@@ -73,6 +73,18 @@ def _merge_candidate(token_list, i, j, combined_text, offsets, jmdict, rejected)
     if not match_word:
         reject("no_best_entry")
         return None
+    if token_string == '下って' and j - i == 2:
+        first, second = token_list[i:j]
+        noun_particle = (first['lemma'] == '下' and first['pos'][0] == '名詞'
+                         and second['surface'] == 'って' and second['pos'][0] == '助詞')
+        object_verb = (i > 0 and token_list[i - 1]['surface'] == 'を'
+                       and tuple(token_list[i - 1]['pos'][:2]) == ('助詞', '格助詞')
+                       and first['lemma'] == '下る' and first['pos'][0] == '動詞'
+                       and second['surface'] == 'て'
+                       and tuple(second['pos'][:2]) == ('助詞', '接続助詞'))
+        if noun_particle or object_verb:
+            reject('kudatte_particle_or_object_verb')
+            return None
     if token_string == 'ちょっと見':
         following = token_list[j] if j < n else None
         if (following is not None

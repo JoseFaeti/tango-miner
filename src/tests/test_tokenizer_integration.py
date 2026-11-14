@@ -96,6 +96,18 @@ class TokenizerIntegrationTests(unittest.TestCase):
                 expression = next(t for t in merged if t['lemma'] == 'あわせて')
                 self.assertEqual([c.surface for c in expression['components']], ['あわせ', 'て'])
 
+    def test_kudatte_verb_particle_and_adverb(self):
+        for sentence in ['幻光河を下ってグアド族のグアドサラム',
+                         '2回目は“左下”って書いてるのに下の左の左の下って、結局は左下ですよね。',
+                         'ガボ「地面の下ってひんやりするな。']:
+            with self.subTest(sentence=sentence):
+                merged = combine_tokens_jmdict(tokenize_sentence(sentence), self.jmdict)
+                self.assertNotIn('下って', [t['lemma'] for t in merged])
+                self.assertIn('下る' if sentence.startswith('幻光河') else '下',
+                              [t['lemma'] for t in merged])
+        merged = combine_tokens_jmdict(tokenize_sentence('時代が下って、文化が変わった。'), self.jmdict)
+        self.assertIn('下って', [t['lemma'] for t in merged])
+
     def test_nemuri_ni_tsuku_inflections(self):
         for sentence in [
             'マナを生み出す新たなマナの樹となって眠りにつきます。',
