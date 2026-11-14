@@ -1,5 +1,7 @@
 # Partially implemented grammar points
 
+- [~] [〜通す](points/toosu.md)
+
 - [~] [〜抜く](points/nuku.md)
 
 - [~] [〜きる / 〜きれない](points/kiru-kirenai.md)
