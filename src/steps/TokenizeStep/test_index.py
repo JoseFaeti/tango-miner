@@ -3,7 +3,7 @@ from pathlib import Path
 
 from src.Artifact import Artifact
 from src.Pipeline import Pipeline
-from src.steps.TokenizeStep.index import TokenizeStep, tokenize
+from src.steps.TokenizeStep.index import TokenizeStep, get_lemma_reading, tokenize
 
 
 class TokenizeStepTests(unittest.TestCase):
@@ -15,6 +15,13 @@ class TokenizeStepTests(unittest.TestCase):
         self.assertEqual(words["家"].tags, {"fixture"})
         self.assertEqual(sentences[0].text, "彼はすでに家に帰っている。")
         self.assertEqual(sentences[0].lemma_surfaces["帰る"], "帰っ")
+
+    def test_complete_readings_for_source_lemmas(self):
+        words, _ = tokenize(["たぶん、歴代ファイターでも１、２をあらそう強さだわ", "家に帰っている。"])
+
+        self.assertEqual(words["あらそう"].reading, "あらそう")
+        self.assertEqual(get_lemma_reading("争う"), "あらそう")
+        self.assertEqual(words["帰る"].reading, "かえる")
 
     def test_step_accepts_sentences_grouped_by_source_file(self):
         artifact = Artifact(

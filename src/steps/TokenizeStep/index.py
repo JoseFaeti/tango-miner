@@ -251,8 +251,8 @@ def get_lemma_reading(lemma: str) -> str:
     if lemma in _lemma_reading_cache:
         return _lemma_reading_cache[lemma]
 
-    m = get_tokenizer().tokenize(lemma, TOKENIZER_MODE)[0]
-    reading = kata_to_hira(m.reading_form())
+    nodes = get_tokenizer().tokenize(lemma, TOKENIZER_MODE)
+    reading = kata_to_hira("".join(node.reading_form() for node in nodes))
 
     _lemma_reading_cache[lemma] = reading
     return reading
