@@ -500,3 +500,4 @@ indicate measured frequency.
 - [~] [〜ないでください / 〜ないで](points/naidekudasai-naide.md)
 - [~] [〜きり](points/kiri.md)
 - [~] [〜気味](points/kimi.md)
+- [~] [と](points/to.md)
