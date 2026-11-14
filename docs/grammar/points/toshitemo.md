@@ -15,4 +15,5 @@ card identity.
 
 Capacity readings such as 代表としても and attempts such as 帰ろうとしても
 share these tokens, so they can also produce this card alongside other rules.
-Other tokenizations and the separate paired construction are not covered.
+Other tokenizations are not covered. The separate paired construction has its
+own rule and may match alongside this one.

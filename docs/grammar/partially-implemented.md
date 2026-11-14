@@ -1,5 +1,6 @@
 # Partially implemented grammar points
 
+- [~] [〜としても〜としても](points/toshitemotoshitemo.md)
 - [~] [〜としても / 〜にしても](points/toshitemo-nishitemo.md)
 
 - [~] [〜わりに](points/warini.md)
