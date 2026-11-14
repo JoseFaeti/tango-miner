@@ -67,7 +67,7 @@ class TeHoshiiTests(unittest.TestCase):
         ExcludeGrammarTokensStep(stage).process(artifact)
         reserved = [token['surface'] for token in artifact.data[0].tokens
                     if token.get('grammar_reserved')]
-        self.assertEqual(reserved, ['は', 'で', 'ほしい', 'と', '思い', 'ます'])
+        self.assertEqual(reserved, ['は', 'を', 'で', 'ほしい', 'と', '思い', 'ます'])
         self.assertFalse(next(token for token in artifact.data[0].tokens
                               if token['surface'] == '読ん').get('grammar_reserved', False))
         words = {'読む': object()}
