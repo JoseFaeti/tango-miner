@@ -1,5 +1,7 @@
 # Partially implemented grammar points
 
+- [~] [〜を抜きにして](points/onukinishite.md)
+
 - [~] [〜を除いて](points/onozoite.md)
 
 - [~] [〜は別として](points/habetsutoshite.md)
