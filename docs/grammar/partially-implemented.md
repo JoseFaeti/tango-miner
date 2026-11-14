@@ -1,5 +1,7 @@
 # Partially implemented grammar points
 
+- [~] [〜ないことには](points/naikotoniha.md)
+
 - [~] [〜ぬまま](points/numama.md)
 
 - [~] [〜ないまま](points/naimama.md)
