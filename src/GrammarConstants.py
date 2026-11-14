@@ -12,6 +12,7 @@ from src.grammar_rules.rules.datta_deshita.index import DATTA_DESHITA_EXPRESSION
 from src.grammar_rules.rules.da_desu.index import DA_DESU_EXPRESSION
 from src.grammar_rules.rules.elliptical_obligation.index import ELLIPTICAL_OBLIGATION_EXPRESSION
 from src.grammar_rules.rules.ga.index import GA_EXPRESSION
+from src.grammar_rules.rules.gomu.index import GOMU_EXPRESSION
 from src.grammar_rules.rules.hajimeru_dasu.index import HAJIMERU_DASU_EXPRESSION
 from src.grammar_rules.rules.hazuganai.index import HAZUGANAI_EXPRESSION
 from src.grammar_rules.rules.hazu_da.index import HAZU_DA_GRAMMAR_EXPRESSION
