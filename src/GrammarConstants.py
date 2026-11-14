@@ -29,6 +29,7 @@ from src.grammar_rules.rules.kadouka.index import KADOUKA_EXPRESSION
 from src.grammar_rules.rules.kaina_yan_yaro.index import KAINA_YAN_YARO_EXPRESSION
 from src.grammar_rules.rules.kai_dai.index import KAI_DAI_EXPRESSION
 from src.grammar_rules.rules.kakeru.index import KAKERU_EXPRESSION
+from src.grammar_rules.rules.kaneru.index import KANERU_EXPRESSION
 from src.grammar_rules.rules.kamoshirenai.index import KAMOSHIRENAI_GRAMMAR_EXPRESSION
 from src.grammar_rules.rules.kamoshiren_kamo.index import KAMOSHIREN_KAMO_EXPRESSION
 from src.grammar_rules.rules.kana_kashira.index import KANA_KASHIRA_EXPRESSION

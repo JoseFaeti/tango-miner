@@ -4,7 +4,6 @@ Ordered implementation queue for points not yet implemented. The order is an
 estimate of usefulness and frequency, not a measurement of corpus occurrences.
 Check each specification for overlap and source evidence before implementation.
 
-- [ ] [〜かねる](points/kaneru.md)
 - [ ] [〜かねない](points/kanenai.md)
 - [ ] [〜得る / 〜得ない](points/uru-enai.md)
 - [ ] [〜ようがない](points/youganai.md)
