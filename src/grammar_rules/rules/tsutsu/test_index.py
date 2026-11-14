@@ -18,7 +18,7 @@ class TsutsuTests(unittest.TestCase):
         cases = {
             '音楽を聴きつつ歩く。': True,
             '悪いと知りつつ続ける。': True,
-            '悪いと知りつつも続ける。': True,
+            '悪いと知りつつも続ける。': False,
             '準備されつつ進む。': True,
             '人口が増えつつある。': False,
             '人口が増えつつありました。': False,

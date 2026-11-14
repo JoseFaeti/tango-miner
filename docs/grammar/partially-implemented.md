@@ -1,5 +1,7 @@
 # Partially implemented grammar points
 
+- [~] [〜つつも](points/tsutsumo.md)
+
 - [~] [〜つつ](points/tsutsu.md)
 
 - [~] [〜つつある](points/tsutsuaru.md)
