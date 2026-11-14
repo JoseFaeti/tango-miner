@@ -4,7 +4,6 @@ Ordered implementation queue for points not yet implemented. The order is an
 estimate of usefulness and frequency, not a measurement of corpus occurrences.
 Check each specification for overlap and source evidence before implementation.
 
-- [ ] [〜ないまま](points/naimama.md)
 - [ ] [〜ぬまま](points/numama.md)
 - [ ] [〜ないことには](points/naikotoniha.md)
 - [ ] [〜ないことはない](points/naikotohanai.md)

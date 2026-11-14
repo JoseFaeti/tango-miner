@@ -19,6 +19,6 @@ reservation and card identity.
 
 Sudachi treats そのまま as one lexical token, which is left intact. Other
 merged or unusual spellings and contextual ambiguities have not been assessed.
-The separate 〜ないまま and 〜ぬまま points remain scheduled for their own
-specific treatment. Predicate part of speech alone cannot prove the intended
+The separate 〜ないまま rule can also match negative examples; 〜ぬまま
+remains scheduled for its own specific treatment. Predicate part of speech alone cannot prove the intended
 meaning in every context.
