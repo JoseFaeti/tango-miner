@@ -21,6 +21,11 @@ class MonokaMonkaTests(unittest.TestCase):
             '買ったものか？': 'ものか',  # Also a literal question about a thing.
             'そんなものか。': None, '買うものの名前。': None,
             '行くものかどうか。': None,
+            'あるいは、全く別の、何者かの思惑で動いているものか？': None,
+            'フーンだ、誰がアンタらみたいなザコと何度もたたかうもんか！': 'もんか',
+            '私の槍一本でどこまでブルメシアを守れるものか…': 'ものか',
+            'あるいは私が負けるものか？': 'ものか',
+            '誰がそんなことをしているものか？': 'ものか',
         }
         for text, expected in cases.items():
             with self.subTest(text=text):
