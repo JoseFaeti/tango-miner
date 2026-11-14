@@ -20,7 +20,7 @@ RE_WHITESPACE = re.compile(r"[ \t]+")
 
 RE_SENT_SPLIT = re.compile(r"(?<=[。.!?])\s+")
 PUNCT_CHARS = r'[。．！？!?]'
-RE_SENTENCE_BOUNDARY = re.compile(rf'({PUNCT_CHARS}+)\s*(?=[^\s。．！？!?])')
+RE_SENTENCE_BOUNDARY = re.compile(rf'({PUNCT_CHARS}+[」』）】》〉”’\"\']*)\s*(?=[^\s。．！？!?」』）】》〉”’\"\'])')
 
 # Invisible and formatting Unicode characters that produce phantom tokens.
 # Covers: zero-width spaces, directional embeddings (U+202A etc. seen in Nana
@@ -77,6 +77,7 @@ class ExtractSentencesStep(PipelineStep):
 
 
 def normalize_sentence_boundaries(text: str, min_lines: int = 5):
+    text = text.replace("\r\n", "\n").replace("\r", "\n")
     lines = text.split("\n")
 
     if is_indented_continuation_mode(lines):
@@ -91,11 +92,11 @@ def normalize_sentence_boundaries(text: str, min_lines: int = 5):
     if mode == "indented_continuation":
         sentences = join_indented_continuations(lines)
     elif mode == "line_dialogue":
-        sentences = sentence_per_line(lines)
+        sentences = join_wrapped_lines(lines)
     elif mode == "sentence_list":
-        sentences = sentence_per_line(lines)
+        sentences = join_wrapped_lines(lines)
     elif mode == "paragraph":
-        sentences = paragraph_based(text)
+        sentences = join_paragraph_lines(lines)
     else:
         sentences = fallback(text)
 
@@ -220,6 +221,46 @@ def is_sentence_list(lines: list[str]) -> bool:
     return short_ratio > 0.8
 
 
+def join_wrapped_lines(lines: list[str]) -> list[str]:
+    """Join clear continuations while retaining independent dialogue lines."""
+    result = []
+    current = ""
+    previous_indent = 0
+    for line in lines:
+        if not line.strip():
+            if current:
+                result.append(current)
+                current = ""
+            continue
+        indent = measure_indent(line)
+        content = line.strip()
+        if current and (current.endswith(("、", ",", "，")) or indent > previous_indent):
+            current += content
+        else:
+            if current:
+                result.append(current)
+            current = content
+        previous_indent = indent
+    if current:
+        result.append(current)
+    return result
+
+
+def join_paragraph_lines(lines: list[str]) -> list[str]:
+    """Unwrap prose inside paragraphs without merging separate paragraphs."""
+    result = []
+    parts = []
+    for line in lines:
+        if line.strip():
+            parts.append(line.strip())
+        elif parts:
+            result.append("".join(parts))
+            parts = []
+    if parts:
+        result.append("".join(parts))
+    return result
+
+
 def sentence_per_line(lines: List[str]) -> List[str]:
     # minimal allocation, no strip
     return [l.strip() for l in lines if l.strip()]
@@ -311,8 +352,8 @@ def measure_indent(line: str) -> int:
 def is_indented_continuation_mode(lines: list[str]) -> bool:
     """
     Detect files where indentation encodes sentence grouping:
-    a line indented MORE than its predecessor continues the previous sentence;
-    a line indented the same or less starts a new one.
+    lines indented beyond the start of a group continue that group;
+    a line at or before its starting indentation begins a new one.
 
     Signal: at least 25% of consecutive non-empty line pairs show a strict
     indent increase, AND at least two distinct indent levels are present.
@@ -331,24 +372,22 @@ def is_indented_continuation_mode(lines: list[str]) -> bool:
 
 
 def join_indented_continuations(lines: list[str]) -> list[str]:
-    non_empty = [l for l in lines if l.strip()]
-    if not non_empty:
-        return []
-
     result = []
-    current_parts = [non_empty[0].strip()]
-    prev_indent = measure_indent(non_empty[0])
-
-    for line in non_empty[1:]:
+    parts = []
+    base_indent = 0
+    for line in lines:
+        if not line.strip():
+            if parts:
+                result.append("".join(parts))
+                parts = []
+            continue
         indent = measure_indent(line)
-        if indent < prev_indent:
-            result.append("".join(current_parts))
-            current_parts = [line.strip()]
-        else:
-            current_parts.append(line.strip())
-        prev_indent = indent
-
-    if current_parts:
-        result.append("".join(current_parts))
-
+        if parts and indent <= base_indent:
+            result.append("".join(parts))
+            parts = []
+        if not parts:
+            base_indent = indent
+        parts.append(line.strip())
+    if parts:
+        result.append("".join(parts))
     return result
