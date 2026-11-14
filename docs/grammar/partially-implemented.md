@@ -1,5 +1,7 @@
 # Partially implemented grammar points
 
+- [~] [〜きる / 〜きれない](points/kiru-kirenai.md)
+
 - [~] [〜ようがない](points/youganai.md)
 
 - [~] [〜得る / 〜得ない](points/uru-enai.md)
