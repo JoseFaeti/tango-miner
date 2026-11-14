@@ -401,6 +401,7 @@ indicate measured frequency.
 - [~] [〜たり〜たりする](points/taritarisuru.md)
 - [~] [〜がち](points/gachi.md)
 - [~] [〜やすい / 〜にくい](points/yasui-nikui.md)
+- [~] [〜にくい / 〜づらい / 〜がたい](points/nikui-zurai-gatai.md)
 - [~] [〜ことができる](points/kotogadekiru.md)
 - [~] [〜たほうがいい / 〜ないほうがいい](points/tahougaii-naihougaii.md)
 - [~] [〜てほしい](points/tehoshii.md)

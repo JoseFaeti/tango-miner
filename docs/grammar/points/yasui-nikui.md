@@ -21,4 +21,7 @@ Sudachi full dictionary tokenizations and check unrelated adjectives, boundaries
 and source evidence. Morphology alone does not guarantee the intended meaning.
 Merged verb-suffix tokens and other spellings or inflections remain unverified.
 
+The separate [difficulty comparison](nikui-zurai-gatai.md) card also receives
+matching `にくい` and `難い` occurrences.
+
 See [stage and precedence](../stage-and-precedence.md) and [identity and review](../identity-and-review.md) for shared behavior.
