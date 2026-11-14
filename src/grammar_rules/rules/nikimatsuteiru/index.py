@@ -4,9 +4,9 @@ from src.grammar_rules.helpers import adjacent
 from src.grammar_rules.rules.te_iru.index import match_te_iru
 
 
-def match_nikimatsuteiru(tokens):
+def match_nikimatsu(tokens, contracted=False):
     continuations = dict(match_te_iru(tokens))
-    for i in range(1, len(tokens) - 3):
+    for i in range(1, len(tokens) - 2):
         previous, ni, kimat, te = tokens[i - 1:i + 3]
         if not all(adjacent(a, b) for a, b in ((previous, ni), (ni, kimat), (kimat, te))):
             continue
@@ -22,11 +22,18 @@ def match_nikimatsuteiru(tokens):
                 or kimat['pos'][:1] != ['動詞'] or len(kimat['pos']) < 6
                 or not kimat['pos'][5].startswith('連用形')):
             continue
-        if te['surface'] != 'て' or te['pos'][:2] != ['助詞', '接続助詞']:
+        if contracted:
+            if te['lemma'] != 'てる' or te['pos'][:1] != ['助動詞']:
+                continue
+        elif te['surface'] != 'て' or te['pos'][:2] != ['助詞', '接続助詞']:
             continue
         end = continuations.get(te['span'][0])
         if end is not None:
             yield ni['span'][0], end
+
+
+def match_nikimatsuteiru(tokens):
+    return match_nikimatsu(tokens)
 
 
 RULE = GrammarRule(order=36, id='nikimatsuteiru', expression='〜に決まっている',
