@@ -434,6 +434,7 @@ indicate measured frequency.
 - [~] [〜ものだ](points/monoda.md)
 - [~] [〜ものの](points/monono.md)
 - [~] [〜ない](points/nai.md)
+- [~] [〜ぬ / 〜ん](points/nu-n.md)
 - [~] [〜たら](points/tara.md)
 - [~] [〜ていく](points/te-iku.md)
 - [~] [〜たことがある](points/ta-koto-ga-aru.md)
