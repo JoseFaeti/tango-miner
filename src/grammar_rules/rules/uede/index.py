@@ -5,6 +5,9 @@ from src.grammar_rules.helpers import adjacent
 
 UEDE_EXPRESSION = '〜上で'
 
+# These nouns can describe a sphere of activity rather than a physical surface.
+ABSTRACT_NOUNS = frozenset(('仕事', '生活'))
+
 
 def match_uede(tokens):
     for i in range(1, len(tokens) - 1):
@@ -24,6 +27,7 @@ def match_uede(tokens):
         nominal = (previous['surface'] == previous['lemma'] == 'の'
                    and pos[:1] == ['助詞'] and i >= 2
                    and tokens[i - 2]['pos'][:1] == ['名詞']
+                   and tokens[i - 2]['lemma'] in ABSTRACT_NOUNS
                    and adjacent(tokens[i - 2], previous))
         if verb or past or nominal:
             yield ue['span'][0], de['span'][1]
