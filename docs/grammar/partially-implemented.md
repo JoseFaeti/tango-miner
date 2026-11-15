@@ -1,5 +1,7 @@
 # Partially implemented grammar points
 
+- [~] [〜ではあるまいか](points/dehaarumaika.md)
+
 - [~] [〜ではないか](points/dehanaika.md)
 
 - [~] [〜ようではないか](points/youdehanaika.md)
