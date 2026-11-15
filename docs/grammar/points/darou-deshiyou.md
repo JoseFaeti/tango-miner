@@ -13,6 +13,7 @@ Matches complete Sudachi auxiliary tokens だろう, でしょう and colloquial
 and explanatory ん. The matched span is the auxiliary alone; an explanatory
 んだ card may also match the larger phrase. The rule checks both lemma and part
 of speech to avoid treating a lexical token as this ending.
+The separate 〜だろうに card can overlap this auxiliary.
 
 Focused tests cover actual Sudachi analyses, questions, standalone responses,
 lexical and copula controls, token boundaries, and card integration.
