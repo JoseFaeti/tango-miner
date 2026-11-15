@@ -1,5 +1,7 @@
 # Partially implemented grammar points
 
+- [~] [〜べきだ / 〜べきではない](points/bekida-bekidehanai.md)
+
 - [~] [〜間 / 〜間に](points/ma-mani.md)
 
 - [~] [〜が](points/ga-0d181c42.md)
