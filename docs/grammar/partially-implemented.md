@@ -13,6 +13,8 @@
 
 - [~] [〜ではないか](points/dehanaika.md)
 
+- [~] [〜ではないだろうか](points/dehanaidarouka.md)
+
 - [~] [〜ようではないか](points/youdehanaika.md)
 
 - [~] [〜ようでは](points/youdeha.md)
