@@ -4,9 +4,9 @@ Status: [~]
 
 ## Meaning
 
-According to; due to; by means of; because of; via; on the basis of; depending on.
-These glosses follow the JMdict entry for によって (1009640); the separate
-による entry (1009660) covers overlapping senses.
+The card retains the full glosses of JMdict entries によって (1009640) and
+による (1009660), including overlapping glosses. The unrelated による entry
+meaning “to resemble” (1314650) does not describe this point.
 
 ## Verified coverage
 

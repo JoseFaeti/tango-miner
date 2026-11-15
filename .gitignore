@@ -6,6 +6,7 @@ resources/*
 scripts/*
 checks/*
 !scripts/check_jmdict.py
+!scripts/audit_grammar_jmdict.py
 !scripts/check_grammar_docs.py
 !scripts/next_grammar.py
 !scripts/run_tests.py

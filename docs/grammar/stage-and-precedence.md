@@ -12,6 +12,15 @@ curated rule meaning. Selection is manual: matching spellings can have unrelated
 senses, and a rule may cover only part of a dictionary entry. Grammar cards do
 not dynamically look up their meanings in the configured dictionary.
 
+The target policy is to check JMdict for every grammar point and retain all
+applicable dictionary senses and their glosses verbatim; exclude only senses
+that do not apply to the point. Rules without a matching entry need a curated
+fallback. The existing inventory has not yet been fully audited against this
+policy. Run `python scripts/audit_grammar_jmdict.py --rule RULE_ID` to inspect
+exact expression and reading matches in the configured dictionary. Matching a
+spelling alone does not establish that an entry or sense applies, and forms
+with placeholders or inflections may need additional manual lookup.
+
 An eligible source example must also pass the existing sentence-validity check. No card is emitted
 without an eligible example. Its frequency counts only the supported subset,
 and its index is the mean first occurrence position in each source, measured
