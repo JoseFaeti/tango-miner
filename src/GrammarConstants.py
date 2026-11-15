@@ -63,6 +63,7 @@ from src.grammar_rules.rules.mitai_ni.index import MITAI_NI_EXPRESSION
 from src.grammar_rules.rules.monne.index import MONNE_EXPRESSION
 from src.grammar_rules.rules.monodakara_mondakara.index import MONODAKARA_MONDAKARA_EXPRESSION
 from src.grammar_rules.rules.monoda.index import MONODA_EXPRESSION
+from src.grammar_rules.rules.monodehanai.index import MONODEHANAI_EXPRESSION
 from src.grammar_rules.rules.monoka_monka.index import MONOKA_MONKA_EXPRESSION
 from src.grammar_rules.rules.monono.index import MONONO_GRAMMAR_EXPRESSION
 from src.grammar_rules.rules.mononara.index import MONONARA_EXPRESSION
