@@ -5,7 +5,7 @@ from src.grammar_rules.helpers import adjacent
 
 RULE = GrammarRule(order=174, id='rareru_reru', expression=RARERU_RERU_EXPRESSION,
                    reading='られる / れる',
-                   meaning='can do; also passive or honorific (context dependent)',
+                   meaning='can do; passive, honorific, or spontaneous (context dependent)',
                    match=lambda tokens: match_rareru_reru(tokens))
 
 

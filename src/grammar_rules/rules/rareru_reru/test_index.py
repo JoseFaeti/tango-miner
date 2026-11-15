@@ -16,6 +16,8 @@ class RareruReruTests(unittest.TestCase):
             self.skipTest(f'Sudachi full dictionary unavailable: {exc}')
         cases = {'食べられる。': 'られる', '見られた。': 'られ',
                  '行かれる。': 'れる', '来られない。': 'られ',
+                 '先生が話される。': 'れる', '犬に噛まれた。': 'れ',
+                 '昔が思い出される。': 'れる',
                  '食べさせられる。': None, '見せられる。': 'られる',
                  '食べれる。': None, '読める。': None, 'できる。': None}
         for text, expected in cases.items():
