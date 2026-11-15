@@ -1,5 +1,6 @@
 # Partially implemented grammar points
 
+- [~] [〜だろうか](points/darouka.md)
 - [~] [〜だろうに](points/darouni.md)
 
 - [~] [〜まい](points/mai.md)
