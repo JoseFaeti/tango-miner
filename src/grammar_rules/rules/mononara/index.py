@@ -18,9 +18,15 @@ def match_mononara(tokens):
                 or not nara['pos'][5].startswith('仮定形')
                 or not adjacent(verb, mono) or not adjacent(mono, nara)):
             continue
-        if not any(t['pos'][:1] != ['補助記号'] for t in tokens[i + 2:]):
+        end = i + 1
+        if (end + 1 < len(tokens) and tokens[end + 1]['surface'] == 'ば'
+                and tokens[end + 1]['lemma'] == 'ば'
+                and tokens[end + 1]['pos'][:1] == ['助詞']
+                and adjacent(nara, tokens[end + 1])):
+            end += 1
+        if not any(t['pos'][:1] != ['補助記号'] for t in tokens[end + 1:]):
             continue
-        yield mono['span'][0], nara['span'][1]
+        yield mono['span'][0], tokens[end]['span'][1]
 
 
 RULE = GrammarRule(order=136, id='mononara', expression=MONONARA_EXPRESSION,

@@ -125,6 +125,8 @@
 
 - [~] [〜ものなら](points/mononara.md)
 
+- [~] [〜ものなら / 〜ものならば](points/mononara-mononaraba.md)
+
 - [~] [〜っこない](points/tsukonai.md)
 
 - [~] [〜がる](points/garu.md)

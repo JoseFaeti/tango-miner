@@ -9,8 +9,8 @@ If it were possible.
 ## Tracked scope
 
 The rule matches an adjacent attributive verb followed by nominal `もの` and
-conditional `なら`, provided a following clause begins. The card span is
-`ものなら`. Sudachi full-dictionary tests cover potential forms and `できる`,
+conditional `なら` or `ならば`, provided a following clause begins. The card span is
+`ものなら` or `ものならば`. Sudachi full-dictionary tests cover potential forms and `できる`,
 including a challenge, and exclude volitional `〜ようものなら`, the kanji
 `物`, and incomplete sentences.
 
@@ -27,3 +27,5 @@ unsupported. Corpus precision and recall have not been evaluated.
 - Registry identity: `mononara`; stable identity: `〜ものなら`.
 - See [stage and precedence](../stage-and-precedence.md) and
   [identity and review](../identity-and-review.md).
+- The overlapping [〜ものなら / 〜ものならば](mononara-mononaraba.md)
+  point shares this card identity.

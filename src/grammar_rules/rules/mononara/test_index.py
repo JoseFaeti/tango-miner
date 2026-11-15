@@ -16,16 +16,19 @@ class MononaraTests(unittest.TestCase):
         except (ImportError, OSError, RuntimeError) as exc:
             self.skipTest(f'Sudachi full dictionary unavailable: {exc}')
         cases = {
-            '行けるものなら行きたい。': True,
-            '戻れるものなら戻りたい。': True,
-            'できるものならやってみろ。': True,
+            '行けるものなら行きたい。': 'ものなら',
+            '戻れるものなら戻りたい。': 'ものなら',
+            'できるものならやってみろ。': 'ものなら',
+            '行けるものならば行きたい。': 'ものならば',
+            'できるものならばやってみろ。': 'ものならば',
             # Literal nominal readings share the same tokenization.
-            '買えるものなら何でもいい。': True,
-            '買うものならこれだ。': True,
-            '行こうものなら大変だ。': False,
-            '行ける物なら欲しい。': False,
-            '行けるものなら。': False,
-            '私のものなら使っていい。': False,
+            '買えるものなら何でもいい。': 'ものなら',
+            '買うものならこれだ。': 'ものなら',
+            '行こうものなら大変だ。': None,
+            '行ける物なら欲しい。': None,
+            '行けるものなら。': None,
+            '行けるものならば。': None,
+            '私のものなら使っていい。': None,
         }
         for text, expected in cases.items():
             with self.subTest(text=text):
@@ -34,7 +37,7 @@ class MononaraTests(unittest.TestCase):
                 aligned, error = aligned_tokens(text, raw)
                 self.assertIsNone(error)
                 self.assertEqual([text[a:b] for a, b in match_mononara(aligned)],
-                                 ['ものなら'] if expected else [])
+                                 [expected] if expected else [])
 
     def test_card_preserves_components_and_boundaries(self):
         verb = tok('行ける', '行ける', ('動詞', '*', '*', '*', '*', '連体形-一般'))
