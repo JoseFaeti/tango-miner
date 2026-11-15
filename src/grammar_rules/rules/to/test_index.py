@@ -8,6 +8,7 @@ from src.grammar_rules.registry import RULES
 from src.grammar_rules.rules.te_iru.test_index import sentence, tok
 from src.grammar_rules.rules.to.index import RULE, match_to
 from src.grammar_rules.rules.to_omou.index import RULE as TO_OMOU
+from src.grammar_rules.rules.tosuruto.index import RULE as TOSURUTO
 
 
 class ToTests(unittest.TestCase):
@@ -19,7 +20,9 @@ class ToTests(unittest.TestCase):
             self.skipTest(f'Sudachi full dictionary unavailable: {exc}')
         cases = {'猫と犬を見る。': 1, '友達と行く。': 1,
                  '彼は来ると思う。': 1, '「行こう」と言った。': 1,
-                 '春になると暖かい。': 0, '扉を開けると猫がいた。': 0,
+                 '春になると暖かい。': 1, '扉を開けると猫がいた。': 1,
+                 '安いと売れる。': 1, '雨だと困る。': 1,
+                 '食べないと困る。': 1, '行くと。': 0,
                  '東京に行く。': 0, '猫 と犬': 0}
         for text, count in cases.items():
             with self.subTest(text=text):
@@ -48,3 +51,18 @@ class ToTests(unittest.TestCase):
         self.assertIn('来る', words)
         self.assertIn(RULE, RULES)
         self.assertIn(RULE.expression, GRAMMAR_EXPRESSIONS)
+
+    def test_conditional_reservation_and_overlap(self):
+        source = sentence('雨だとすると困る。', [
+            tok('雨', '雨', ('名詞', '普通名詞')),
+            tok('だ', 'だ', ('助動詞', '*', '*', '*', '助動詞-ダ', '終止形-一般')),
+            tok('と', 'と', ('助詞', '格助詞')),
+            tok('する', 'する', ('動詞', '非自立可能', '*', '*', 'サ行変格', '終止形-一般')),
+            tok('と', 'と', ('助詞', '接続助詞')),
+            tok('困る', '困る', ('動詞', '一般', '*', '*', '五段-ラ行', '終止形-一般')),
+            tok('。', '。', ('補助記号', '句点'))])
+        stage = GrammarStep(rules=(RULE, TOSURUTO))
+        data = ExcludeGrammarTokensStep(stage).process(stage.process(Artifact([source])))
+        self.assertEqual(stage.occurrences[RULE.id].count, 2)
+        self.assertEqual(stage.occurrences[TOSURUTO.id].count, 1)
+        self.assertIn('困る', [t['surface'] for t in data.data[0].tokens])

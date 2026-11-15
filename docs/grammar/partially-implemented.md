@@ -523,4 +523,5 @@ indicate measured frequency.
 - [~] [〜きり](points/kiri.md)
 - [~] [〜気味](points/kimi.md)
 - [~] [と](points/to.md)
+- [~] [〜と](points/to-380c4d83.md)
 - [~] [〜けどね / 〜けどさ](points/kedone-kedosa.md)

@@ -4,7 +4,7 @@ Status: [~]
 
 ## Meaning
 
-Quotation, accompaniment and listing.
+Quotation, accompaniment, listing and conditional or habitual consequence.
 
 ## Verified coverage
 
@@ -17,7 +17,7 @@ expression precedence applies.
 Focused tests cover analyzer forms, conditional and lexical controls,
 reservation, overlapping quotation, examples and identity. Case-particle
 classification also includes other uses and fixed constructions, and does not
-distinguish the meanings. Conditional `と` classified as a conjunctive
-particle is outside this point. Spaced particles and particles inside a larger
+distinguish the meanings. Conditional conjunctive `と` is also supported; see
+[〜と](to-380c4d83.md). Spaced particles and particles inside a larger
 token are unsupported. Corpus precision, recall and lexical effects have not
 been measured.
