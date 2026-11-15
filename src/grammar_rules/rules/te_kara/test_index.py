@@ -4,6 +4,7 @@ from src.Artifact import Artifact
 from src.Grammar import GrammarStep, ExcludeGrammarTokensStep
 from src.grammar_rules.alignment import aligned_tokens
 from src.grammar_rules.rules.te_kara.index import RULE, match_te_kara
+from src.grammar_rules.rules.te.index import match_te
 from src.grammar_rules.registry import RULES
 from src.grammar_rules.rules.te_iru.test_index import sentence, tok
 
@@ -16,9 +17,9 @@ class TeKaraTests(unittest.TestCase):
         except (ImportError, OSError, RuntimeError) as exc:
             self.skipTest(f'Sudachi full dictionary unavailable: {exc}')
         cases = [
-            ('劫火と戦ってからというもの自分の力に自信がついた気がする。', ['て', 'から']),
-            ('今度岩を斬るときは、甲羅かどうか確認してからにするのじゃぞ。', ['て', 'から']),
-            ('のうがきは、速の強聖のオラに勝ってからにしな！', ['て', 'から']),
+            ('劫火と戦ってからというもの自分の力に自信がついた気がする。', ['から']),
+            ('今度岩を斬るときは、甲羅かどうか確認してからにするのじゃぞ。', ['から']),
+            ('のうがきは、速の強聖のオラに勝ってからにしな！', ['から']),
             ('よし、とにかく今日は休んで、明日からに備えようぜ。', []),
         ]
         for text, added in cases:
@@ -31,6 +32,12 @@ class TeKaraTests(unittest.TestCase):
                     data = stage.process(Artifact([sentence(text, raw)]))
                     tokens = ExcludeGrammarTokensStep(stage).process(data).data[0].tokens
                     reserved.append([i for i, t in enumerate(tokens) if t.get('grammar_reserved')])
+                aligned, error = aligned_tokens(text, raw)
+                self.assertIsNone(error)
+                te_spans = set(match_te(aligned))
+                self.assertTrue(te_spans)
+                self.assertTrue(all(t['index'] in reserved[0] and t['index'] in reserved[1]
+                                    for t in aligned if tuple(t['span']) in te_spans))
                 self.assertEqual([raw[i]['surface'] for i in reserved[1] if i not in reserved[0]], added)
 
     def test_sudachi_forms_and_controls(self):
