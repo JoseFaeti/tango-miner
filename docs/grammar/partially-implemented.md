@@ -426,6 +426,7 @@ indicate measured frequency.
 - [~] [から / まで](points/kara-made.md)
 - [~] [が](points/ga.md)
 - [~] [は](points/ha.md)
+- [~] [も](points/mo.md)
 - [~] [〜みたいに / 〜みたいな](points/mitaini-mitaina.md)
 - [~] [〜っぽい](points/tsupoi.md)
 - [~] [〜直す](points/naosu.md)
