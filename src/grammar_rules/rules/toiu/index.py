@@ -7,10 +7,11 @@ from src.grammar_rules.rules.toiukotoninaru.index import match_toiukotoninaru
 from src.grammar_rules.rules.toiukotoha.index import match_toiukotoha
 from src.grammar_rules.rules.toiunoha.index import match_toiunoha
 from src.grammar_rules.rules.toiuyori.index import match_toiuyori
+from src.grammar_rules.rules.toiumonoda.index import match_toiumonoda
 
 
 def match_toiu(tokens):
-    longer_starts = {start for matcher in (match_toiukotoninaru, match_toiukotoda, match_toiukotoha, match_toiunoha, match_toiuyori)
+    longer_starts = {start for matcher in (match_toiukotoninaru, match_toiukotoda, match_toiukotoha, match_toiunoha, match_toiuyori, match_toiumonoda)
                      for start, _ in matcher(tokens)}
     for i in range(1, len(tokens) - 2):
         previous, particle, verb, noun = tokens[i - 1:i + 3]

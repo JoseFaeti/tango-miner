@@ -2,9 +2,11 @@
 MONODA_EXPRESSION = '〜ものだ'
 from src.grammar_rules.base import GrammarRule
 from src.grammar_rules.helpers import adjacent, next_matches
+from src.grammar_rules.rules.toiumonoda.index import match_toiumonoda
 
 
 def match_monoda(tokens):
+    longer_spans = list(match_toiumonoda(tokens))
     for i in range(1, len(tokens) - 1):
         previous, mono, copula = tokens[i - 1:i + 2]
         pos = previous['pos']
@@ -25,7 +27,9 @@ def match_monoda(tokens):
         # ものだから is a separate causal construction.
         if next_matches(tokens, end, 'から', '助詞', 'から'):
             continue
-        yield mono['span'][0], tokens[end]['span'][1]
+        if not any(start <= mono['span'][0] and tokens[end]['span'][1] <= stop
+                   for start, stop in longer_spans):
+            yield mono['span'][0], tokens[end]['span'][1]
 
 
 RULE = GrammarRule(order=72, id='monoda', expression=MONODA_EXPRESSION, reading='ものだ',
