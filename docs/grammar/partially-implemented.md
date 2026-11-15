@@ -162,6 +162,7 @@
 
 - [~] [〜を目的に](points/omokutekini.md)
 
+- [~] [〜を機に](points/okini.md)
 - [~] [〜を契機に](points/okeikini.md)
 
 - [~] [〜をきっかけに](points/okitsukakeni.md)
