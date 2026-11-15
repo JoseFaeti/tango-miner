@@ -2,6 +2,8 @@
 
 - [~] [〜まい](points/mai.md)
 
+- [~] [〜まいか](points/maika.md)
+
 - [~] [〜ではあるまいか](points/dehaarumaika.md)
 
 - [~] [〜ではないか](points/dehanaika.md)
