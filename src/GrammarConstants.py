@@ -57,6 +57,7 @@ from src.grammar_rules.rules.madeni.index import MADENI_EXPRESSION
 from src.grammar_rules.rules.maeni_atode.index import MAENI_ATODE_EXPRESSION
 from src.grammar_rules.rules.masenka_naika.index import MASENKA_NAIKA_EXPRESSION
 from src.grammar_rules.rules.masen_mashita.index import MASEN_MASHITA_EXPRESSION
+from src.grammar_rules.rules.na.index import NA_EXPRESSION
 from src.grammar_rules.rules.mashou_you.index import MASHOU_YOU_EXPRESSION
 from src.grammar_rules.rules.mitai_ni.index import MITAI_NI_EXPRESSION
 from src.grammar_rules.rules.monne.index import MONNE_EXPRESSION
