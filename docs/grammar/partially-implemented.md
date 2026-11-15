@@ -1,5 +1,7 @@
 # Partially implemented grammar points
 
+- [~] [〜し〜し](points/shishi.md)
+
 - [~] [〜ろ / 〜な](points/ro-na.md)
 
 - [~] [〜て](points/te.md)
