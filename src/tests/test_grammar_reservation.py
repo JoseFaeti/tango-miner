@@ -19,6 +19,43 @@ class Dictionary:
 
 
 class GrammarReservationTests(unittest.TestCase):
+    def test_expression_starting_inside_grammar_remains_lexical(self):
+        from pathlib import Path
+        from src.grammar_rules.rules.te_kara.index import RULE as TE_KARA
+        from src.steps.TokenizeStep.index import tokenize_raw_sentences
+        from src.steps.MergeTokensStep.index import get_jmdict
+        from src.TokenizedSentence import TokenizedSentence
+
+        texts = ['劫火と戦ってからというもの自分の力に自信がついた気がする。',
+                 '食べてから出かけます。']
+        raw = tokenize_raw_sentences(texts, tag='source', source_path=Path('source.txt'))
+        stage = GrammarStep(rules=(TE_KARA,), prefer_expressions=True)
+        reserved = ExcludeGrammarTokensStep(stage).process(stage.process(Artifact(raw))).data
+        merged = [TokenizedSentence(s.text, s.tag, s.origin,
+                  combine_tokens_jmdict(s.tokens, get_jmdict())) for s in reserved]
+        words, _ = build_word_stats(merged)
+        self.assertIn('からというもの', words)
+        self.assertEqual(stage.occurrences[TE_KARA.id].count, 1)
+
+    def test_gomu_examples_keep_compound_and_grammar(self):
+        from pathlib import Path
+        from src.grammar_rules.rules.gomu.index import RULE as GOMU
+        from src.steps.TokenizeStep.index import tokenize_raw_sentences
+        from src.steps.MergeTokensStep.index import get_jmdict
+        from src.TokenizedSentence import TokenizedSentence
+
+        texts = ['確かにこれ以上人々を巻き込むわけにはいかないか。',
+                 'それを巻き込むような復讐を認めるわけにはいかん。',
+                 '親も巻き込んで大騒ぎうふふ、笑えるでしょ。']
+        raw = tokenize_raw_sentences(texts, tag='source', source_path=Path('source.txt'))
+        stage = GrammarStep(prefer_expressions=True)
+        reserved = ExcludeGrammarTokensStep(stage).process(stage.process(Artifact(raw))).data
+        merged = [TokenizedSentence(s.text, s.tag, s.origin,
+                  combine_tokens_jmdict(s.tokens, get_jmdict())) for s in reserved]
+        words, _ = build_word_stats(merged)
+        self.assertEqual(words['巻き込む'].frequency, 3)
+        self.assertEqual(stage.occurrences[GOMU.id].count, 3)
+
     def test_kana_contraction_requires_abbreviated_verb_and_auxiliary(self):
         from src.steps.MergeTokensStep.index import _is_contracted_kana_verb
         tokens = [tok('ほっ', 'ほる', ('動詞', '一般')),

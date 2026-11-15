@@ -18,6 +18,8 @@ forms are supported. The span includes the preceding verb and retains lexical
 candidates. Standalone 込む and 混む are excluded.
 
 Sudachi examples include 飛び込む, 書き込んだ and 考え込みます.
+Integration tests also retain 巻き込む alongside the grammar card in plain
+and て-form source sentences, including overlaps with other grammar rules.
 Compounds may have literal or lexicalized meanings and require review. Merged
 kana compounds, potential forms, other inflections and analyzer segmentations
 remain unsupported.

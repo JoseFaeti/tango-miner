@@ -125,18 +125,14 @@ class GrammarStep(PipelineStep):
                                    if rule.id in ('explanatory_nda', 'ndatte_datte')
                                    and t['span'][1] == start and t['surface'] == 'な'
                                    and t['lemma'] == 'だ' and t['pos'][:1] == ['助動詞']}
-                # ておく can overlap a longer dictionary expression beginning
-                # at おく, such as おけばいい. Keep that complete expression
-                # available to the lexical merger instead of reserving its stem.
-                connective_ends = {t['span'][1] for t in tokens
-                                   if rule.id == 'te_oku' and t['span'][0] == start
-                                   and t['surface'] in ('て', 'で')}
                 # A dictionary expression may end inside the grammar span.
                 # ところでは is only a partial expression when the following
                 # negative completes a copula; retain the nominal predicate.
                 if any((a <= start and end <= b and (a < start or end < b)
                         and a not in copular_starts)
-                       or (is_expression and a in connective_ends and a < end < b)
+                       # An expression may also begin inside the grammar span,
+                       # as in てから overlapping からというもの.
+                       or (is_expression and start < a < end < b)
                        or (is_expression and a < start < b < end)
                        for a, b, is_expression in expression_spans
                        if not (rule.id == 'janai_dewanai'

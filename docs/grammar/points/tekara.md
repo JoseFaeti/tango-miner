@@ -21,14 +21,11 @@ The temporal sequence and elapsed-time interpretations share one card; the
 rule does not distinguish them. Merged or differently tokenized forms are not
 covered, and wider corpus precision and recall have not been assessed.
 
-Reservation can suppress longer lexical candidates. In the source sentence
-「劫火と戦ってからというもの自分の力に自信がついた気がする。」,
-the unreserved merger produces からというもの; the rule reserves て and
-から and the remainder merges as というもの. This loses the complete
-expression candidate, even though the 〜てから card remains. Preserving both
-analyses is unresolved. Similarly, 「確認してからにする」 formerly merged
-からにする, but that dictionary entry means “to empty” and does not describe
-this example; reservation leaves に and する outside the grammar span.
+In 「劫火と戦ってからというもの自分の力に自信がついた気がする。」,
+dictionary-expression precedence retains からというもの and suppresses the
+overlapping 〜てから occurrence. This heuristic does not establish the correct
+interpretation of every overlap; for example, the dictionary entry からにする
+means “to empty”, which need not describe 「確認してからにする」.
 
 In the compared archives, the unresolved review candidate からに fell from
 43 occurrences to 7. For 「勝ってからにしな」, the earlier merger formed

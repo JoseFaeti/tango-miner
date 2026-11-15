@@ -53,7 +53,7 @@ source-biased raw-token counts, not post-merge frequency changes or a precision
 and recall evaluation. Treating a match exclusively as grammar can remove a
 useful lexical analysis when the rule is wrong; unmatched uses remain eligible.
 
-Dictionary expressions can also take precedence when they start before a grammar span and end inside it, as with ではなさそう + だ and 命に代えて + も. This preserves lexical components but suppresses the overlapping grammar occurrence; the effect on other expressions remains unmeasured.
+Dictionary expressions can also take precedence when their span partially overlaps a grammar span, as with ではなさそう + だ, 命に代えて + も, and てから + からというもの. This preserves lexical components but suppresses the overlapping grammar occurrence; the effect on other expressions remains unmeasured.
 
 For negative copulas, a partial ところでは dictionary match does not suppress
 ではない or ではありません. Other dictionary expression precedence remains
