@@ -412,6 +412,7 @@
 - [~] [〜られる / 〜れる](points/rareru-reru.md)
 - [~] [〜れる / 〜られる](points/reru-rareru.md)
 - [~] [〜させられる](points/saserareru.md)
+- [~] [〜せる / 〜させる](points/seru-saseru.md)
 
 - [~] [〜なさい](points/nasai.md)
 
