@@ -1,4 +1,5 @@
 """Grammar identities and compatibility aliases."""
+from src.grammar_rules.rules.mai.index import MAI_EXPRESSION
 from src.grammar_rules.rules.youdehanaika.index import YOUDEHANAIKA_EXPRESSION
 from src.grammar_rules.rules.aru_iru.index import ARU_IRU_EXPRESSION
 from src.grammar_rules.rules.au.index import AU_GRAMMAR_EXPRESSION
