@@ -19,6 +19,33 @@ class Dictionary:
 
 
 class GrammarReservationTests(unittest.TestCase):
+    def test_tsukiau_examples_remain_lexical_with_overlapping_grammar(self):
+        from pathlib import Path
+        from src.grammar_rules.rules.au.index import RULE as AU
+        from src.grammar_rules.rules.te_hoshii.index import RULE as TE_HOSHII
+        from src.steps.TokenizeStep.index import tokenize_raw_sentences
+        from src.steps.MergeTokensStep.index import get_jmdict
+        from src.TokenizedSentence import TokenizedSentence
+
+        texts = ['ったくいちいちテメェの遊びに付き合ってられるか。',
+                 '王の無茶なお願いに付き合っていただき感謝いたします。',
+                 '今日、時間あったらでいいから、付き合って欲しいな。',
+                 '私たちは皆で話し合っています。']
+        raw = tokenize_raw_sentences(texts, tag='source', source_path=Path('source.txt'))
+        stage = GrammarStep(prefer_expressions=True)
+        reserved = ExcludeGrammarTokensStep(stage).process(stage.process(Artifact(raw))).data
+        merged = [TokenizedSentence(s.text, s.tag, s.origin,
+                  combine_tokens_jmdict(s.tokens, get_jmdict())) for s in reserved]
+        words, _ = build_word_stats(merged)
+        self.assertEqual(words['付き合う'].frequency, 3)
+        for source in reserved[:3]:
+            verb = next(t for t in source.tokens if t['lemma'] == '付き合う')
+            self.assertEqual(verb['surface'], '付き合っ')
+            self.assertFalse(verb.get('grammar_reserved', False))
+        self.assertIn('話し合う', words)
+        self.assertGreaterEqual(stage.occurrences[AU.id].count, 1)
+        self.assertEqual(stage.occurrences[TE_HOSHII.id].count, 1)
+
     def test_expression_starting_inside_grammar_remains_lexical(self):
         from pathlib import Path
         from src.grammar_rules.rules.te_kara.index import RULE as TE_KARA
