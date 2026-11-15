@@ -279,6 +279,30 @@ class TokenizerIntegrationTests(unittest.TestCase):
         tokens[2]['grammar_reserved'] = True
         self.assertNotIn('目を覚ます', [t['lemma'] for t in combine_tokens_jmdict(tokens, self.jmdict)])
 
+    def test_mi_wo_kawasu_source_forms_and_boundaries(self):
+        examples = [
+            ('いつも通りまずは基本のみかわしきゃく。', 'みかわし'),
+            ('これを着ると敵の攻撃からみをかわしやすくなりますよ。', 'みをかわし'),
+            ('身を躱した。', '身を躱し'),
+        ]
+        for sentence, surface in examples:
+            with self.subTest(sentence=sentence):
+                merged = combine_tokens_jmdict(tokenize_sentence(sentence), self.jmdict)
+                expression = next(t for t in merged if t['lemma'] == '身をかわす')
+                self.assertEqual(expression['surface'], surface)
+                self.assertTrue(expression['dictionary_expression'])
+                self.assertTrue(expression['components'])
+                if surface == 'みかわし':
+                    self.assertEqual(expression['components'][0].surface, 'のみ')
+                    self.assertIn('の', [t['surface'] for t in merged])
+        for sentence in ['基本のみかわした。', '身がかわした。', '身を、かわした。']:
+            with self.subTest(sentence=sentence):
+                merged = combine_tokens_jmdict(tokenize_sentence(sentence), self.jmdict)
+                self.assertNotIn('身をかわす', [t['lemma'] for t in merged])
+        tokens = tokenize_sentence('身をかわした。')
+        tokens[1]['grammar_reserved'] = True
+        self.assertNotIn('身をかわす', [t['lemma'] for t in combine_tokens_jmdict(tokens, self.jmdict)])
+
     def test_pinto_kuru_inflections_preserve_source_evidence(self):
         for sentence, surface in [
             ('じゃが、氷刃の目的が今一つピンとこんのじゃ。', 'ピンとこん'),

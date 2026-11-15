@@ -242,6 +242,26 @@ def _merge_me_wo_samasu(parts, jmdict):
     }
 
 
+def _merge_mi_wo_kawasu(parts, jmdict):
+    noun, particle, verb = parts
+    if not (noun['surface'] in ('身', 'み') and noun['pos'][0] == '名詞'
+            and particle['surface'] == 'を' and particle['pos'][:2] in
+            (('助詞', '格助詞'), ['助詞', '格助詞'])
+            and verb['lemma'] in ('かわす', '躱す') and verb['pos'][0] == '動詞'):
+        return None
+    word = '身をかわす'
+    entry = jmdict.get_best_entry(word) if jmdict.lookup_word(word) else None
+    if not is_dictionary_expression(entry):
+        return None
+    return {
+        'surface': ''.join(t['surface'] for t in parts),
+        'lemma': word, 'base_form': word, 'reading': jmdict.get_reading(entry, word),
+        'pos': ['exp', '*', '*', '*', '*', '*'], 'dictionary_expression': True,
+        'analysis_rule': 'jmdict_mi_wo_kawasu',
+        'components': tuple(c for token in parts for c in token_components(token)),
+    }
+
+
 def _merge_pinto_kuru(parts, jmdict):
     """Recover the inflected expression, including dialectal こん."""
     verb = parts[2]
@@ -306,8 +326,9 @@ def _merge_omitted_particle(token_list, i, next_reserved, jmdict):
     if i + 1 < len(token_list) and next_reserved > i + 1:
         noun, verb = token_list[i:i + 2]
         if (noun['pos'][0] == '名詞' and verb['pos'][0] == '動詞'
-                and noun['surface'] == noun['lemma']):
-            word = noun['surface'] + 'を' + verb['lemma']
+                and (noun['surface'] == noun['lemma']
+                     or noun.get('analysis_rule') == 'mi_kawashi_boundary')):
+            word = noun['lemma'] + 'を' + verb['lemma']
             entries = jmdict.lookup_word(word)
             entry = jmdict.get_best_entry(word) if entries else None
             if is_dictionary_expression(entry):
@@ -349,7 +370,7 @@ def combine_tokens_jmdict(
         token = token_list[index]
         if token.get('grammar_reserved'):
             reserved_boundary = merge_boundary = index
-        elif token.get('analysis_rule') in ('desu_kitto_boundary', 'kara_sa_boundary'):
+        elif token.get('analysis_rule') in ('desu_kitto_boundary', 'kara_sa_boundary', 'mi_kawashi_no_boundary'):
             merge_boundary = index
         next_reserved[index] = reserved_boundary
         next_merge_boundary[index] = merge_boundary
@@ -369,6 +390,7 @@ def combine_tokens_jmdict(
         if i + 3 <= min(n, i + max_lookahead, next_merge_boundary[i]):
             candidate = (_merge_me_wo_tsuburu(token_list[i:i + 3], jmdict)
                          or _merge_me_wo_samasu(token_list[i:i + 3], jmdict)
+                         or _merge_mi_wo_kawasu(token_list[i:i + 3], jmdict)
                          or _merge_nemuri_ni_tsuku(token_list[i:i + 3], jmdict)
                          or _merge_pinto_kuru(token_list[i:i + 3], jmdict))
             if candidate is not None:
