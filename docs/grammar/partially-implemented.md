@@ -442,6 +442,7 @@ indicate measured frequency.
 - [~] [や / とか](points/ya-toka.md)
 - [~] [より](points/yori.md)
 - [~] [から / まで](points/kara-made.md)
+- [~] [〜まで](points/made.md)
 - [~] [が](points/ga.md)
 - [~] [は](points/ha.md)
 - [~] [も](points/mo.md)
