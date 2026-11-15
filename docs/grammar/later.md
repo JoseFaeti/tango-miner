@@ -18,7 +18,6 @@ ambiguity and recall before implementing a rule.
 - [~] [〜てく / 〜てきた](points/teku-tekita.md)
 - [~] [〜ことになった](points/kotoninatsuta.md)
 - [~] [〜はずだった](points/hazudatsuta.md)
-- [ ] [〜ものがある](points/monogaaru.md)
 - [ ] [〜というものだ](points/toiumonoda.md)
 - [ ] [〜ものなら / 〜ものならば](points/mononara-mononaraba.md)
 - [ ] [〜ようでは](points/youdeha.md)
