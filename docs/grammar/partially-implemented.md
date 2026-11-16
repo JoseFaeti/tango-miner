@@ -1,5 +1,7 @@
 # Partially implemented grammar points
 
+- [~] [〜には当たらない](points/nihaataranai.md)
+
 - [~] [〜には及ばない](points/nihaoyobanai.md)
 
 - [~] [〜に及ばない](points/nioyobanai.md)
