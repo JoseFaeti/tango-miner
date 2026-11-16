@@ -21,7 +21,6 @@ ambiguity and recall before implementing a rule.
 
 ## Formal and literary candidates
 
-- [ ] [〜であろう](points/dearou.md)
 - [ ] [〜ではなく](points/dehanaku.md)
 - [ ] [〜であって](points/deatsute.md)
 - [ ] [〜であっても](points/deatsutemo.md)
