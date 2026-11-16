@@ -2,6 +2,8 @@
 
 - [~] [〜にあって](points/niatsute.md)
 
+- [~] [〜にあっては](points/niatsuteha.md)
+
 - [~] [〜に至る](points/niitaru.md)
 
 - [~] [〜に至って](points/niitatsute.md)
