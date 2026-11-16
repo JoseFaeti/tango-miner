@@ -1,5 +1,7 @@
 # Partially implemented grammar points
 
+- [~] [〜であれ / 〜であろうと](points/deare-dearouto.md)
+
 - [~] [〜であって](points/deatsute.md)
 
 - [~] [〜であっても](points/deatsutemo.md)
