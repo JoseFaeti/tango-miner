@@ -1,5 +1,7 @@
 # Partially implemented grammar points
 
+- [~] [〜を余儀なくされる](points/oyoginakusareru.md)
+
 - [~] [〜にあたらない](points/niataranai.md)
 - [~] [〜には当たらない](points/nihaataranai.md)
 
