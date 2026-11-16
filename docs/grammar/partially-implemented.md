@@ -1,5 +1,7 @@
 # Partially implemented grammar points
 
+- [~] [〜を前提に](points/ozenteini.md)
+
 - [~] [〜を背景に](points/ohaikeini.md)
 
 - [~] [〜を踏まえて](points/ofumaete.md)

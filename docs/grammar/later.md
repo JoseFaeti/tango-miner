@@ -21,7 +21,6 @@ ambiguity and recall before implementing a rule.
 
 ## Formal and literary candidates
 
-- [ ] [〜を前提に](points/ozenteini.md)
 - [ ] [〜を通じて](points/otsuujite.md)
 - [ ] [〜に即して](points/nisokushite.md)
 - [ ] [〜に照らして](points/niterashite.md)
