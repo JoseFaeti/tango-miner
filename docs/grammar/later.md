@@ -21,7 +21,6 @@ ambiguity and recall before implementing a rule.
 
 ## Formal and literary candidates
 
-- [ ] [〜を余儀なくする](points/oyoginakusuru.md)
 - [ ] [〜を禁じ得ない](points/okinjienai.md)
 - [ ] [〜を免れない](points/omanugarenai.md)
 - [ ] [〜をものともせず](points/omonotomosezu.md)
