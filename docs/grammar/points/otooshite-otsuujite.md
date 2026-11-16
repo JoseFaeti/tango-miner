@@ -8,10 +8,12 @@ Through or throughout.
 
 ## Verified coverage
 
-Matches adjacent noun or pronoun + を通して / を通じて, including
+Matches adjacent noun or pronoun + を通して / を通じて and polite
+を通しまして / を通じまして, including
 means, intermediary and duration examples. The noun remains lexical evidence;
 following の is outside the span. Focused tests cover analyzer tokenization,
 boundaries, lexical controls, reservation and identity. Literal uses such as
 passing an object through something can share this form and may be matched;
 the rule does not distinguish senses. Other spellings and tokenizations remain
-unverified. Separate entries for the two forms remain scheduled.
+unverified. The separate を通じて entry records its partial coverage; the
+separate を通して entry remains scheduled.
