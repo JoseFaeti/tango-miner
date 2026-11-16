@@ -5,6 +5,33 @@ from src.TokenProvenance import token_components
 from .helpers import is_dictionary_expression
 
 
+def _repair_imaichido_boundary(tokens):
+    """Recover いまいちど and 力 from the analyzer's ど力 token."""
+    result = []
+    i = 0
+    while i < len(tokens):
+        parts = tokens[i:i + 4]
+        if (len(parts) == 4 and [t['surface'] for t in parts[:3]] == ['いまいち', 'ど力', 'を']
+                and parts[0]['lemma'] == 'いまいち' and parts[0]['pos'][0] == '副詞'
+                and parts[1]['lemma'] == 'ど力' and parts[1]['pos'][0] == '名詞'
+                and parts[2]['pos'][0] == '助詞' and parts[3]['lemma'] == 'つける'
+                and parts[3]['pos'][0] == '動詞'):
+            evidence = tuple(c for t in parts[:2] for c in token_components(t))
+            result.extend([
+                {'surface': 'いまいちど', 'lemma': 'いまいちど', 'base_form': 'いまいちど',
+                 'reading': 'いまいちど', 'pos': ('副詞', '*', '*', '*', '*', '*'),
+                 'components': evidence, 'analysis_rule': 'imaichido_boundary'},
+                {'surface': '力', 'lemma': '力', 'base_form': '力', 'reading': 'ちから',
+                 'pos': ('名詞', '普通名詞', '一般', '*', '*', '*'),
+                 'components': token_components(parts[1]), 'analysis_rule': 'imaichido_boundary'},
+            ])
+            i += 2
+        else:
+            result.append(tokens[i])
+            i += 1
+    return result
+
+
 def _repair_mei_boundaries(tokens):
     """Recover compounds where めい is not a standalone noun."""
     result = []
@@ -513,6 +540,7 @@ def prepare_tokens(token_list, jmdict):
     def repair_run(run):
         present = {token['surface'] for token in run}
         for triggers, repair in (
+            (('ど力',), _repair_imaichido_boundary),
             (('めい',), _repair_mei_boundaries),
             (('せき',), _repair_seki_nouns),
             (('ことがある',), _repair_komatta_koto_boundary),

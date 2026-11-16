@@ -33,6 +33,20 @@ class TokenizerIntegrationTests(unittest.TestCase):
         # These tests deliberately exercise the real Sudachi and JMdict data.
         cls.jmdict = get_jmdict()
 
+    def test_imaichido_boundary_and_shorter_word_control(self):
+        sentence = 'いまいちど力をつけて出直してくるがよい。'
+        tokens = tokenize_sentence(sentence)
+        merged = combine_tokens_jmdict(tokens, self.jmdict)
+        self.assertEqual([t['lemma'] for t in merged[:2]], ['いまいちど', '力'])
+        self.assertEqual([c.surface for c in merged[0]['components']], ['いまいち', 'ど力'])
+        self.assertEqual([c.surface for c in merged[1]['components']], ['ど力'])
+        self.assertNotIn('いまいち', [t['lemma'] for t in merged])
+        control = combine_tokens_jmdict(tokenize_sentence('いまいち力が出ない。'), self.jmdict)
+        self.assertIn('いまいち', [t['lemma'] for t in control])
+        tokens[1]['grammar_reserved'] = True
+        reserved = combine_tokens_jmdict(tokens, self.jmdict)
+        self.assertEqual([t['surface'] for t in reserved[:2]], ['いまいち', 'ど力'])
+
     def test_mei_compounds_and_standalone_niece(self):
         cases = [
             ('場所さえくれれば、しょうめいしてやるぞ！', 'しょうめい'),

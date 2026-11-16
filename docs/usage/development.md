@@ -28,6 +28,8 @@ Kana しょうめい before する or できる is recovered as an ambiguous com
 and めい界 as 冥界, retaining analyzer components.
 Selected source contexts also recover kana きせき as 奇跡 and いせき as 遺跡
 when the analyzer splits off せき; ambiguous contexts retain the original analysis.
+In いまいちど力をつける, boundary repair recovers いまいちど and 力 from
+the analyzer's いまいち and ど力 tokens, retaining the original components.
 Dictionary expression merging recognizes なんでもありません and 何でもありません
 as なんでもない, retaining the source components.
 Dictionary expression merging recognizes inflected 目をつぶる while retaining
