@@ -20,7 +20,12 @@ class NiatsuteTests(unittest.TestCase):
                  '困難な状況にあっても希望を失わない。': 'にあって',
                  '会議にあっては発言する。': 'にあって',
                  '危機にあっての決断。': 'にあって',
+                 '逆境にあっても希望を持つ。': 'にあって',
                  '状況に有っても大丈夫。': 'に有って',
+                 'こんな場所ならたとえ神隠しにあってもおかしくはないな。': None,
+                 'TIFAさんなら危険な目にあってもいいの？': None,
+                 '事故にあっても助かった。': None,
+                 '事故に遭っても助かった。': None,
                  '友達に会って話す。': None, '状況にある。': None,
                  '状況に あっても大丈夫。': None, 'あっても大丈夫。': None}
         for text, expected in cases.items():
@@ -31,6 +36,20 @@ class NiatsuteTests(unittest.TestCase):
                 self.assertIsNone(error)
                 self.assertEqual([text[a:b] for a, b in match_niatsute(tokens)],
                                  [] if expected is None else [expected])
+
+    def test_misfortune_does_not_reserve_existence_grammar(self):
+        source = sentence('事故にあっても助かった。', [
+            tok('事故', '事故', ('名詞',)), tok('に', 'に', ('助詞',)),
+            tok('あっ', 'ある', ('動詞',)), tok('て', 'て', ('助詞',)),
+            tok('も', 'も', ('助詞',)), tok('助かった', '助かる', ('動詞',)),
+            tok('。', '。', ('補助記号',))])
+        stage = GrammarStep()
+        data = ExcludeGrammarTokensStep(stage).process(stage.process(Artifact([source])))
+        self.assertFalse(any(t.get('grammar_reserved') for t in data.data[0].tokens[:4]))
+        words = {}
+        stage.add_cards(words)
+        for expression in ('〜にあって', '〜にあっても', '〜にあっては', 'ある / いる'):
+            self.assertNotIn(expression, words)
 
     def test_reservation_and_identity(self):
         source = sentence('危機にあって希望を持つ。', [

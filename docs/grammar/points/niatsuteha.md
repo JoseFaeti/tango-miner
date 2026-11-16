@@ -14,5 +14,8 @@ Focused tests cover Sudachi forms, meeting (会う), boundaries, reservation,
 identity, and overlap with the shorter にあって expression. Both that rule
 and the general ある / いる rule also emit cards for the same occurrence.
 
+The shared にあって matcher excludes several common kana 遭う collocations,
+including 事故; see its specification for the bounded list and remaining ambiguity.
+
 Literal existence at a place can also match; the rule cannot reliably distinguish
 it from the formal expression. Other spellings and tokenizations remain unverified.

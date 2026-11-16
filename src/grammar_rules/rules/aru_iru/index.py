@@ -2,6 +2,7 @@
 ARU_IRU_EXPRESSION = 'ある / いる'
 from src.grammar_rules.base import GrammarRule
 from src.grammar_rules.helpers import adjacent, next_matches, negative_suffix_end, polite_suffix_end
+from src.grammar_rules.rules.niatsute.index import is_misfortune_au
 
 
 def match_aru_iru(tokens):
@@ -12,6 +13,9 @@ def match_aru_iru(tokens):
                 or verb['pos'][:1] != ['動詞']):
             continue
         lemma, surface = verb['lemma'], verb['surface']
+        if (i >= 2 and next_matches(tokens, i, 'て', '助詞', 'て')
+                and is_misfortune_au(tokens[i - 2], marker, verb)):
+            continue
         if lemma in ('ある', '有る', '在る'):
             bases, stems, polite, conditional = ('ある', '有る', '在る'), ('あっ', '有っ', '在っ'), ('あり', '有り', '在り'), ('あれ', '有れ', '在れ')
         elif lemma in ('いる', '居る'):
