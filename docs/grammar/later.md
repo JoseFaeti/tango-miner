@@ -21,7 +21,6 @@ ambiguity and recall before implementing a rule.
 
 ## Formal and literary candidates
 
-- [ ] [〜にあって](points/niatsute.md)
 - [ ] [〜にあっては](points/niatsuteha.md)
 - [ ] [〜にあっても](points/niatsutemo.md)
 - [ ] [〜にあらず](points/niarazu.md)
