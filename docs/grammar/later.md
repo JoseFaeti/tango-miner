@@ -21,7 +21,6 @@ ambiguity and recall before implementing a rule.
 
 ## Formal and literary candidates
 
-- [ ] [〜をもって](points/omotsute.md)
 - [ ] [〜をもってしても](points/omotsuteshitemo.md)
 - [ ] [〜を踏まえて](points/ofumaete.md)
 - [ ] [〜を背景に](points/ohaikeini.md)
