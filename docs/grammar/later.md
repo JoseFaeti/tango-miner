@@ -21,7 +21,6 @@ ambiguity and recall before implementing a rule.
 
 ## Formal and literary candidates
 
-- [ ] [〜を皮切りに](points/okawakirini.md)
 - [ ] [〜を境に](points/osakaini.md)
 - [ ] [〜をもって](points/omotsute.md)
 - [ ] [〜をもってしても](points/omotsuteshitemo.md)

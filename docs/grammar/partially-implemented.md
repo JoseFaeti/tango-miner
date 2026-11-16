@@ -165,6 +165,7 @@
 - [~] [〜を機に](points/okini.md)
 - [~] [〜を契機に](points/okeikini.md)
 
+- [~] [〜を皮切りに](points/okawakirini.md)
 - [~] [〜をきっかけに](points/okitsukakeni.md)
 
 - [~] [〜をもとに](points/omotoni.md)
