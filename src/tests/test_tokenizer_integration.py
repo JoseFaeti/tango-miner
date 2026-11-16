@@ -33,6 +33,23 @@ class TokenizerIntegrationTests(unittest.TestCase):
         # These tests deliberately exercise the real Sudachi and JMdict data.
         cls.jmdict = get_jmdict()
 
+    def test_seki_split_nouns_and_ambiguous_controls(self):
+        cases = [
+            ('にきせきをあたえたり教えをといたりなさっているのよ。', '奇跡'),
+            ('私は、いせきにせんにゅうししらべてみようと思う。', '遺跡'),
+            ('クリス「この街の東に古代からあるという、いせきがあります。', '遺跡'),
+        ]
+        for sentence, lemma in cases:
+            with self.subTest(sentence=sentence):
+                merged = combine_tokens_jmdict(tokenize_sentence(sentence), self.jmdict)
+                item = next(t for t in merged if t['lemma'] == lemma)
+                self.assertEqual(''.join(c.surface for c in item['components']), item['surface'])
+                self.assertNotIn('せき', [t['lemma'] for t in merged])
+        for sentence in ('せきに座る。', 'きせきが起きた。', 'いせきがある。'):
+            with self.subTest(sentence=sentence):
+                merged = combine_tokens_jmdict(tokenize_sentence(sentence), self.jmdict)
+                self.assertFalse(any(t.get('analysis_rule') == 'seki_noun_boundary' for t in merged))
+
     def test_nandemo_arimasen_recovers_negative_expression(self):
         for sentence in ['おっとっと、危ない危ないなんでもありませんよ。',
                          'べつになんでもありませんよ。', '何でもありません。']:
