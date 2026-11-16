@@ -21,7 +21,6 @@ ambiguity and recall before implementing a rule.
 
 ## Formal and literary candidates
 
-- [ ] [〜に忍びない](points/nishinobinai.md)
 - [ ] [〜に越したことはない](points/nikoshitakotohanai.md)
 - [ ] [〜に及ばない](points/nioyobanai.md)
 - [ ] [〜には及ばない](points/nihaoyobanai.md)
