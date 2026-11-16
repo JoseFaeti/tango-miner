@@ -268,6 +268,7 @@
 - [~] [〜を通じて](points/otsuujite.md)
 
 - [~] [〜に基づいて](points/nimotozuite.md)
+- [~] [〜に即して](points/nisokushite.md)
 - [~] [〜に沿って](points/nisotsute.md)
 
 - [~] [〜に応じて](points/nioujite.md)
