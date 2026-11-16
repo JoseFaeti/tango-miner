@@ -5,6 +5,44 @@ from src.TokenProvenance import token_components
 from .helpers import is_dictionary_expression
 
 
+def _repair_seki_nouns(tokens):
+    """Recover split kana nouns where surrounding words support the meaning."""
+    result = []
+    i = 0
+    while i < len(tokens):
+        parts = tokens[i:i + 2]
+        following = tokens[i + 2:i + 6]
+        preceding = tokens[max(0, i - 8):i]
+        lemma = None
+        if (len(parts) == 2 and parts[1]['surface'] == parts[1]['lemma'] == 'せき'
+                and parts[1]['pos'][0] == '名詞'):
+            if (parts[0]['surface'] == 'き' and parts[0]['lemma'] == 'くる'
+                    and len(following) >= 2 and following[0]['surface'] == 'を'
+                    and following[0]['pos'][0] == '助詞'
+                    and following[1]['lemma'] in {'あたえる', '与える'}):
+                lemma = '奇跡'
+            elif (parts[0]['surface'] == 'い' and parts[0]['lemma'] == 'いく'
+                  and ((len(following) >= 4 and following[0]['surface'] == 'に'
+                        and following[0]['pos'][0] == '助詞'
+                        and ''.join(t['surface'] for t in following[1:4]) == 'せんにゅう')
+                       or (any(t['lemma'] == '古代' for t in preceding)
+                           and len(following) >= 2 and following[0]['surface'] == 'が'
+                           and following[0]['pos'][0] == '助詞'
+                           and following[1]['lemma'] == 'ある'))):
+                lemma = '遺跡'
+        if lemma:
+            surface = ''.join(t['surface'] for t in parts)
+            result.append({'surface': surface, 'lemma': lemma, 'base_form': lemma,
+                           'reading': surface, 'pos': ('名詞', '普通名詞', '一般', '*', '*', '*'),
+                           'components': tuple(c for t in parts for c in token_components(t)),
+                           'analysis_rule': 'seki_noun_boundary'})
+            i += 2
+        else:
+            result.append(tokens[i])
+            i += 1
+    return result
+
+
 def _repair_moushi_boundaries(tokens):
     """Recover kana nouns split into an unrelated もうし expression."""
     result = []
@@ -447,6 +485,7 @@ def prepare_tokens(token_list, jmdict):
     def repair_run(run):
         present = {token['surface'] for token in run}
         for triggers, repair in (
+            (('せき',), _repair_seki_nouns),
             (('ことがある',), _repair_komatta_koto_boundary),
             (('はち',), _repair_chigee_boundary),
             (('悪いこと',), _repair_warui_koto_boundary),
