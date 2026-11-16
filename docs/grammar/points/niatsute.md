@@ -16,5 +16,4 @@ forms, boundaries, meeting (会う), reservation, and identity. The general exis
 Literal existence at a place can also match, and kana あって can represent
 other verbs if the analyzer assigns the existence lemma. The rule cannot reliably
 separate those readings from the formal expression. Other tokenizations and
-spellings remain unverified; にあっては has a separate longer rule and
-にあっても is separately scheduled.
+spellings remain unverified; にあっては and にあっても have separate longer rules.
