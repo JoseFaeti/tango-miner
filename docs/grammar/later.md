@@ -21,7 +21,6 @@ ambiguity and recall before implementing a rule.
 
 ## Formal and literary candidates
 
-- [ ] [〜に至るまで](points/niitarumade.md)
 - [ ] [〜に至って](points/niitatsute.md)
 - [ ] [〜に至る](points/niitaru.md)
 - [ ] [〜に至っては](points/niitatsuteha.md)
