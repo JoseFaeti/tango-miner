@@ -16,4 +16,4 @@ spans, controls, reservation and identity.
 
 The rule does not distinguish the idiomatic and literal senses of 及ぶ; a literal
 failure to reach a place or extent can also match. Other tokenizations and
-inflections remain unverified. The separately queued には及ばない is not matched.
+inflections remain unverified. The separate には及ばない rule handles the form with は.
