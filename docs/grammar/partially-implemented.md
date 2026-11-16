@@ -1,5 +1,7 @@
 # Partially implemented grammar points
 
+- [~] [〜にたる / 〜に足る](points/nitaru-nitaru.md)
+
 - [~] [〜たるや](points/taruya.md)
 - [~] [〜たる](points/taru.md)
 - [~] [〜たるもの](points/tarumono.md)
