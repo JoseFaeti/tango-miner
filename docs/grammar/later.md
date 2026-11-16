@@ -21,7 +21,6 @@ ambiguity and recall before implementing a rule.
 
 ## Formal and literary candidates
 
-- [ ] [〜たる](points/taru.md)
 - [ ] [〜たるもの](points/tarumono.md)
 - [ ] [〜たるや](points/taruya.md)
 - [ ] [〜にたる / 〜に足る](points/nitaru-nitaru.md)
