@@ -274,6 +274,7 @@
 - [~] [〜に基づいて](points/nimotozuite.md)
 - [~] [〜に即して](points/nisokushite.md)
 - [~] [〜に沿って](points/nisotsute.md)
+- [~] [〜に沿う](points/nisou.md)
 
 - [~] [〜に応じて](points/nioujite.md)
 
