@@ -13,5 +13,5 @@ spelling when analyzed as 至る. Sudachi instead splits 今にいたって as �
 た and って, which this rule does not match. The preceding expression remains lexical evidence. Focused tests cover
 analyzer forms, boundaries, reservation and identity. Literal uses such as
 reaching a station also match; the rule does not distinguish these from the
-figurative meaning. に至っては is left for its separate point. Other attachments
+figurative meaning. に至っては has a separate rule. Other attachments
 and tokenizations remain unverified.
