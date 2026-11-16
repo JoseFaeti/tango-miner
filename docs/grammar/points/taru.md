@@ -13,7 +13,7 @@ and 国民の代表たる議員. The card reserves only たる, retaining the su
 words. Sudachi full identifies it as auxiliary たり. Tests also cover 足る,
 滴る, and the adjectival 堂々たる, which are not this role construction.
 
-This surface can participate in 〜たるもの; such matches are not semantically
-distinguished. Non-nominal continuations, including たるや and たるべき, and
+This surface can participate in 〜たるもの; both cards can match the same
+occurrence. Non-nominal continuations, including たるや and たるべき, and
 alternative analyzer segmentations are not covered. The noun constraint cannot
 resolve every semantic ambiguity.

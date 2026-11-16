@@ -1,6 +1,7 @@
 # Partially implemented grammar points
 
 - [~] [〜たる](points/taru.md)
+- [~] [〜たるもの](points/tarumono.md)
 
 - [~] [〜であれ / 〜であろうと](points/deare-dearouto.md)
 

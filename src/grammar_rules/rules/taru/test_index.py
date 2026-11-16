@@ -30,7 +30,7 @@ class TaruTests(unittest.TestCase):
         source = sentence('教師たる者、責任を持て。', [tok('教師', '教師', ('名詞',)),
                           tok('たる', 'たり', ('助動詞',)), tok('者', '者', ('名詞',)),
                           tok('、責任を持て。', '責任', ('名詞',))])
-        stage = GrammarStep()
+        stage = GrammarStep(rules=(RULE,))
         data = ExcludeGrammarTokensStep(stage).process(stage.process(Artifact([source])))
         self.assertEqual([t['surface'] for t in data.data[0].tokens if t.get('grammar_reserved')], ['たる'])
         words = {'教師': object()}
