@@ -33,6 +33,21 @@ class TokenizerIntegrationTests(unittest.TestCase):
         # These tests deliberately exercise the real Sudachi and JMdict data.
         cls.jmdict = get_jmdict()
 
+    def test_mei_compounds_and_standalone_niece(self):
+        cases = [
+            ('場所さえくれれば、しょうめいしてやるぞ！', 'しょうめい'),
+            ('しょうめいできるんですたべてください！', 'しょうめい'),
+            ('沈ぼつ船とともに沈んだというめい界の地図。', '冥界'),
+        ]
+        for sentence, lemma in cases:
+            with self.subTest(sentence=sentence):
+                merged = combine_tokens_jmdict(tokenize_sentence(sentence), self.jmdict)
+                item = next(t for t in merged if t['lemma'] == lemma)
+                self.assertEqual(''.join(c.surface for c in item['components']), item['surface'])
+                self.assertNotIn('めい', [t['lemma'] for t in merged])
+        merged = combine_tokens_jmdict(tokenize_sentence('めいが遊びに来た。'), self.jmdict)
+        self.assertIn('めい', [t['lemma'] for t in merged])
+
     def test_seki_split_nouns_and_ambiguous_controls(self):
         cases = [
             ('にきせきをあたえたり教えをといたりなさっているのよ。', '奇跡'),

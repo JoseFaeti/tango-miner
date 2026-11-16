@@ -5,6 +5,34 @@ from src.TokenProvenance import token_components
 from .helpers import is_dictionary_expression
 
 
+def _repair_mei_boundaries(tokens):
+    """Recover compounds where めい is not a standalone noun."""
+    result = []
+    i = 0
+    while i < len(tokens):
+        parts = tokens[i:i + 2]
+        following = tokens[i + 2] if i + 2 < len(tokens) else None
+        if (len(parts) == 2 and [t['surface'] for t in parts] == ['しょう', 'めい']
+                and all(t['pos'][0] == '名詞' for t in parts)
+                and following and following['lemma'] in {'する', 'できる'}
+                and following['pos'][0] == '動詞'):
+            lemma, reading = 'しょうめい', 'しょうめい'
+        elif (len(parts) == 2 and [t['surface'] for t in parts] == ['めい', '界']
+              and parts[0]['pos'][0] == '名詞' and parts[1]['pos'][0] == '接尾辞'):
+            lemma, reading = '冥界', 'めいかい'
+        else:
+            result.append(tokens[i])
+            i += 1
+            continue
+        result.append({'surface': ''.join(t['surface'] for t in parts),
+                       'lemma': lemma, 'base_form': lemma, 'reading': reading,
+                       'pos': ('名詞', '普通名詞', '一般', '*', '*', '*'),
+                       'components': tuple(c for t in parts for c in token_components(t)),
+                       'analysis_rule': 'mei_compound_boundary'})
+        i += 2
+    return result
+
+
 def _repair_seki_nouns(tokens):
     """Recover split kana nouns where surrounding words support the meaning."""
     result = []
@@ -485,6 +513,7 @@ def prepare_tokens(token_list, jmdict):
     def repair_run(run):
         present = {token['surface'] for token in run}
         for triggers, repair in (
+            (('めい',), _repair_mei_boundaries),
             (('せき',), _repair_seki_nouns),
             (('ことがある',), _repair_komatta_koto_boundary),
             (('はち',), _repair_chigee_boundary),

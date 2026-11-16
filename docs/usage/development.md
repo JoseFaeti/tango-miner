@@ -24,6 +24,8 @@ The あわせて expression remains available for totals; after a case-marked �
 Source-boundary repairs also distinguish the colloquial ズラかろう and selected
 からさ contexts from analyzer misreadings of からい. Other ambiguous からさ
 occurrences retain the analyzer's adjective analysis for review.
+Kana しょうめい before する or できる is recovered as an ambiguous compound,
+and めい界 as 冥界, retaining analyzer components.
 Selected source contexts also recover kana きせき as 奇跡 and いせき as 遺跡
 when the analyzer splits off せき; ambiguous contexts retain the original analysis.
 Dictionary expression merging recognizes なんでもありません and 何でもありません
