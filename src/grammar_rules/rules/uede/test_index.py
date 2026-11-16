@@ -3,7 +3,7 @@ import unittest
 from src.Artifact import Artifact
 from src.Grammar import ExcludeGrammarTokensStep, GrammarStep
 from src.grammar_rules.alignment import aligned_tokens
-from src.grammar_rules.rules.uede.index import UEDE_EXPRESSION, match_uede
+from src.grammar_rules.rules.uede.index import RULE, UEDE_EXPRESSION, match_uede
 from src.grammar_rules.rules.te_iru.test_index import sentence, tok
 
 
@@ -35,6 +35,30 @@ class UedeTests(unittest.TestCase):
                 self.assertIsNone(error)
                 self.assertEqual([text[a:b] for a, b in match_uede(tokens)],
                                  [] if expected is None else [expected])
+
+    def test_spatial_examples_remain_unreserved_in_grammar_stage(self):
+        try:
+            from sudachipy import dictionary, tokenizer
+            analyzer = dictionary.Dictionary(config_path='sudachi.config.json', dict='full').create()
+        except (ImportError, OSError, RuntimeError) as exc:
+            self.skipTest(f'Sudachi full dictionary unavailable: {exc}')
+        # Use the exact reported examples and a positive control from the rule cases.
+        texts = [
+            '陸の上で矢印ボタンをタップすると停止。',
+            '海の上で矢印ボタンをタップすると飛空艇に変形するぞ！',
+            'よく考えた上で決める。',
+        ]
+        sources = [sentence(text, [tok(m.surface(), m.dictionary_form(), m.part_of_speech())
+                                   for m in analyzer.tokenize(text, tokenizer.Tokenizer.SplitMode.C)])
+                   for text in texts]
+        stage = GrammarStep(rules=(RULE,))
+        data = stage.process(Artifact(sources))
+        ExcludeGrammarTokensStep(stage).process(data)
+        self.assertEqual(stage.occurrences['uede'].count, 1)
+        for source in data.data[:2]:
+            self.assertFalse(any(t.get('grammar_reserved') for t in source.tokens))
+        self.assertEqual([t['surface'] for t in data.data[2].tokens if t.get('grammar_reserved')],
+                         ['上', 'で'])
 
     def test_reservation_and_evidence(self):
         source = sentence('よく考えた上で決める。', [
