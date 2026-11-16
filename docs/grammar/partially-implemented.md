@@ -2,6 +2,8 @@
 
 - [~] [〜であって](points/deatsute.md)
 
+- [~] [〜であっても](points/deatsutemo.md)
+
 - [~] [〜ではなく](points/dehanaku.md)
 
 - [~] [〜であろう](points/dearou.md)
