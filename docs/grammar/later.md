@@ -21,7 +21,6 @@ ambiguity and recall before implementing a rule.
 
 ## Formal and literary candidates
 
-- [ ] [〜に足りない](points/nitarinai.md)
 - [ ] [〜に値する](points/niataisuru.md)
 - [ ] [〜に難くない](points/nikatakunai.md)
 - [ ] [〜に堪えない](points/nitaenai.md)

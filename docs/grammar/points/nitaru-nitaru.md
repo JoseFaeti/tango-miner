@@ -15,6 +15,7 @@ Tests cover both spellings, verb and noun attachments, reservation and card
 identity, and distinguish the literary copula たる and standalone 足る.
 
 The same form also expresses literal sufficiency, as in 水が生活に足る; the
-rule retains this ambiguous usage. Other inflections and 足りる forms such as
-に足りない are not covered, nor are alternative tokenizations. The attachment
+rule retains this ambiguous usage. Other inflections and 足りる forms are not
+covered by this rule; に足りない has a separate rule. Alternative tokenizations
+are not covered. The attachment
 check cannot determine whether the preceding expression is semantically suitable.
