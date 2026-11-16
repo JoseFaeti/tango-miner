@@ -17,6 +17,9 @@ class RoNaTests(unittest.TestCase):
             self.skipTest(f'Sudachi full dictionary unavailable: {exc}')
         cases = {'食べろ！': ['食べろ'], '行け！': ['行け'], 'しろ！': [],
                  '来い！': ['来い'], '行くな！': ['な'], '食べるなよ。': ['な'],
+                 'わからないことがあればいつでも聞いてください。': [],
+                 '読んでくれ。': [], 'ください。': ['ください'],
+                 'ルールーみたいになりたかったら努力せいってことだろ？': ['せい'],
                  '高いな。': [], '静かな町。': [], '行くかな。': [], '行く な。': []}
         for text, expected in cases.items():
             with self.subTest(text=text):
