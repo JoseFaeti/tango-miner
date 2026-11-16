@@ -70,3 +70,49 @@ class KaneruTests(unittest.TestCase):
         self.assertEqual(words[KANERU_EXPRESSION].sentences[0].surface_form, '決めかねる')
         artifact = ExcludeGrammarTokensStep(stage).process(Artifact([source]))
         self.assertFalse(artifact.data[0].tokens[1].get('grammar_reserved', False))
+
+    def test_dictionary_compounds_take_precedence(self):
+        from pathlib import Path
+        from src.steps.TokenizeStep.index import tokenize_raw_sentences
+        from src.steps.MergeTokensStep.index import combine_tokens_jmdict, get_jmdict
+
+        try:
+            dictionary = get_jmdict()
+            texts = ['そんな俺を見かねたのか工場長が力を貸してくれてな。',
+                     '知らせを受けそなたらの帰りを待ちかねていたのじゃ。',
+                     '知らせを受けそなたの帰りを待ちかねていたのじゃ。',
+                     '返事を決めかねる。']
+            sources = tokenize_raw_sentences(texts, tag='test', source_path=Path('test.txt'))
+        except (ImportError, OSError, RuntimeError) as exc:
+            self.skipTest(f'dictionary or Sudachi unavailable: {exc}')
+        stage = GrammarStep(rules=(RULE,), prefer_expressions=True)
+        stage.process(Artifact(sources))
+        for index, lemma in enumerate(('見かねる', '待ちかねる', '待ちかねる')):
+            with self.subTest(text=texts[index]):
+                self.assertFalse(stage.spans.get(index))
+                merged = combine_tokens_jmdict(sources[index].tokens, dictionary)
+                compound = next(t for t in merged if t['lemma'] == lemma)
+                self.assertEqual(compound['analysis_rule'], 'jmdict_kaneru_verb')
+                self.assertTrue(compound['components'])
+        self.assertTrue(stage.spans.get(3))
+
+    def test_compound_lookup_requires_a_dictionary_verb(self):
+        from src.steps.MergeTokensStep.merger import _merge_kaneru_verb
+
+        first = tok('持ち', '持つ', ('動詞', '一般', '*', '*', '五段', '連用形-一般'))
+        suffix = tok('かね', 'かねる', ('接尾辞', '動詞的', '*', '*', '下一段', '連用形-一般'))
+        for token in (first, suffix):
+            token.update(base_form=token['lemma'], reading='ヨミ')
+        class Dictionary:
+            def __init__(self, pos):
+                self.pos = pos
+            def lookup_word(self, word):
+                return [{'senses': [{'pos': [self.pos]}]}] if word == '持ちかねる' else []
+            def get_reading(self, entry, word):
+                return 'もちかねる'
+
+        self.assertIsNone(_merge_kaneru_verb([first, suffix], Dictionary('noun')))
+        compound = _merge_kaneru_verb([first, suffix], Dictionary('Ichidan verb'))
+        self.assertEqual(compound['lemma'], '持ちかねる')
+        self.assertEqual(compound['surface'], '持ちかね')
+        self.assertEqual(compound['pos'][0], '動詞')

@@ -43,6 +43,10 @@ still reserve tokens within it.
 The adjective in `〜ほしい` also remains available as vocabulary.
 The suffix in `〜方` remains available to lexical processing so the complete
 verb-and-suffix expression can be retained.
+For `〜かねる`, a source-aligned compound listed as a JMdict verb takes
+precedence over the grammar occurrence. Split verb-and-suffix tokens are
+merged as that verb with component evidence, including inflected forms;
+unlisted combinations remain eligible for grammar.
 The separate [curated expression inventory](../usage/expressions.md) is matched
 on raw tokens before reservation and added alongside grammar and component-word
 candidates. An inventory match does not suppress an overlapping grammar rule;

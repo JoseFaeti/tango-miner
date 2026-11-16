@@ -94,6 +94,7 @@ class GrammarStep(PipelineStep):
             self.add_performance_time('matching', (perf_counter() if self._performance_enabled else 0.0) - started)
             started = (perf_counter() if self._performance_enabled else 0.0)
             expression_spans = []
+            kaneru_verbs = []
             if proposals and self.prefer_expressions:
                 # Use the established dictionary merger as evidence of a complete
                 # expression, before deciding which analysis owns the occurrence.
@@ -108,6 +109,7 @@ class GrammarStep(PipelineStep):
                 with self.performance_phase('expression_alignment'):
                     aligned, merge_error = aligned_tokens(sentence.text, merged)
                 if not merge_error:
+                    from src.steps.MergeTokensStep.merger import kaneru_verb_entry
                     expression_spans = [(t['span'][0], t['span'][1],
                                          merged[t['index']].get('dictionary_expression', False))
                                         for t in aligned
@@ -115,9 +117,17 @@ class GrammarStep(PipelineStep):
                                         ('jmdict_surface_merge', 'jmdict_nandemo_arimasen',
                                          'jmdict_me_wo_samasu', 'jmdict_me_wo_tsuburu',
                                          'jmdict_nemuri_ni_tsuku')]
+                    if any(rule.id == 'kaneru' for rule, _, _ in proposals):
+                        kaneru_verbs = [(t['span'][0], t['span'][1]) for t in aligned
+                                        if t['pos'][:1] == ['動詞'] and isinstance(t['lemma'], str)
+                                        and t['lemma'] not in ('かねる', '兼ねる')
+                                        and t['lemma'].endswith(('かねる', '兼ねる'))
+                                        and kaneru_verb_entry(t['lemma'], dictionary)]
             self.add_performance_time('expression_precedence', (perf_counter() if self._performance_enabled else 0.0) - started)
             started = (perf_counter() if self._performance_enabled else 0.0)
             for rule, start, end in proposals:
+                if rule.id == 'kaneru' and any(a == start and b <= end for a, b in kaneru_verbs):
+                    continue
                 # A copular な immediately before explanatory んだ is part of
                 # the predicate, not interrogative 何だ. An exact JMdict
                 # spelling such as なんだって cannot override this analysis.

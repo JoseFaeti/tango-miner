@@ -24,6 +24,32 @@ from .grammar_guards import (
 from .recovery import prepare_tokens
 
 
+def kaneru_verb_entry(word, jmdict):
+    return next((entry for entry in jmdict.lookup_word(word) if any(
+        any('verb' in pos.lower() for pos in sense['pos'])
+        and (not sense.get('stagk') or word in sense['stagk'])
+        and (not sense.get('stagr') or word in sense['stagr'])
+        for sense in entry.get('senses', ()))), None)
+
+
+def _merge_kaneru_verb(parts, jmdict):
+    first, suffix = parts
+    if first['pos'][:1] not in (['動詞'], ('動詞',)):
+        return None
+    if len(first['pos']) < 6 or not first['pos'][5].startswith('連用形'):
+        return None
+    if suffix['lemma'] not in ('かねる', '兼ねる') or suffix['pos'][0] not in ('動詞', '接尾辞'):
+        return None
+    word = first['surface'] + suffix['lemma']
+    entry = kaneru_verb_entry(word, jmdict)
+    if entry is None:
+        return None
+    return {'surface': first['surface'] + suffix['surface'], 'lemma': word,
+            'base_form': word, 'reading': jmdict.get_reading(entry, word),
+            'pos': ['動詞', *suffix['pos'][1:]], 'analysis_rule': 'jmdict_kaneru_verb',
+            'components': tuple(component for token in parts for component in token_components(token))}
+
+
 def _merge_candidate(token_list, i, j, combined_text, offsets, jmdict, rejected):
     """Return a dictionary merge for a candidate span, if eligible."""
     n = len(token_list)
@@ -381,6 +407,12 @@ def combine_tokens_jmdict(
             merged_tokens.append(token_list[i])
             i += 1
             continue
+        if i + 2 <= min(n, next_merge_boundary[i]):
+            candidate = _merge_kaneru_verb(token_list[i:i + 2], jmdict)
+            if candidate is not None:
+                merged_tokens.append(candidate)
+                i += 2
+                continue
         if i + 6 <= min(n, i + max_lookahead, next_merge_boundary[i]):
             candidate = _merge_nandemo_arimasen(token_list[i:i + 6], jmdict)
             if candidate is not None:
