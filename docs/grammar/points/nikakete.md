@@ -12,5 +12,6 @@ Matches adjacent noun or pronoun + にかけて, including 掛けて, with the
 preceding noun retained as lexical evidence. Focused Sudachi tests cover time
 and area examples, boundaries, a lexical control, reservation and identity.
 Literal uses such as 壁にかけて are structurally ambiguous and also match;
-the separate 〜にかけては sense likewise overlaps. Other senses and forms,
+the separate 〜にかけては rule likewise overlaps and both cards can be produced.
+Other senses and forms,
 including polite にかけまして, remain unverified or unsupported.
