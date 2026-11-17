@@ -407,6 +407,29 @@ class TokenizerIntegrationTests(unittest.TestCase):
         tokens[2]['grammar_reserved'] = True
         self.assertNotIn('ピンと来る', [t['lemma'] for t in combine_tokens_jmdict(tokens, self.jmdict)])
 
+    def test_kiku_expressions_preserve_source_components(self):
+        for sentence, word, surface in [
+            ('そういう時は、気を利かせて多めに作るもんだろ。', '気を利かす', '気を利かせ'),
+            ('頼れて、気が利いて、優しくて憧れちゃいます、桐条先輩。', '気が利く', '気が利い'),
+            ('誰もナメた口利けねえぐらいの大物になってやる！', '口をきく', '口利け'),
+            ('彼は口をきいた。', '口をきく', '口をきい'),
+            ('気を利かした。', '気を利かす', '気を利かし'),
+        ]:
+            with self.subTest(sentence=sentence):
+                merged = combine_tokens_jmdict(tokenize_sentence(sentence), self.jmdict)
+                expression = next(t for t in merged if t['lemma'] == word)
+                self.assertEqual(expression['surface'], surface)
+                self.assertEqual(''.join(c.surface for c in expression['components']), surface)
+        for sentence, word in [('気が利息を生む。', '気が利く'),
+                               ('口が利いた。', '口をきく'),
+                               ('気を、利かせた。', '気を利かす')]:
+            with self.subTest(sentence=sentence):
+                self.assertNotIn(word, [t['lemma'] for t in
+                                 combine_tokens_jmdict(tokenize_sentence(sentence), self.jmdict)])
+        tokens = tokenize_sentence('気が利いて。')
+        tokens[1]['grammar_reserved'] = True
+        self.assertNotIn('気が利く', [t['lemma'] for t in combine_tokens_jmdict(tokens, self.jmdict)])
+
     def test_omitted_object_particle_in_dictionary_expressions(self):
         for sentence, word, surface in [
             ('そうか男友達だから腹割んなきゃいけないんだ', '腹を割る', '腹割ん'),

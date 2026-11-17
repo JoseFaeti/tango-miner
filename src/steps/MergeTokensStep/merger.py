@@ -229,6 +229,52 @@ def _merge_itai_me_ni_au(parts, jmdict):
     }
 
 
+def _merge_kiku_expression(parts, jmdict):
+    noun = parts[0]
+    if noun['surface'] != noun['lemma'] or noun['pos'][0] != '名詞':
+        return None
+    rest = parts[1:]
+    if len(rest) == 3 and noun['lemma'] == '気':
+        particle, verb, auxiliary = rest
+        if not (particle['surface'] == 'を' and particle['pos'][0] == '助詞'
+                and verb['surface'] == '利か' and verb['lemma'] == '利く'
+                and verb['pos'][0] == '動詞' and auxiliary['lemma'] == 'せる'
+                and auxiliary['pos'][0] == '助動詞'):
+            return None
+        word = '気を利かす'
+    else:
+        if len(rest) == 2:
+            particle, verb = rest
+            if particle['pos'][0] != '助詞':
+                return None
+            particle_surface = particle['surface']
+        elif len(rest) == 1:
+            verb = rest[0]
+            particle_surface = ''
+        else:
+            return None
+        if verb['pos'][0] != '動詞':
+            return None
+        if noun['lemma'] == '気' and particle_surface == 'が' and verb['lemma'] in ('利く', 'きく'):
+            word = '気が利く'
+        elif noun['lemma'] == '気' and particle_surface == 'を' and verb['lemma'] in ('利かす', 'きかす'):
+            word = '気を利かす'
+        elif noun['lemma'] == '口' and particle_surface in ('', 'を') and verb['lemma'] in ('利く', 'きく', '利ける', 'きける'):
+            word = '口をきく'
+        else:
+            return None
+    entry = jmdict.get_best_entry(word) if jmdict.lookup_word(word) else None
+    if not is_dictionary_expression(entry):
+        return None
+    return {
+        'surface': ''.join(t['surface'] for t in parts),
+        'lemma': word, 'base_form': word, 'reading': jmdict.get_reading(entry, word),
+        'pos': ['exp', '*', '*', '*', '*', '*'], 'dictionary_expression': True,
+        'analysis_rule': 'jmdict_kiku_expression',
+        'components': tuple(c for token in parts for c in token_components(token)),
+    }
+
+
 def _merge_me_wo_tsuburu(parts, jmdict):
     """Recover the expression when its final verb is inflected."""
     noun, particle, verb = parts
@@ -429,7 +475,8 @@ def combine_tokens_jmdict(
             i += 1
             continue
         if i + 2 <= min(n, next_merge_boundary[i]):
-            candidate = _merge_kaneru_verb(token_list[i:i + 2], jmdict)
+            candidate = (_merge_kiku_expression(token_list[i:i + 2], jmdict)
+                         or _merge_kaneru_verb(token_list[i:i + 2], jmdict))
             if candidate is not None:
                 merged_tokens.append(candidate)
                 i += 2
@@ -441,13 +488,15 @@ def combine_tokens_jmdict(
                 i += 6
                 continue
         if i + 4 <= min(n, i + max_lookahead, next_merge_boundary[i]):
-            candidate = _merge_itai_me_ni_au(token_list[i:i + 4], jmdict)
+            candidate = (_merge_kiku_expression(token_list[i:i + 4], jmdict)
+                         or _merge_itai_me_ni_au(token_list[i:i + 4], jmdict))
             if candidate is not None:
                 merged_tokens.append(candidate)
                 i += 4
                 continue
         if i + 3 <= min(n, i + max_lookahead, next_merge_boundary[i]):
-            candidate = (_merge_me_wo_tsuburu(token_list[i:i + 3], jmdict)
+            candidate = (_merge_kiku_expression(token_list[i:i + 3], jmdict)
+                         or _merge_me_wo_tsuburu(token_list[i:i + 3], jmdict)
                          or _merge_me_wo_samasu(token_list[i:i + 3], jmdict)
                          or _merge_mi_wo_kawasu(token_list[i:i + 3], jmdict)
                          or _merge_nemuri_ni_tsuku(token_list[i:i + 3], jmdict)
