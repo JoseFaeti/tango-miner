@@ -356,6 +356,7 @@
 - [~] [〜をめぐって](points/omegutsute.md)
 
 - [~] [〜を通して / 〜を通じて](points/otooshite-otsuujite.md)
+- [~] [〜を通して](points/otooshite.md)
 - [~] [〜を通じて](points/otsuujite.md)
 
 - [~] [〜に基づいて](points/nimotozuite.md)

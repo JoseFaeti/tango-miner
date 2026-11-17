@@ -18,6 +18,8 @@ class OtooshiteTests(unittest.TestCase):
             self.skipTest(f'Sudachi full dictionary unavailable: {exc}')
         cases = {
             '友人を通して知った。': 'を通して', '一年を通して暖かい。': 'を通して',
+            '仕事を通して学んだ。': 'を通して',
+            '窓を通して光が入る。': 'を通して',
             '経験を通じて学ぶ。': 'を通じて', '一年を通じて営業する。': 'を通じて',
             '友人を通じましてお知らせします。': 'を通じまして',
             '友人を通しましてお知らせします。': 'を通しまして',
@@ -50,3 +52,17 @@ class OtooshiteTests(unittest.TestCase):
         self.assertIn(RULE, RULES)
         self.assertIn(RULE.expression, GRAMMAR_EXPRESSIONS)
         self.assertEqual(LEGACY_GRAMMAR_EXPRESSIONS[RULE.expression + ' (grammar)'], RULE.expression)
+
+    def test_otooshite_reservation_and_identity(self):
+        source = sentence('友人を通して知った。', [
+            tok('友人', '友人', ('名詞',)), tok('を', 'を', ('助詞',)),
+            tok('通し', '通す', ('動詞',)), tok('て', 'て', ('助詞',)),
+            tok('知った。', '知る', ('動詞',))])
+        stage = GrammarStep()
+        data = ExcludeGrammarTokensStep(stage).process(stage.process(Artifact([source])))
+        self.assertEqual([t['surface'] for t in data.data[0].tokens if t.get('grammar_reserved')],
+                         ['を', '通し', 'て'])
+        words = {'友人': object()}
+        stage.add_cards(words)
+        self.assertIn('友人', words)
+        self.assertEqual(words[RULE.expression].sentences[0].surface_form, 'を通して')

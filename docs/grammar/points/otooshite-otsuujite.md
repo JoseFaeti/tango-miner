@@ -15,5 +15,5 @@ following の is outside the span. Focused tests cover analyzer tokenization,
 boundaries, lexical controls, reservation and identity. Literal uses such as
 passing an object through something can share this form and may be matched;
 the rule does not distinguish senses. Other spellings and tokenizations remain
-unverified. The separate を通じて entry records its partial coverage; the
-separate を通して entry remains scheduled.
+unverified. The separate [を通じて](otsuujite.md) and
+[を通して](otooshite.md) entries record their partial coverage.
