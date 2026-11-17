@@ -33,6 +33,25 @@ class TokenizerIntegrationTests(unittest.TestCase):
         # These tests deliberately exercise the real Sudachi and JMdict data.
         cls.jmdict = get_jmdict()
 
+    def test_aitsume_boundary_and_verb_controls(self):
+        for sentence in ('スタミナ回復ドラッグセットかあいつめ、きっちり商売してやがるぜ。',
+                         'あいつめ、許さない。'):
+            with self.subTest(sentence=sentence):
+                tokens = tokenize_sentence(sentence)
+                merged = combine_tokens_jmdict(tokens, self.jmdict)
+                pronoun = next(t for t in merged if t['lemma'] == 'あいつ')
+                self.assertEqual([c.surface for c in pronoun['components']], ['あい', 'つめ'])
+                self.assertIn('め', [t['surface'] for t in merged])
+                self.assertNotIn('つめる', [t['lemma'] for t in merged])
+        for sentence in ('荷物をつめる。', '荷物をつめて出かける。'):
+            with self.subTest(sentence=sentence):
+                merged = combine_tokens_jmdict(tokenize_sentence(sentence), self.jmdict)
+                self.assertIn('つめる', [t['lemma'] for t in merged])
+        tokens = tokenize_sentence('あいつめ、許さない。')
+        tokens[1]['grammar_reserved'] = True
+        merged = combine_tokens_jmdict(tokens, self.jmdict)
+        self.assertEqual([t['surface'] for t in merged[:2]], ['あい', 'つめ'])
+
     def test_imaichido_boundary_and_shorter_word_control(self):
         sentence = 'いまいちど力をつけて出直してくるがよい。'
         tokens = tokenize_sentence(sentence)

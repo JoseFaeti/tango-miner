@@ -481,6 +481,31 @@ def _recover_flower_offering(tokens, jmdict):
 def prepare_tokens(token_list, jmdict):
     """Apply boundary and analysis repairs while preserving reserved tokens."""
     surfaces = {token['surface'] for token in token_list}
+    if 'あい' in surfaces and 'つめ' in surfaces:
+        repaired = []
+        i = 0
+        while i < len(token_list):
+            parts = token_list[i:i + 2]
+            following = token_list[i + 2] if i + 2 < len(token_list) else None
+            if (len(parts) == 2 and [t['surface'] for t in parts] == ['あい', 'つめ']
+                    and parts[0]['lemma'] == 'あい' and parts[0]['pos'][0] == '接頭辞'
+                    and parts[1]['lemma'] == 'つめる' and parts[1]['pos'][0] == '動詞'
+                    and following and following['surface'] in {'、', '。', '！', '？', '!', '?'}
+                    and not any(t.get('grammar_reserved') for t in parts)):
+                evidence = tuple(c for t in parts for c in token_components(t))
+                repaired.extend([
+                    {'surface': 'あいつ', 'lemma': 'あいつ', 'base_form': 'あいつ',
+                     'reading': 'あいつ', 'pos': ('代名詞', '*', '*', '*', '*', '*'),
+                     'components': evidence, 'analysis_rule': 'aitsume_boundary'},
+                    {'surface': 'め', 'lemma': 'め', 'base_form': 'め', 'reading': 'め',
+                     'pos': ('接尾辞', '名詞的', '一般', '*', '*', '*'),
+                     'components': token_components(parts[1]), 'analysis_rule': 'aitsume_boundary'},
+                ])
+                i += 2
+            else:
+                repaired.append(token_list[i])
+                i += 1
+        token_list = repaired
     # In みかわしきゃく Sudachi joins the preceding の to み.
     if 'のみ' in surfaces and jmdict.lookup_word('身をかわす'):
         repaired = []

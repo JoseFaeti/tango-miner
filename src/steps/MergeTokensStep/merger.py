@@ -463,7 +463,7 @@ def combine_tokens_jmdict(
         token = token_list[index]
         if token.get('grammar_reserved'):
             reserved_boundary = merge_boundary = index
-        elif token.get('analysis_rule') in ('desu_kitto_boundary', 'kara_sa_boundary', 'mi_kawashi_no_boundary'):
+        elif token.get('analysis_rule') in ('desu_kitto_boundary', 'kara_sa_boundary', 'mi_kawashi_no_boundary', 'aitsume_boundary'):
             merge_boundary = index
         next_reserved[index] = reserved_boundary
         next_merge_boundary[index] = merge_boundary
