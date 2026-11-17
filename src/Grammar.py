@@ -116,7 +116,7 @@ class GrammarStep(PipelineStep):
                                         if merged[t['index']].get('analysis_rule') in
                                         ('jmdict_surface_merge', 'jmdict_nandemo_arimasen',
                                          'jmdict_me_wo_samasu', 'jmdict_me_wo_tsuburu',
-                                         'jmdict_nemuri_ni_tsuku')]
+                                         'jmdict_nemuri_ni_tsuku', 'jmdict_itai_me_ni_au')]
                     if any(rule.id == 'kaneru' for rule, _, _ in proposals):
                         kaneru_verbs = [(t['span'][0], t['span'][1]) for t in aligned
                                         if t['pos'][:1] == ['動詞'] and isinstance(t['lemma'], str)

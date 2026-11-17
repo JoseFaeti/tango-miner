@@ -154,6 +154,39 @@ class TokenizerIntegrationTests(unittest.TestCase):
         merged = combine_tokens_jmdict(tokenize_sentence('時代が下って、文化が変わった。'), self.jmdict)
         self.assertIn('下って', [t['lemma'] for t in merged])
 
+    def test_itai_me_ni_au_inflections(self):
+        for sentence, word, surface in [
+            ('痛い目にあわないうちにとっととけえりな！', '痛い目にあう', '痛い目にあわ'),
+            ('痛い目にあいます。', '痛い目にあう', '痛い目にあい'),
+            ('痛い目に遭わない。', '痛い目に遭う', '痛い目に遭わ'),
+            ('痛い目にあう。', '痛い目にあう', '痛い目にあう'),
+        ]:
+            with self.subTest(sentence=sentence):
+                merged = combine_tokens_jmdict(tokenize_sentence(sentence), self.jmdict)
+                expression = next(t for t in merged if t['lemma'] == word)
+                self.assertEqual(expression['surface'], surface)
+                self.assertEqual(''.join(c.surface for c in expression['components']), surface)
+                self.assertTrue(expression['dictionary_expression'])
+        for sentence in ['痛い目を開ける。', '痛い目に薬をさす。', '痛い目に、あう。']:
+            with self.subTest(sentence=sentence):
+                merged = combine_tokens_jmdict(tokenize_sentence(sentence), self.jmdict)
+                self.assertNotIn('痛い目にあう', [t['lemma'] for t in merged])
+                self.assertIn('痛い目', [t['lemma'] for t in merged])
+        tokens = tokenize_sentence('痛い目にあわない。')
+        tokens[2]['grammar_reserved'] = True
+        self.assertNotIn('痛い目にあう', [t['lemma'] for t in combine_tokens_jmdict(tokens, self.jmdict)])
+        from pathlib import Path
+        from src.Artifact import Artifact
+        from src.Grammar import GrammarStep, ExcludeGrammarTokensStep
+        from src.steps.TokenizeStep.index import tokenize_raw_sentences
+
+        raw = tokenize_raw_sentences(['痛い目にあわないうちにとっととけえりな！'],
+                                     tag='source', source_path=Path('source.txt'))
+        stage = GrammarStep(prefer_expressions=True)
+        reserved = ExcludeGrammarTokensStep(stage).process(stage.process(Artifact(raw)))
+        merged = combine_tokens_jmdict(reserved.data[0].tokens, self.jmdict)
+        self.assertIn('痛い目にあう', [t['lemma'] for t in merged])
+
     def test_nemuri_ni_tsuku_inflections(self):
         for sentence in [
             'マナを生み出す新たなマナの樹となって眠りにつきます。',

@@ -36,6 +36,8 @@ Dictionary expression merging recognizes inflected 目をつぶる while retaini
 the source components. It also recognizes inflected ピンと来る, including
 the dialectal negative ピンとこん, while retaining the source components.
 Inflected 眠りにつく is likewise recognized with its original components.
+Inflected 痛い目にあう and 痛い目に遭う are recognized with their original
+components when the analyzer identifies the final verb as あう or 遭う.
 Inflected 身をかわす is recognized with source components, including みかわし
 in the equipment name みかわしきゃく.
 Inflected 目を覚ます is recognized in kanji and kana spellings, including
