@@ -1,5 +1,7 @@
 # Partially implemented grammar points
 
+- [~] [〜を経て](points/ohete.md)
+
 - [~] [〜を兼ねて](points/okanete.md)
 
 - [~] [〜をさておき](points/osateoki.md)

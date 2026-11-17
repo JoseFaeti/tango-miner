@@ -21,7 +21,6 @@ ambiguity and recall before implementing a rule.
 
 ## Formal and literary candidates
 
-- [ ] [〜を経て](points/ohete.md)
 - [ ] [〜を受けて](points/oukete.md)
 - [ ] [〜を通して](points/otooshite.md)
 - [ ] [〜にかこつけて](points/nikakotsukete.md)
