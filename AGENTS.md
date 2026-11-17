@@ -32,6 +32,8 @@ tests determine actual behavior when documentation is stale.
   them as a baseline. Preserve meaningful regression coverage and report any
   unavailable integration dependencies. Avoid real Anki mutations during
   tests; inspect the current pipeline before running it.
+- For any documentation work, always read and apply the `documentation` skill
+  in addition to any applicable project-specific documentation skill.
 - Keep documentation free of absolute local paths and personal machine details.
   Preserve the user's existing changes and update relevant documentation when
   behavior or priorities change.
