@@ -51,3 +51,17 @@ class NikakawarazuTests(unittest.TestCase):
         self.assertIn(RULE, RULES)
         self.assertIn(RULE.expression, GRAMMAR_EXPRESSIONS)
         self.assertEqual(LEGACY_GRAMMAR_EXPRESSIONS[RULE.expression + ' (grammar)'], RULE.expression)
+
+    def test_kanji_spelling_uses_existing_card_and_preserves_noun(self):
+        source = sentence('年齢に関わらず参加できる。', [
+            tok('年齢', '年齢', ('名詞',)), tok('に', 'に', ('助詞',)),
+            tok('関わら', '関わる', ('動詞',)), tok('ず', 'ず', ('助動詞',)),
+            tok('参加できる。', '参加', ('名詞',))])
+        stage = GrammarStep()
+        data = ExcludeGrammarTokensStep(stage).process(stage.process(Artifact([source])))
+        self.assertEqual([t['surface'] for t in data.data[0].tokens if t.get('grammar_reserved')],
+                         ['に', '関わら', 'ず'])
+        words = {'年齢': object()}
+        stage.add_cards(words)
+        self.assertIn('年齢', words)
+        self.assertEqual(words[RULE.expression].sentences[0].surface_form, 'に関わらず')
