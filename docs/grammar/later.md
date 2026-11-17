@@ -21,7 +21,6 @@ ambiguity and recall before implementing a rule.
 
 ## Formal and literary candidates
 
-- [ ] [〜にかこつけて](points/nikakotsukete.md)
 - [ ] [〜にかたくない](points/nikatakunai-110c2871.md)
 - [ ] [〜にかまけて](points/nikamakete.md)
 - [ ] [〜にひきかえ](points/nihikikae.md)
