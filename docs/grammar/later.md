@@ -21,7 +21,6 @@ ambiguity and recall before implementing a rule.
 
 ## Formal and literary candidates
 
-- [ ] [〜いかんで / 〜いかんによっては](points/ikande-ikanniyotsuteha.md)
 - [ ] [〜いかんにかかわらず](points/ikannikakawarazu.md)
 - [ ] [〜いかんを問わず](points/ikanotowazu.md)
 - [ ] [〜如何では](points/ikagadeha.md)
