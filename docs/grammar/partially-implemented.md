@@ -1,5 +1,7 @@
 # Partially implemented grammar points
 
+- [~] [〜にひきかえ / 〜に比べ](points/nihikikae-nikurabe.md)
+
 - [~] [〜にひきかえ](points/nihikikae.md)
 
 - [~] [〜にかまけて](points/nikamakete.md)

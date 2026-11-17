@@ -20,9 +20,12 @@ class NikurabeteTests(unittest.TestCase):
                  'これに比べては小さい。': 'に比べて',
                  '兄にくらべて背が高い。': 'にくらべて',
                  '昨年に比べまして増えた。': 'に比べまして',
+                 '去年に比べ、今年は暑い。': 'に比べ',
+                 '兄にくらべ弟は静かだ。': 'にくらべ',
                  '兄と比べて背が高い。': None,
                  '写真を比べてみる。': None,
                  '去年に比べると暑い。': None,
+                 '去年に比べた。': None,
                  '去年に 比べて暑い。': None}
         for text, expected in cases.items():
             with self.subTest(text=text):
@@ -49,3 +52,17 @@ class NikurabeteTests(unittest.TestCase):
         self.assertIn(RULE, RULES)
         self.assertIn(RULE.expression, GRAMMAR_EXPRESSIONS)
         self.assertEqual(LEGACY_GRAMMAR_EXPRESSIONS[RULE.expression + ' (grammar)'], RULE.expression)
+
+    def test_bare_form_reservation(self):
+        source = sentence('去年に比べ、今年は暑い。', [
+            tok('去年', '去年', ('名詞',)), tok('に', 'に', ('助詞',)),
+            tok('比べ', '比べる', ('動詞',)), tok('、', '、', ('補助記号',)),
+            tok('今年は暑い。', '今年', ('名詞',))])
+        stage = GrammarStep()
+        data = ExcludeGrammarTokensStep(stage).process(stage.process(Artifact([source])))
+        self.assertEqual([t['surface'] for t in data.data[0].tokens if t.get('grammar_reserved')],
+                         ['に', '比べ'])
+        words = {'去年': object()}
+        stage.add_cards(words)
+        self.assertIn('去年', words)
+        self.assertEqual(words[RULE.expression].sentences[0].surface_form, 'に比べ')

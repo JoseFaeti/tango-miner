@@ -5,7 +5,7 @@ from src.grammar_rules.helpers import adjacent
 
 
 def match_nikurabete(tokens):
-    for i in range(1, len(tokens) - 2):
+    for i in range(1, len(tokens) - 1):
         noun, ni, verb = tokens[i - 1:i + 2]
         if (noun['pos'][:1] not in (['名詞'], ['代名詞'])
                 or ni['surface'] != 'に' or ni['pos'][:1] != ['助詞']
@@ -21,6 +21,13 @@ def match_nikurabete(tokens):
                     and all(adjacent(a, b) for a, b in zip([verb] + tail, tail))):
                 yield ni['span'][0], tail[-1]['span'][1]
                 break
+        else:
+            # The continuative form can stand alone before a contrast clause.
+            # Do not take the prefix of another inflection or connective.
+            if (i + 2 < len(tokens) and adjacent(verb, tokens[i + 2])
+                    and tokens[i + 2]['pos'][:1] in (['助動詞'], ['助詞'])):
+                continue
+            yield ni['span'][0], verb['span'][1]
 
 
 RULE = GrammarRule(order=6, id='nikurabete', expression=NIKURABETE_EXPRESSION,
