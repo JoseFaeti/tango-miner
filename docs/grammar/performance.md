@@ -1,6 +1,59 @@
-# Grammar performance findings
+# Grammar performance improvements
 
-[Contents](../pipeline-performance-plan.md)
+[Grammar documentation](README.md) · [Pipeline performance](../pipeline-performance-plan.md)
+
+- [Dispatch optimization plan](#dispatch-optimization-plan)
+- [Measurement and safeguards](#measurement-and-safeguards)
+- [Previous findings](#previous-findings)
+
+## Dispatch optimization plan
+
+The stage invokes every registered rule for each aligned sentence; rules already
+match token features. Investigate conservative indexed dispatch first, subject
+to current measurements showing matching is a significant cost. Status:
+`[ ]` not started, `[~]` partial, `[x]` complete.
+
+- [ ] Establish a baseline from completed runs, including inputs, configuration,
+  worker count, cache state and phase timings. Profile a deterministic,
+  representative bounded sample to identify expensive rules.
+- [ ] Select a small group of costly, selective rules. Derive triggers from
+  features necessary for every existing match, including inflections,
+  contractions and analyzer boundary variants. Other rules remain unconditional.
+- [ ] Prototype an inverted index from token features to rule indices. Collect
+  candidates once per sentence and execute them in registration order; keep
+  matchers and expression precedence unchanged. Favor extra invocations over
+  missed matches.
+- [ ] Compare original and indexed paths on identical inputs: complete rule IDs
+  and spans, occurrences, examples, ordering and lexical reservation. Run
+  existing positive tests and add focused trigger and boundary regressions.
+- [ ] Measure rule invocations, candidates per sentence, dispatch overhead,
+  matcher time and total grammar time over repeated runs. Run the full test
+  suite and check the JMdict baseline.
+- [ ] Decide whether to expand dispatch or prioritize individual rules,
+  expression precedence, cache-key preparation or worker configuration.
+  Reassess bottlenecks after each optimization.
+
+## Measurement and safeguards
+
+Use existing scripts, including `scripts/report_performance.py` and
+`scripts/profile_grammar_rules.py`, where appropriate. The latter consumes a
+bounded historical aligned-token archive and includes result collection and
+checksum time; its sample and tokenizer may not represent the current corpus.
+Compare identical inputs, configuration, dependencies, cache state and machine
+conditions. Bounded equivalence cannot prove recall on unseen input. Retain
+overlapping matches, source evidence and expression precedence. A full corpus
+run requires explicit user authorization and the agent run procedure; never
+mutate Anki during such a run. See [development](../usage/development.md)
+and [running](../usage/running.md).
+
+Aho–Corasick, token tries and native extensions remain candidates only if
+profiling justifies their complexity. Multiprocessing already exists; evaluate
+its actual overhead and worker count before extending it.
+
+## Previous findings
+
+These historical observations and bounded or uncontrolled comparisons do not
+establish current corpus-wide savings.
 
 ## Grammar findings and first optimization (2026-10-30)
 

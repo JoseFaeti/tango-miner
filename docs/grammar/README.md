@@ -4,6 +4,7 @@
 - [Partially implemented points](partially-implemented.md): existing scopes with remaining work.
 - [Implemented points](implemented.md): completed and validated scopes.
 - [Later candidates](later.md): unordered candidates, grouped by existing backlog category.
+- [Performance improvements](performance.md): optimization plan and measured findings.
 
 Choose a point from an index and read its linked specification for its meaning,
 forms, evidence and remaining work. Search `points/` for an explicitly named

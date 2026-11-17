@@ -18,15 +18,8 @@ stated scope and validated. Partial items identify the remaining work.
     schemas, missing records and basic run comparisons.
   - Remaining: test mixed, malformed and incomplete archives more thoroughly
     and support summaries of variation across repeated measurements.
-- [~] Investigate grammar expression-precedence cost.
-  - Covered: measured the main phases, reused the dictionary within an
-    invocation, and added precedence subphase timings.
-  - Remaining: assess reuse or per-source caching of merge evidence with
-    representative data; verify timing and source-supported behavior.
-- [ ] Measure and improve repeated grammar rule scans while preserving all
-  supported tokenizations and overlapping expressions.
-- [ ] Measure and improve grammar cache-key preparation for warm and changed
-  inputs, preserving all required invalidation dependencies.
+- [~] Improve grammar performance. Measurements and remaining work are tracked
+  in the [grammar performance plan](../grammar/performance.md).
 - [ ] Compare instrumented and uninstrumented behavior and timings on a bounded
   representative fixture. Full pipeline runs require a corpus agreed with the
   user and Anki disabled or output-only.
