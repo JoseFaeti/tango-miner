@@ -1,5 +1,7 @@
 # Partially implemented grammar points
 
+- [~] [〜に即した](points/nisokushita-f6c8239f.md)
+
 - [~] [〜に則した](points/nisokushita.md)
 
 - [~] [〜に則り](points/ninotsutori.md)
