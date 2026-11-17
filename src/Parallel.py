@@ -89,10 +89,10 @@ def grammar_batch(args):
     from src.Artifact import Artifact
     from src.Grammar import GrammarStep
 
-    start, sentences, dictionary_path, prefer_expressions, max_lookahead, max_examples = args
+    start, sentences, dictionary_path, prefer_expressions, max_lookahead, max_examples, indexed_dispatch = args
     stage = GrammarStep(max_examples=max_examples, dictionary_path=dictionary_path,
                         prefer_expressions=prefer_expressions, max_lookahead=max_lookahead,
-                        profiling=False)
+                        profiling=False, indexed_dispatch=indexed_dispatch)
     stage.process(Artifact(sentences))
     occurrences = [(rule_id, group.count, group.tags, group.examples)
                    for rule_id, group in stage.occurrences.items() if group.count]

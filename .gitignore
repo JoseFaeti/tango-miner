@@ -17,6 +17,7 @@ checks/*
 !scripts/inspect_expression_coverage.py
 !scripts/report_performance.py
 !scripts/benchmark_snapshot_payload.py
+!scripts/benchmark_grammar_dispatch.py
 !scripts/query_jsonl.py
 !scripts/replay_grammar.py
 !scripts/profile_grammar_rules.py

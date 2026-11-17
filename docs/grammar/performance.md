@@ -4,6 +4,7 @@
 
 - [Dispatch optimization plan](#dispatch-optimization-plan)
 - [Measurement and safeguards](#measurement-and-safeguards)
+- [Indexed dispatch measurement](#indexed-dispatch-measurement)
 - [Previous findings](#previous-findings)
 
 ## Dispatch optimization plan
@@ -13,32 +14,33 @@ match token features. Investigate conservative indexed dispatch first, subject
 to current measurements showing matching is a significant cost. Status:
 `[ ]` not started, `[~]` partial, `[x]` complete.
 
-- [ ] Establish a baseline from completed runs, including inputs, configuration,
+- [x] Establish a baseline from completed runs, including inputs, configuration,
   worker count, cache state and phase timings. Profile a deterministic,
   representative bounded sample to identify expensive rules.
-- [ ] Select a small group of costly, selective rules. Derive triggers from
+- [x] Select a small group of costly, selective rules. Derive triggers from
   features necessary for every existing match, including inflections,
   contractions and analyzer boundary variants. Other rules remain unconditional.
-- [ ] Prototype an inverted index from token features to rule indices. Collect
+- [x] Prototype an inverted index from token features to rule indices. Collect
   candidates once per sentence and execute them in registration order; keep
   matchers and expression precedence unchanged. Favor extra invocations over
   missed matches.
-- [ ] Compare original and indexed paths on identical inputs: complete rule IDs
+- [x] Compare original and indexed paths on identical inputs: complete rule IDs
   and spans, occurrences, examples, ordering and lexical reservation. Run
   existing positive tests and add focused trigger and boundary regressions.
-- [ ] Measure rule invocations, candidates per sentence, dispatch overhead,
+- [x] Measure rule invocations, candidates per sentence, dispatch overhead,
   matcher time and total grammar time over repeated runs. Run the full test
   suite and check the JMdict baseline.
-- [ ] Decide whether to expand dispatch or prioritize individual rules,
+- [x] Decide whether to expand dispatch or prioritize individual rules,
   expression precedence, cache-key preparation or worker configuration.
   Reassess bottlenecks after each optimization.
 
 ## Measurement and safeguards
 
-Use existing scripts, including `scripts/report_performance.py` and
-`scripts/profile_grammar_rules.py`, where appropriate. The latter consumes a
-bounded historical aligned-token archive and includes result collection and
-checksum time; its sample and tokenizer may not represent the current corpus.
+Use existing scripts, including `scripts/report_performance.py`,
+`scripts/profile_grammar_rules.py` and `scripts/benchmark_grammar_dispatch.py`,
+where appropriate. The rule profiler accepts either a bounded historical
+aligned-token archive or retokenized archived sentence examples, and includes
+result collection and checksum time; its sample may not represent the corpus.
 Compare identical inputs, configuration, dependencies, cache state and machine
 conditions. Bounded equivalence cannot prove recall on unseen input. Retain
 overlapping matches, source evidence and expression precedence. A full corpus
@@ -49,6 +51,61 @@ and [running](../usage/running.md).
 Aho–Corasick, token tries and native extensions remain candidates only if
 profiling justifies their complexity. Multiprocessing already exists; evaluate
 its actual overhead and worker count before extending it.
+
+## Indexed dispatch measurement
+
+The latest completed run processed 89 input files with four workers, Python
+3.15.1, SudachiPy 0.7.0 and Sudachi full dictionary 20261015. Its grammar
+cache was warm: the grammar stage took 25.7 seconds, including 18.9 seconds
+for the cache key and 6.2 seconds for the cache read. Matching did not run.
+The JMdict hash matched the documented test baseline. A completed November 13
+run used the same input manifest and configuration, dependencies and worker
+count; its raw-token and merge caches also hit, but its grammar cache missed.
+It processed 500,662 token streams, versus 500,229 in the later run (the code
+revisions differ). The miss took 131.8 seconds: 17.3 for key preparation,
+113.2 for parallel work, and 0.9 for writing the cache. Parallel work combines
+matching, precedence, alignment and worker overhead, so it does not isolate
+matching. These are separate observations, not a controlled speedup comparison.
+
+The rule profiler also accepts `--sentence-csv` to retokenize a bounded
+archive sample using the installed tokenizer. On the first 2,000 example
+rows of that completed run, deduplication yielded 1,225 aligned sentences.
+One pass identified `tte`, `toiu`, `toshitemo_nishitemo`, `nikimatsuteiru`
+and `nikimatsuteru` as the slowest rules. A second profile selected up to 75
+unique examples per tag: 2,853 aligned sentences from 39 tags. Two passes
+identified the same five rules as the slowest. Tokenizer setup and alignment
+are outside these per-rule timings, while collection and checksumming are
+included. Both samples are selected examples, not the full input.
+
+The index uses necessary token surfaces for those five rules plus `nisouinai`,
+`nichigainai`, `naikana` and `nimuiteiru_muki`. The last rule has multiple
+supported surfaces and suffix boundaries; all are included. The matcher still
+decides every match, unindexed rules run unconditionally, and custom replacement
+rules are never skipped. Candidate tuples preserve registration order. Changing
+one of these matchers requires rechecking its triggers. The grammar fingerprint
+changes, invalidating existing grammar cache entries once; the merge cache is
+unaffected.
+
+Three alternating comparisons on the same 2,853-sentence sample with
+`python -X utf8 scripts/benchmark_grammar_dispatch.py RUN_DIR/input.sentence.csv --limit 3000 --per-tag 75 --repeat 3`
+used one process and a warm in-process JMdict, with grammar caching disabled.
+Original and indexed paths produced identical complete proposal IDs and spans,
+occurrences, examples, ordering and reserved tokens, including expression
+precedence. The index reduced calls from 1,129,788 to 1,105,433, or 396.00 to
+387.46 candidates per sentence. Candidate collection took 0.0050–0.0053 seconds
+per pass (the original tuple selection took 0.0002 seconds). Separate matcher
+passes took 5.263–5.325 seconds original and 4.745–5.037 seconds indexed;
+complete grammar processing took 6.217–6.347 and 5.559–5.763 seconds,
+respectively. Timings include collection, not tokenization, reservation or
+checksumming. The complete stage also includes alignment and precedence.
+These single-machine, bounded measurements do not establish a corpus-wide
+speedup or recall on unseen input. Focused positive, contraction, boundary,
+precedence, reservation and parallel regressions supplement the comparison.
+
+Keep this small index and prioritize profiling cache-key preparation on a warm
+run before expanding it: the latest warm run spent most grammar time there.
+Reassess matching and worker overhead on a current cache miss before adding
+more triggers or changing parallelism. No full corpus rerun was performed.
 
 ## Previous findings
 

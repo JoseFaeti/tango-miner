@@ -12,6 +12,7 @@ from src.steps.ProcessingStep.index import ProcessingStep
 from src.steps.TokenizeStep.index import is_valid_sentence, is_useless
 from src.grammar_rules.base import GrammarRule
 from src.grammar_rules.registry import RULES
+from src.grammar_rules.dispatch import RuleDispatch
 # Preserve existing imports for callers of the former single-module API.
 from src.grammar_rules.rules.te_iru.index import match_te_iru
 from src.grammar_rules.rules.nda.index import match_nda
@@ -42,7 +43,7 @@ class GrammarOccurrences:
 
 
 class GrammarStep(PipelineStep):
-    def __init__(self, max_examples=3, rules=RULES, dictionary_path=None, prefer_expressions=False, max_lookahead=10, profile_rules=False, profiling=True):
+    def __init__(self, max_examples=3, rules=RULES, dictionary_path=None, prefer_expressions=False, max_lookahead=10, profile_rules=False, profiling=True, indexed_dispatch=True):
         self._processing_step = ProcessingStep.GRAMMAR
         self.start_time = None
         self.max_examples = max_examples
@@ -50,6 +51,8 @@ class GrammarStep(PipelineStep):
         self.prefer_expressions = prefer_expressions
         self.max_lookahead = max_lookahead
         self.rules = tuple(rules)
+        self.indexed_dispatch = indexed_dispatch
+        self._dispatch = RuleDispatch(self.rules) if indexed_dispatch else None
         if len({r.id for r in self.rules}) != len(self.rules) or len({r.expression for r in self.rules}) != len(self.rules):
             raise ValueError('Grammar rules must have unique identities and expressions')
         self.occurrences = {}
@@ -83,7 +86,7 @@ class GrammarStep(PipelineStep):
                 continue
             proposals = []
             started = (perf_counter() if self._performance_enabled else 0.0)
-            for rule in self.rules:
+            for rule in self._dispatch.candidates(tokens) if self._dispatch else self.rules:
                 rule_started = (perf_counter() if self._performance_enabled else 0.0) if rule_times is not None else None
                 for start, end in rule.match(tokens):
                     if not 0 <= start < end <= len(sentence.text):
@@ -172,7 +175,7 @@ class GrammarStep(PipelineStep):
         total = len(artifact.data)
         batch_size = max(128, min(1000, (total + self._parallel_workers - 1) // self._parallel_workers))
         arguments = ((start, group, self.dictionary_path, self.prefer_expressions,
-                      self.max_lookahead, self.max_examples)
+                      self.max_lookahead, self.max_examples, self.indexed_dispatch)
                      for start, group in batches(artifact.data, batch_size))
         started = perf_counter()
         for start, batch_count, occurrences, spans in ordered_map(

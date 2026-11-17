@@ -46,23 +46,29 @@ class ParallelPipelineTests(unittest.TestCase):
                 token('か', 'か', ('名詞', '普通名詞')),
                 token('ら', 'ら', ('名詞', '普通名詞')),
                 token('。', '。', ('補助記号', '句点'))])
-            inputs = [a, b] * 500 + [a, b, c, lexical] * 251
+            triggered = TokenizedSentence('猫って本当にかわいいですね。', 'triggered', Path('source.txt'), [
+                token('猫', '猫', ('名詞',)), token('って', 'って', ('助詞', '副助詞')),
+                token('本当に', '本当', ('名詞',)), token('かわいい', 'かわいい', ('形容詞',)),
+                token('ですね。', 'です', ('助動詞',))])
+            inputs = [a, b] * 500 + [triggered, b, c, lexical] * 251
 
-            def run(workers, cache=None, diagnostics=None):
+            def run(workers, cache=None, diagnostics=None, indexed_dispatch=True):
                 grammar = GrammarStep(max_examples=3, dictionary_path=dictionary,
-                                      prefer_expressions=True, profiling=True)
+                                      prefer_expressions=True, profiling=True,
+                                      indexed_dispatch=indexed_dispatch)
                 merge = MergeTokensStep(dictionary_path=dictionary, diagnostics_path=diagnostics)
                 steps = [grammar, ExcludeGrammarTokensStep(grammar), merge]
                 pipeline = Pipeline(steps, workers=workers, cache=cache, profiling=True)
                 result = pipeline.run(Artifact(inputs))
                 return grammar, result, merge, pipeline
 
-            serial, serial_result, _, _ = run(1, diagnostics=root / 'serial.jsonl')
+            serial, serial_result, _, _ = run(1, diagnostics=root / 'serial.jsonl', indexed_dispatch=False)
             parallel, parallel_result, _, pipeline = run(2, diagnostics=root / 'parallel.jsonl')
             self.assertEqual(serial.occurrences, parallel.occurrences)
             self.assertEqual(serial.spans, parallel.spans)
             self.assertEqual(serial.matches, parallel.matches)
             self.assertEqual(serial_result.data, parallel_result.data)
+            self.assertEqual(parallel.occurrences['tte'].count, 251)
             self.assertEqual((root / 'serial.jsonl').read_bytes(), (root / 'parallel.jsonl').read_bytes())
             self.assertGreater((root / 'serial.jsonl').stat().st_size, 0)
             self.assertIn('語彙', [item['surface'] for item in parallel_result.data[-1].tokens])
