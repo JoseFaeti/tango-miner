@@ -1,5 +1,7 @@
 # Partially implemented grammar points
 
+- [~] [〜いかんにかかわらず](points/ikannikakawarazu.md)
+
 - [~] [〜いかんで / 〜いかんによっては](points/ikande-ikanniyotsuteha.md)
 
 - [~] [〜に関わる](points/nikakawaru.md)
