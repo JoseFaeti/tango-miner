@@ -21,7 +21,6 @@ ambiguity and recall before implementing a rule.
 
 ## Formal and literary candidates
 
-- [ ] [〜を最後に](points/osaigoni.md)
 - [ ] [〜をおいて](points/ooite.md)
 - [ ] [〜をさておき](points/osateoki.md)
 - [ ] [〜をはじめとして](points/ohajimetoshite.md)
