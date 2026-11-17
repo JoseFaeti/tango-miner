@@ -21,7 +21,6 @@ ambiguity and recall before implementing a rule.
 
 ## Formal and literary candidates
 
-- [ ] [〜に則した](points/nisokushita.md)
 - [ ] [〜に即した](points/nisokushita-f6c8239f.md)
 - [ ] [〜に基づく](points/nimotozuku.md)
 - [ ] [〜に関わる](points/nikakawaru.md)
