@@ -268,6 +268,7 @@
 - [~] [〜をはじめ](points/ohajime.md)
 
 - [~] [〜を中心に](points/ochiyuushinni.md)
+- [~] [〜を中心として](points/ochiyuushintoshite.md)
 
 - [~] [〜において / 〜における](points/nioite-niokeru.md)
 
