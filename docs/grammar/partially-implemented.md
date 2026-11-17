@@ -1,5 +1,7 @@
 # Partially implemented grammar points
 
+- [~] [〜に関わる](points/nikakawaru.md)
+
 - [~] [〜に基づく](points/nimotozuku.md)
 
 - [~] [〜に即した](points/nisokushita-f6c8239f.md)
