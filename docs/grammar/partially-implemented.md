@@ -1,5 +1,7 @@
 # Partially implemented grammar points
 
+- [~] [〜を限りに](points/okagirini.md)
+
 - [~] [〜を差し置いて](points/osashioite.md)
 
 - [~] [〜をよそに](points/oyosoni.md)
