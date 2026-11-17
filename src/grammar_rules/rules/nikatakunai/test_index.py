@@ -19,6 +19,8 @@ class NikatakunaiTests(unittest.TestCase):
             '想像に難くない。': ['に難くない'], '想像にかたくない。': ['にかたくない'],
             '推察するに難くない。': ['に難くない'], '想像に難くなかった。': ['に難くなかった'],
             '想像に難くないです。': ['に難くないです'],
+            '想像に難くなく、驚かなかった。': ['に難くなく'],
+            '想像に難くなければ納得できる。': ['に難くなければ'],
             '石が硬くない。': [], '想像に硬くない。': [], '想像に難い。': [],
             '想像に 難くない。': [], '困難に難くない。': [],
         }
@@ -44,3 +46,16 @@ class NikatakunaiTests(unittest.TestCase):
         self.assertIn('想像', words)
         self.assertEqual(words[RULE.expression].sentences[0].surface_form, 'に難くない')
         self.assertIn(RULE.expression, GRAMMAR_EXPRESSIONS)
+
+    def test_default_registry_collects_expression_and_particle(self):
+        source = sentence('その結果は想像に難くないと思います。', [
+            tok('その結果は', '結果', ('名詞',)), tok('想像', '想像', ('名詞',)),
+            tok('に', 'に', ('助詞', '格助詞')), tok('難く', '難い', ('形容詞',)),
+            tok('ない', 'ない', ('形容詞',)), tok('と思います。', 'と', ('助詞',))])
+        stage = GrammarStep()
+        stage.process(Artifact([source]))
+        words = {'想像': object()}
+        stage.add_cards(words)
+        self.assertIn(RULE.expression, words)
+        self.assertIn('〜に', words)
+        self.assertIn('想像', words)
