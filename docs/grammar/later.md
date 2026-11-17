@@ -21,7 +21,6 @@ ambiguity and recall before implementing a rule.
 
 ## Formal and literary candidates
 
-- [ ] [〜に基づく](points/nimotozuku.md)
 - [ ] [〜に関わる](points/nikakawaru.md)
 - [ ] [〜に関わらず](points/nikakawarazu-18275e4a.md)
 - [ ] [〜いかんで / 〜いかんによっては](points/ikande-ikanniyotsuteha.md)
