@@ -1,5 +1,7 @@
 # Partially implemented grammar points
 
+- [~] [〜かと思うと / 〜かと思ったら](points/katoomouto-katoomotsutara.md)
+
 - [~] [〜そばから](points/sobakara.md)
 
 - [~] [〜なり](points/nari.md)
