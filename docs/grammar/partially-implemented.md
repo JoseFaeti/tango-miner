@@ -659,6 +659,7 @@ indicate measured frequency.
 - [~] [〜から / 〜ので](points/kara-node.md)
 - [~] [〜たり〜たりする](points/taritarisuru.md)
 - [~] [〜がち](points/gachi.md)
+- [~] [〜がてら](points/gatera.md)
 - [~] [〜やすい / 〜にくい](points/yasui-nikui.md)
 - [~] [〜にくい / 〜づらい / 〜がたい](points/nikui-zurai-gatai.md)
 - [~] [〜ことができる](points/kotogadekiru.md)
