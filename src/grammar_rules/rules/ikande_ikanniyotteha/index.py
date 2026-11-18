@@ -5,7 +5,7 @@ from src.grammar_rules.helpers import adjacent
 IKANDE_EXPRESSION = '〜いかんで / 〜いかんによっては'
 
 
-def match_ikande(tokens):
+def match_ikande_base(tokens):
     for i in range(1, len(tokens)):
         marker = tokens[i]
         previous = tokens[i - 1]
@@ -43,6 +43,17 @@ def match_ikande(tokens):
                         and tokens[i + 4]['pos'][:1] == ['助詞']):
                     end = tokens[i + 4]
                 yield marker['span'][0], end['span'][1]
+
+
+def match_ikande(tokens):
+    for start, end in match_ikande_base(tokens):
+        following = next((token for token in tokens if token['span'][0] == end), None)
+        if (following and following['surface'] == 'は'
+                and following['pos'][:1] == ['助詞']
+                and any(token['span'][1] == end and token['surface'] in ('で', '如何で', 'いかんで')
+                        for token in tokens)):
+            continue
+        yield start, end
 
 
 RULE = GrammarRule(order=1, id='ikande_ikanniyotteha', expression=IKANDE_EXPRESSION,

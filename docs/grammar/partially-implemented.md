@@ -1,5 +1,7 @@
 # Partially implemented grammar points
 
+- [~] [〜如何では](points/ikagadeha.md)
+
 - [~] [〜いかんを問わず](points/ikanotowazu.md)
 
 - [~] [〜いかんにかかわらず](points/ikannikakawarazu.md)
