@@ -458,6 +458,23 @@ def _recover_me_ni_mieru(tokens, jmdict):
     return result
 
 
+def _recover_mezame_powder(tokens, jmdict):
+    """Recover the awakening noun in the item name めざめのこな."""
+    if not jmdict.lookup_word('目覚め'):
+        return tokens
+    result = list(tokens)
+    for i, token in enumerate(tokens):
+        if (i + 2 < len(tokens) and not any(t.get('grammar_reserved') for t in tokens[i:i + 3])
+                and token['surface'] == 'めざめ' and token['lemma'] == 'めざめる'
+                and token['pos'][0] == '動詞'
+                and tokens[i + 1]['surface'] == 'の' and tokens[i + 1]['pos'][0] == '助詞'
+                and tokens[i + 2]['surface'] in {'こな', '粉'} and tokens[i + 2]['pos'][0] == '名詞'):
+            result[i] = {**token, 'lemma': '目覚め', 'base_form': '目覚め', 'reading': 'めざめ',
+                         'pos': ('名詞', '普通名詞', '一般', '*', '*', '*'),
+                         'components': token_components(token), 'analysis_rule': 'mezame_powder_noun'}
+    return result
+
+
 def _recover_flower_offering(tokens, jmdict):
     """Resolve the kana verb when its direct object is explicitly flowers."""
     if not jmdict.lookup_word('供える'):
@@ -596,6 +613,8 @@ def prepare_tokens(token_list, jmdict):
                   for i, token in enumerate(token_list)]
     token_list = [_repair_tsurete_motion(token_list, i, jmdict) if not token.get('grammar_reserved') else token
                   for i, token in enumerate(token_list)]
+    if 'めざめ' in surfaces:
+        token_list = _recover_mezame_powder(token_list, jmdict)
     if 'を' in surfaces:
         token_list = _recover_flower_offering(token_list, jmdict)
     return token_list

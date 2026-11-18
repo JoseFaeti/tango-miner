@@ -243,6 +243,23 @@ class TokenizerIntegrationTests(unittest.TestCase):
             merged = combine_tokens_jmdict(source.tokens, self.jmdict)
             self.assertIn('眠りにつく', [t['lemma'] for t in merged])
 
+    def test_mezame_powder_noun_and_verb_controls(self):
+        sentence = 'さあこのめざめのこなをもって村にお戻りなさい。'
+        tokens = tokenize_sentence(sentence)
+        merged = combine_tokens_jmdict(tokens, self.jmdict)
+        noun = next(t for t in merged if t['lemma'] == '目覚め')
+        self.assertEqual(noun['surface'], 'めざめ')
+        self.assertEqual(noun['reading'], 'めざめ')
+        self.assertEqual(noun['components'][0].lemma, 'めざめる')
+        self.assertNotIn('めざめる', [t['lemma'] for t in merged])
+        for sentence in ('朝めざめた。', 'めざめの早い人。'):
+            with self.subTest(sentence=sentence):
+                merged = combine_tokens_jmdict(tokenize_sentence(sentence), self.jmdict)
+                self.assertFalse(any(t.get('analysis_rule') == 'mezame_powder_noun' for t in merged))
+        tokens[2]['grammar_reserved'] = True
+        merged = combine_tokens_jmdict(tokens, self.jmdict)
+        self.assertFalse(any(t.get('analysis_rule') == 'mezame_powder_noun' for t in merged))
+
     def test_kana_flower_offering_keeps_source_verb_evidence(self):
         for sentence in ['まいにちさいだんにおはなをそなえにくるよ',
                          '墓に花をそなえた。']:

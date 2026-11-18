@@ -47,6 +47,7 @@ Inflected 身をかわす is recognized with source components, including みか
 in the equipment name みかわしきゃく.
 Inflected 目を覚ます is recognized in kanji and kana spellings, including
 the analyzer boundary がめ before をさます; original tokens remain as evidence.
+In めざめのこな, the noun 目覚め is recovered from the analyzer verb stem, retaining its original token as evidence.
 Kana そなえる following a direct flower object is assigned to 供える,
 while its original analyzer token remains available as source evidence.
 Dictionary-backed adjectival nouns such as いわくありげ can also be recovered
