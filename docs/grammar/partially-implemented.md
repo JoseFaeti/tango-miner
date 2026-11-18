@@ -1,5 +1,7 @@
 # Partially implemented grammar points
 
+- [~] [〜や否や](points/yainaya.md)
+
 - [~] [〜が早いか](points/gahayaika.md)
 
 - [~] [〜次第では](points/shidaideha.md)
