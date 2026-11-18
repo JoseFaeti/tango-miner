@@ -1,5 +1,7 @@
 # Partially implemented grammar points
 
+- [~] [〜かたわら](points/katawara.md)
+
 - [~] [〜ついでに](points/tsuideni.md)
 
 - [~] [〜かたがた](points/katagata.md)
