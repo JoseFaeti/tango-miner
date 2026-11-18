@@ -1,5 +1,7 @@
 # Partially implemented grammar points
 
+- [~] [〜か〜ないかのうちに](points/kanaikanouchini.md)
+
 - [~] [〜かと思うと / 〜かと思ったら](points/katoomouto-katoomotsutara.md)
 
 - [~] [〜そばから](points/sobakara.md)
