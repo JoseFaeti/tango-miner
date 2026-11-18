@@ -21,7 +21,6 @@ ambiguity and recall before implementing a rule.
 
 ## Formal and literary candidates
 
-- [ ] [〜そばから](points/sobakara.md)
 - [ ] [〜かと思うと / 〜かと思ったら](points/katoomouto-katoomotsutara.md)
 - [ ] [〜か〜ないかのうちに](points/kanaikanouchini.md)
 - [ ] [〜かたがた](points/katagata.md)

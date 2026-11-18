@@ -1,5 +1,7 @@
 # Partially implemented grammar points
 
+- [~] [〜そばから](points/sobakara.md)
+
 - [~] [〜なり](points/nari.md)
 
 - [~] [〜や否や](points/yainaya.md)
