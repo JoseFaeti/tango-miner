@@ -13,7 +13,7 @@ As soon as; depending on.
   is reserved, retaining its attached word. Focused tests cover Sudachi split
   mode C, both spellings, event nouns, lexical controls and card evidence.
 - Adjacent particles and copulas associated with dependent and lexical uses
-  are excluded. The dependent meaning is not implemented; combined tokens such
+  are excluded. The dependent で form has a separate partial rule; combined tokens such
   as 結果次第 are not split. Event nouns and verb stems can still be ambiguous,
   and this surface rule does not establish a subsequent action or intention.
   Other tokenizations and attachments remain unverified.
