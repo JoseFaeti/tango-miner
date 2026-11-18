@@ -10,6 +10,8 @@ Not in a situation to do something; far from being able to do it.
 
 Matches attached どころではない and どころじゃない after nouns and verbs,
 including なかった, なく and the polite ありません and ありませんでした.
+Also matches colloquial じゃねえ and は-less でなく, including after それ.
+The negative must be present: an interrupted それどころじゃ remains unmatched.
 Sudachi may analyze どころ as either a noun or an adverbial particle in this
 construction. The preceding expression remains lexical evidence; the matched
 construction is reserved for grammar. Focused tests cover analyzer forms,
@@ -18,4 +20,5 @@ boundaries, controls, reservation and identity.
 The matcher does not determine the meaning of the surrounding context: in
 particular, どころではなく may also introduce a contrast. It does not cover
 other spellings, punctuation-separated forms, or every inflection and
-tokenization. Dictionary expression precedence can suppress a match when enabled.
+tokenization. Dictionary expression precedence can suppress a match when enabled,
+except that an overlapping それどころ does not suppress a completed negative.

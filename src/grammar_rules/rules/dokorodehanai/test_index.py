@@ -24,6 +24,12 @@ class DokorodehanaiTests(unittest.TestCase):
             '勉強どころではありません。': 'どころではありません',
             '勉強どころではありませんでした。': 'どころではありませんでした',
             '寝るどころではなく、働く。': 'どころではなく',
+            'すぐ、司祭様、報告…×それどころじゃねえんだよ！': 'どころじゃねえ',
+            'あの時はそれどころでなくてきちんとお返事せず失礼しました。': 'どころでなく',
+            'それどころじゃない。': 'どころじゃない',
+            '今それどころじゃてか、帰る気無しかよ。': None,
+            'それどころである。': None,
+            'それどころじゃねこがいる。': None,
             '雨どころか雪だ。': None,
             'どころではない。': None,
             '雨、どころではない。': None,
@@ -56,3 +62,18 @@ class DokorodehanaiTests(unittest.TestCase):
         self.assertIn(RULE, RULES)
         self.assertIn(RULE.expression, GRAMMAR_EXPRESSIONS)
         self.assertEqual(LEGACY_GRAMMAR_EXPRESSIONS[RULE.expression + ' (grammar)'], RULE.expression)
+
+    def test_dictionary_precedence_keeps_negative_construction(self):
+        from pathlib import Path
+        from src.steps.TokenizeStep.index import tokenize_raw_sentences
+
+        try:
+            raw = tokenize_raw_sentences(['それどころじゃねえんだよ！', 'それどころでなくて困った。'],
+                                         tag='source', source_path=Path('test.txt'))
+            stage = GrammarStep(rules=(RULE,), prefer_expressions=True)
+            reserved = ExcludeGrammarTokensStep(stage).process(stage.process(Artifact(raw)))
+        except (ImportError, OSError, RuntimeError) as exc:
+            self.skipTest(f'Sudachi or JMdict unavailable: {exc}')
+        self.assertEqual(stage.occurrences[RULE.id].count, 2)
+        self.assertEqual([[t['surface'] for t in s.tokens if t.get('grammar_reserved')]
+                          for s in reserved.data], [['どころ', 'じゃ', 'ねえ'], ['どころ', 'で', 'なく']])

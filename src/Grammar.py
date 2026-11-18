@@ -148,6 +148,9 @@ class GrammarStep(PipelineStep):
                        or (is_expression and start < a < end < b)
                        or (is_expression and a < start < b < end)
                        for a, b, is_expression in expression_spans
+                       if not (rule.id == 'dokorodehanai'
+                               and sentence.text[a:b] == 'それどころ'
+                               and sentence.text[start:b] == 'どころ')
                        if not (rule.id == 'janai_dewanai'
                                and sentence.text[a:b] == 'ところでは'
                                and sentence.text[start:b] == 'では')):

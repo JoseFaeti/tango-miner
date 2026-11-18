@@ -18,13 +18,14 @@ def match_dokorodehanai(tokens):
             end = i + 1
         elif (particle['surface'] == 'で'
               and ((particle['lemma'] == 'だ' and particle['pos'][:1] == ['助動詞'])
-                   or (particle['lemma'] == 'で' and particle['pos'][:2] == ['助詞', '格助詞']))
-              and next_matches(tokens, i + 1, 'は', '助詞', 'は')):
-            end = i + 2
+                   or (particle['lemma'] == 'で' and particle['pos'][:2] == ['助詞', '格助詞']))):
+            end = i + 2 if next_matches(tokens, i + 1, 'は', '助詞', 'は') else i + 1
         else:
             continue
         if next_matches(tokens, end, 'ない', '形容詞'):
             end = negative_suffix_end(tokens, end + 1, pos='形容詞', continuative=True)
+        elif next_matches(tokens, end, 'ねえ', '形容詞', 'ねえ'):
+            end += 1
         elif (next_matches(tokens, end, 'ある', '動詞', 'あり')
               and next_matches(tokens, end + 1, 'ます', '助動詞')):
             end = polite_suffix_end(tokens, end + 2, forms=('negative',))
