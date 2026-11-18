@@ -21,7 +21,6 @@ ambiguity and recall before implementing a rule.
 
 ## Formal and literary candidates
 
-- [ ] [〜かたがた](points/katagata.md)
 - [ ] [〜がてら](points/gatera.md)
 - [ ] [〜ついでに](points/tsuideni.md)
 - [ ] [〜かたわら](points/katawara.md)
