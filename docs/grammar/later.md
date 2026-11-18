@@ -21,7 +21,6 @@ ambiguity and recall before implementing a rule.
 
 ## Formal and literary candidates
 
-- [ ] [〜次第では](points/shidaideha.md)
 - [ ] [〜が早いか](points/gahayaika.md)
 - [ ] [〜や否や](points/yainaya.md)
 - [ ] [〜なり](points/nari.md)
