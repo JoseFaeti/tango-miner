@@ -33,6 +33,22 @@ class TokenizerIntegrationTests(unittest.TestCase):
         # These tests deliberately exercise the real Sudachi and JMdict data.
         cls.jmdict = get_jmdict()
 
+    def test_ojikeduku_preserves_source_and_components(self):
+        for sentence, surface in (
+            ('なんだよおじけづいたのか？', 'おじけづい'),
+            ('さてはおじけづきでもしたのか？', 'おじけづき'),
+            ('おじけづくとでも思ってるのかしら！', 'おじけづく'),
+        ):
+            with self.subTest(sentence=sentence):
+                merged = combine_tokens_jmdict(tokenize_sentence(sentence), self.jmdict)
+                verb = next(t for t in merged if t['lemma'] == '怖気づく')
+                self.assertEqual(verb['surface'], surface)
+                self.assertEqual([c.surface for c in verb['components']], ['おじけ', surface[3:]])
+                self.assertNotIn('おじける', [t['lemma'] for t in merged])
+        merged = combine_tokens_jmdict(tokenize_sentence('おじけた。'), self.jmdict)
+        self.assertIn('おじける', [t['lemma'] for t in merged])
+        self.assertNotIn('怖気づく', [t['lemma'] for t in merged])
+
     def test_aitsume_boundary_and_verb_controls(self):
         for sentence in ('スタミナ回復ドラッグセットかあいつめ、きっちり商売してやがるぜ。',
                          'あいつめ、許さない。'):
