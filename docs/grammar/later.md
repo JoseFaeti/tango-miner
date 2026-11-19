@@ -21,7 +21,6 @@ ambiguity and recall before implementing a rule.
 
 ## Formal and literary candidates
 
-- [ ] [〜極まりない / 〜極まる](points/kiwamarinai-kiwamaru.md)
 - [ ] [〜の極み](points/nokiwami.md)
 - [ ] [〜の至り](points/noitari.md)
 - [ ] [〜限りだ](points/kagirida.md)
