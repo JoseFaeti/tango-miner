@@ -1,5 +1,7 @@
 # Partially implemented grammar points
 
+- [~] [〜のみならず](points/nominarazu.md)
+
 - [~] [〜と相まって](points/toaimatsute.md)
 
 - [~] [〜とともに](points/totomoni.md)

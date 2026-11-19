@@ -21,7 +21,6 @@ ambiguity and recall before implementing a rule.
 
 ## Formal and literary candidates
 
-- [ ] [〜のみならず](points/nominarazu.md)
 - [ ] [〜ばかりか](points/bakarika.md)
 - [ ] [〜はおろか](points/haoroka.md)
 - [ ] [〜どころではなく](points/dokorodehanaku.md)
