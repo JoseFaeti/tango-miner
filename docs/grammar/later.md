@@ -21,7 +21,6 @@ ambiguity and recall before implementing a rule.
 
 ## Formal and literary candidates
 
-- [ ] [〜てはばからない](points/tehabakaranai.md)
 - [ ] [〜ずにはおかない](points/zunihaokanai.md)
 - [ ] [〜てかなわない](points/tekanawanai.md)
 - [ ] [〜てしかるべきだ](points/teshikarubekida.md)
