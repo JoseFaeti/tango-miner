@@ -1,5 +1,7 @@
 # Partially implemented grammar points
 
+- [~] [〜限りだ](points/kagirida.md)
+
 - [~] [〜の至り](points/noitari.md)
 
 - [~] [〜の極み](points/nokiwami.md)
