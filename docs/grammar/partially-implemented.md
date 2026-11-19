@@ -1,5 +1,7 @@
 # Partially implemented grammar points
 
+- [~] [〜にもほどがある](points/nimohodogaaru.md)
+
 - [~] [〜にもまして](points/nimomashite.md)
 
 - [~] [〜にまして](points/nimashite.md)
