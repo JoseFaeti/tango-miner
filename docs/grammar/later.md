@@ -21,7 +21,6 @@ ambiguity and recall before implementing a rule.
 
 ## Formal and literary candidates
 
-- [ ] [〜まして](points/mashite.md)
 - [ ] [〜にまして](points/nimashite.md)
 - [ ] [〜にもまして](points/nimomashite.md)
 - [ ] [〜にもほどがある](points/nimohodogaaru.md)
