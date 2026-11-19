@@ -12,7 +12,7 @@ Matches adjacent ではなく and colloquial じゃなく after a preceding toke
 including noun, adjectival noun and nominalized verb examples. The preceding
 word remains available as lexical evidence. Focused tests cover Sudachi forms,
 boundaries, reservation, card identity and overlap with 〜だけでなく.
-The more specific 〜だけでなく, 〜ばかりでなく and 〜どころではない
+The more specific 〜だけでなく, 〜ばかりでなく, 〜どころではない and 〜どころではなく
 rules can produce overlapping cards; rule order does not suppress them.
 
 The rule does not establish that a contrasting alternative follows, so other
