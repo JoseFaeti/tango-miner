@@ -3,12 +3,14 @@ BAKARI_EXPRESSION = '〜ばかり'
 from src.grammar_rules.base import GrammarRule
 from src.grammar_rules.helpers import adjacent
 from src.grammar_rules.rules.bakaridenaku.index import match_bakaridenaku
+from src.grammar_rules.rules.bakarika.index import match_bakarika
 from src.grammar_rules.rules.tabakari.index import match_tabakari
 
 
 def match_bakari(tokens):
     recent = set(match_tabakari(tokens))
-    additive_starts = {start for start, _ in match_bakaridenaku(tokens)}
+    additive_starts = {start for match in (match_bakaridenaku, match_bakarika)
+                       for start, _ in match(tokens)}
     for i in range(1, len(tokens)):
         previous, marker = tokens[i - 1:i + 1]
         if (marker['span'][0] in additive_starts

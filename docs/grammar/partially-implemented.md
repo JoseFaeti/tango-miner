@@ -348,6 +348,7 @@
 - [~] [〜はともかく](points/hatomokaku.md)
 - [~] [〜はもちろん](points/hamochiron.md)
 
+- [~] [〜ばかりか](points/bakarika.md)
 - [~] [〜ばかりでなく](points/bakaridenaku.md)
 
 - [~] [〜だけでなく](points/dakedenaku.md)

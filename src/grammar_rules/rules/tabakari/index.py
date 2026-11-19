@@ -3,10 +3,12 @@ TABAKARI_EXPRESSION = '〜たばかり'
 from src.grammar_rules.base import GrammarRule
 from src.grammar_rules.helpers import adjacent
 from src.grammar_rules.rules.bakaridenaku.index import match_bakaridenaku
+from src.grammar_rules.rules.bakarika.index import match_bakarika
 
 
 def match_tabakari(tokens):
-    additive_starts = {start for start, _ in match_bakaridenaku(tokens)}
+    additive_starts = {start for match in (match_bakaridenaku, match_bakarika)
+                       for start, _ in match(tokens)}
     for i in range(2, len(tokens)):
         verb, past, marker = tokens[i - 2:i + 1]
         if marker['span'][0] in additive_starts:
