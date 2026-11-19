@@ -21,7 +21,6 @@ ambiguity and recall before implementing a rule.
 
 ## Formal and literary candidates
 
-- [ ] [〜とともに](points/totomoni.md)
 - [ ] [〜と相まって](points/toaimatsute.md)
 - [ ] [〜に加え](points/nikuwae.md)
 - [ ] [〜のみならず](points/nominarazu.md)
