@@ -15,5 +15,5 @@ these forms, boundaries, unrelated uses, reservation and registered identity.
 The kana form also produces the existing 〜まして candidate. The rule cannot
 always distinguish a comparison from a literal increase or an unrelated adverb;
 other spellings, attachments and tokenizations remain unverified. The separate
-〜にもまして construction is not covered. Dictionary expression precedence
+[〜にもまして construction](nimomashite.md) has its own rule. Dictionary expression precedence
 may suppress a match when enabled.
