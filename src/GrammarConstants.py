@@ -148,6 +148,7 @@ from src.grammar_rules.rules.te_goran.index import TE_GORAN_EXPRESSION
 from src.grammar_rules.rules.te_hoshii.index import TE_HOSHII_GRAMMAR_EXPRESSION
 from src.grammar_rules.rules.te_iku.index import TE_IKU_GRAMMAR_EXPRESSION
 from src.grammar_rules.rules.te_iru.index import TE_IRU_GRAMMAR_EXPRESSION
+from src.grammar_rules.rules.teyamanai.index import TEYAMANAI_GRAMMAR_EXPRESSION
 from src.grammar_rules.rules.te_itadakemasenka.index import TE_ITADAKEMASENKA_EXPRESSION
 from src.grammar_rules.rules.te_kara.index import TE_KARA_EXPRESSION
 from src.grammar_rules.rules.te_kudasai.index import TE_KUDASAI_GRAMMAR_EXPRESSION
