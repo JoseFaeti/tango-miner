@@ -1,5 +1,7 @@
 # Partially implemented grammar points
 
+- [~] [〜ないことには始まらない](points/naikotonihahajimaranai.md)
+
 - [~] [〜ないこともない](points/naikotomonai.md)
 
 - [~] [〜ずもがな](points/zumogana.md)
