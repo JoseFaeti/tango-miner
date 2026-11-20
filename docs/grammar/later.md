@@ -21,7 +21,6 @@ ambiguity and recall before implementing a rule.
 
 ## Formal and literary candidates
 
-- [ ] [〜ずじまい](points/zujimai.md)
 - [ ] [〜ずとも](points/zutomo.md)
 - [ ] [〜ずにはすまない](points/zunihasumanai.md)
 - [ ] [〜ずして](points/zushite.md)
