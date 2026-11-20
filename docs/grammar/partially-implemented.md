@@ -1,5 +1,7 @@
 # Partially implemented grammar points
 
+- [~] [〜にせよ / 〜にしろ](points/niseyo-nishiro.md)
+
 - [~] [〜につけても](points/nitsuketemo.md)
 
 - [~] [〜につけ](points/nitsuke.md)

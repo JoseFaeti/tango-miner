@@ -21,7 +21,6 @@ ambiguity and recall before implementing a rule.
 
 ## Formal and literary candidates
 
-- [ ] [〜にせよ / 〜にしろ](points/niseyo-nishiro.md)
 - [ ] [〜にせよ〜にせよ](points/niseyoniseyo.md)
 - [ ] [〜であれ〜であれ](points/dearedeare.md)
 - [ ] [〜であろうと〜であろうと](points/dearoutodearouto.md)
