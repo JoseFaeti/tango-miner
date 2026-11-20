@@ -1,14 +1,17 @@
 """Literary and colloquial verbal negative auxiliaries ぬ and ん."""
 from src.grammar_rules.base import GrammarRule
 from src.grammar_rules.helpers import adjacent
+from src.grammar_rules.rules.nbakarini.index import match_nbakarini
 
 NU_N_EXPRESSION = '〜ぬ / 〜ん'
 
 
 def match_nu_n(tokens):
+    volitional_starts = {start for start, _ in match_nbakarini(tokens)}
     for i in range(1, len(tokens)):
         previous, negative = tokens[i - 1:i + 1]
-        if (negative['surface'] not in ('ぬ', 'ん') or negative['lemma'] != 'ぬ'
+        if (negative['span'][0] in volitional_starts
+                or negative['surface'] not in ('ぬ', 'ん') or negative['lemma'] != 'ぬ'
                 or negative['pos'][:1] != ['助動詞'] or not adjacent(previous, negative)
                 or len(previous['pos']) < 6):
             continue
