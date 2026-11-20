@@ -1,5 +1,7 @@
 # Partially implemented grammar points
 
+- [~] [〜ようにも〜ない](points/younimonai.md)
+
 - [~] [〜ようが / 〜ようと](points/youga-youto.md)
 
 - [~] [〜ようと〜まいと](points/youtomaito.md)
