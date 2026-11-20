@@ -1,5 +1,7 @@
 # Partially implemented grammar points
 
+- [~] [〜といわず〜といわず](points/toiwazutoiwazu.md)
+
 - [~] [〜ともあれ](points/tomoare.md)
 
 - [~] [〜ともあろう者が](points/tomoaroumonoga.md)
