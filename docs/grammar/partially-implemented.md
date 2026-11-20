@@ -795,6 +795,8 @@ indicate measured frequency.
 - [~] [〜ようになる](points/youninaru.md)
 - [~] [〜つもりだ](points/tsumorida.md)
 - [~] [〜たばかり](points/tabakari.md)
+- [~] [〜ところを](points/tokoroo.md)
+
 - [~] [〜たところ](points/tatokoro.md)
 - [~] [ばかり](points/bakari.md)
 - [~] [〜うちに](points/uchini.md)
