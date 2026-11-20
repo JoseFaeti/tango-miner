@@ -6,6 +6,8 @@
 
 - [~] [〜ずにはすまない](points/zunihasumanai.md)
 
+- [~] [〜ないではすまない](points/naidehasumanai.md)
+
 - [~] [〜ずとも](points/zutomo.md)
 
 - [~] [〜ずともよい](points/zutomoyoi.md)
