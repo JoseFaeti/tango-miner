@@ -156,6 +156,7 @@
 - [~] [〜に及ばない](points/nioyobanai.md)
 
 - [~] [〜に越したことはない](points/nikoshitakotohanai.md)
+- [~] [〜ないに越したことはない](points/nainikoshitakotohanai.md)
 
 - [~] [〜に忍びない](points/nishinobinai.md)
 

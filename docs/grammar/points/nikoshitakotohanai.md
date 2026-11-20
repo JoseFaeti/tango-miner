@@ -17,4 +17,4 @@ are covered by focused tests.
 The identical sequence can also describe literally crossing or moving to a
 place, especially after a noun; the matcher cannot distinguish those readings.
 Other spellings and tokenizations are not yet verified. The negative-predicate
-variant is recognized by this card rather than a separate card.
+variant also has a separate card.
