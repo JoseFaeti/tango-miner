@@ -1,6 +1,7 @@
 # Partially implemented grammar points
 
 - [~] [〜べからず](points/bekarazu.md)
+- [~] [〜べからざる](points/bekarazaru.md)
 
 - [~] [〜べくして](points/bekushite.md)
 

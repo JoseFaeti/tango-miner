@@ -10,7 +10,8 @@ Must not; literary.
 
 Recognizes verbal `べからず` and attributive `べからざる`, including
 `する` and literary `す`, with adjacent Sudachi tokens. The grammar span
-excludes the verb, preserving it as lexical evidence. Tests cover analyzer
+excludes the verb, preserving it as lexical evidence. The separate
+[〜べからざる](bekarazaru.md) card also matches the attributive form. Tests cover analyzer
 forms, boundaries, lexical controls, reservation and card creation. Other
 inflections and tokenizations remain unverified; corpus precision and recall
 have not been assessed.
