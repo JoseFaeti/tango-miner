@@ -33,6 +33,27 @@ class TokenizerIntegrationTests(unittest.TestCase):
         # These tests deliberately exercise the real Sudachi and JMdict data.
         cls.jmdict = get_jmdict()
 
+    def test_misokonau_inflections_and_controls(self):
+        for sentence, surface in (
+            ('予選落ちなんて見損なったわ！', '見損なっ'),
+            ('ふん腑抜けおって、∠見損なったぞ、レツオウ', '見損なっ'),
+            ('彼を見損なう。', '見損なう'),
+            ('彼を見損なわない。', '見損なわ'),
+        ):
+            with self.subTest(sentence=sentence):
+                merged = combine_tokens_jmdict(tokenize_sentence(sentence), self.jmdict)
+                verb = next(t for t in merged if t['lemma'] == '見損なう')
+                self.assertEqual(verb['surface'], surface)
+                self.assertEqual([c.surface for c in verb['components']], ['見', surface[1:]])
+        for sentence, lemma in (('信用を損なった。', '損なう'), ('映画を見損ねた。', '損ねる')):
+            merged = combine_tokens_jmdict(tokenize_sentence(sentence), self.jmdict)
+            self.assertIn(lemma, [t['lemma'] for t in merged])
+            self.assertNotIn('見損なう', [t['lemma'] for t in merged])
+        tokens = tokenize_sentence('彼を見損なった。')
+        next(t for t in tokens if t['lemma'] == '損なう')['grammar_reserved'] = True
+        merged = combine_tokens_jmdict(tokens, self.jmdict)
+        self.assertNotIn('見損なう', [t['lemma'] for t in merged])
+
     def test_naribikae_menu_and_potential(self):
         cases = (
             ('体力のない者は『ならびかえ』で後列に下げること！', ['ならび', 'か', 'え']),

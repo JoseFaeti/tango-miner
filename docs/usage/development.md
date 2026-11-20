@@ -36,6 +36,7 @@ Before punctuation, あいつめ is repaired to あいつ and the suffix め whe
 analyzer splits it as あい and the verb stem つめ; original components are retained.
 Dictionary expression merging recognizes なんでもありません and 何でもありません
 as なんでもない, retaining the source components.
+Inflected 見損なう is recovered from split analyzer tokens, retaining their source components.
 Dictionary expression merging recognizes inflected 目をつぶる while retaining
 the source components. It also recognizes inflected ピンと来る, including
 the dialectal negative ピンとこん, while retaining the source components.

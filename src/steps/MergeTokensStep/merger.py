@@ -69,6 +69,22 @@ def _merge_ojikeduku(parts, jmdict):
             'components': tuple(c for token in parts for c in token_components(token))}
 
 
+def _merge_misokonau(parts, jmdict):
+    first, suffix = parts
+    if not (first['surface'] == '見' and first['lemma'] == '見る'
+            and first['pos'][0] == '動詞' and first['pos'][5].startswith('連用形')
+            and suffix['lemma'] == '損なう' and suffix['pos'][0] == '動詞'):
+        return None
+    word = '見損なう'
+    entry = kaneru_verb_entry(word, jmdict)
+    if entry is None:
+        return None
+    return {'surface': first['surface'] + suffix['surface'], 'lemma': word,
+            'base_form': word, 'reading': jmdict.get_reading(entry, word),
+            'pos': suffix['pos'], 'analysis_rule': 'jmdict_misokonau',
+            'components': tuple(c for token in parts for c in token_components(token))}
+
+
 def _merge_candidate(token_list, i, j, combined_text, offsets, jmdict, rejected):
     """Return a dictionary merge for a candidate span, if eligible."""
     n = len(token_list)
@@ -496,6 +512,7 @@ def combine_tokens_jmdict(
         if i + 2 <= min(n, next_merge_boundary[i]):
             candidate = (_merge_kiku_expression(token_list[i:i + 2], jmdict)
                          or _merge_kaneru_verb(token_list[i:i + 2], jmdict)
+                         or _merge_misokonau(token_list[i:i + 2], jmdict)
                          or _merge_ojikeduku(token_list[i:i + 2], jmdict))
             if candidate is not None:
                 merged_tokens.append(candidate)
