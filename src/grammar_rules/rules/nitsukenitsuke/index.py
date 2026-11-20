@@ -22,8 +22,10 @@ def match_nitsukenitsuke(tokens):
             end += 1
         else:
             continue
-        if end + 1 < len(tokens) and tokens[end + 1]['pos'][:1] == ['助動詞'] and adjacent(tokens[end], tokens[end + 1]):
-            continue
+        if end + 1 < len(tokens) and adjacent(tokens[end], tokens[end + 1]):
+            following = tokens[end + 1]
+            if following['pos'][:1] == ['助動詞'] or following['surface'] in ('て', 'ても', 'ては'):
+                continue
         markers.append((i, end))
     for (first, end), (second, _) in zip(markers, markers[1:]):
         between = tokens[end + 1:second]
