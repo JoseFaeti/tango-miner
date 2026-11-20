@@ -21,7 +21,6 @@ ambiguity and recall before implementing a rule.
 
 ## Formal and literary candidates
 
-- [ ] [〜ずともよい](points/zutomoyoi.md)
 - [ ] [〜ずもがな](points/zumogana.md)
 - [ ] [〜ないまでも](points/naimademo.md)
 - [ ] [〜ないものでもない](points/naimonodemonai.md)

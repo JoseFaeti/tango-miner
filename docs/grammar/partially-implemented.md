@@ -6,6 +6,8 @@
 
 - [~] [〜ずとも](points/zutomo.md)
 
+- [~] [〜ずともよい](points/zutomoyoi.md)
+
 - [~] [〜ずじまい](points/zujimai.md)
 
 - [~] [〜ずくめ](points/zukume.md)
