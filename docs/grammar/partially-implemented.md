@@ -1,5 +1,7 @@
 # Partially implemented grammar points
 
+- [~] [〜んとする](points/ntosuru.md)
+
 - [~] [〜んがために](points/ngatameni.md)
 
 - [~] [〜んばかりに](points/nbakarini.md)

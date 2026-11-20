@@ -3,12 +3,13 @@ from src.grammar_rules.base import GrammarRule
 from src.grammar_rules.helpers import adjacent
 from src.grammar_rules.rules.nbakarini.index import match_nbakarini
 from src.grammar_rules.rules.ngatameni.index import match_ngatameni
+from src.grammar_rules.rules.ntosuru.index import match_ntosuru
 
 NU_N_EXPRESSION = '〜ぬ / 〜ん'
 
 
 def match_nu_n(tokens):
-    volitional_starts = {start for match in (match_nbakarini, match_ngatameni)
+    volitional_starts = {start for match in (match_nbakarini, match_ngatameni, match_ntosuru)
                          for start, _ in match(tokens)}
     for i in range(1, len(tokens)):
         previous, negative = tokens[i - 1:i + 1]
