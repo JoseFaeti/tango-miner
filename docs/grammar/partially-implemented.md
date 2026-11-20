@@ -1,5 +1,7 @@
 # Partially implemented grammar points
 
+- [~] [〜やら〜やら](points/yarayara.md)
+
 - [~] [〜なり〜なり](points/narinari.md)
 
 - [~] [〜だの〜だの](points/danodano.md)
