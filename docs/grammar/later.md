@@ -21,7 +21,6 @@ ambiguity and recall before implementing a rule.
 
 ## Formal and literary candidates
 
-- [ ] [〜ようと〜まいと](points/youtomaito.md)
 - [ ] [〜ようが / 〜ようと](points/youga-youto.md)
 - [ ] [〜ようにも〜ない](points/younimonai.md)
 - [ ] [〜ところを](points/tokoroo.md)

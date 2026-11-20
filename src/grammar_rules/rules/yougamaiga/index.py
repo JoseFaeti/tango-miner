@@ -4,7 +4,7 @@ from src.grammar_rules.helpers import adjacent
 from src.grammar_rules.rules.mai.index import match_mai
 
 
-def match_yougamaiga(tokens):
+def match_paired_alternatives(tokens, particle):
     mai_spans = list(match_mai(tokens))
     for i, first in enumerate(tokens):
         if first['surface'] == 'しよう' and first['pos'][:1] in (['名詞'], ['動詞']):
@@ -28,7 +28,7 @@ def match_yougamaiga(tokens):
         if end + 3 >= len(tokens):
             continue
         ga, verb = tokens[end + 1:end + 3]
-        if (ga['surface'] != 'が' or ga['pos'][:1] != ['助詞']
+        if (ga['surface'] != particle or ga['pos'][:1] != ['助詞']
                 or not adjacent(tokens[end], ga) or not adjacent(ga, verb)):
             continue
         if lemma == 'する' and verb['surface'] == 'しまい' and verb['pos'][:1] == ['名詞']:
@@ -41,9 +41,13 @@ def match_yougamaiga(tokens):
         if negative_end + 1 >= len(tokens):
             continue
         final = tokens[negative_end + 1]
-        if (final['surface'] == 'が' and final['pos'][:1] == ['助詞']
+        if (final['surface'] == particle and final['pos'][:1] == ['助詞']
                 and adjacent(tokens[negative_end], final)):
             yield first['span'][0], final['span'][1]
+
+
+def match_yougamaiga(tokens):
+    yield from match_paired_alternatives(tokens, 'が')
 
 
 RULE = GrammarRule(id='yougamaiga', expression='〜ようが〜まいが',
