@@ -21,7 +21,6 @@ ambiguity and recall before implementing a rule.
 
 ## Formal and literary candidates
 
-- [ ] [〜べきか](points/bekika.md)
 - [ ] [〜んばかりに](points/nbakarini.md)
 - [ ] [〜んがために](points/ngatameni.md)
 - [ ] [〜んとする](points/ntosuru.md)
