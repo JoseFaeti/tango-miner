@@ -21,7 +21,6 @@ ambiguity and recall before implementing a rule.
 
 ## Formal and literary candidates
 
-- [ ] [〜ぬきで / 〜ぬきにして](points/nukide-nukinishite.md)
 - [ ] [〜といえども](points/toiedomo.md)
 - [ ] [〜といえど](points/toiedo.md)
 - [ ] [〜とはいっても](points/tohaitsutemo.md)

@@ -1,5 +1,7 @@
 # Partially implemented grammar points
 
+- [~] [〜ぬきで / 〜ぬきにして](points/nukide-nukinishite.md)
+
 - [~] [〜なしに / 〜なしでは](points/nashini-nashideha.md)
 
 - [~] [〜なくしては](points/nakushiteha.md)
