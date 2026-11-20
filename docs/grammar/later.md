@@ -21,7 +21,6 @@ ambiguity and recall before implementing a rule.
 
 ## Formal and literary candidates
 
-- [ ] [〜につけ〜につけ](points/nitsukenitsuke.md)
 - [ ] [〜につけ](points/nitsuke.md)
 - [ ] [〜につけても](points/nitsuketemo.md)
 - [ ] [〜にせよ / 〜にしろ](points/niseyo-nishiro.md)

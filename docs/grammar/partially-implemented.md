@@ -1,5 +1,7 @@
 # Partially implemented grammar points
 
+- [~] [〜につけ〜につけ](points/nitsukenitsuke.md)
+
 - [~] [〜やら〜やら](points/yarayara.md)
 
 - [~] [〜なり〜なり](points/narinari.md)
