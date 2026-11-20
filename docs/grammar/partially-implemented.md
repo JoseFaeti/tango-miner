@@ -1,5 +1,7 @@
 # Partially implemented grammar points
 
+- [~] [〜ともあれ](points/tomoare.md)
+
 - [~] [〜ともあろう者が](points/tomoaroumonoga.md)
 
 - [~] [〜ともなると](points/tomonaruto.md)
