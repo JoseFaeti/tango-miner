@@ -26,6 +26,8 @@ Source-boundary repairs also distinguish the colloquial ズラかろう and sele
 occurrences retain the analyzer's adjective analysis for review.
 Kana しょうめい before する or できる is recovered as an ambiguous compound,
 and めい界 as 冥界, retaining analyzer components.
+The menu label ならびかえ before で and the potential form ならびかえられる
+are recovered as 並び替える, retaining the original analyzer components.
 Selected source contexts also recover kana きせき as 奇跡 and いせき as 遺跡
 when the analyzer splits off せき; ambiguous contexts retain the original analysis.
 In いまいちど力をつける, boundary repair recovers いまいちど and 力 from

@@ -33,6 +33,26 @@ class TokenizerIntegrationTests(unittest.TestCase):
         # These tests deliberately exercise the real Sudachi and JMdict data.
         cls.jmdict = get_jmdict()
 
+    def test_naribikae_menu_and_potential(self):
+        cases = (
+            ('体力のない者は『ならびかえ』で後列に下げること！', ['ならび', 'か', 'え']),
+            ('もしほかに挑みたい者がいればならびかえでその者を先頭にするが良い。', ['ならび', 'か', 'え']),
+            ('今はならびかえられる仲間がいない。', ['ならび', 'かえ']),
+        )
+        for sentence, components in cases:
+            with self.subTest(sentence=sentence):
+                merged = combine_tokens_jmdict(tokenize_sentence(sentence), self.jmdict)
+                item = next(t for t in merged if t['lemma'] == '並び替える')
+                self.assertEqual(item['surface'], 'ならびかえ')
+                self.assertEqual([c.surface for c in item['components']], components)
+        for sentence in ('店のならびか、ええと、どちらですか。', 'ならびが変わる。'):
+            merged = combine_tokens_jmdict(tokenize_sentence(sentence), self.jmdict)
+            self.assertNotIn('並び替える', [t['lemma'] for t in merged])
+        tokens = tokenize_sentence(cases[0][0])
+        next(t for t in tokens if t['surface'] == 'か')['grammar_reserved'] = True
+        merged = combine_tokens_jmdict(tokens, self.jmdict)
+        self.assertNotIn('並び替える', [t['lemma'] for t in merged])
+
     def test_ojikeduku_preserves_source_and_components(self):
         for sentence, surface in (
             ('なんだよおじけづいたのか？', 'おじけづい'),

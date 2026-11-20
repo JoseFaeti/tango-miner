@@ -5,6 +5,40 @@ from src.TokenProvenance import token_components
 from .helpers import is_dictionary_expression
 
 
+def _repair_naribikae(tokens):
+    """Recover the rearrange menu label and its potential verb form."""
+    result = []
+    i = 0
+    while i < len(tokens):
+        parts = tokens[i:i + 3]
+        count = 0
+        if (len(parts) == 3 and [t['surface'] for t in parts] == ['ならび', 'か', 'え']
+                and parts[0]['lemma'] == 'ならび' and parts[0]['pos'][0] == '名詞'):
+            following = tokens[i + 3:i + 5]
+            if following and (following[0]['surface'] == 'で' or
+                              (len(following) == 2 and following[0]['surface'] == '』'
+                               and following[1]['surface'] == 'で')):
+                count = 3
+        elif (len(parts) == 3 and parts[0]['surface'] == parts[0]['lemma'] == 'ならび'
+              and parts[0]['pos'][0] == '名詞' and parts[1]['surface'] == 'かえ'
+              and parts[1]['lemma'] == 'かえる' and parts[1]['pos'][0] == '動詞'
+              and parts[2]['lemma'] == 'られる' and parts[2]['pos'][0] == '助動詞'):
+            count = 2
+        if count:
+            selected = parts[:count]
+            result.append({'surface': ''.join(t['surface'] for t in selected),
+                           'lemma': '並び替える', 'base_form': '並び替える',
+                           'reading': 'ならびかえる',
+                           'pos': ('動詞', '一般', '*', '*', '下一段-ア行', '連用形-一般'),
+                           'components': tuple(c for t in selected for c in token_components(t)),
+                           'analysis_rule': 'naribikae_boundary'})
+            i += count
+        else:
+            result.append(tokens[i])
+            i += 1
+    return result
+
+
 def _repair_imaichido_boundary(tokens):
     """Recover いまいちど and 力 from the analyzer's ど力 token."""
     result = []
@@ -582,6 +616,7 @@ def prepare_tokens(token_list, jmdict):
     def repair_run(run):
         present = {token['surface'] for token in run}
         for triggers, repair in (
+            (('ならび',), _repair_naribikae),
             (('ど力',), _repair_imaichido_boundary),
             (('めい',), _repair_mei_boundaries),
             (('せき',), _repair_seki_nouns),
