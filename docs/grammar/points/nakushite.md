@@ -20,4 +20,4 @@ reservation and card identity.
 ## Limitations
 
 Other tokenizations and contextual meanings are unverified. The structural
-match also occurs within 〜なくしては; that separate point is unimplemented.
+match also occurs within 〜なくしては; both cards are collected there.
