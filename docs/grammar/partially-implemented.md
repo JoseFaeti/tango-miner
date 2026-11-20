@@ -1,5 +1,7 @@
 # Partially implemented grammar points
 
+- [~] [〜ずにはすまない](points/zunihasumanai.md)
+
 - [~] [〜ずとも](points/zutomo.md)
 
 - [~] [〜ずじまい](points/zujimai.md)

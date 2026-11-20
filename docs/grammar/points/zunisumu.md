@@ -15,5 +15,5 @@ shorter 〜ずに card is also recorded. Tests cover Sudachi forms, lexical
 controls, reservation and overlapping card examples.
 
 Other tokenizations and corpus precision and recall remain unverified. The
-related 〜ずにはすまない construction is a separate point. Kana すむ may
+related [〜ずにはすまない](zunihasumanai.md) construction is a separate point. Kana すむ may
 be ambiguous with 住む when the analyzer selects the 済む lemma.
