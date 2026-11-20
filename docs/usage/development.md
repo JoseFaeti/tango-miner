@@ -55,6 +55,8 @@ Kana そなえる following a direct flower object is assigned to 供える,
 while its original analyzer token remains available as source evidence.
 Dictionary-backed adjectival nouns such as いわくありげ can also be recovered
 when the analyzer splits the noun from あり and げ.
+The kana adjectival noun むこうみず is recovered from two noun tokens before な,
+with both analyzer tokens retained as evidence.
 For example, past-tense occurrences of できる can be assigned to that verb,
 while the separate できた candidate can retain a supported prenominal or
 interjection meaning. Ambiguous occurrences can still inflate its frequency.

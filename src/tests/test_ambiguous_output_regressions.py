@@ -30,6 +30,27 @@ class AmbiguousOutputRegressionTests(unittest.TestCase):
     def setUpClass(cls):
         cls.jmdict = get_jmdict()
 
+    def test_mukoumizu_adjectival_noun_and_water_control(self):
+        words, _ = tokenize(['むこうみずなだけでは勇気があるとはいえぬ。'])
+        self.assertIn('むこうみず', words)
+        self.assertNotIn('みず', words)
+        stats = words['むこうみず']
+        self.assertEqual([c.surface for c in next(iter(stats.component_counts))], ['むこう', 'みず'])
+        self.assertIn('reckless', self.jmdict.get_most_common_definition(
+            'むこうみず', component_counts=stats.component_counts))
+
+        raw = raw_tokens('むこうみずなだけでは勇気があるとはいえぬ。')
+        raw[1]['grammar_reserved'] = True
+        self.assertNotIn('むこうみず', [t['lemma'] for t in combine_tokens_jmdict(raw, self.jmdict)])
+        raw = raw_tokens('むこうみずなだけでは勇気があるとはいえぬ。')
+        self.assertNotIn('むこうみず', [t['lemma'] for t in combine_tokens_jmdict(raw[:2], self.jmdict)])
+
+        for text in ('むこうの水を飲む。', '水が冷たい。'):
+            with self.subTest(text=text):
+                words, _ = tokenize([text])
+                self.assertNotIn('むこうみず', words)
+                self.assertIn('水', words)
+
     def test_makezugirai_recovers_dictionary_word_from_source(self):
         for text in ('『まけずぎらい』すばやさとたいりょくが少し上がりやすい。',
                      '読むと性格がまけずぎらいになる本使ったらなくなる'):

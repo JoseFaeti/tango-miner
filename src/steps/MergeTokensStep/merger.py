@@ -119,6 +119,11 @@ def _merge_candidate(token_list, i, j, combined_text, offsets, jmdict, rejected)
         and not _is_prefixed_kana_noun(token_list[i:j], definitions)
         and not _is_split_kana_noun(token_list[i:j], definitions)
         and not _is_noun_arige(token_list[i:j], definitions)
+        and not (token_string == 'むこうみず'
+                 and [t['surface'] for t in token_list[i:j]] == ['むこう', 'みず']
+                 and all(tuple(t['pos'][:2]) == ('名詞', '普通名詞') for t in token_list[i:j])
+                 and j < n and token_list[j]['surface'] == 'な'
+                 and token_list[j]['lemma'] == 'だ' and token_list[j]['pos'][0] == '助動詞')
         and not (token_string == 'まけずぎらい'
                 and [t['surface'] for t in token_list[i:j]] == ['まけ', 'ず', 'ぎらい'])
     ):
