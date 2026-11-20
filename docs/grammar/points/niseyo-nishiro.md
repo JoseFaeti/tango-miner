@@ -14,5 +14,4 @@ remains available as lexical evidence. Focused tests cover Sudachi tokenization,
 boundaries, reservation and card identity.
 
 Literal commands such as 彼にしろ have the same tokens and may also match.
-Other tokenizations are unverified. The separate paired construction is not
-identified as its own card.
+Other tokenizations are unverified. The separate paired construction also has its own card.
