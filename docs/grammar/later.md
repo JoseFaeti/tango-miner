@@ -21,7 +21,6 @@ ambiguity and recall before implementing a rule.
 
 ## Formal and literary candidates
 
-- [ ] [〜んがために](points/ngatameni.md)
 - [ ] [〜んとする](points/ntosuru.md)
 - [ ] [〜んとばかりに](points/ntobakarini.md)
 - [ ] [〜ずくめ](points/zukume.md)

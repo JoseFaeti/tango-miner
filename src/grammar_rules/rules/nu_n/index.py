@@ -2,12 +2,14 @@
 from src.grammar_rules.base import GrammarRule
 from src.grammar_rules.helpers import adjacent
 from src.grammar_rules.rules.nbakarini.index import match_nbakarini
+from src.grammar_rules.rules.ngatameni.index import match_ngatameni
 
 NU_N_EXPRESSION = '〜ぬ / 〜ん'
 
 
 def match_nu_n(tokens):
-    volitional_starts = {start for start, _ in match_nbakarini(tokens)}
+    volitional_starts = {start for match in (match_nbakarini, match_ngatameni)
+                         for start, _ in match(tokens)}
     for i in range(1, len(tokens)):
         previous, negative = tokens[i - 1:i + 1]
         if (negative['span'][0] in volitional_starts
