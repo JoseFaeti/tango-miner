@@ -6,6 +6,8 @@
 
 - [~] [〜んばかりに](points/nbakarini.md)
 
+- [~] [〜んとばかりに](points/ntobakarini.md)
+
 - [~] [〜べきか](points/bekika.md)
 
 - [~] [〜べからず](points/bekarazu.md)

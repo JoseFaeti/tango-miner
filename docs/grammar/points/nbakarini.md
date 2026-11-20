@@ -18,4 +18,4 @@ whole-token reservation mechanism.
 
 Sudachi may classify せん as a noun, which this rule does not match. Unusual
 tokenizations and corpus precision and recall remain unassessed. Context can
-affect interpretation; んとばかりに is a separate construction.
+affect interpretation; んとばかりに is a separately matched construction.
