@@ -233,6 +233,7 @@
 - [~] [〜たるもの](points/tarumono.md)
 
 - [~] [〜であれ / 〜であろうと](points/deare-dearouto.md)
+- [~] [〜であろうと〜であろうと](points/dearoutodearouto.md)
 - [~] [〜であれ〜であれ](points/dearedeare.md)
 
 - [~] [〜であって](points/deatsute.md)
