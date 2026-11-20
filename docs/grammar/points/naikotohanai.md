@@ -16,5 +16,5 @@ verbal negative rule can also report an overlapping match.
 
 Focused Sudachi tests cover these forms, nearby constructions, token boundaries,
 reservation and registry identity. A literal topic about something absent can
-be indistinguishable from the grammar reading. Other variants, including
-`ないこともない` and contractions, remain unverified and are not matched.
+be indistinguishable from the grammar reading. `ないこともない` has a separate
+rule; contractions remain unverified and are not matched by this rule.
