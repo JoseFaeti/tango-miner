@@ -280,6 +280,7 @@
 
 - [~] [〜ないではおかない](points/naidehaokanai.md)
 
+- [~] [〜ないものでもない](points/naimonodemonai.md)
 - [~] [〜ないでもない](points/naidemonai.md)
 
 - [~] [〜ないことはない](points/naikotohanai.md)
