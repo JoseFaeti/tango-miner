@@ -21,7 +21,6 @@ ambiguity and recall before implementing a rule.
 
 ## Formal and literary candidates
 
-- [ ] [〜とはいっても](points/tohaitsutemo.md)
 - [ ] [〜とはいうものの](points/tohaiumonono.md)
 - [ ] [〜とはいえない](points/tohaienai.md)
 - [ ] [〜とは限らない](points/tohakagiranai.md)
