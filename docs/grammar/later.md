@@ -21,7 +21,6 @@ ambiguity and recall before implementing a rule.
 
 ## Formal and literary candidates
 
-- [ ] [〜とは限らない](points/tohakagiranai.md)
 - [ ] [〜ないとも限らない](points/naitomokagiranai.md)
 - [ ] [〜とも限らない](points/tomokagiranai.md)
 - [ ] [〜ともなると](points/tomonaruto.md)
