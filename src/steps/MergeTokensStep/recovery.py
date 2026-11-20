@@ -94,6 +94,38 @@ def _repair_mei_boundaries(tokens):
     return result
 
 
+def _repair_kazaru_nouns(tokens):
+    """Recover nouns mistaken for forms of かざる in supported contexts."""
+    result = []
+    i = 0
+    while i < len(tokens):
+        token = tokens[i]
+        following = tokens[i + 1:i + 5]
+        surfaces = [part['surface'] for part in following]
+        if (token['surface'] == 'かざん' and token['lemma'] == 'かざる'
+                and token['pos'][0] == '動詞'
+                and (surfaces[:2] == ['の', 'しま']
+                     or surfaces[:3] == ['が', 'おおきく', 'どっかん'])):
+            parts, lemma, reading = [token], '火山', 'かざん'
+        elif (token['surface'] == 'かざり' and token['lemma'] == 'かざる'
+              and token['pos'][0] == '動詞' and len(following) >= 3
+              and surfaces[:2] == ['もの', 'を']
+              and following[0]['pos'][0] == '名詞' and following[1]['pos'][0] == '助詞'
+              and following[2]['lemma'] in {'さがす', '探す'}):
+            parts, lemma, reading = [token, following[0]], '飾り物', 'かざりもの'
+        else:
+            result.append(token)
+            i += 1
+            continue
+        result.append({'surface': ''.join(part['surface'] for part in parts),
+                       'lemma': lemma, 'base_form': lemma, 'reading': reading,
+                       'pos': ('名詞', '普通名詞', '一般', '*', '*', '*'),
+                       'components': tuple(c for part in parts for c in token_components(part)),
+                       'analysis_rule': 'kazaru_noun_boundary'})
+        i += len(parts)
+    return result
+
+
 def _repair_seki_nouns(tokens):
     """Recover split kana nouns where surrounding words support the meaning."""
     result = []
@@ -619,6 +651,7 @@ def prepare_tokens(token_list, jmdict):
             (('ならび',), _repair_naribikae),
             (('ど力',), _repair_imaichido_boundary),
             (('めい',), _repair_mei_boundaries),
+            (('かざん', 'かざり'), _repair_kazaru_nouns),
             (('せき',), _repair_seki_nouns),
             (('ことがある',), _repair_komatta_koto_boundary),
             (('はち',), _repair_chigee_boundary),

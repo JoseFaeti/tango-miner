@@ -33,6 +33,27 @@ class TokenizerIntegrationTests(unittest.TestCase):
         # These tests deliberately exercise the real Sudachi and JMdict data.
         cls.jmdict = get_jmdict()
 
+    def test_kazaru_noun_boundaries_and_verb_controls(self):
+        cases = (
+            ('かざんがおおきくどっかんするまえにみつけるでち！', '火山', ['かざん']),
+            ('かざんのしまドリューンへゆきなさい。', '火山', ['かざん']),
+            ('ではオマエらでかざりものをさがせ！', '飾り物', ['かざり', 'もの']),
+        )
+        for sentence, lemma, components in cases:
+            with self.subTest(sentence=sentence):
+                merged = combine_tokens_jmdict(tokenize_sentence(sentence), self.jmdict)
+                noun = next(t for t in merged if t['lemma'] == lemma)
+                self.assertEqual([c.surface for c in noun['components']], components)
+                self.assertNotIn('かざる', [t['lemma'] for t in merged])
+        for sentence in ('花をかざる。', '部屋をかざり、ものを探す。'):
+            merged = combine_tokens_jmdict(tokenize_sentence(sentence), self.jmdict)
+            self.assertIn('かざる', [t['lemma'] for t in merged])
+            self.assertNotIn('飾り物', [t['lemma'] for t in merged])
+        tokens = tokenize_sentence(cases[2][0])
+        next(t for t in tokens if t['surface'] == 'もの')['grammar_reserved'] = True
+        merged = combine_tokens_jmdict(tokens, self.jmdict)
+        self.assertNotIn('飾り物', [t['lemma'] for t in merged])
+
     def test_misokonau_inflections_and_controls(self):
         for sentence, surface in (
             ('予選落ちなんて見損なったわ！', '見損なっ'),
