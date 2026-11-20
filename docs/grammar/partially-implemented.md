@@ -288,6 +288,7 @@
 
 - [~] [〜ぬまま](points/numama.md)
 
+- [~] [〜ないまでも](points/naimademo.md)
 - [~] [〜ないまま](points/naimama.md)
 
 - [~] [〜ずにすむ](points/zunisumu.md)
