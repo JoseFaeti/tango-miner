@@ -1,5 +1,7 @@
 # Partially implemented grammar points
 
+- [~] [〜だの〜だの](points/danodano.md)
+
 - [~] [〜といい〜といい](points/toiitoii.md)
 
 - [~] [〜といわず〜といわず](points/toiwazutoiwazu.md)

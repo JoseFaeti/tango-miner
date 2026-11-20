@@ -21,7 +21,6 @@ ambiguity and recall before implementing a rule.
 
 ## Formal and literary candidates
 
-- [ ] [〜だの〜だの](points/danodano.md)
 - [ ] [〜なり〜なり](points/narinari.md)
 - [ ] [〜やら〜やら](points/yarayara.md)
 - [ ] [〜につけ〜につけ](points/nitsukenitsuke.md)
