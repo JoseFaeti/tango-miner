@@ -4,6 +4,8 @@
 
 - [~] [〜ともあろう者が](points/tomoaroumonoga.md)
 
+- [~] [〜ともなく / 〜ともなしに](points/tomonaku-tomonashini.md)
+
 - [~] [〜ともなると](points/tomonaruto.md)
 
 - [~] [〜とも限らない](points/tomokagiranai.md)

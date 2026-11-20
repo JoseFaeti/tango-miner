@@ -21,7 +21,6 @@ ambiguity and recall before implementing a rule.
 
 ## Formal and literary candidates
 
-- [ ] [〜ともなく / 〜ともなしに](points/tomonaku-tomonashini.md)
 - [ ] [〜といわず〜といわず](points/toiwazutoiwazu.md)
 - [ ] [〜といい〜といい](points/toiitoii.md)
 - [ ] [〜だの〜だの](points/danodano.md)
