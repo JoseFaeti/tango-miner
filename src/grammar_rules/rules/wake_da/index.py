@@ -2,12 +2,13 @@
 WAKE_DA = '〜わけだ'
 WAKE_NEGATIVE = '〜わけではない'
 from src.grammar_rules.rules.toiuwakeda.index import match_toiuwakeda
+from src.grammar_rules.rules.toiuwakedehanai.index import match_toiuwakedehanai
 from src.grammar_rules.base import GrammarRule
 from src.grammar_rules.helpers import adjacent, next_matches, negative_predicate_end
 
 
 def matches(tokens, negative):
-    longer_spans = list(match_toiuwakeda(tokens)) if not negative else []
+    longer_spans = list(match_toiuwakedehanai(tokens) if negative else match_toiuwakeda(tokens))
     for i in range(1, len(tokens) - 1):
         prev, wake = tokens[i - 1:i + 1]
         if wake['surface'] not in ('わけ', '訳'):
