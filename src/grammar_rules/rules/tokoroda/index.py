@@ -2,9 +2,11 @@
 TOKORODA_EXPRESSION = '〜ところだ'
 from src.grammar_rules.base import GrammarRule
 from src.grammar_rules.helpers import adjacent, next_matches
+from src.grammar_rules.rules.tokorodatsuta.index import match_tokorodatsuta
 
 
 def match_tokoroda(tokens):
+    nearly_spans = set(match_tokorodatsuta(tokens))
     for i in range(1, len(tokens) - 1):
         previous, noun, copula = tokens[i - 1:i + 2]
         if noun['surface'] not in ('ところ', '所'):
@@ -28,7 +30,9 @@ def match_tokoroda(tokens):
             end = i + 2
         else:
             continue
-        yield noun['span'][0], tokens[end]['span'][1]
+        span = noun['span'][0], tokens[end]['span'][1]
+        if span not in nearly_spans:
+            yield span
 
 
 RULE = GrammarRule(order=102, id='tokoroda', expression=TOKORODA_EXPRESSION,
