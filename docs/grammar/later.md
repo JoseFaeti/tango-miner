@@ -21,7 +21,6 @@ ambiguity and recall before implementing a rule.
 
 ## Formal and literary candidates
 
-- [ ] [〜ところで](points/tokorode.md)
 - [ ] [〜たところで](points/tatokorode.md)
 - [ ] [〜ところだった](points/tokorodatsuta.md)
 - [ ] [〜ところを見ると](points/tokoroomiruto.md)

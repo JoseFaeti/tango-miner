@@ -796,6 +796,7 @@ indicate measured frequency.
 - [~] [〜つもりだ](points/tsumorida.md)
 - [~] [〜たばかり](points/tabakari.md)
 - [~] [〜ところを](points/tokoroo.md)
+- [~] [〜ところで](points/tokorode.md)
 - [~] [〜ところに / 〜ところへ](points/tokoroni-tokorohe.md)
 
 - [~] [〜たところ](points/tatokoro.md)
