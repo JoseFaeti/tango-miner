@@ -18,4 +18,4 @@ and card identity.
 
 The same form can be a literal conditional about making someone speak; those
 ambiguous matches remain review candidates. Other spellings and tokenizations
-are unverified. The separately scheduled に言わせると is not covered.
+are unverified. The related [に言わせると](niiwaseruto.md) has a separate card.
