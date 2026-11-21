@@ -29,11 +29,13 @@ def sumu_end(tokens, end):
                                             or next_matches(tokens, end, 'て', '助詞', 'で')):
         end += 1
     elif surface in ('済み', 'すみ') and next_matches(tokens, end, 'ます', '助動詞'):
-        end = polite_suffix_end(tokens, end + 1)
+        end = polite_suffix_end(tokens, end + 1, forms=('positive', 'te', 'volitional'))
     elif surface in ('済め', 'すめ') and next_matches(tokens, end, 'ば', '助詞', 'ば'):
         end += 1
     elif (surface in ('済ま', 'すま') and has_next(tokens, end)
           and tokens[end + 1]['lemma'] == 'ない'):
+        if tokens[end + 1]['surface'] in ('ない', 'なかっ'):
+            return None
         end = negative_suffix_end(tokens, end + 1, pos='助動詞', continuative=True, extended=True)
     else:
         return None
