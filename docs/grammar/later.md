@@ -21,7 +21,6 @@ ambiguity and recall before implementing a rule.
 
 ## Formal and literary candidates
 
-- [ ] [〜からすると / 〜からすれば](points/karasuruto-karasureba.md)
 - [ ] [〜から見ると / 〜から見れば](points/karamiruto-karamireba.md)
 - [ ] [〜から言うと / 〜から言えば](points/karayuuto-karaieba.md)
 - [ ] [〜からといって](points/karatoitsute.md)
