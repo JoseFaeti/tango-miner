@@ -1,5 +1,7 @@
 # Partially implemented grammar points
 
+- [~] [〜と言わんばかりに](points/toiwanbakarini.md)
+
 - [~] [〜でなくて何だろう](points/denakutenandarou.md)
 
 - [~] [〜ではあるが](points/dehaaruga.md)

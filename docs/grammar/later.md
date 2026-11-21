@@ -21,7 +21,6 @@ ambiguity and recall before implementing a rule.
 
 ## Formal and literary candidates
 
-- [ ] [〜と言わんばかりに](points/toiwanbakarini.md)
 - [ ] [〜と言っても過言ではない](points/toitsutemokagondehanai.md)
 - [ ] [〜といったところだ](points/toitsutatokoroda.md)
 - [ ] [〜といったらない](points/toitsutaranai.md)
