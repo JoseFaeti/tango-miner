@@ -42,7 +42,7 @@ class NishiteTests(unittest.TestCase):
         stage = GrammarStep()
         data = ExcludeGrammarTokensStep(stage).process(stage.process(Artifact([source])))
         self.assertEqual([t['surface'] for t in data.data[0].tokens if t.get('grammar_reserved')],
-                         ['に', 'し', 'て'])
+                         ['に', 'し', 'て', '初めて'])
         words = {'年': object()}
         stage.add_cards(words)
         self.assertIn('年', words)

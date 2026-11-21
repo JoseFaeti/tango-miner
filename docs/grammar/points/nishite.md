@@ -17,5 +17,5 @@ evidence. Focused tests cover Sudachi tokenization, boundaries, reservation
 and card identity. にしては and にしても are excluded.
 
 Literal にする can share these tokens, as in 時間にしておく; the matcher cannot
-distinguish that reading. Other temporal expressions, tokenizations and the
-separate にして初めて construction need further investigation.
+distinguish that reading. Other temporal expressions and tokenizations need further investigation.
+The separate [〜にして初めて](nishitehajimete.md) rule can also match.
