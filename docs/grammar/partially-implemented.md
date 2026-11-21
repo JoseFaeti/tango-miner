@@ -10,6 +10,8 @@
 
 - [~] [〜というわけだ](points/toiuwakeda.md)
 
+- [~] [〜と言うまでもない](points/toiumademonai.md)
+
 - [~] [〜というものの](points/toiumonono.md)
 
 - [~] [〜というものがある](points/toiumonogaaru.md)
