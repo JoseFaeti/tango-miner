@@ -21,7 +21,6 @@ ambiguity and recall before implementing a rule.
 
 ## Formal and literary candidates
 
-- [ ] [〜といえよう](points/toieyou.md)
 - [ ] [〜と言わざるを得ない](points/toiwazaruoenai.md)
 - [ ] [〜と言うまでもない](points/toiumademonai.md)
 - [ ] [〜に言わせれば](points/niiwasereba.md)
