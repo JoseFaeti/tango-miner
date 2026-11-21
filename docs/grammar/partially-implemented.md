@@ -1,5 +1,7 @@
 # Partially implemented grammar points
 
+- [~] [〜からある / 〜からの](points/karaaru-karano.md)
+
 - [~] [〜からといって](points/karatoitsute.md)
 
 - [~] [〜から言うと / 〜から言えば](points/karayuuto-karaieba.md)

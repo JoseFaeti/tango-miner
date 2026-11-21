@@ -21,7 +21,6 @@ ambiguity and recall before implementing a rule.
 
 ## Formal and literary candidates
 
-- [ ] [〜からある / 〜からの](points/karaaru-karano.md)
 - [ ] [〜からなる](points/karanaru.md)
 - [ ] [〜までして](points/madeshite.md)
 - [ ] [〜までのことだ](points/madenokotoda.md)
