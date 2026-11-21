@@ -319,6 +319,7 @@
 - [~] [〜であろう](points/dearou.md)
 
 - [~] [〜である](points/dearu.md)
+- [~] [〜である以上](points/dearuijiyou.md)
 
 - [~] [〜にあらず](points/niarazu.md)
 

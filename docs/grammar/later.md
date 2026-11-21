@@ -21,7 +21,6 @@ ambiguity and recall before implementing a rule.
 
 ## Formal and literary candidates
 
-- [ ] [〜である以上](points/dearuijiyou.md)
 - [ ] [〜であるからには](points/dearukaraniha.md)
 - [ ] [〜でなくて何だろう](points/denakutenandarou.md)
 - [ ] [〜と言わんばかりに](points/toiwanbakarini.md)
