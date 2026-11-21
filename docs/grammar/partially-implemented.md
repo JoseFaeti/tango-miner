@@ -874,3 +874,4 @@ indicate measured frequency.
 - [~] [〜と](points/to-380c4d83.md)
 - [~] [〜けどね / 〜けどさ](points/kedone-kedosa.md)
 - [~] [〜をはじめとして](points/ohajimetoshite.md)
+- [~] [〜ものを](points/monoo.md)
