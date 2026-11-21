@@ -17,7 +17,10 @@ class KatoomoebaTests(unittest.TestCase):
         cases = {
             '雨が降ったかと思えば晴れた。': 'かと思えば',
             '飛んだかとおもえば落ちた。': 'かとおもえば',
-            '行くかと思えば違う。': None,
+            '泣くかと思えば笑う。': 'かと思えば',
+            '暑いかと思えば寒い。': 'かと思えば',
+            '晴れかと思えば雨だ。': 'かと思えば',
+            '行くかと思えば行かない。': 'かと思えば',
             '何かと思えば猫だった。': None,
             '帰ったか、と思えば違う。': None,
             '帰ったかと思う。': None,
@@ -31,6 +34,22 @@ class KatoomoebaTests(unittest.TestCase):
                 self.assertIsNone(error)
                 self.assertEqual([text[a:b] for a, b in match_katoomoeba(tokens)],
                                  [] if expected is None else [expected])
+
+    def test_alternating_card_reserves_only_expression(self):
+        source = sentence('泣くかと思えば笑う。', [
+            tok('泣く', '泣く', ('動詞',)), tok('か', 'か', ('助詞',)),
+            tok('と', 'と', ('助詞', '格助詞')), tok('思え', '思う', ('動詞',)),
+            tok('ば', 'ば', ('助詞', '接続助詞')),
+            tok('笑う。', '笑う', ('動詞',))])
+        stage = GrammarStep()
+        data = stage.process(Artifact([source]))
+        ExcludeGrammarTokensStep(stage).process(data)
+        self.assertEqual([t['surface'] for t in data.data[0].tokens if t.get('grammar_reserved')],
+                         ['か', 'と', '思え', 'ば'])
+        words = {'泣く': object()}
+        stage.add_cards(words)
+        self.assertIn('泣く', words)
+        self.assertEqual(words[EXPRESSION].sentences[0].surface_form, 'かと思えば')
 
     def test_card_reservation_and_attached_word(self):
         source = sentence('帰ったかと思えば出かけた。', [

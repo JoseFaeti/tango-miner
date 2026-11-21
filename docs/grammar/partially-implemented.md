@@ -4,6 +4,8 @@
 
 - [~] [〜かと思えば](points/katoomoeba.md)
 
+- [~] [〜かと思えば〜](points/katoomoeba-5d9c4546.md)
+
 - [~] [〜といっては](points/toitsuteha.md)
 
 - [~] [〜と考えると](points/tokangaeruto.md)
