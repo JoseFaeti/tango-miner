@@ -18,6 +18,10 @@ class ToomoikiyaTests(unittest.TestCase):
             '雨が降ると思いきや晴れた。': 'と思いきや',
             '終わったと思いきや、まだ続いた。': 'と思いきや',
             '簡単かと思いきや難しい。': 'と思いきや',
+            '雨かとおもいきや晴れた。': 'とおもいきや',
+            '終わったかと思いきや、まだ続いた。': 'と思いきや',
+            '雨かと、思いきや晴れた。': None,
+            '雨かと思い切った。': None,
             '雨だとおもいきや晴れた。': 'とおもいきや',
             'そうと思い切った。': None,
             '雨だと思った。': None,
@@ -48,3 +52,4 @@ class ToomoikiyaTests(unittest.TestCase):
         self.assertIn('雨', words)
         self.assertEqual(words[TOOMOIKIYA_EXPRESSION].frequency, 2)
         self.assertEqual(words[TOOMOIKIYA_EXPRESSION].sentences[0].surface_form, 'と思いきや')
+        self.assertNotIn('〜かと思いきや', words)

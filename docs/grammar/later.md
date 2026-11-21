@@ -21,7 +21,6 @@ ambiguity and recall before implementing a rule.
 
 ## Formal and literary candidates
 
-- [ ] [〜かと思いきや](points/katoomoikiya.md)
 - [ ] [〜かと思えば〜](points/katoomoeba-5d9c4546.md)
 - [ ] [〜か〜か](points/kaka.md)
 - [ ] [〜か否か](points/kainaka.md)
