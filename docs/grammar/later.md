@@ -21,7 +21,6 @@ ambiguity and recall before implementing a rule.
 
 ## Formal and literary candidates
 
-- [ ] [〜か否か](points/kainaka.md)
 - [ ] [〜かのようだ](points/kanoyouda.md)
 - [ ] [〜かのように](points/kanoyouni.md)
 - [ ] [〜かのごとく](points/kanogotoku.md)

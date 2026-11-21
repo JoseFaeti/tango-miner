@@ -1,5 +1,7 @@
 # Partially implemented grammar points
 
+- [~] [〜か否か](points/kainaka.md)
+
 - [~] [〜か〜か](points/kaka.md)
 
 - [~] [〜かと思いきや](points/katoomoikiya.md)

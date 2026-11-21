@@ -19,6 +19,10 @@ def match_kaka(tokens):
             continue
         if tokens[j]['pos'][:1] not in [[p] for p in PREDICATES] or tokens[j]['surface'] in ('どう', '如何'):
             continue
+        if (tokens[j]['surface'] == '否' and j + 1 < len(tokens)
+                and tokens[j + 1]['surface'] == 'か' and tokens[j + 1]['pos'][:1] == ['助詞']
+                and adjacent(tokens[j], tokens[j + 1])):
+            continue
         j += 1
         while (j < len(tokens) and adjacent(tokens[j - 1], tokens[j])
                and tokens[j]['pos'][:1] == ['助動詞']):
