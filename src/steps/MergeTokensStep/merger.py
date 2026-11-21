@@ -177,6 +177,13 @@ def _merge_candidate(token_list, i, j, combined_text, offsets, jmdict, rejected)
     if not match_word:
         reject("no_best_entry")
         return None
+    if (token_string in {'思いで', 'おもいで'} and j - i == 2
+            and token_list[i]['lemma'] in {'思い', 'おもい'}
+            and token_list[i]['pos'][0] == '名詞'
+            and token_list[i + 1]['surface'] == 'で'
+            and token_list[i + 1]['pos'][0] in {'助詞', '助動詞'}):
+        reject('omoi_de_morphological_boundary')
+        return None
     if token_string == '下って' and j - i == 2:
         first, second = token_list[i:j]
         noun_particle = (first['lemma'] == '下' and first['pos'][0] == '名詞'

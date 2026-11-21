@@ -30,6 +30,22 @@ class AmbiguousOutputRegressionTests(unittest.TestCase):
     def setUpClass(cls):
         cls.jmdict = get_jmdict()
 
+    def test_omoi_de_boundary_and_lexical_memories(self):
+        for text in ('その度に、私自身も心躍る思いでございました。',
+                     '姫さまは決死の思いでここまで来られたのだぞっ！',
+                     'うう身をさかれる思いでござる。'):
+            with self.subTest(text=text):
+                words, _ = tokenize([text])
+                self.assertNotIn('思いで', words)
+                self.assertNotIn('おもいで', words)
+                self.assertTrue('思い' in words or 'おもい' in words)
+
+        for text, word in (('大切な思い出です。', '思い出'),
+                           ('楽しいおもいでができた。', 'おもいで')):
+            with self.subTest(text=text):
+                words, _ = tokenize([text])
+                self.assertIn(word, words)
+
     def test_mukoumizu_adjectival_noun_and_water_control(self):
         words, _ = tokenize(['むこうみずなだけでは勇気があるとはいえぬ。'])
         self.assertIn('むこうみず', words)
