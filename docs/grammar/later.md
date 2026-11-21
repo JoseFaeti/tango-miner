@@ -21,7 +21,6 @@ ambiguity and recall before implementing a rule.
 
 ## Formal and literary candidates
 
-- [ ] [〜ところによると](points/tokoroniyoruto.md)
 - [ ] [〜ものを](points/monoo.md)
 - [ ] [〜ものとして](points/monotoshite.md)
 - [ ] [〜ものとする](points/monotosuru.md)
