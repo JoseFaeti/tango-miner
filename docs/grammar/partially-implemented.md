@@ -1,5 +1,7 @@
 # Partially implemented grammar points
 
+- [~] [〜というものの](points/toiumonono.md)
+
 - [~] [〜というものがある](points/toiumonogaaru.md)
 
 - [~] [〜というものでもない](points/toiumonodemonai.md)
