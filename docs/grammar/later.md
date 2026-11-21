@@ -21,7 +21,6 @@ ambiguity and recall before implementing a rule.
 
 ## Formal and literary candidates
 
-- [ ] [〜までもなく](points/mademonaku.md)
 - [ ] [〜にして](points/nishite.md)
 - [ ] [〜にして初めて](points/nishitehajimete.md)
 - [ ] [〜にしてはじめて](points/nishitehajimete-36d6db86.md)
