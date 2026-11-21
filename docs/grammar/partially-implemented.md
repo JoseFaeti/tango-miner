@@ -650,6 +650,7 @@
 - [~] [〜にしても〜にしても](points/nishitemonishitemo.md)
 
 - [~] [〜にしても](points/nishitemo.md)
+- [~] [〜にしてもなお](points/nishitemonao.md)
 
 - [~] [〜にしては](points/nishiteha.md)
 
