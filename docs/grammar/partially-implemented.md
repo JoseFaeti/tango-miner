@@ -1,5 +1,7 @@
 # Partially implemented grammar points
 
+- [~] [〜と言わざるを得ない](points/toiwazaruoenai.md)
+
 - [~] [〜といえよう](points/toieyou.md)
 
 - [~] [〜といって差し支えない](points/toitsutesashitsukaenai.md)
