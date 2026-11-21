@@ -21,7 +21,6 @@ ambiguity and recall before implementing a rule.
 
 ## Formal and literary candidates
 
-- [ ] [〜というものでもない](points/toiumonodemonai.md)
 - [ ] [〜というものがある](points/toiumonogaaru.md)
 - [ ] [〜というものの](points/toiumonono.md)
 - [ ] [〜というわけだ](points/toiuwakeda.md)
