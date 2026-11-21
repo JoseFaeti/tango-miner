@@ -1,5 +1,7 @@
 # Partially implemented grammar points
 
+- [~] [〜と見える](points/tomieru.md)
+
 - [~] [〜と言うよりほかない](points/toiuyorihokanai.md)
 
 - [~] [〜に言わせると](points/niiwaseruto.md)
