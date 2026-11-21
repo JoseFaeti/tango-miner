@@ -50,6 +50,27 @@ def _merge_kaneru_verb(parts, jmdict):
             'components': tuple(component for token in parts for component in token_components(token))}
 
 
+def _merge_uru_verb(parts, jmdict):
+    first, suffix = parts
+    if not (first['pos'][:1] in (['動詞'], ('動詞',))
+            and len(first['pos']) >= 6 and first['pos'][5].startswith('連用形')
+            and suffix['pos'][:1] in (['動詞'], ('動詞',))
+            and suffix['lemma'] in ('得る', 'える', 'うる')):
+        return None
+    for ending in (suffix['lemma'], '得る', 'える', 'うる'):
+        word = first['surface'] + ending
+        entry = kaneru_verb_entry(word, jmdict)
+        if entry is None:
+            entry = next((e for e in jmdict.lookup_word(word)
+                          if is_dictionary_expression(e)), None)
+        if entry is not None:
+            return {'surface': first['surface'] + suffix['surface'], 'lemma': word,
+                    'base_form': word, 'reading': jmdict.get_reading(entry, word),
+                    'pos': suffix['pos'], 'analysis_rule': 'jmdict_uru_verb',
+                    'components': tuple(c for token in parts for c in token_components(token))}
+    return None
+
+
 def _merge_ojikeduku(parts, jmdict):
     first, suffix = parts
     if not (first['surface'] == 'おじけ' and first['lemma'] == 'おじける'
@@ -517,6 +538,7 @@ def combine_tokens_jmdict(
         if i + 2 <= min(n, next_merge_boundary[i]):
             candidate = (_merge_kiku_expression(token_list[i:i + 2], jmdict)
                          or _merge_kaneru_verb(token_list[i:i + 2], jmdict)
+                         or _merge_uru_verb(token_list[i:i + 2], jmdict)
                          or _merge_misokonau(token_list[i:i + 2], jmdict)
                          or _merge_ojikeduku(token_list[i:i + 2], jmdict))
             if candidate is not None:

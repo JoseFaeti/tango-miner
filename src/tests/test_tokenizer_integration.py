@@ -33,6 +33,28 @@ class TokenizerIntegrationTests(unittest.TestCase):
         # These tests deliberately exercise the real Sudachi and JMdict data.
         cls.jmdict = get_jmdict()
 
+    def test_uru_compounds_and_inflections(self):
+        for text, surface in (
+            ('今までの展開から考えるとじゅうぶんありえると思うわ。', 'ありえる'),
+            ('本当にありえないことも、いくらでもあるけどね。', 'ありえ'),
+            ('ありうる。', 'ありうる'),
+            ('起こり得た。', '起こり得'),
+            ('起こり得ない。', '起こり得'),
+        ):
+            with self.subTest(text=text):
+                merged = combine_tokens_jmdict(tokenize_sentence(text), self.jmdict)
+                word = next(t for t in merged if t['surface'] == surface)
+                self.assertEqual(word['analysis_rule'], 'jmdict_uru_verb')
+                self.assertEqual(''.join(c.surface for c in word['components']), surface)
+                self.assertTrue(self.jmdict.lookup_word(word['lemma']))
+        for text in ('利益を得る。', '行かざるを得ない。'):
+            merged = combine_tokens_jmdict(tokenize_sentence(text), self.jmdict)
+            self.assertFalse(any(t.get('analysis_rule') == 'jmdict_uru_verb' for t in merged))
+        tokens = tokenize_sentence('ありえない。')
+        tokens[1]['grammar_reserved'] = True
+        merged = combine_tokens_jmdict(tokens, self.jmdict)
+        self.assertFalse(any(t.get('analysis_rule') == 'jmdict_uru_verb' for t in merged))
+
     def test_kazaru_noun_boundaries_and_verb_controls(self):
         cases = (
             ('かざんがおおきくどっかんするまえにみつけるでち！', '火山', ['かざん']),
