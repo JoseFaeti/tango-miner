@@ -2,6 +2,7 @@
 TOIU_EXPRESSION = '〜という / 〜っていう'
 from src.grammar_rules.base import GrammarRule
 from src.grammar_rules.helpers import adjacent
+from src.grammar_rules.rules.toiuwakeda.index import match_toiuwakeda
 from src.grammar_rules.rules.toiukotoda.index import match_toiukotoda
 from src.grammar_rules.rules.toiukotoninaru.index import match_toiukotoninaru
 from src.grammar_rules.rules.toiukotoha.index import match_toiukotoha
@@ -15,7 +16,7 @@ from src.grammar_rules.rules.toiumonono.index import match_toiumonono
 
 
 def match_toiu(tokens):
-    longer_starts = {start for matcher in (match_toiukotoninaru, match_toiukotoda, match_toiukotoha, match_toiunoha, match_toiuyori, match_toiumonoda, match_toiumonodehanai, match_toiumonodemonai, match_toiumonogaaru, match_toiumonono)
+    longer_starts = {start for matcher in (match_toiuwakeda, match_toiukotoninaru, match_toiukotoda, match_toiukotoha, match_toiunoha, match_toiuyori, match_toiumonoda, match_toiumonodehanai, match_toiumonodemonai, match_toiumonogaaru, match_toiumonono)
                      for start, _ in matcher(tokens)}
     for i in range(1, len(tokens) - 2):
         previous, particle, verb, noun = tokens[i - 1:i + 3]

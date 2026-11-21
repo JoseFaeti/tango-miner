@@ -1,11 +1,13 @@
 '''Predicate-attached explanatory and partial-negative わけ.'''
 WAKE_DA = '〜わけだ'
 WAKE_NEGATIVE = '〜わけではない'
+from src.grammar_rules.rules.toiuwakeda.index import match_toiuwakeda
 from src.grammar_rules.base import GrammarRule
 from src.grammar_rules.helpers import adjacent, next_matches, negative_predicate_end
 
 
 def matches(tokens, negative):
+    longer_spans = list(match_toiuwakeda(tokens)) if not negative else []
     for i in range(1, len(tokens) - 1):
         prev, wake = tokens[i - 1:i + 1]
         if wake['surface'] not in ('わけ', '訳'):
@@ -43,6 +45,9 @@ def matches(tokens, negative):
                 continue
             if tokens[start]['lemma'] == 'ない' and next_matches(tokens, end, 'です', '助動詞', 'です'):
                 end += 1
+        if any(start < wake['span'][0] and tokens[end]['span'][1] == stop
+               for start, stop in longer_spans):
+            continue
         yield wake['span'][0], tokens[end]['span'][1]
 
 
