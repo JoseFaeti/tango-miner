@@ -2,9 +2,11 @@
 JANAI_DEWANAI_EXPRESSION = 'じゃない / ではない'
 from src.grammar_rules.base import GrammarRule
 from src.grammar_rules.helpers import adjacent, next_matches, negative_predicate_end
+from src.grammar_rules.rules.toitsutemokagondehanai.index import match_toitsutemokagondehanai
 
 
 def match_janai_dewanai(tokens):
+    longer_spans = tuple(match_toitsutemokagondehanai(tokens))
     for i in range(1, len(tokens) - 1):
         previous, copula = tokens[i - 1:i + 1]
         if (previous['pos'][:1] not in (['名詞'], ['代名詞'], ['形状詞'])
@@ -25,7 +27,9 @@ def match_janai_dewanai(tokens):
             continue
         if tokens[start]['lemma'] == 'ない' and next_matches(tokens, end, 'です', '助動詞', 'です'):
             end += 1
-        yield copula['span'][0], tokens[end]['span'][1]
+        if not any(start <= copula['span'][0] and tokens[end]['span'][1] <= stop
+                   for start, stop in longer_spans):
+            yield copula['span'][0], tokens[end]['span'][1]
 
 
 RULE = GrammarRule(order=167, id='janai_dewanai', expression=JANAI_DEWANAI_EXPRESSION,
