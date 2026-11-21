@@ -138,6 +138,7 @@ from src.grammar_rules.rules.tarinankashite.index import TARINANKASHITE_EXPRESSI
 from src.grammar_rules.rules.taritarisuru.index import TARITARISURU_EXPRESSION
 from src.grammar_rules.rules.tatokoro.index import TATOKORO_EXPRESSION
 from src.grammar_rules.rules.tokoroo.index import TOKOROO_EXPRESSION
+from src.grammar_rules.rules.tokoroni_tokorohe.index import TOKORONI_TOKOROHE_EXPRESSION
 from src.grammar_rules.rules.tatsute_datsute.index import TATSUTE_DATSUTE_EXPRESSION
 from src.grammar_rules.rules.ta_hou_ga_ii.index import TA_HOU_GA_II_EXPRESSION
 from src.grammar_rules.rules.teha_chiya_jiya.index import TEHA_CHIYA_JIYA_EXPRESSION
