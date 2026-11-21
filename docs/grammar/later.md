@@ -21,7 +21,6 @@ ambiguity and recall before implementing a rule.
 
 ## Formal and literary candidates
 
-- [ ] [〜と考えられる](points/tokangaerareru.md)
 - [ ] [〜と考えると](points/tokangaeruto.md)
 - [ ] [〜といっては](points/toitsuteha.md)
 - [ ] [〜かと思えば](points/katoomoeba.md)
