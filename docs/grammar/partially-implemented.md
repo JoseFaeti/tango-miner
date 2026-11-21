@@ -990,3 +990,4 @@ indicate measured frequency.
 - [~] [〜けどね / 〜けどさ](points/kedone-kedosa.md)
 - [~] [〜をはじめとして](points/ohajimetoshite.md)
 - [~] [〜ものを](points/monoo.md)
+- [~] [〜と思うと](points/toomouto.md)

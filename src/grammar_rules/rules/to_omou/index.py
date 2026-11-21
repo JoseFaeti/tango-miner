@@ -27,6 +27,10 @@ def _match_to_omou(tokens, *, intention):
             end = negative_suffix_end(tokens, j + 1, pos='助動詞')
         if end is None and verb['surface'] == '思っ' and next_matches(tokens, j, 'て', '助詞', 'て'):
             end = j + 1
+        if (not intention and end == j and next_matches(tokens, j, 'と', '助詞', 'と')
+                and tokens[j + 1]['pos'][:2] == ['助詞', '接続助詞']
+                and adjacent(verb, tokens[j + 1])):
+            continue
         if end is not None:
             yield particle['span'][0], tokens[end]['span'][1]
 
