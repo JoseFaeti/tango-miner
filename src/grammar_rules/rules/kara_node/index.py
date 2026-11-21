@@ -2,9 +2,11 @@
 KARA_NODE_EXPRESSION = '〜から / 〜ので'
 from src.grammar_rules.base import GrammarRule
 from src.grammar_rules.helpers import adjacent
+from src.grammar_rules.rules.karatoitsute.index import match_karatoitsute
 
 
 def match_kara_node(tokens):
+    concessive_starts = {start for start, _ in match_karatoitsute(tokens)}
     for i in range(1, len(tokens)):
         previous, token = tokens[i - 1:i + 1]
         if token['surface'] not in ('から', 'の'):
@@ -16,6 +18,7 @@ def match_kara_node(tokens):
             continue
         if (token['surface'] == 'から' and token['lemma'] == 'から'
                 and token['pos'][:2] == ['助詞', '接続助詞']
+                and token['span'][0] not in concessive_starts
                 and pos[5].startswith('終止形')):
             yield tuple(token['span'])
         elif (token['surface'] == 'の' and token['lemma'] == 'の'
