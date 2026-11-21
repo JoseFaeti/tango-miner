@@ -3,9 +3,11 @@ MONODEHANAI_EXPRESSION = '〜ものではない'
 
 from src.grammar_rules.base import GrammarRule
 from src.grammar_rules.helpers import adjacent, negative_predicate_end, next_matches
+from src.grammar_rules.rules.toiumonodehanai.index import match_toiumonodehanai
 
 
 def match_monodehanai(tokens):
+    longer_spans = list(match_toiumonodehanai(tokens))
     for i in range(1, len(tokens) - 1):
         verb, mono, copula = tokens[i - 1:i + 2]
         pos = verb['pos']
@@ -28,7 +30,9 @@ def match_monodehanai(tokens):
         if end is not None:
             if tokens[start]['lemma'] == 'ない' and next_matches(tokens, end, 'です', '助動詞', 'です'):
                 end += 1
-            yield mono['span'][0], tokens[end]['span'][1]
+            if not any(start <= mono['span'][0] and tokens[end]['span'][1] <= stop
+                       for start, stop in longer_spans):
+                yield mono['span'][0], tokens[end]['span'][1]
 
 
 RULE = GrammarRule(order=72, id='monodehanai', expression=MONODEHANAI_EXPRESSION,
