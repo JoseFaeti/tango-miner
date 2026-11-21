@@ -1,5 +1,7 @@
 # Partially implemented grammar points
 
+- [~] [〜ものとして](points/monotoshite.md)
+
 - [~] [〜ところによると](points/tokoroniyoruto.md)
 
 - [~] [〜ところを見ると](points/tokoroomiruto.md)
