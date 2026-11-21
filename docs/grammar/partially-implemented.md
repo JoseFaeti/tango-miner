@@ -1,5 +1,7 @@
 # Partially implemented grammar points
 
+- [~] [〜までのことだ](points/madenokotoda.md)
+
 - [~] [〜までして](points/madeshite.md)
 
 - [~] [〜からなる](points/karanaru.md)
