@@ -21,7 +21,6 @@ ambiguity and recall before implementing a rule.
 
 ## Formal and literary candidates
 
-- [ ] [〜までだ](points/madeda.md)
 - [ ] [〜までもない](points/mademonai.md)
 - [ ] [〜までもなく](points/mademonaku.md)
 - [ ] [〜にして](points/nishite.md)
