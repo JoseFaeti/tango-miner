@@ -21,7 +21,6 @@ ambiguity and recall before implementing a rule.
 
 ## Formal and literary candidates
 
-- [ ] [〜にしてからが](points/nishitekaraga.md)
 - [ ] [〜にしてみれば](points/nishitemireba.md)
 - [ ] [〜にしてみると](points/nishitemiruto.md)
 - [ ] [〜ではあるが](points/dehaaruga.md)
