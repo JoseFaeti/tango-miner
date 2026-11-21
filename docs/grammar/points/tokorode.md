@@ -16,6 +16,6 @@ Even if.
   past auxiliary remain available. Focused tests cover Sudachi forms,
   controls, reservation, identity and overlap with 〜たところ.
 - Literal locations such as 昨日行った所で also match; the rule cannot
-  determine whether the clause is concessive. The separate queued
-  〜たところで point overlaps this construction. Negative and polite past
+  determine whether the clause is concessive. The separate
+  〜たところで card matches the same construction. Negative and polite past
   forms and other possible constructions remain unverified.
