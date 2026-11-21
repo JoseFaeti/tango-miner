@@ -21,7 +21,6 @@ ambiguity and recall before implementing a rule.
 
 ## Formal and literary candidates
 
-- [ ] [〜とあって](points/toatsute.md)
 - [ ] [〜とあれば](points/toareba.md)
 - [ ] [〜とあっては](points/toatsuteha.md)
 - [ ] [〜とあっても](points/toatsutemo.md)
