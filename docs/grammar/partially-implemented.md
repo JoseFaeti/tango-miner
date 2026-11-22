@@ -309,6 +309,7 @@
 - [~] [〜にもほどがある](points/nimohodogaaru.md)
 
 - [~] [〜にもまして](points/nimomashite.md)
+- [~] [〜にも増して](points/nimomashite-a0338bc3.md)
 
 - [~] [〜にまして](points/nimashite.md)
 

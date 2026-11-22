@@ -21,7 +21,6 @@ ambiguity and recall before implementing a rule.
 
 ## Formal and literary candidates
 
-- [ ] [〜にも増して](points/nimomashite-a0338bc3.md)
 - [ ] [〜に反して](points/nihanshite.md)
 - [ ] [〜に反する](points/nihansuru.md)
 - [ ] [〜とは反対に](points/tohahantaini.md)

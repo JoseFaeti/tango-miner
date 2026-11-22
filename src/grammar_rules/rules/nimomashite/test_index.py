@@ -18,11 +18,14 @@ class NimomashiteTests(unittest.TestCase):
             self.skipTest(f'Sudachi full dictionary unavailable: {exc}')
         cases = {'以前にも増して忙しい。': 'にも増して',
                  '以前にもまして忙しい。': 'にもまして',
+                 '彼にも増して忙しい。': 'にも増して',
                  '去年に増して忙しい。': None,
+                 '水にも増して塩を加える。': 'にも増して',
                  '水を増して煮る。': None,
                  '話しまして、帰った。': None,
                  '初めまして。': None,
-                 '以前にも 増して忙しい。': None}
+                 '以前にも 増して忙しい。': None,
+                 '以前 にも増して忙しい。': None}
         for text, expected in cases.items():
             with self.subTest(text=text):
                 raw = [tok(m.surface(), m.dictionary_form(), m.part_of_speech())
