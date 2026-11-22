@@ -19,6 +19,8 @@ class NiatatsuteNisaishiteTests(unittest.TestCase):
         cases = {
             '入学にあたって準備する。': 'にあたって',
             '出発に当たって挨拶する。': 'に当たって',
+            '出発に当たっての注意事項。': 'に当たって',
+            '入学にあたっての準備。': 'にあたって',
             '始めるにあたって注意する。': 'にあたって',
             '開会に際して挨拶する。': 'に際して',
             '契約するに際して確認する。': 'に際して',
@@ -64,3 +66,17 @@ class NiatatsuteNisaishiteTests(unittest.TestCase):
         self.assertIn(RULE, RULES)
         self.assertIn(RULE.expression, GRAMMAR_EXPRESSIONS)
         self.assertEqual(LEGACY_GRAMMAR_EXPRESSIONS[RULE.expression + ' (grammar)'], RULE.expression)
+
+    def test_niatatsute_reservation_keeps_preceding_noun_and_no(self):
+        source = sentence('出発に当たっての準備。', [
+            tok('出発', '出発', ('名詞',)), tok('に', 'に', ('助詞',)),
+            tok('当たっ', '当たる', ('動詞',)), tok('て', 'て', ('助詞',)),
+            tok('の', 'の', ('助詞',)), tok('準備。', '準備', ('名詞',))])
+        stage = GrammarStep()
+        data = ExcludeGrammarTokensStep(stage).process(stage.process(Artifact([source])))
+        self.assertEqual([t['surface'] for t in data.data[0].tokens if t.get('grammar_reserved')],
+                         ['に', '当たっ', 'て'])
+        words = {'出発': object()}
+        stage.add_cards(words)
+        self.assertIn('出発', words)
+        self.assertEqual(words[RULE.expression].sentences[0].surface_form, 'に当たって')

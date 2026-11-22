@@ -687,6 +687,7 @@
 - [~] [〜たびに](points/tabini.md)
 
 - [~] [〜にあたって / 〜に際して](points/niatatsute-nisaishite.md)
+- [~] [〜に当たって](points/niatatsute.md)
 - [~] [〜に伴って](points/nitomonatsute.md)
 
 - [~] [〜にしたがって](points/nishitagatsute.md)
