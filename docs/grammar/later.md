@@ -21,7 +21,6 @@ ambiguity and recall before implementing a rule.
 
 ## Formal and literary candidates
 
-- [ ] [〜にとどまる](points/nitodomaru.md)
 - [ ] [〜にとどまらない](points/nitodomaranai.md)
 - [ ] [〜に限ったことではない](points/nikagitsutakotodehanai.md)
 - [ ] [〜に限り](points/nikagiri.md)
