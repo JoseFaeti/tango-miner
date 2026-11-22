@@ -30,6 +30,26 @@ class AmbiguousOutputRegressionTests(unittest.TestCase):
     def setUpClass(cls):
         cls.jmdict = get_jmdict()
 
+    def test_mattou_suru_inflections_and_adjective(self):
+        for text in ('…しかしI_NAMEはキミたちに託されその役目をまっとうした。',
+                     'まっとうしてみせます。', '使命を全うする。'):
+            with self.subTest(text=text):
+                words, _ = tokenize([text])
+                self.assertIn('全うする', words)
+                stats = words['全うする']
+                self.assertIn('fulfill', self.jmdict.get_most_common_definition(
+                    '全うする', component_counts=stats.component_counts))
+                components = next(iter(stats.component_counts))
+                self.assertEqual(len(components), 2)
+                self.assertEqual(components[1].lemma, 'する')
+
+        words, _ = tokenize(['まっとうな人だ。'])
+        self.assertIn('まっとう', words)
+        self.assertNotIn('全うする', words)
+        raw = raw_tokens('まっとうしてみせます。')
+        raw[1]['grammar_reserved'] = True
+        self.assertNotIn('全うする', [t['lemma'] for t in combine_tokens_jmdict(raw, self.jmdict)])
+
     def test_omoi_de_boundary_and_lexical_memories(self):
         for text in ('その度に、私自身も心躍る思いでございました。',
                      '姫さまは決死の思いでここまで来られたのだぞっ！',
