@@ -15,7 +15,7 @@ As long as or to the extent.
   かぎり produces a card, retaining the preceding words as lexical evidence.
   Focused tests cover Sudachi forms, spacing, reservation and identity.
 - Separately tracked 〜ない限り, 〜限りでは, 〜限りだ and 〜限りの
-  are excluded. Other continuations, contextual distinctions and literal
-  limits remain unverified; noun phrases can have literal readings.
+  are excluded from this rule. Other continuations, contextual distinctions
+  and literal limits remain unverified; noun phrases can have literal readings.
 - Sudachi's single-token lexical adverb できる限り is retained as a word
   rather than split into a grammar occurrence.
