@@ -20,6 +20,10 @@ class NimukatteNimuketeTests(unittest.TestCase):
                  '目標に向けて努力する。': 'に向けて',
                  '彼にむかって叫ぶ。': 'にむかって',
                  '明日にむけて準備する。': 'にむけて',
+                 '試験に向けて勉強する。': 'に向けて',
+                 '彼に向けて手紙を書く。': 'に向けて',
+                 '窓に向けて銃を構える。': 'に向けて',
+                 '試験に向けた準備。': None,
                  '彼に向かっては話せない。': 'に向かって',
                  '駅へ向かって歩く。': None, '顔を向けて話す。': None,
                  '駅に向かう。': None, '駅に 向かって歩く。': None,
@@ -49,3 +53,17 @@ class NimukatteNimuketeTests(unittest.TestCase):
         self.assertIn(RULE, RULES)
         self.assertIn(RULE.expression, GRAMMAR_EXPRESSIONS)
         self.assertEqual(LEGACY_GRAMMAR_EXPRESSIONS[RULE.expression + ' (grammar)'], RULE.expression)
+
+    def test_nimukete_reservation_and_source(self):
+        source = sentence('目標に向けて努力する。', [
+            tok('目標', '目標', ('名詞',)), tok('に', 'に', ('助詞',)),
+            tok('向け', '向ける', ('動詞',)), tok('て', 'て', ('助詞',)),
+            tok('努力する。', '努力する', ('動詞',))])
+        stage = GrammarStep()
+        data = ExcludeGrammarTokensStep(stage).process(stage.process(Artifact([source])))
+        self.assertEqual([t['surface'] for t in data.data[0].tokens if t.get('grammar_reserved')],
+                         ['に', '向け', 'て'])
+        words = {'目標': object()}
+        stage.add_cards(words)
+        self.assertIn('目標', words)
+        self.assertEqual(words[RULE.expression].sentences[0].surface_form, 'に向けて')
