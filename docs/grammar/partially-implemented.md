@@ -1,5 +1,7 @@
 # Partially implemented grammar points
 
+- [~] [〜に当たり](points/niatari.md)
+
 - [~] [〜ごとく](points/gotoku.md)
 
 - [~] [〜ごとに](points/gotoni.md)
