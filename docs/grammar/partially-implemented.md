@@ -607,6 +607,7 @@
 
 - [~] [〜は別として](points/habetsutoshite.md)
 - [~] [〜を問わず](points/otowazu.md)
+- [~] [〜を問わず / 〜を問わない](points/otowazu-otowanai.md)
 
 - [~] [〜にかかわらず](points/nikakawarazu.md)
 

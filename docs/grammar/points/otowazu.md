@@ -13,4 +13,5 @@ The preceding word remains lexical evidence. Focused tests cover Sudachi
 tokenization, boundaries, neighboring forms, reservation and card identity.
 The literal negative construction を問わずに is excluded. Other literal uses
 of 問う without に can be ambiguous and are not distinguished by the rule;
-other attachments and tokenizations remain unverified. を問わない is not covered.
+other attachments and tokenizations remain unverified. The separate
+[combined card](otowazu-otowanai.md) also covers plain を問わない.
