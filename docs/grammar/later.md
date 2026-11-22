@@ -21,7 +21,6 @@ ambiguity and recall before implementing a rule.
 
 ## Formal and literary candidates
 
-- [ ] [〜に伴い](points/nitomonai.md)
 - [ ] [〜に伴う](points/nitomonau.md)
 - [ ] [〜につき](points/nitsuki.md)
 - [ ] [〜につきましては](points/nitsukimashiteha.md)

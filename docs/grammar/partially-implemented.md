@@ -1,5 +1,7 @@
 # Partially implemented grammar points
 
+- [~] [〜に伴い](points/nitomonai.md)
+
 - [~] [〜に代わり](points/nikawari.md)
 
 - [~] [〜にかわって](points/nikawatsute.md)
