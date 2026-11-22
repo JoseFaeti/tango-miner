@@ -21,7 +21,6 @@ ambiguity and recall before implementing a rule.
 
 ## Formal and literary candidates
 
-- [ ] [〜かのごとく](points/kanogotoku.md)
 - [ ] [〜がごとく / 〜がごとき](points/gagotoku-gagotoki.md)
 - [ ] [〜ごとに](points/gotoni.md)
 - [ ] [〜ごとく](points/gotoku.md)
