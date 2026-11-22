@@ -427,6 +427,23 @@ class TokenizerIntegrationTests(unittest.TestCase):
                 expression = next(t for t in merged if t['lemma'] == 'ちょっと見')
                 self.assertEqual(expression['surface'], 'ちょっと見')
 
+    def test_kaze_wo_hiku_inflections_preserve_source_evidence(self):
+        for sentence, surface in [('油断して風邪を引かないようにしましょう。', '風邪を引か'),
+                                  ('風邪をひいた。', '風邪をひい'),
+                                  ('風邪を引く。', '風邪を引く')]:
+            with self.subTest(sentence=sentence):
+                merged = combine_tokens_jmdict(tokenize_sentence(sentence), self.jmdict)
+                expression = next(t for t in merged if t['lemma'] == '風邪を引く')
+                self.assertEqual(expression['surface'], surface)
+                self.assertEqual(''.join(c.surface for c in expression['components']), surface)
+        for sentence in ('風邪がひどい。', '線を引かない。', '風邪を治す。'):
+            with self.subTest(sentence=sentence):
+                merged = combine_tokens_jmdict(tokenize_sentence(sentence), self.jmdict)
+                self.assertNotIn('風邪を引く', [t['lemma'] for t in merged])
+        tokens = tokenize_sentence('風邪を引かない。')
+        tokens[1]['grammar_reserved'] = True
+        self.assertNotIn('風邪を引く', [t['lemma'] for t in combine_tokens_jmdict(tokens, self.jmdict)])
+
     def test_me_wo_tsuburu_inflections_preserve_source_evidence(self):
         for sentence in [
             '私は、家を守るため帝国の横暴に目をつぶってきた。',
