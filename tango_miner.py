@@ -9,7 +9,7 @@ from pathlib import Path
 # Allow selected agent commands to run as python -m tango_miner.<command>.
 __path__ = [str(Path(__file__).resolve().parent / 'agent_commands')]
 import sys
-import appdirs
+from src.CachePaths import CACHE_DIR
 from tempfile import TemporaryDirectory
 from os import path
 import os
@@ -218,7 +218,7 @@ def process_script(argv=None):
         from src.RunArchive import write_performance
         if config.profiling.enabled:
             write_performance(final_path.parent, {})
-        stage_cache = StageCache(appdirs.user_cache_dir("tango_miner"), dependencies, args.refresh_cache)
+        stage_cache = StageCache(CACHE_DIR, dependencies, args.refresh_cache)
         active_steps = [step for step in steps if step is not None]
         log_path = final_path.parent / "pipeline.log"
         log = log_path.open("w", encoding="utf-8", newline="\n")

@@ -47,7 +47,7 @@ class TokenizerPipelineTests(unittest.TestCase):
             tokenizer = Mock()
             tokenizer.tokenize.return_value = [object()]
             with patch("src.steps.TokenizeStep.index.tokenizer_source_fingerprint", side_effect=["first", "first", "changed"]), \
-                 patch("src.steps.TokenizeStep.index.appdirs.user_cache_dir", return_value=tmp), \
+                 patch("src.steps.TokenizeStep.index.CACHE_DIR", Path(tmp)), \
                  patch("src.steps.TokenizeStep.index.get_tokenizer", return_value=tokenizer), \
                  patch("src.steps.TokenizeStep.index.sudachi_node_to_dict", return_value=token):
                 for _ in range(3):
@@ -142,7 +142,7 @@ class TokenizerPipelineTests(unittest.TestCase):
             tokenizer = Mock()
             tokenizer.tokenize.return_value = [object()]
             with patch("src.steps.TokenizeStep.index.tokenizer_fingerprint", side_effect=lambda config: config.dictionary), \
-                 patch("src.steps.TokenizeStep.index.appdirs.user_cache_dir", return_value=str(cache_dir)), \
+                 patch("src.steps.TokenizeStep.index.CACHE_DIR", cache_dir), \
                  patch("src.steps.TokenizeStep.index.get_tokenizer", return_value=tokenizer), \
                  patch("src.steps.TokenizeStep.index.sudachi_node_to_dict", return_value={"surface": "猫", "lemma": "猫", "base_form": "猫", "reading": "ねこ", "pos": ("名詞",)}):
                 for config in (config_a, config_a, config_b):
@@ -185,7 +185,7 @@ class TokenizerPipelineTests(unittest.TestCase):
             tokenizer.tokenize.return_value = [object()]
             events = []
             with patch("src.steps.TokenizeStep.index.tokenizer_fingerprint", return_value="version"), \
-                 patch("src.steps.TokenizeStep.index.appdirs.user_cache_dir", return_value=tmp), \
+                 patch("src.steps.TokenizeStep.index.CACHE_DIR", Path(tmp)), \
                  patch("src.steps.TokenizeStep.index.get_tokenizer", return_value=tokenizer), \
                  patch("src.steps.TokenizeStep.index.sudachi_node_to_dict", return_value=token):
                 for forced, tmpdir in ((False, Path(tmp)), (False, Path(tmp)), (True, Path(tmp)), (False, None)):

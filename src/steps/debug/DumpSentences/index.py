@@ -1,5 +1,4 @@
-import appdirs
-from pathlib import Path
+from src.CachePaths import CACHE_DIR
 
 from src.Artifact import Artifact
 from src.PipelineStep import PipelineStep
@@ -10,7 +9,7 @@ class DumpSentences(PipelineStep):
 
 
 	def process(self, artifact: Artifact) -> Artifact:
-		base_dir = Path(appdirs.user_cache_dir("tango_miner")) / 'debug'
+		base_dir = CACHE_DIR / 'debug'
 		base_dir.mkdir(parents=True, exist_ok=True)
 
 		output_path = base_dir / self.filename

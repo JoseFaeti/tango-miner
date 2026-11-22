@@ -1,4 +1,4 @@
-import appdirs
+from src.CachePaths import CACHE_DIR
 from pathlib import Path
 
 from src.Artifact import Artifact
@@ -78,7 +78,7 @@ def add_and_filter_for_definitions(input: dict, progress_handler, on_definition_
 
 
 def dump_invalid_words(word_data: dict):
-    base_dir = Path(appdirs.user_cache_dir("tango_miner")) / "debug"
+    base_dir = CACHE_DIR / "debug"
     base_dir.mkdir(parents=True, exist_ok=True)
 
     output_path = base_dir / "invalid_words.txt"

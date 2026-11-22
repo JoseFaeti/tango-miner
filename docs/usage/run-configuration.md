@@ -48,6 +48,9 @@ stage completion messages report cache hits and misses, refreshes when forced,
 and when caching is disabled. Tokenizer counts are per file; merge counts are
 per source group, with cached stream counts also shown.
 
+Cache files and debug output are stored in `.cache/` at the repository root.
+Existing files in the previous operating-system application cache are not moved.
+
 ### Merge cache
 
 The merge stage caches results per source file in the application cache directory.

@@ -1,5 +1,5 @@
 from pathlib import Path
-import appdirs
+from src.CachePaths import CACHE_DIR
 import hashlib
 import importlib.metadata
 import importlib.util
@@ -118,7 +118,7 @@ class RawTokenizeStep(PipelineStep):
         self.cache_stats.update(hits=0, misses=0, disabled=0)
         identity = tokenizer_fingerprint(self.config)
         cache = TokenCache(
-            cache_dir=Path(appdirs.user_cache_dir("tango_miner")),
+            cache_dir=CACHE_DIR,
             tokenizer_fingerprint=identity,
         ) if artifact.tmpdir else None
 
