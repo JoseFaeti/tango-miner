@@ -18,10 +18,13 @@ class NikawatteTests(unittest.TestCase):
             self.skipTest(f'Sudachi full dictionary unavailable: {exc}')
         cases = {'父に代わって挨拶した。': 'に代わって',
                  '母にかわって出席する。': 'にかわって',
+                 '社長に代わってご挨拶します。': 'に代わって',
+                 '私にかわって話してください。': 'にかわって',
                  '牛乳の代わりに豆乳を使う。': 'の代わりに',
                  '私のかわりに行って。': 'のかわりに',
                  '父が代わってくれた。': None,
                  '父に代わる人を探す。': None,
+                 '色に変わっていく。': None,
                  '代わりに行く。': None,
                  '父の代わりを探す。': None,
                  '父に 代わって出席した。': None}
@@ -50,3 +53,17 @@ class NikawatteTests(unittest.TestCase):
         self.assertIn(RULE, RULES)
         self.assertIn(RULE.expression, GRAMMAR_EXPRESSIONS)
         self.assertEqual(LEGACY_GRAMMAR_EXPRESSIONS[RULE.expression + ' (grammar)'], RULE.expression)
+
+    def test_nikawatte_reservation_and_identity(self):
+        source = sentence('父に代わって私が出席した。', [
+            tok('父', '父', ('名詞',)), tok('に', 'に', ('助詞',)),
+            tok('代わっ', '代わる', ('動詞',)), tok('て', 'て', ('助詞',)),
+            tok('私が出席した。', '私', ('名詞',))])
+        stage = GrammarStep()
+        data = ExcludeGrammarTokensStep(stage).process(stage.process(Artifact([source])))
+        self.assertEqual([t['surface'] for t in data.data[0].tokens if t.get('grammar_reserved')],
+                         ['に', '代わっ', 'て'])
+        words = {'父': object()}
+        stage.add_cards(words)
+        self.assertIn('父', words)
+        self.assertEqual(words[RULE.expression].sentences[0].surface_form, 'に代わって')
