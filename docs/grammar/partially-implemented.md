@@ -1,5 +1,7 @@
 # Partially implemented grammar points
 
+- [~] [〜にとどまらず](points/nitodomarazu.md)
+
 - [~] [〜をもって代える](points/omotsutekaeru.md)
 
 - [~] [〜をもちまして](points/omochimashite.md)
