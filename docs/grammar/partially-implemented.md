@@ -279,6 +279,8 @@
 
 - [~] [〜限りだ](points/kagirida.md)
 
+- [~] [〜に限り](points/nikagiri.md)
+
 - [~] [〜の至り](points/noitari.md)
 
 - [~] [〜の極み](points/nokiwami.md)

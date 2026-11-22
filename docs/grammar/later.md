@@ -21,7 +21,6 @@ ambiguity and recall before implementing a rule.
 
 ## Formal and literary candidates
 
-- [ ] [〜に限り](points/nikagiri.md)
 - [ ] [〜限りでは](points/kagirideha.md)
 - [ ] [〜限り](points/kagiri.md)
 - [ ] [〜ない限り](points/naikagiri.md)
