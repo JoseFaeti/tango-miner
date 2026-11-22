@@ -232,8 +232,9 @@ class ExcludeGrammarTokensStep(PipelineStep):
         result = []
         count = 0
         for index, sentence in enumerate(artifact.data):
+            # Discontinuous substitution spans can contain lexical noun phrases.
             spans = [(start, end) for rule_id, start, end in self.grammar.spans.get(index, ())
-                     if rule_id in active and rule_id not in ('au', 'naosu', 'hajimeru_dasu', 'tsuzukeru', 'owaru_oeru', 'kakeru', 'kaneru', 'kanenai', 'kiru_kirenai', 'nuku', 'gomu', 'toosu', 'aru_iru', 'hoshii', 'hou', 'nimukau')]
+                     if rule_id in active and rule_id not in ('au', 'naosu', 'hajimeru_dasu', 'tsuzukeru', 'owaru_oeru', 'kakeru', 'kaneru', 'kanenai', 'kiru_kirenai', 'nuku', 'gomu', 'toosu', 'aru_iru', 'hoshii', 'hou', 'nimukau', 'omotsutekaeru')]
             if not spans:
                 result.append(sentence)
                 continue
@@ -245,7 +246,7 @@ class ExcludeGrammarTokensStep(PipelineStep):
             # separately tokenized suffixes remain reservable.
             verb_spans = {tuple(t['span']) for t in aligned if t['pos'][:1] == ['動詞']}
             spans = [(start, end) for rule_id, start, end in self.grammar.spans.get(index, ())
-                     if rule_id in active and rule_id not in ('au', 'naosu', 'hajimeru_dasu', 'tsuzukeru', 'owaru_oeru', 'kakeru', 'kaneru', 'kanenai', 'kiru_kirenai', 'nuku', 'gomu', 'toosu', 'aru_iru', 'hoshii', 'hou', 'nimukau', 'monoda', 'monodehanai', 'monotoshite', 'monotosuru', 'mononara', 'youmononara', 'monoka_monka', 'monodakara_mondakara', 'monne', 'kunaru_ninaru', 'kusuru_nisuru')
+                     if rule_id in active and rule_id not in ('au', 'naosu', 'hajimeru_dasu', 'tsuzukeru', 'owaru_oeru', 'kakeru', 'kaneru', 'kanenai', 'kiru_kirenai', 'nuku', 'gomu', 'toosu', 'aru_iru', 'hoshii', 'hou', 'nimukau', 'omotsutekaeru', 'monoda', 'monodehanai', 'monotoshite', 'monotosuru', 'mononara', 'youmononara', 'monoka_monka', 'monodakara_mondakara', 'monne', 'kunaru_ninaru', 'kusuru_nisuru')
                      and not (rule_id in ('mashou_you', 'ro_na') and (start, end) in verb_spans)]
             boundaries = {point for token in aligned for point in token['span']}
             spans = [(start, end) for start, end in spans if start in boundaries and end in boundaries]
