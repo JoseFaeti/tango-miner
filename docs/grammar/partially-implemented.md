@@ -1,5 +1,7 @@
 # Partially implemented grammar points
 
+- [~] [〜に代えて](points/nikaete.md)
+
 - [~] [〜に反し](points/nihanshi.md)
 
 - [~] [〜とは反対に](points/tohahantaini.md)
