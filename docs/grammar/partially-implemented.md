@@ -1,5 +1,7 @@
 # Partially implemented grammar points
 
+- [~] [〜がごとく / 〜がごとき](points/gagotoku-gagotoki.md)
+
 - [~] [〜かのごとく](points/kanogotoku.md)
 
 - [~] [〜かのように](points/kanoyouni.md)
