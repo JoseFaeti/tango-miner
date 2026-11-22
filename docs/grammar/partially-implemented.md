@@ -1,5 +1,7 @@
 # Partially implemented grammar points
 
+- [~] [〜に替えて](points/nikaete-6c09ebec.md)
+
 - [~] [〜に代わる](points/nikawaru.md)
 
 - [~] [〜に代えて](points/nikaete.md)
