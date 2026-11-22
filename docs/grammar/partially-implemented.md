@@ -739,6 +739,7 @@
 - [~] [〜に向けて](points/nimukete.md)
 
 - [~] [〜に向かって / 〜に向けて](points/nimukatsute-nimukete.md)
+- [~] [〜に向かって](points/nimukatsute.md)
 
 - [~] [〜に比べて](points/nikurabete.md)
 

@@ -17,6 +17,8 @@ class NimukatteNimuketeTests(unittest.TestCase):
         except (ImportError, OSError, RuntimeError) as exc:
             self.skipTest(f'Sudachi full dictionary unavailable: {exc}')
         cases = {'駅に向かって歩く。': 'に向かって',
+                 '夢に向かって努力する。': 'に向かって',
+                 '彼に向かって話す。': 'に向かって',
                  '目標に向けて努力する。': 'に向けて',
                  '彼にむかって叫ぶ。': 'にむかって',
                  '明日にむけて準備する。': 'にむけて',
