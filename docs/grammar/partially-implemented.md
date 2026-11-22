@@ -691,6 +691,7 @@
 - [~] [〜にあたって / 〜に際して](points/niatatsute-nisaishite.md)
 - [~] [〜に際し](points/nisaishi.md)
 - [~] [〜に際しては](points/nisaishiteha.md)
+- [~] [〜に際しての](points/nisaishiteno.md)
 - [~] [〜に当たって](points/niatatsute.md)
 - [~] [〜に伴って](points/nitomonatsute.md)
 
