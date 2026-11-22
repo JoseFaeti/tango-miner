@@ -21,7 +21,6 @@ ambiguity and recall before implementing a rule.
 
 ## Formal and literary candidates
 
-- [ ] [〜をもちまして](points/omochimashite.md)
 - [ ] [〜をもって代える](points/omotsutekaeru.md)
 - [ ] [〜にとどまらず](points/nitodomarazu.md)
 - [ ] [〜にとどまる](points/nitodomaru.md)
