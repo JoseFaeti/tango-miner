@@ -21,7 +21,6 @@ ambiguity and recall before implementing a rule.
 
 ## Formal and literary candidates
 
-- [ ] [〜に向かう](points/nimukau.md)
 - [ ] [〜に向かって](points/nimukatsute.md)
 - [ ] [〜をめどに](points/omedoni.md)
 - [ ] [〜をもってして](points/omotsuteshite.md)
