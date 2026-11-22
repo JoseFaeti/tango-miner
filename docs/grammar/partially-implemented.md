@@ -442,6 +442,8 @@
 
 - [~] [〜を踏まえて](points/ofumaete.md)
 
+- [~] [〜をもってして](points/omotsuteshite.md)
+
 - [~] [〜をもってしても](points/omotsuteshitemo.md)
 
 - [~] [〜をもって](points/omotsute.md)
