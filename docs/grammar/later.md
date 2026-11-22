@@ -21,7 +21,6 @@ ambiguity and recall before implementing a rule.
 
 ## Formal and literary candidates
 
-- [ ] [〜をめどに](points/omedoni.md)
 - [ ] [〜をもってして](points/omotsuteshite.md)
 - [ ] [〜をもってすれば](points/omotsutesureba.md)
 - [ ] [〜をもちまして](points/omochimashite.md)

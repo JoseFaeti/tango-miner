@@ -619,6 +619,8 @@
 
 - [~] [〜をもとに](points/omotoni.md)
 
+- [~] [〜をめどに](points/omedoni.md)
+
 - [~] [〜をはじめ](points/ohajime.md)
 
 - [~] [〜を中心に](points/ochiyuushinni.md)
