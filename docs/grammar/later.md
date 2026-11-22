@@ -21,7 +21,6 @@ ambiguity and recall before implementing a rule.
 
 ## Formal and literary candidates
 
-- [ ] [〜限りにおいて](points/kagirinioite.md)
 - [ ] [〜限りの](points/kagirino.md)
 - [ ] [〜を限りにして](points/okagirinishite.md)
 - [ ] [〜に限っては](points/nikagitsuteha.md)
