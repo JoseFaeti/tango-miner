@@ -7,6 +7,7 @@ from time import perf_counter
 from dataclasses import asdict
 from pathlib import Path
 
+from src.CachePaths import remove_legacy_entries
 from src.Grammar import GrammarOccurrences, GrammarStep
 from src.WordStats import Sentence
 from src.grammar_rules.registry import RULES
@@ -65,7 +66,7 @@ def _restore(step, data, sentences):
 
 class GrammarCache:
     def __init__(self, directory, dictionary_hash, refresh):
-        self.directory = Path(directory) / 'stages' / 'grammar-v1'
+        self.directory = Path(directory) / 'stages' / 'grammar-v2'
         self.dictionary_hash = dictionary_hash
         self.refresh = set(refresh)
 
@@ -82,7 +83,7 @@ class GrammarCache:
                 raise ValueError('custom rules')
             if step.prefer_expressions and not self.dictionary_hash:
                 raise ValueError('dictionary hash unavailable')
-            key_data = ['grammar-v1', sys.version, _fingerprint(),
+            key_data = ['grammar-v2', sys.version, _fingerprint(),
                         self.dictionary_hash if step.prefer_expressions else None,
                         step.prefer_expressions, step.max_lookahead, step.max_examples,
                         _input_key_data(artifact.data, progress=lambda done, total: step.progress(done, total, 'Preparing cache key'))]
@@ -104,7 +105,7 @@ class GrammarCache:
                 return step.process(artifact)
             finally:
                 step._parallel_executor = executor
-        path = self.directory / (key + '.json')
+        path = self.directory / 'corpus.json'
         forced = bool(self.refresh & {'grammar', 'all'})
         if not forced:
             step.progress(0, 1, 'Checking grammar cache')
@@ -135,6 +136,7 @@ class GrammarCache:
                 temporary = Path(stream.name)
                 stream.write(_bytes(entry))
             temporary.replace(path)
+            remove_legacy_entries(self.directory.parent / 'grammar-v1', '.json')
         except (OSError, TypeError, ValueError, KeyError, AttributeError, RecursionError):
             stats['write_failures'] += 1
         finally:

@@ -79,12 +79,13 @@ class GrammarCacheTests(unittest.TestCase):
             cache.process(step, Artifact(fixture()))
             self.assertEqual(step.cache_stats['refreshes'], 1)
             cache.refresh = set()
-            for path in (Path(tmp) / 'stages' / 'grammar-v1').glob('*.json'):
+            for path in (Path(tmp) / 'stages' / 'grammar-v2').glob('*.json'):
                 path.write_text('broken', encoding='utf8')
             cache.process(step, Artifact(fixture()))
             self.assertEqual(step.cache_stats['misses'], 1)
             cache.process(step, Artifact(fixture('別の文。')))
             self.assertEqual(step.cache_stats['misses'], 1)
+            self.assertEqual(len(list((Path(tmp) / 'stages' / 'grammar-v2').glob('*.json'))), 1)
 
     def test_input_identity_changes_invalidate_grammar_cache(self):
         with tempfile.TemporaryDirectory() as tmp:

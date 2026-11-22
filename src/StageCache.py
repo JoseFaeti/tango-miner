@@ -7,6 +7,7 @@ import tempfile
 from itertools import groupby
 from pathlib import Path
 
+from src.CachePaths import remove_legacy_entries
 from src.Artifact import Artifact
 from src.TokenizedSentence import TokenizedSentence
 from src.TokenProvenance import TokenComponent
@@ -140,7 +141,7 @@ class StageCache:
     """Wrap merging per contiguous source; all other stages run normally."""
 
     def __init__(self, directory, dependencies, refresh=()):
-        self.directory = Path(directory) / "stages" / "merge-v2"
+        self.directory = Path(directory) / "stages" / "merge-v3"
         self.refresh = set(refresh)
         self.dictionary_hash = dependencies.get("files", {}).get("jmdict", {}).get("sha256")
         try:
@@ -196,14 +197,14 @@ class StageCache:
         for _, sentences in groupby(artifact.data, key=lambda sentence: sentence.origin):
             group = list(sentences)
             try:
-                key_data = ["merge-v2", sys.version, self.source_hash, self.dictionary_hash, step.max_lookahead, _input_key_data(group)]
+                key_data = ["merge-v3", sys.version, self.source_hash, self.dictionary_hash, step.max_lookahead, _input_key_data(group)]
                 key = hashlib.sha256(_bytes(key_data)).hexdigest()
             except (TypeError, ValueError, KeyError, AttributeError, RecursionError):
                 self.stats["misses"] += 1
                 self.stats["miss_streams"] += len(group)
                 output.extend(compute(group, serial=True))
                 continue
-            path = self.directory / (key + ".json")
+            path = self._path(group)
             forced = bool(self.refresh & {"merge", "all"})
             cached = None if forced else self._load(path, key, group)
             if cached is None:
@@ -237,17 +238,17 @@ class StageCache:
         for _, sentences in groupby(artifact.data, key=lambda sentence: sentence.origin):
             group = list(sentences)
             try:
-                key_data = ['merge-v2', sys.version, self.source_hash, self.dictionary_hash,
+                key_data = ['merge-v3', sys.version, self.source_hash, self.dictionary_hash,
                             step.max_lookahead, _input_key_data(group)]
                 key = hashlib.sha256(_bytes(key_data)).hexdigest()
             except (TypeError, ValueError, KeyError, AttributeError, RecursionError):
                 return None
             # A later identical group can hit the entry written by the first.
             # Keep the sequential cache path for that uncommon case.
-            if key in keys:
+            if self._path(group) in keys:
                 return None
-            keys.add(key)
-            path = self.directory / (key + '.json')
+            keys.add(self._path(group))
+            path = self._path(group)
             cached = None if forced else self._load(path, key, group)
             groups.append((group, path, key, cached))
 
@@ -290,6 +291,11 @@ class StageCache:
             )
         return Artifact(output)
 
+    def _path(self, group):
+        origin = group[0].origin
+        identity = str(Path(origin).resolve()) if origin is not None else ''
+        return self.directory / (hashlib.sha256(identity.encode('utf-8')).hexdigest() + '.json')
+
     def _load(self, path, key, original):
         try:
             entry = json.loads(path.read_text(encoding="utf-8"))
@@ -312,6 +318,7 @@ class StageCache:
                 temporary = Path(stream.name)
                 stream.write(_bytes(entry))
             temporary.replace(path)
+            remove_legacy_entries(self.directory.parent / 'merge-v2', '.json')
             return True
         except (OSError, TypeError, ValueError, KeyError, AttributeError, RecursionError):
             return False  # The computed result remains usable.

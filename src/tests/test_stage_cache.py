@@ -117,6 +117,7 @@ class StageCacheTests(unittest.TestCase):
                 other = StageCache(tmp, {'files': {'jmdict': {'sha256': 'dictionary-b'}}})
                 other.process(step, Artifact(inputs))
                 self.assertEqual(other.stats['misses'], 2)
+                self.assertEqual(len(list(cache.directory.glob('*.json'))), 2)
 
     def test_cached_merge_reuses_unchanged_tokens_and_restores_changed_evidence(self):
         with tempfile.TemporaryDirectory() as tmp:
@@ -143,7 +144,7 @@ class StageCacheTests(unittest.TestCase):
             inputs = [sentence('a', '猫')]
             with patch.object(step, 'process', side_effect=lambda artifact: Artifact(artifact.data)) as process:
                 cache.process(step, Artifact(inputs))
-                path, = (Path(tmp) / 'stages' / 'merge-v2').glob('*.json')
+                path, = (Path(tmp) / 'stages' / 'merge-v3').glob('*.json')
                 path.write_text('bad', encoding='utf8')
                 cache.process(step, Artifact(inputs))
                 self.assertEqual(cache.stats['misses'], 1)
@@ -159,7 +160,7 @@ class StageCacheTests(unittest.TestCase):
             inputs = [sentence('a', '猫')]
             with patch.object(step, 'process', side_effect=lambda a: Artifact(a.data)) as process:
                 cache.process(step, Artifact(inputs))
-                path, = (Path(tmp) / 'stages' / 'merge-v2').glob('*.json')
+                path, = (Path(tmp) / 'stages' / 'merge-v3').glob('*.json')
                 entry = json.loads(path.read_text(encoding='utf8'))
                 entry['data'] = [[-1]]
                 encoded = json.dumps(entry['data'], ensure_ascii=False, separators=(',', ':'), allow_nan=False).encode('utf8')

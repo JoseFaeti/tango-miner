@@ -157,7 +157,7 @@ class TokenizerPipelineTests(unittest.TestCase):
             cache = TokenCache(cache_dir, "version")
             old = {"surface": "old", "lemma": "old", "base_form": "old", "reading": "old", "pos": ("名詞",)}
             new = {"surface": "new", "lemma": "new", "base_form": "new", "reading": "new", "pos": ("名詞",)}
-            cache.put(["猫"], [[old]])
+            cache.put(["猫"], [[old]], source)
             tokenizer = Mock()
             tokenizer.tokenize.return_value = [object()]
             cache_stats = {"hits": 0, "misses": 0, "disabled": 0}

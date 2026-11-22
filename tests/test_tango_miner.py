@@ -121,7 +121,9 @@ class TangoMinerTests(unittest.TestCase):
             config.write_text('[dictionary]\njmdict_path = ' + dictionary +
                               '\n[anki]\nenabled = false\n[filter]\nmin_frequency = 1\n'
                               'keep_percent = 100\nmin_frequency_per_source = 0.0\n', encoding='utf-8')
-            with patch('tango_miner.notify_run'), patch('appdirs.user_cache_dir', return_value=str(root / 'cache')):
+            with patch('tango_miner.notify_run'), \
+                 patch('tango_miner.CACHE_DIR', root / 'cache'), \
+                 patch('src.steps.TokenizeStep.index.CACHE_DIR', root / 'cache'):
                 process_script(['--config', str(config), '--input', str(source), '--output', str(root / 'result.csv'),
                                 '--silent', '--occurrence-diagnostics'])
             archive, = (root / 'runs').iterdir()

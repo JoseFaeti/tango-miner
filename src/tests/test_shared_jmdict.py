@@ -5,7 +5,7 @@ import unittest
 from unittest.mock import patch
 
 from src.JMDict import JMDict
-from src.SharedJMDict import SharedIndex, _valid, prepare_shared_index
+from src.SharedJMDict import SharedIndex, _identity, _valid, prepare_shared_index
 
 
 class SharedJMDictTests(unittest.TestCase):
@@ -23,7 +23,7 @@ class SharedJMDictTests(unittest.TestCase):
             reference = JMDict(source)
             with patch('src.SharedJMDict.zlib.crc32', return_value=123):
                 path = prepare_shared_index(source, digest, root)
-                self.assertTrue(_valid(path, bytes.fromhex(digest)))
+                self.assertTrue(_valid(path, _identity(digest)[0]))
                 index = SharedIndex(path, digest)
                 try:
                     for word in (*reference.index, '存在しない'):
@@ -41,9 +41,9 @@ class SharedJMDictTests(unittest.TestCase):
                     byte = stream.read(1)
                     stream.seek(-1, 2)
                     stream.write(bytes([byte[0] ^ 1]))
-                self.assertFalse(_valid(path, bytes.fromhex(digest)))
+                self.assertFalse(_valid(path, _identity(digest)[0]))
                 self.assertEqual(prepare_shared_index(source, digest, root), path)
-                self.assertTrue(_valid(path, bytes.fromhex(digest)))
+                self.assertTrue(_valid(path, _identity(digest)[0]))
                 restored = SharedIndex(path, digest)
                 try:
                     self.assertEqual(restored.get('語彙', []), reference.index['語彙'])

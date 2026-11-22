@@ -84,7 +84,7 @@ class ParallelPipelineTests(unittest.TestCase):
             first, first_result, _, _ = run(2, cache=cache)
             self.assertEqual(first.occurrences, serial.occurrences)
             self.assertEqual(first_result.data, serial_result.data)
-            self.assertEqual(len(list((cache_dir / 'shared-jmdict-v1').glob('*.bin'))), 1)
+            self.assertEqual(len(list((cache_dir / 'shared-jmdict-v2').glob('*.bin'))), 1)
             warm_cache = StageCache(cache_dir, dependencies)
             second, second_result, _, warm = run(1, cache=warm_cache)
             self.assertEqual(second.occurrences, serial.occurrences)
@@ -116,7 +116,7 @@ class ParallelPipelineTests(unittest.TestCase):
             self.assertEqual(serial.data, parallel.data)
             self.assertEqual(serial_stats, parallel_stats)
             self.assertEqual(parallel_stats['misses'], 6)
-            self.assertEqual(len(list((root / 'parallel' / 'shared-jmdict-v1').glob('*.bin'))), 1)
+            self.assertEqual(len(list((root / 'parallel' / 'shared-jmdict-v2').glob('*.bin'))), 1)
             repeated = groups[:100] * 2 + groups[100:200] * 2 + groups[:100] * 2
             serial, serial_stats = run(repeated, 1, root / 'serial-duplicate')
             parallel, parallel_stats = run(repeated, 3, root / 'parallel-duplicate')

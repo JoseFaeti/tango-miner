@@ -177,7 +177,7 @@ def tokenize_raw_sentences(
     cache_stats: dict | None = None, tokenizer_identity: str | None = None,
 ) -> list[TokenizedSentence]:
     """Tokenize one source file, loading/storing only raw Sudachi output."""
-    all_sentence_tokens = cache.load(sentences_text) if cache and not force_retokenize else None
+    all_sentence_tokens = cache.load(sentences_text, source_path) if cache and not force_retokenize else None
 
     if cache_stats is not None:
         key = "disabled" if not cache else "hits" if all_sentence_tokens is not None else "misses"
@@ -195,7 +195,7 @@ def tokenize_raw_sentences(
             for sentence in sentences_text
         ]
         if cache:
-            cache.put(sentences_text, all_sentence_tokens)
+            cache.put(sentences_text, all_sentence_tokens, source_path)
 
     return [
         TokenizedSentence(text=text, tag=tag, origin=source_path, tokens=tokens)

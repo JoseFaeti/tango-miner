@@ -17,7 +17,7 @@ class TokenCacheTests(unittest.TestCase):
             tokens = [[{"surface": "猫", "lemma": "猫", "base_form": "猫", "reading": "ねこ", "pos": ("名詞",)}]]
             cache.put(["猫"], tokens)
             self.assertEqual(cache.load(["猫"]), tokens)
-            path = cache.cache_dir / (cache._compute_key(["猫"]) + ".pkl")
+            path = cache._path(None)
             path.write_text("bad", encoding="utf-8")
             self.assertIsNone(cache.load(["猫"]))
             cache.put(["猫"], [])

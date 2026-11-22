@@ -9,6 +9,7 @@ import sys
 import tempfile
 import zlib
 
+from src.CachePaths import remove_legacy_entries
 from src.JMDict import JMDict
 
 _MAGIC = b'TMJDX001'
@@ -25,7 +26,7 @@ def _identity(dictionary_hash):
         raise ValueError('Invalid JMdict hash')
     source = Path(sys.modules[JMDict.__module__].__file__).read_bytes() + Path(__file__).read_bytes()
     signature = hashlib.sha256(digest + sys.version.encode('utf-8') + source + _MAGIC).hexdigest()
-    return digest, signature
+    return bytes.fromhex(signature), signature
 
 
 def _valid(path, dictionary_digest):
@@ -51,9 +52,9 @@ def _valid(path, dictionary_digest):
 def prepare_shared_index(dictionary_path, dictionary_hash, cache_dir):
     """Return a verified immutable index, creating it atomically when absent."""
     dictionary_digest, signature = _identity(dictionary_hash)
-    directory = Path(cache_dir) / 'shared-jmdict-v1'
+    directory = Path(cache_dir) / 'shared-jmdict-v2'
     directory.mkdir(parents=True, exist_ok=True)
-    path = directory / (signature + '.bin')
+    path = directory / 'index.bin'
     if _valid(path, dictionary_digest):
         return path
     from src.steps.MergeTokensStep.index import get_jmdict
@@ -94,6 +95,7 @@ def prepare_shared_index(dictionary_path, dictionary_hash, cache_dir):
             stream.write(_HEADER.pack(_MAGIC, slots, count, length, dictionary_digest, digest.digest()))
         temporary.replace(path)
         temporary = None
+        remove_legacy_entries(directory.parent / 'shared-jmdict-v1', '.bin')
     finally:
         if temporary is not None:
             temporary.unlink(missing_ok=True)
