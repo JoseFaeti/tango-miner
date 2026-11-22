@@ -278,6 +278,7 @@
 - [~] [〜てやまない](points/teyamanai.md)
 
 - [~] [〜限りだ](points/kagirida.md)
+- [~] [〜限り](points/kagiri.md)
 
 - [~] [〜限りでは](points/kagirideha.md)
 
