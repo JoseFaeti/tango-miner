@@ -1,5 +1,7 @@
 # Partially implemented grammar points
 
+- [~] [〜ごとく](points/gotoku.md)
+
 - [~] [〜ごとに](points/gotoni.md)
 
 - [~] [〜がごとく / 〜がごとき](points/gagotoku-gagotoki.md)

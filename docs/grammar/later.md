@@ -21,7 +21,6 @@ ambiguity and recall before implementing a rule.
 
 ## Formal and literary candidates
 
-- [ ] [〜ごとく](points/gotoku.md)
 - [ ] [〜にあたる](points/niataru.md)
 - [ ] [〜に当たって](points/niatatsute.md)
 - [ ] [〜に当たり](points/niatari.md)
