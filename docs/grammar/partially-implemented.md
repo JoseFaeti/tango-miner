@@ -352,6 +352,8 @@
 
 - [~] [〜いかんにかかわらず](points/ikannikakawarazu.md)
 
+- [~] [〜のいかんにかかわらず](points/noikannikakawarazu.md)
+
 - [~] [〜いかんで / 〜いかんによっては](points/ikande-ikanniyotsuteha.md)
 
 - [~] [〜に関わる](points/nikakawaru.md)

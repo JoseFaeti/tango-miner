@@ -46,7 +46,7 @@ class IkannikakawarazuTests(unittest.TestCase):
         stage = GrammarStep()
         data = ExcludeGrammarTokensStep(stage).process(stage.process(Artifact([source])))
         self.assertEqual([t['surface'] for t in data.data[0].tokens if t.get('grammar_reserved')],
-                         ['いかん', 'に', 'かかわら', 'ず'])
+                         ['の', 'いかん', 'に', 'かかわら', 'ず'])
         words = {'結果': object()}
         stage.add_cards(words)
         self.assertIn('結果', words)
