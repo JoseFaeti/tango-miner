@@ -6,7 +6,15 @@ KARASHITE_EXPRESSION = '〜からして'
 
 
 def match_karashite(tokens):
-    for noun, kara, shi, te in zip(tokens, tokens[1:], tokens[2:], tokens[3:]):
+    for index, (noun, kara, shi, te) in enumerate(
+            zip(tokens, tokens[1:], tokens[2:], tokens[3:])):
+        # Sudachi misreads あずからしてもらう as a name plus particles.
+        following = tokens[index + 4:index + 5]
+        if (noun['surface'] == 'あず' and following
+                and following[0]['lemma'] == 'もらう'
+                and following[0]['pos'][:1] == ['動詞']
+                and adjacent(te, following[0])):
+            continue
         if (noun['pos'][:1] in (['名詞'], ['代名詞'])
                 and all(adjacent(a, b) for a, b in ((noun, kara), (kara, shi), (shi, te)))
                 and kara['surface'] == kara['lemma'] == 'から'
