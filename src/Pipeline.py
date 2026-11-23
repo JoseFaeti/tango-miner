@@ -1,5 +1,4 @@
-# Legacy module name retained for import compatibility.
-# ruff: noqa: N999
+# ruff: noqa: N999 -- Preserve established public module names.
 import time
 from collections.abc import Iterable
 from typing import Any

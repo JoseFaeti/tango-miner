@@ -248,7 +248,9 @@ class ProvenanceTests(unittest.TestCase):
                               for event in events], [(0, 'first', 'test'), (1, 'second', 'test')])
             self.assertFalse(output.with_suffix('.jsonl.tmp').exists())
             before = output.read_bytes()
-            with patch('src.steps.MergeTokensStep.index.get_jmdict', return_value=Dictionary()), patch('src.steps.MergeTokensStep.index.combine_tokens_jmdict', side_effect=RuntimeError('failure')), self.assertRaises(RuntimeError):
+            with patch('src.steps.MergeTokensStep.index.get_jmdict', return_value=Dictionary()), \
+                 patch('src.steps.MergeTokensStep.index.combine_tokens_jmdict', side_effect=RuntimeError('failure')), \
+                self.assertRaises(RuntimeError):
                 stage.process(Artifact(sentences))
             self.assertEqual(output.read_bytes(), before)
 

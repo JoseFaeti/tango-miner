@@ -59,7 +59,7 @@ def run(command):
                         print(exc.code, file=sys.stderr)
                         raise SystemExit(1)
                     raise
-                except Exception:  # noqa: BLE001 - silent CLI boundary suppresses all exceptions
+                except Exception:  # noqa: BLE001 - CLI boundary prints failures before exiting.
                     traceback.print_exc()
                     raise SystemExit(1)
     finally:

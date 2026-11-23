@@ -1,5 +1,4 @@
-# Legacy module name retained for import compatibility.
-# ruff: noqa: N999
+# ruff: noqa: N999 -- Preserve established public module names.
 import json
 import math
 import tomllib
@@ -130,7 +129,7 @@ def resolve_config(path=None, overrides=None) -> RunConfig:
         for section in ("input", "tokenizer", "merge", "parallel", "dictionary", "filter", "scoring", "sentences", "output", "debug", "profiling", "anki"):
             values = data.get(section, {})
             if not isinstance(values, dict):
-                raise ValueError(f"[{section}] must be a table")  # noqa: TRY004 - stable config validation API
+                raise ValueError(f"[{section}] must be a table")  # noqa: TRY004 -- Preserve the established ValueError validation contract.
             config = replace(config, **{section: _update_section(section, getattr(config, section), values)})
     for section, values in (overrides or {}).items():
         config = replace(config, **{section: _update_section(section, getattr(config, section), values)})

@@ -52,7 +52,8 @@ class PerformanceTests(unittest.TestCase):
                 if data['status'] != 'running':
                     write_performance(tmp, pipeline.performance)
             pipeline = Pipeline([step], cache=cache, on_stage_record=record, profiling=True)
-            with patch('src.GrammarCache._input_key_data', side_effect=KeyboardInterrupt), self.assertRaises(KeyboardInterrupt):
+            with patch('src.GrammarCache._input_key_data', side_effect=KeyboardInterrupt), \
+                self.assertRaises(KeyboardInterrupt):
                 pipeline.run(Artifact(fixture()))
             data = json.loads((Path(tmp) / 'performance.json').read_text(encoding='utf-8'))
             stage = json.loads(next((Path(tmp) / 'steps').glob('*.json')).read_text(encoding='utf-8'))

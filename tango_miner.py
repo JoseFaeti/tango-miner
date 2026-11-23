@@ -2,7 +2,7 @@
 
 import argparse
 import traceback
-from contextlib import ExitStack, redirect_stderr, redirect_stdout
+from contextlib import redirect_stderr, redirect_stdout
 from dataclasses import replace
 from pathlib import Path
 
@@ -158,7 +158,7 @@ def process_script(argv=None):
     print_debug('debug = true')
     print_debug(f'recursive mode = {recursive}')
 
-    with TemporaryDirectory() as tmpdir_str, ExitStack() as resources:
+    with TemporaryDirectory() as tmpdir_str:
         tmpdir = Path(tmpdir_str)
         input_path_obj = Path(input_path)
 
@@ -225,10 +225,10 @@ def process_script(argv=None):
         stage_cache = StageCache(CACHE_DIR, dependencies, args.refresh_cache)
         active_steps = [step for step in steps if step is not None]
         log_path = final_path.parent / "pipeline.log"
-        log = resources.enter_context(log_path.open("w", encoding="utf-8", newline="\n"))
+        log = log_path.open("w", encoding="utf-8", newline="\n")
         silent_archive_ready = True
         log.write(f"Min frequency: {min_frequency}\nInput: {input_path_obj}\nOutput: {final_path}\n")
-        silent_stream = resources.enter_context(open(os.devnull, "w", encoding="utf-8")) if args.silent else None
+        silent_stream = open(os.devnull, "w", encoding="utf-8") if args.silent else None  # noqa: SIM115 - Closed with the pipeline log in finally.
         display = ConsoleProgress(silent_stream or sys.stdout, len(active_steps), verbose=args.verbose, log=log)
 
         def record_stage(index, step, record):
@@ -310,7 +310,7 @@ def notify_run(summary, run_dir):
     except ValueError:
         print("Warning: ntfy notification failed: NTFY_URL must be a full HTTP(S) topic URL.", file=sys.stderr)
         return "failed (invalid topic URL)"
-    except Exception as exc:  # noqa: BLE001 - optional notification must never fail the run
+    except Exception as exc:  # noqa: BLE001 - Optional notification must not change pipeline result.
         print(f"Warning: ntfy notification failed ({type(exc).__name__}).", file=sys.stderr)
         return f"failed ({type(exc).__name__})"
 

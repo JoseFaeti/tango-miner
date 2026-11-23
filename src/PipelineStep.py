@@ -1,5 +1,4 @@
-# Legacy module name retained for import compatibility.
-# ruff: noqa: N999
+# ruff: noqa: N999 -- Preserve established public module names.
 import time
 from abc import ABC, abstractmethod
 from contextlib import contextmanager

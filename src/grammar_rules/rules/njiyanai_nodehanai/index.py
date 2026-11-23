@@ -9,8 +9,8 @@ def match_njiyanai_nodehanai(tokens):
         surface = ''.join(t['surface'] for t in tokens
                           if start <= t['span'][0] and t['span'][1] <= end)
         # The shared rule also accepts affirmative ではある / じゃある.
-        if (surface.startswith(('んじゃ', 'んでは', 'のじゃ', 'のでは'))
-                and not surface.startswith(('んではある', 'のではある', 'んじゃある', 'のじゃある'))):
+        if (surface.startswith(('んじゃ', 'んでは', 'のじゃ', 'のでは')) and
+            not surface.startswith(('んではある', 'のではある', 'んじゃある', 'のじゃある'))):
             yield start, end
 
 

@@ -1,3 +1,5 @@
+# ruff: noqa: PLC0414 -- Explicit aliases preserve compatibility re-exports.
+# Backward-compatible imports for callers of the former combined module.
 import hashlib
 import importlib.metadata
 import importlib.util
@@ -13,6 +15,10 @@ from src.Artifact import Artifact
 from src.CachePaths import CACHE_DIR
 from src.PipelineStep import PipelineStep
 from src.RunConfig import TokenizerConfig
+from src.steps.MergeTokensStep.index import (
+    combine_tokens_jmdict as combine_tokens_jmdict,
+)
+from src.steps.MergeTokensStep.index import get_jmdict as get_jmdict
 from src.steps.ProcessingStep.index import ProcessingStep
 from src.TokenCache import TokenCache
 from src.TokenizedSentence import TokenizedSentence
@@ -214,7 +220,7 @@ def tokenize(
 ):
     """Compatibility helper that executes the three token-processing stages."""
     if not isinstance(input_path, list):
-        raise ValueError("tokenize() now only accepts list[str] sentences")  # noqa: TRY004 - compatibility API
+        raise ValueError("tokenize() now only accepts list[str] sentences")  # noqa: TRY004 -- Preserve public validation behavior.
 
     from src.steps.BuildWordStatsStep.index import build_word_stats
 
@@ -388,10 +394,4 @@ def looks_like_guide_header(text: str) -> bool:
         return True
 
     guide_labels = ("行き方", "入手方法", "戦闘開始時")
-    return any(term in text for term in guide_labels) and len(text) < 20
-
-# Backward-compatible imports for callers of the former combined module.
-from src.steps.MergeTokensStep.index import (
-    combine_tokens_jmdict as combine_tokens_jmdict,  # noqa: PLC0414 - compatibility export
-)
-from src.steps.MergeTokensStep.index import get_jmdict as get_jmdict  # noqa: PLC0414 - compatibility export
+    return bool(any(term in text for term in guide_labels) and len(text) < 20)

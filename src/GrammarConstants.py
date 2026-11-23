@@ -1,236 +1,555 @@
-# Legacy module name and imported compatibility constants are public API.
-# ruff: noqa: N999, F401
+# ruff: noqa: N999 -- Preserve established public module names.
+# ruff: noqa: PLC0414 -- Explicit aliases preserve compatibility re-exports.
 """Grammar identities and compatibility aliases."""
+
 from src.grammar_rules.registry import RULES
-from src.grammar_rules.rules.aru_iru.index import ARU_IRU_EXPRESSION
-from src.grammar_rules.rules.au.index import AU_GRAMMAR_EXPRESSION
-from src.grammar_rules.rules.ba.index import BA_GRAMMAR_EXPRESSION
-from src.grammar_rules.rules.baii_taraii.index import BAII_TARAII_EXPRESSION
-from src.grammar_rules.rules.bakari.index import BAKARI_EXPRESSION
+from src.grammar_rules.rules.aru_iru.index import (
+    ARU_IRU_EXPRESSION as ARU_IRU_EXPRESSION,
+)
+from src.grammar_rules.rules.au.index import (
+    AU_GRAMMAR_EXPRESSION as AU_GRAMMAR_EXPRESSION,
+)
+from src.grammar_rules.rules.ba.index import (
+    BA_GRAMMAR_EXPRESSION as BA_GRAMMAR_EXPRESSION,
+)
+from src.grammar_rules.rules.baii_taraii.index import (
+    BAII_TARAII_EXPRESSION as BAII_TARAII_EXPRESSION,
+)
+from src.grammar_rules.rules.bakari.index import BAKARI_EXPRESSION as BAKARI_EXPRESSION
 from src.grammar_rules.rules.bayokatta_tarayokatta.index import (
-    BAYOKATTA_TARAYOKATTA_EXPRESSION,
+    BAYOKATTA_TARAYOKATTA_EXPRESSION as BAYOKATTA_TARAYOKATTA_EXPRESSION,
 )
-from src.grammar_rules.rules.da_desu.index import DA_DESU_EXPRESSION
-from src.grammar_rules.rules.dake_nomi.index import DAKE_NOMI_EXPRESSION
-from src.grammar_rules.rules.darou_deshou.index import DAROU_DESHOU_EXPRESSION
-from src.grammar_rules.rules.datta_deshita.index import DATTA_DESHITA_EXPRESSION
-from src.grammar_rules.rules.dokoroka.index import DOKOROKA_EXPRESSION
+from src.grammar_rules.rules.da_desu.index import (
+    DA_DESU_EXPRESSION as DA_DESU_EXPRESSION,
+)
+from src.grammar_rules.rules.dake_nomi.index import (
+    DAKE_NOMI_EXPRESSION as DAKE_NOMI_EXPRESSION,
+)
+from src.grammar_rules.rules.darou_deshou.index import (
+    DAROU_DESHOU_EXPRESSION as DAROU_DESHOU_EXPRESSION,
+)
+from src.grammar_rules.rules.datta_deshita.index import (
+    DATTA_DESHITA_EXPRESSION as DATTA_DESHITA_EXPRESSION,
+)
+from src.grammar_rules.rules.dokoroka.index import (
+    DOKOROKA_EXPRESSION as DOKOROKA_EXPRESSION,
+)
 from src.grammar_rules.rules.elliptical_obligation.index import (
-    ELLIPTICAL_OBLIGATION_EXPRESSION,
+    ELLIPTICAL_OBLIGATION_EXPRESSION as ELLIPTICAL_OBLIGATION_EXPRESSION,
 )
-from src.grammar_rules.rules.ga.index import GA_EXPRESSION
-from src.grammar_rules.rules.gachi.index import GACHI_EXPRESSION
-from src.grammar_rules.rules.garu.index import GARU_GRAMMAR_EXPRESSION
-from src.grammar_rules.rules.gomu.index import GOMU_EXPRESSION
-from src.grammar_rules.rules.gotoni.index import GOTONI_EXPRESSION
-from src.grammar_rules.rules.ha.index import HA_EXPRESSION
-from src.grammar_rules.rules.hajimeru_dasu.index import HAJIMERU_DASU_EXPRESSION
-from src.grammar_rules.rules.hamochiron.index import HAMOCHIRON_EXPRESSION
-from src.grammar_rules.rules.hazu_da.index import HAZU_DA_GRAMMAR_EXPRESSION
-from src.grammar_rules.rules.hazuganai.index import HAZUGANAI_EXPRESSION
-from src.grammar_rules.rules.hodo_kurai_gurai.index import HODO_KURAI_GURAI_EXPRESSION
-from src.grammar_rules.rules.hoshii.index import HOSHII_GRAMMAR_EXPRESSION
-from src.grammar_rules.rules.hou.index import HOU_EXPRESSION
-from src.grammar_rules.rules.hou_ga_ii.index import HOU_GA_II_EXPRESSION
-from src.grammar_rules.rules.irai.index import IRAI_EXPRESSION
-from src.grammar_rules.rules.janai_dewanai.index import JANAI_DEWANAI_EXPRESSION
-from src.grammar_rules.rules.jiyan_jiyanaika.index import JIYAN_JIYANAIKA_EXPRESSION
-from src.grammar_rules.rules.jiyanaito_denaito.index import JIYANAITO_DENAITO_EXPRESSION
-from src.grammar_rules.rules.kadouka.index import KADOUKA_EXPRESSION
-from src.grammar_rules.rules.kai_dai.index import KAI_DAI_EXPRESSION
-from src.grammar_rules.rules.kaina_yan_yaro.index import KAINA_YAN_YARO_EXPRESSION
-from src.grammar_rules.rules.kakeru.index import KAKERU_EXPRESSION
-from src.grammar_rules.rules.kamoshiren_kamo.index import KAMOSHIREN_KAMO_EXPRESSION
-from src.grammar_rules.rules.kamoshirenai.index import KAMOSHIRENAI_GRAMMAR_EXPRESSION
-from src.grammar_rules.rules.kana_kashira.index import KANA_KASHIRA_EXPRESSION
-from src.grammar_rules.rules.kaneru.index import KANERU_EXPRESSION
-from src.grammar_rules.rules.kara_made.index import KARA_MADE_EXPRESSION
-from src.grammar_rules.rules.kara_node.index import KARA_NODE_EXPRESSION
-from src.grammar_rules.rules.karakoso.index import KARAKOSO_EXPRESSION
-from src.grammar_rules.rules.kedo_keredomo.index import KEDO_EXPRESSION
-from src.grammar_rules.rules.koto_ga_aru.index import KOTO_GA_ARU_EXPERIENCE
-from src.grammar_rules.rules.koto_ga_aru_occasional.index import KOTO_GA_ARU_OCCASIONAL
-from src.grammar_rules.rules.koto_ga_dekiru.index import KOTO_GA_DEKIRU_EXPRESSION
-from src.grammar_rules.rules.koto_ga_nai.index import KOTO_GA_NAI
-from src.grammar_rules.rules.koto_ni_naru.index import KOTO_NI_NARU_GRAMMAR_EXPRESSION
-from src.grammar_rules.rules.koto_ni_natteiru.index import KOTO_NI_NATTEIRU_EXPRESSION
-from src.grammar_rules.rules.koto_ni_shiteiru.index import KOTO_NI_SHITEIRU_EXPRESSION
-from src.grammar_rules.rules.koto_ni_suru.index import KOTO_NI_SURU_GRAMMAR_EXPRESSION
-from src.grammar_rules.rules.koto_wa_ga.index import KOTO_WA_GA
-from src.grammar_rules.rules.koto_wa_nai.index import KOTO_WA_NAI
-from src.grammar_rules.rules.kotoda.index import KOTODA_EXPRESSION
-from src.grammar_rules.rules.kotoka.index import KOTOKA_EXPRESSION
-from src.grammar_rules.rules.kotoni.index import KOTONI_EXPRESSION
-from src.grammar_rules.rules.kunaru_ninaru.index import KUNARU_NINARU_EXPRESSION
-from src.grammar_rules.rules.kusuru_nisuru.index import KUSURU_NISURU_EXPRESSION
-from src.grammar_rules.rules.madeni.index import MADENI_EXPRESSION
-from src.grammar_rules.rules.maeni_atode.index import MAENI_ATODE_EXPRESSION
-from src.grammar_rules.rules.mai.index import MAI_EXPRESSION
-from src.grammar_rules.rules.masen_mashita.index import MASEN_MASHITA_EXPRESSION
-from src.grammar_rules.rules.masenka_naika.index import MASENKA_NAIKA_EXPRESSION
-from src.grammar_rules.rules.mashou_you.index import MASHOU_YOU_EXPRESSION
-from src.grammar_rules.rules.mitai_ni.index import MITAI_NI_EXPRESSION
-from src.grammar_rules.rules.monne.index import MONNE_EXPRESSION
-from src.grammar_rules.rules.mono_mon.index import MONO_MON_EXPRESSION
-from src.grammar_rules.rules.monoda.index import MONODA_EXPRESSION
+from src.grammar_rules.rules.ga.index import GA_EXPRESSION as GA_EXPRESSION
+from src.grammar_rules.rules.gachi.index import GACHI_EXPRESSION as GACHI_EXPRESSION
+from src.grammar_rules.rules.garu.index import (
+    GARU_GRAMMAR_EXPRESSION as GARU_GRAMMAR_EXPRESSION,
+)
+from src.grammar_rules.rules.gomu.index import GOMU_EXPRESSION as GOMU_EXPRESSION
+from src.grammar_rules.rules.gotoni.index import GOTONI_EXPRESSION as GOTONI_EXPRESSION
+from src.grammar_rules.rules.ha.index import HA_EXPRESSION as HA_EXPRESSION
+from src.grammar_rules.rules.hajimeru_dasu.index import (
+    HAJIMERU_DASU_EXPRESSION as HAJIMERU_DASU_EXPRESSION,
+)
+from src.grammar_rules.rules.hamochiron.index import (
+    HAMOCHIRON_EXPRESSION as HAMOCHIRON_EXPRESSION,
+)
+from src.grammar_rules.rules.hazu_da.index import (
+    HAZU_DA_GRAMMAR_EXPRESSION as HAZU_DA_GRAMMAR_EXPRESSION,
+)
+from src.grammar_rules.rules.hazuganai.index import (
+    HAZUGANAI_EXPRESSION as HAZUGANAI_EXPRESSION,
+)
+from src.grammar_rules.rules.hodo_kurai_gurai.index import (
+    HODO_KURAI_GURAI_EXPRESSION as HODO_KURAI_GURAI_EXPRESSION,
+)
+from src.grammar_rules.rules.hoshii.index import (
+    HOSHII_GRAMMAR_EXPRESSION as HOSHII_GRAMMAR_EXPRESSION,
+)
+from src.grammar_rules.rules.hou.index import HOU_EXPRESSION as HOU_EXPRESSION
+from src.grammar_rules.rules.hou_ga_ii.index import (
+    HOU_GA_II_EXPRESSION as HOU_GA_II_EXPRESSION,
+)
+from src.grammar_rules.rules.irai.index import IRAI_EXPRESSION as IRAI_EXPRESSION
+from src.grammar_rules.rules.janai_dewanai.index import (
+    JANAI_DEWANAI_EXPRESSION as JANAI_DEWANAI_EXPRESSION,
+)
+from src.grammar_rules.rules.jiyan_jiyanaika.index import (
+    JIYAN_JIYANAIKA_EXPRESSION as JIYAN_JIYANAIKA_EXPRESSION,
+)
+from src.grammar_rules.rules.jiyanaito_denaito.index import (
+    JIYANAITO_DENAITO_EXPRESSION as JIYANAITO_DENAITO_EXPRESSION,
+)
+from src.grammar_rules.rules.kadouka.index import (
+    KADOUKA_EXPRESSION as KADOUKA_EXPRESSION,
+)
+from src.grammar_rules.rules.kai_dai.index import (
+    KAI_DAI_EXPRESSION as KAI_DAI_EXPRESSION,
+)
+from src.grammar_rules.rules.kaina_yan_yaro.index import (
+    KAINA_YAN_YARO_EXPRESSION as KAINA_YAN_YARO_EXPRESSION,
+)
+from src.grammar_rules.rules.kakeru.index import KAKERU_EXPRESSION as KAKERU_EXPRESSION
+from src.grammar_rules.rules.kamoshiren_kamo.index import (
+    KAMOSHIREN_KAMO_EXPRESSION as KAMOSHIREN_KAMO_EXPRESSION,
+)
+from src.grammar_rules.rules.kamoshirenai.index import (
+    KAMOSHIRENAI_GRAMMAR_EXPRESSION as KAMOSHIRENAI_GRAMMAR_EXPRESSION,
+)
+from src.grammar_rules.rules.kana_kashira.index import (
+    KANA_KASHIRA_EXPRESSION as KANA_KASHIRA_EXPRESSION,
+)
+from src.grammar_rules.rules.kaneru.index import KANERU_EXPRESSION as KANERU_EXPRESSION
+from src.grammar_rules.rules.kara_made.index import (
+    KARA_MADE_EXPRESSION as KARA_MADE_EXPRESSION,
+)
+from src.grammar_rules.rules.kara_node.index import (
+    KARA_NODE_EXPRESSION as KARA_NODE_EXPRESSION,
+)
+from src.grammar_rules.rules.karakoso.index import (
+    KARAKOSO_EXPRESSION as KARAKOSO_EXPRESSION,
+)
+from src.grammar_rules.rules.kedo_keredomo.index import (
+    KEDO_EXPRESSION as KEDO_EXPRESSION,
+)
+from src.grammar_rules.rules.koto_ga_aru.index import (
+    KOTO_GA_ARU_EXPERIENCE as KOTO_GA_ARU_EXPERIENCE,
+)
+from src.grammar_rules.rules.koto_ga_aru_occasional.index import (
+    KOTO_GA_ARU_OCCASIONAL as KOTO_GA_ARU_OCCASIONAL,
+)
+from src.grammar_rules.rules.koto_ga_dekiru.index import (
+    KOTO_GA_DEKIRU_EXPRESSION as KOTO_GA_DEKIRU_EXPRESSION,
+)
+from src.grammar_rules.rules.koto_ga_nai.index import KOTO_GA_NAI as KOTO_GA_NAI
+from src.grammar_rules.rules.koto_ni_naru.index import (
+    KOTO_NI_NARU_GRAMMAR_EXPRESSION as KOTO_NI_NARU_GRAMMAR_EXPRESSION,
+)
+from src.grammar_rules.rules.koto_ni_natteiru.index import (
+    KOTO_NI_NATTEIRU_EXPRESSION as KOTO_NI_NATTEIRU_EXPRESSION,
+)
+from src.grammar_rules.rules.koto_ni_shiteiru.index import (
+    KOTO_NI_SHITEIRU_EXPRESSION as KOTO_NI_SHITEIRU_EXPRESSION,
+)
+from src.grammar_rules.rules.koto_ni_suru.index import (
+    KOTO_NI_SURU_GRAMMAR_EXPRESSION as KOTO_NI_SURU_GRAMMAR_EXPRESSION,
+)
+from src.grammar_rules.rules.koto_wa_ga.index import KOTO_WA_GA as KOTO_WA_GA
+from src.grammar_rules.rules.koto_wa_nai.index import KOTO_WA_NAI as KOTO_WA_NAI
+from src.grammar_rules.rules.kotoda.index import KOTODA_EXPRESSION as KOTODA_EXPRESSION
+from src.grammar_rules.rules.kotoka.index import KOTOKA_EXPRESSION as KOTOKA_EXPRESSION
+from src.grammar_rules.rules.kotoni.index import KOTONI_EXPRESSION as KOTONI_EXPRESSION
+from src.grammar_rules.rules.kunaru_ninaru.index import (
+    KUNARU_NINARU_EXPRESSION as KUNARU_NINARU_EXPRESSION,
+)
+from src.grammar_rules.rules.kusuru_nisuru.index import (
+    KUSURU_NISURU_EXPRESSION as KUSURU_NISURU_EXPRESSION,
+)
+from src.grammar_rules.rules.madeni.index import MADENI_EXPRESSION as MADENI_EXPRESSION
+from src.grammar_rules.rules.maeni_atode.index import (
+    MAENI_ATODE_EXPRESSION as MAENI_ATODE_EXPRESSION,
+)
+from src.grammar_rules.rules.mai.index import MAI_EXPRESSION as MAI_EXPRESSION
+from src.grammar_rules.rules.masen_mashita.index import (
+    MASEN_MASHITA_EXPRESSION as MASEN_MASHITA_EXPRESSION,
+)
+from src.grammar_rules.rules.masenka_naika.index import (
+    MASENKA_NAIKA_EXPRESSION as MASENKA_NAIKA_EXPRESSION,
+)
+from src.grammar_rules.rules.mashou_you.index import (
+    MASHOU_YOU_EXPRESSION as MASHOU_YOU_EXPRESSION,
+)
+from src.grammar_rules.rules.mitai_ni.index import (
+    MITAI_NI_EXPRESSION as MITAI_NI_EXPRESSION,
+)
+from src.grammar_rules.rules.monne.index import MONNE_EXPRESSION as MONNE_EXPRESSION
+from src.grammar_rules.rules.mono_mon.index import (
+    MONO_MON_EXPRESSION as MONO_MON_EXPRESSION,
+)
+from src.grammar_rules.rules.monoda.index import MONODA_EXPRESSION as MONODA_EXPRESSION
 from src.grammar_rules.rules.monodakara_mondakara.index import (
-    MONODAKARA_MONDAKARA_EXPRESSION,
+    MONODAKARA_MONDAKARA_EXPRESSION as MONODAKARA_MONDAKARA_EXPRESSION,
 )
-from src.grammar_rules.rules.monodehanai.index import MONODEHANAI_EXPRESSION
-from src.grammar_rules.rules.monoka_monka.index import MONOKA_MONKA_EXPRESSION
-from src.grammar_rules.rules.mononara.index import MONONARA_EXPRESSION
-from src.grammar_rules.rules.monono.index import MONONO_GRAMMAR_EXPRESSION
-from src.grammar_rules.rules.na.index import NA_EXPRESSION
-from src.grammar_rules.rules.nado_nanka_nante.index import NADO_NANKA_NANTE_EXPRESSION
-from src.grammar_rules.rules.nagara.index import NAGARA_GRAMMAR_EXPRESSION
-from src.grammar_rules.rules.nagaramo.index import NAGARAMO_EXPRESSION
-from src.grammar_rules.rules.nai.index import NAI_GRAMMAR_EXPRESSION
-from src.grammar_rules.rules.naide.index import NAIDE_GRAMMAR_EXPRESSION
-from src.grammar_rules.rules.naikana.index import NAIKANA_EXPRESSION
-from src.grammar_rules.rules.nakunaru.index import NAKUNARU_EXPRESSION
-from src.grammar_rules.rules.nakuteha_nakereba.index import NAKUTEHA_NAKEREBA_EXPRESSION
-from src.grammar_rules.rules.nakutemoii.index import NAKUTEMOII_GRAMMAR_EXPRESSION
-from src.grammar_rules.rules.nanka.index import NANKA_EXPRESSION
-from src.grammar_rules.rules.nante.index import NANTE_EXPRESSION
-from src.grammar_rules.rules.naosu.index import NAOSU_GRAMMAR_EXPRESSION
-from src.grammar_rules.rules.nara.index import NARA_GRAMMAR_EXPRESSION
-from src.grammar_rules.rules.nasai.index import NASAI_EXPRESSION
-from src.grammar_rules.rules.nda.index import NDA_GRAMMAR_EXPRESSION
-from src.grammar_rules.rules.ndakedo_ndesuga.index import NDAKEDO_NDESUGA_EXPRESSION
-from src.grammar_rules.rules.ndatte_datte.index import NDATTE_DATTE_EXPRESSION
-from src.grammar_rules.rules.ne_yo_yone.index import NE_YO_YONE_EXPRESSION
-from src.grammar_rules.rules.nichigainai.index import NICHIGAINAI_EXPRESSION
-from src.grammar_rules.rules.nikagirazu.index import NIKAGIRAZU_EXPRESSION
-from src.grammar_rules.rules.nikagiru.index import NIKAGIRU_EXPRESSION
-from src.grammar_rules.rules.nikagitsute.index import NIKAGITTSUTE_EXPRESSION
+from src.grammar_rules.rules.monodehanai.index import (
+    MONODEHANAI_EXPRESSION as MONODEHANAI_EXPRESSION,
+)
+from src.grammar_rules.rules.monoka_monka.index import (
+    MONOKA_MONKA_EXPRESSION as MONOKA_MONKA_EXPRESSION,
+)
+from src.grammar_rules.rules.mononara.index import (
+    MONONARA_EXPRESSION as MONONARA_EXPRESSION,
+)
+from src.grammar_rules.rules.monono.index import (
+    MONONO_GRAMMAR_EXPRESSION as MONONO_GRAMMAR_EXPRESSION,
+)
+from src.grammar_rules.rules.na.index import NA_EXPRESSION as NA_EXPRESSION
+from src.grammar_rules.rules.nado_nanka_nante.index import (
+    NADO_NANKA_NANTE_EXPRESSION as NADO_NANKA_NANTE_EXPRESSION,
+)
+from src.grammar_rules.rules.nagara.index import (
+    NAGARA_GRAMMAR_EXPRESSION as NAGARA_GRAMMAR_EXPRESSION,
+)
+from src.grammar_rules.rules.nagaramo.index import (
+    NAGARAMO_EXPRESSION as NAGARAMO_EXPRESSION,
+)
+from src.grammar_rules.rules.nai.index import (
+    NAI_GRAMMAR_EXPRESSION as NAI_GRAMMAR_EXPRESSION,
+)
+from src.grammar_rules.rules.naide.index import (
+    NAIDE_GRAMMAR_EXPRESSION as NAIDE_GRAMMAR_EXPRESSION,
+)
+from src.grammar_rules.rules.naikana.index import (
+    NAIKANA_EXPRESSION as NAIKANA_EXPRESSION,
+)
+from src.grammar_rules.rules.nakunaru.index import (
+    NAKUNARU_EXPRESSION as NAKUNARU_EXPRESSION,
+)
+from src.grammar_rules.rules.nakuteha_nakereba.index import (
+    NAKUTEHA_NAKEREBA_EXPRESSION as NAKUTEHA_NAKEREBA_EXPRESSION,
+)
+from src.grammar_rules.rules.nakutemoii.index import (
+    NAKUTEMOII_GRAMMAR_EXPRESSION as NAKUTEMOII_GRAMMAR_EXPRESSION,
+)
+from src.grammar_rules.rules.nanka.index import NANKA_EXPRESSION as NANKA_EXPRESSION
+from src.grammar_rules.rules.nante.index import NANTE_EXPRESSION as NANTE_EXPRESSION
+from src.grammar_rules.rules.naosu.index import (
+    NAOSU_GRAMMAR_EXPRESSION as NAOSU_GRAMMAR_EXPRESSION,
+)
+from src.grammar_rules.rules.nara.index import (
+    NARA_GRAMMAR_EXPRESSION as NARA_GRAMMAR_EXPRESSION,
+)
+from src.grammar_rules.rules.nasai.index import NASAI_EXPRESSION as NASAI_EXPRESSION
+from src.grammar_rules.rules.nda.index import (
+    NDA_GRAMMAR_EXPRESSION as NDA_GRAMMAR_EXPRESSION,
+)
+from src.grammar_rules.rules.ndakedo_ndesuga.index import (
+    NDAKEDO_NDESUGA_EXPRESSION as NDAKEDO_NDESUGA_EXPRESSION,
+)
+from src.grammar_rules.rules.ndatte_datte.index import (
+    NDATTE_DATTE_EXPRESSION as NDATTE_DATTE_EXPRESSION,
+)
+from src.grammar_rules.rules.ne_yo_yone.index import (
+    NE_YO_YONE_EXPRESSION as NE_YO_YONE_EXPRESSION,
+)
+from src.grammar_rules.rules.nichigainai.index import (
+    NICHIGAINAI_EXPRESSION as NICHIGAINAI_EXPRESSION,
+)
+from src.grammar_rules.rules.nikagirazu.index import (
+    NIKAGIRAZU_EXPRESSION as NIKAGIRAZU_EXPRESSION,
+)
+from src.grammar_rules.rules.nikagiru.index import (
+    NIKAGIRU_EXPRESSION as NIKAGIRU_EXPRESSION,
+)
+from src.grammar_rules.rules.nikagitsute.index import (
+    NIKAGITTSUTE_EXPRESSION as NIKAGITTSUTE_EXPRESSION,
+)
 from src.grammar_rules.rules.nikanshite_nikansuru.index import (
-    NIKANSHITE_NIKANSURU_EXPRESSION,
+    NIKANSHITE_NIKANSURU_EXPRESSION as NIKANSHITE_NIKANSURU_EXPRESSION,
 )
 from src.grammar_rules.rules.nikawatte_nokawarini.index import (
-    NIKAWATTE_NOKAWARINI_EXPRESSION,
+    NIKAWATTE_NOKAWARINI_EXPRESSION as NIKAWATTE_NOKAWARINI_EXPRESSION,
 )
-from src.grammar_rules.rules.nikurabete.index import NIKURABETE_EXPRESSION
-from src.grammar_rules.rules.nikuwaete.index import NIKUWAETE_EXPRESSION
-from src.grammar_rules.rules.nimuiteiru_muki.index import NIMUITEIRU_MUKI_EXPRESSION
+from src.grammar_rules.rules.nikurabete.index import (
+    NIKURABETE_EXPRESSION as NIKURABETE_EXPRESSION,
+)
+from src.grammar_rules.rules.nikuwaete.index import (
+    NIKUWAETE_EXPRESSION as NIKUWAETE_EXPRESSION,
+)
+from src.grammar_rules.rules.nimuiteiru_muki.index import (
+    NIMUITEIRU_MUKI_EXPRESSION as NIMUITEIRU_MUKI_EXPRESSION,
+)
 from src.grammar_rules.rules.nimukatte_nimukete.index import (
-    NIMUKATTE_NIMUKETE_EXPRESSION,
+    NIMUKATTE_NIMUKETE_EXPRESSION as NIMUKATTE_NIMUKETE_EXPRESSION,
 )
-from src.grammar_rules.rules.nishiteha.index import NISHITEHA_EXPRESSION
-from src.grammar_rules.rules.nishitemo.index import NISHITEMO_EXPRESSION
+from src.grammar_rules.rules.nishiteha.index import (
+    NISHITEHA_EXPRESSION as NISHITEHA_EXPRESSION,
+)
+from src.grammar_rules.rules.nishitemo.index import (
+    NISHITEMO_EXPRESSION as NISHITEMO_EXPRESSION,
+)
 from src.grammar_rules.rules.nishitemonishitemo.index import (
-    NISHITEMONISHITEMO_EXPRESSION,
+    NISHITEMONISHITEMO_EXPRESSION as NISHITEMONISHITEMO_EXPRESSION,
 )
-from src.grammar_rules.rules.nitaishite.index import NITAISHITE_EXPRESSION
-from src.grammar_rules.rules.nitotsute.index import NITOTSUTE_EXPRESSION
-from src.grammar_rules.rules.nitsuite.index import NITSUITE_EXPRESSION
-from src.grammar_rules.rules.niyoruto_niyoreba.index import NIYORUTO_NIYOREBA_EXPRESSION
-from src.grammar_rules.rules.niyotte_niyoru.index import NIYOTTE_NIYORU_EXPRESSION
+from src.grammar_rules.rules.nitaishite.index import (
+    NITAISHITE_EXPRESSION as NITAISHITE_EXPRESSION,
+)
+from src.grammar_rules.rules.nitotsute.index import (
+    NITOTSUTE_EXPRESSION as NITOTSUTE_EXPRESSION,
+)
+from src.grammar_rules.rules.nitsuite.index import (
+    NITSUITE_EXPRESSION as NITSUITE_EXPRESSION,
+)
+from src.grammar_rules.rules.niyoruto_niyoreba.index import (
+    NIYORUTO_NIYOREBA_EXPRESSION as NIYORUTO_NIYOREBA_EXPRESSION,
+)
+from src.grammar_rules.rules.niyotte_niyoru.index import (
+    NIYOTTE_NIYORU_EXPRESSION as NIYOTTE_NIYORU_EXPRESSION,
+)
 from src.grammar_rules.rules.njiyanai_nodehanai.index import (
-    NJIYANAI_NODEHANAI_EXPRESSION,
+    NJIYANAI_NODEHANAI_EXPRESSION as NJIYANAI_NODEHANAI_EXPRESSION,
 )
-from src.grammar_rules.rules.nodarouka.index import NODAROUKA_EXPRESSION
-from src.grammar_rules.rules.noka_nka.index import NOKA_NKA_EXPRESSION
-from src.grammar_rules.rules.noni.index import NONI_GRAMMAR_EXPRESSION
-from src.grammar_rules.rules.obligation.index import OBLIGATION_GRAMMAR_EXPRESSION
-from src.grammar_rules.rules.owaru_oeru.index import OWARU_OERU_EXPRESSION
-from src.grammar_rules.rules.rareru_reru.index import RARERU_RERU_EXPRESSION
-from src.grammar_rules.rules.rashii.index import RASHII_EXPRESSION
-from src.grammar_rules.rules.sae_sura.index import SAE_SURA_EXPRESSION
-from src.grammar_rules.rules.saserareru.index import SASERARERU_EXPRESSION
-from src.grammar_rules.rules.shikanai.index import SHIKANAI_EXPRESSION
-from src.grammar_rules.rules.sou_da.index import SOU_APPEARANCE, SOU_HEARSAY
-from src.grammar_rules.rules.sou_mo_nai.index import SOU_MO_NAI_EXPRESSION
-from src.grammar_rules.rules.sou_ni_nai.index import SOU_NI_NAI_EXPRESSION
-from src.grammar_rules.rules.sou_ni_naru.index import SOU_NI_NARU_EXPRESSION
-from src.grammar_rules.rules.sugiru.index import SUGIRU_EXPRESSION
-from src.grammar_rules.rules.ta.index import TA_GRAMMAR_EXPRESSION
-from src.grammar_rules.rules.ta_hou_ga_ii.index import TA_HOU_GA_II_EXPRESSION
-from src.grammar_rules.rules.tabakari.index import TABAKARI_EXPRESSION
-from src.grammar_rules.rules.tabini.index import TABINI_EXPRESSION
-from src.grammar_rules.rules.tagaru.index import TAGARU_GRAMMAR_EXPRESSION
-from src.grammar_rules.rules.tai.index import TAI_GRAMMAR_EXPRESSION
-from src.grammar_rules.rules.tame.index import TAME_EXPRESSION
-from src.grammar_rules.rules.tame_ni.index import TAME_NI_GRAMMAR_EXPRESSION
-from src.grammar_rules.rules.tara.index import TARA_GRAMMAR_EXPRESSION
-from src.grammar_rules.rules.taradou.index import TARADOU_EXPRESSION
-from src.grammar_rules.rules.tarinankashite.index import TARINANKASHITE_EXPRESSION
-from src.grammar_rules.rules.taritarisuru.index import TARITARISURU_EXPRESSION
-from src.grammar_rules.rules.tatokoro.index import TATOKORO_EXPRESSION
-from src.grammar_rules.rules.tatsute_datsute.index import TATSUTE_DATSUTE_EXPRESSION
-from src.grammar_rules.rules.te_aru.index import TE_ARU_GRAMMAR_EXPRESSION
-from src.grammar_rules.rules.te_benefactive.index import TE_BENEFACTIVE_EXPRESSION
-from src.grammar_rules.rules.te_choudai.index import TE_CHOUDAI_EXPRESSION
-from src.grammar_rules.rules.te_goran.index import TE_GORAN_EXPRESSION
-from src.grammar_rules.rules.te_hoshii.index import TE_HOSHII_GRAMMAR_EXPRESSION
-from src.grammar_rules.rules.te_iku.index import TE_IKU_GRAMMAR_EXPRESSION
-from src.grammar_rules.rules.te_iru.index import TE_IRU_GRAMMAR_EXPRESSION
-from src.grammar_rules.rules.te_itadakemasenka.index import TE_ITADAKEMASENKA_EXPRESSION
-from src.grammar_rules.rules.te_kara.index import TE_KARA_EXPRESSION
-from src.grammar_rules.rules.te_kudasai.index import TE_KUDASAI_GRAMMAR_EXPRESSION
+from src.grammar_rules.rules.nodarouka.index import (
+    NODAROUKA_EXPRESSION as NODAROUKA_EXPRESSION,
+)
+from src.grammar_rules.rules.noka_nka.index import (
+    NOKA_NKA_EXPRESSION as NOKA_NKA_EXPRESSION,
+)
+from src.grammar_rules.rules.noni.index import (
+    NONI_GRAMMAR_EXPRESSION as NONI_GRAMMAR_EXPRESSION,
+)
+from src.grammar_rules.rules.obligation.index import (
+    OBLIGATION_GRAMMAR_EXPRESSION as OBLIGATION_GRAMMAR_EXPRESSION,
+)
+from src.grammar_rules.rules.owaru_oeru.index import (
+    OWARU_OERU_EXPRESSION as OWARU_OERU_EXPRESSION,
+)
+from src.grammar_rules.rules.rareru_reru.index import (
+    RARERU_RERU_EXPRESSION as RARERU_RERU_EXPRESSION,
+)
+from src.grammar_rules.rules.rashii.index import RASHII_EXPRESSION as RASHII_EXPRESSION
+from src.grammar_rules.rules.sae_sura.index import (
+    SAE_SURA_EXPRESSION as SAE_SURA_EXPRESSION,
+)
+from src.grammar_rules.rules.saserareru.index import (
+    SASERARERU_EXPRESSION as SASERARERU_EXPRESSION,
+)
+from src.grammar_rules.rules.shikanai.index import (
+    SHIKANAI_EXPRESSION as SHIKANAI_EXPRESSION,
+)
+from src.grammar_rules.rules.sou_da.index import SOU_APPEARANCE as SOU_APPEARANCE
+from src.grammar_rules.rules.sou_da.index import SOU_HEARSAY as SOU_HEARSAY
+from src.grammar_rules.rules.sou_mo_nai.index import (
+    SOU_MO_NAI_EXPRESSION as SOU_MO_NAI_EXPRESSION,
+)
+from src.grammar_rules.rules.sou_ni_nai.index import (
+    SOU_NI_NAI_EXPRESSION as SOU_NI_NAI_EXPRESSION,
+)
+from src.grammar_rules.rules.sou_ni_naru.index import (
+    SOU_NI_NARU_EXPRESSION as SOU_NI_NARU_EXPRESSION,
+)
+from src.grammar_rules.rules.sugiru.index import SUGIRU_EXPRESSION as SUGIRU_EXPRESSION
+from src.grammar_rules.rules.ta.index import (
+    TA_GRAMMAR_EXPRESSION as TA_GRAMMAR_EXPRESSION,
+)
+from src.grammar_rules.rules.ta_hou_ga_ii.index import (
+    TA_HOU_GA_II_EXPRESSION as TA_HOU_GA_II_EXPRESSION,
+)
+from src.grammar_rules.rules.tabakari.index import (
+    TABAKARI_EXPRESSION as TABAKARI_EXPRESSION,
+)
+from src.grammar_rules.rules.tabini.index import TABINI_EXPRESSION as TABINI_EXPRESSION
+from src.grammar_rules.rules.tagaru.index import (
+    TAGARU_GRAMMAR_EXPRESSION as TAGARU_GRAMMAR_EXPRESSION,
+)
+from src.grammar_rules.rules.tai.index import (
+    TAI_GRAMMAR_EXPRESSION as TAI_GRAMMAR_EXPRESSION,
+)
+from src.grammar_rules.rules.tame.index import TAME_EXPRESSION as TAME_EXPRESSION
+from src.grammar_rules.rules.tame_ni.index import (
+    TAME_NI_GRAMMAR_EXPRESSION as TAME_NI_GRAMMAR_EXPRESSION,
+)
+from src.grammar_rules.rules.tara.index import (
+    TARA_GRAMMAR_EXPRESSION as TARA_GRAMMAR_EXPRESSION,
+)
+from src.grammar_rules.rules.taradou.index import (
+    TARADOU_EXPRESSION as TARADOU_EXPRESSION,
+)
+from src.grammar_rules.rules.tarinankashite.index import (
+    TARINANKASHITE_EXPRESSION as TARINANKASHITE_EXPRESSION,
+)
+from src.grammar_rules.rules.taritarisuru.index import (
+    TARITARISURU_EXPRESSION as TARITARISURU_EXPRESSION,
+)
+from src.grammar_rules.rules.tatokoro.index import (
+    TATOKORO_EXPRESSION as TATOKORO_EXPRESSION,
+)
+from src.grammar_rules.rules.tatsute_datsute.index import (
+    TATSUTE_DATSUTE_EXPRESSION as TATSUTE_DATSUTE_EXPRESSION,
+)
+from src.grammar_rules.rules.te_aru.index import (
+    TE_ARU_GRAMMAR_EXPRESSION as TE_ARU_GRAMMAR_EXPRESSION,
+)
+from src.grammar_rules.rules.te_benefactive.index import (
+    TE_BENEFACTIVE_EXPRESSION as TE_BENEFACTIVE_EXPRESSION,
+)
+from src.grammar_rules.rules.te_choudai.index import (
+    TE_CHOUDAI_EXPRESSION as TE_CHOUDAI_EXPRESSION,
+)
+from src.grammar_rules.rules.te_goran.index import (
+    TE_GORAN_EXPRESSION as TE_GORAN_EXPRESSION,
+)
+from src.grammar_rules.rules.te_hoshii.index import (
+    TE_HOSHII_GRAMMAR_EXPRESSION as TE_HOSHII_GRAMMAR_EXPRESSION,
+)
+from src.grammar_rules.rules.te_iku.index import (
+    TE_IKU_GRAMMAR_EXPRESSION as TE_IKU_GRAMMAR_EXPRESSION,
+)
+from src.grammar_rules.rules.te_iru.index import (
+    TE_IRU_GRAMMAR_EXPRESSION as TE_IRU_GRAMMAR_EXPRESSION,
+)
+from src.grammar_rules.rules.te_itadakemasenka.index import (
+    TE_ITADAKEMASENKA_EXPRESSION as TE_ITADAKEMASENKA_EXPRESSION,
+)
+from src.grammar_rules.rules.te_kara.index import (
+    TE_KARA_EXPRESSION as TE_KARA_EXPRESSION,
+)
+from src.grammar_rules.rules.te_kudasai.index import (
+    TE_KUDASAI_GRAMMAR_EXPRESSION as TE_KUDASAI_GRAMMAR_EXPRESSION,
+)
 from src.grammar_rules.rules.te_kurenai_temoraenai.index import (
-    TE_KURENAI_TEMORAENAI_EXPRESSION,
+    TE_KURENAI_TEMORAENAI_EXPRESSION as TE_KURENAI_TEMORAENAI_EXPRESSION,
 )
-from src.grammar_rules.rules.te_kuru.index import TE_KURU_GRAMMAR_EXPRESSION
-from src.grammar_rules.rules.te_miru.index import TE_MIRU_GRAMMAR_EXPRESSION
-from src.grammar_rules.rules.te_mo.index import TE_MO_GRAMMAR_EXPRESSION
-from src.grammar_rules.rules.te_mo_ii.index import TE_MO_II_GRAMMAR_EXPRESSION
-from src.grammar_rules.rules.te_oku.index import TE_OKU_GRAMMAR_EXPRESSION
+from src.grammar_rules.rules.te_kuru.index import (
+    TE_KURU_GRAMMAR_EXPRESSION as TE_KURU_GRAMMAR_EXPRESSION,
+)
+from src.grammar_rules.rules.te_miru.index import (
+    TE_MIRU_GRAMMAR_EXPRESSION as TE_MIRU_GRAMMAR_EXPRESSION,
+)
+from src.grammar_rules.rules.te_mo.index import (
+    TE_MO_GRAMMAR_EXPRESSION as TE_MO_GRAMMAR_EXPRESSION,
+)
+from src.grammar_rules.rules.te_mo_ii.index import (
+    TE_MO_II_GRAMMAR_EXPRESSION as TE_MO_II_GRAMMAR_EXPRESSION,
+)
+from src.grammar_rules.rules.te_oku.index import (
+    TE_OKU_GRAMMAR_EXPRESSION as TE_OKU_GRAMMAR_EXPRESSION,
+)
 from src.grammar_rules.rules.te_polite_benefactive.index import (
-    TE_POLITE_BENEFACTIVE_EXPRESSION,
+    TE_POLITE_BENEFACTIVE_EXPRESSION as TE_POLITE_BENEFACTIVE_EXPRESSION,
 )
-from src.grammar_rules.rules.te_shimau.index import TE_SHIMAU_GRAMMAR_EXPRESSION
-from src.grammar_rules.rules.te_wa_ikenai.index import TE_WA_IKENAI_GRAMMAR_EXPRESSION
-from src.grammar_rules.rules.te_yaru.index import TE_YARU_EXPRESSION
-from src.grammar_rules.rules.teha_chiya_jiya.index import TEHA_CHIYA_JIYA_EXPRESSION
-from src.grammar_rules.rules.temoraitai.index import TEMORAITAI_EXPRESSION
-from src.grammar_rules.rules.teyamanai.index import TEYAMANAI_GRAMMAR_EXPRESSION
-from src.grammar_rules.rules.to_iu_kiku.index import TO_IU_KIKU_EXPRESSION
-from src.grammar_rules.rules.to_omou.index import TO_OMOU_GRAMMAR_EXPRESSION
-from src.grammar_rules.rules.toii_toiina.index import TOII_TOIINA_EXPRESSION
-from src.grammar_rules.rules.toiu.index import TOIU_EXPRESSION
-from src.grammar_rules.rules.toiukotoda.index import TOIUKOTODA_EXPRESSION
-from src.grammar_rules.rules.toiukotoha.index import TOIUKOTOHA_EXPRESSION
-from src.grammar_rules.rules.toiukotoninaru.index import TOIUKOTONINARU_EXPRESSION
-from src.grammar_rules.rules.toiunoha.index import TOIUNOHA_EXPRESSION
-from src.grammar_rules.rules.toiuyori.index import TOIUYORI_EXPRESSION
-from src.grammar_rules.rules.toka.index import TOKA_EXPRESSION
-from src.grammar_rules.rules.toki.index import TOKI_EXPRESSION
-from src.grammar_rules.rules.tokoroda.index import TOKORODA_EXPRESSION
-from src.grammar_rules.rules.tokoroni_tokorohe.index import TOKORONI_TOKOROHE_EXPRESSION
-from src.grammar_rules.rules.tokoroo.index import TOKOROO_EXPRESSION
+from src.grammar_rules.rules.te_shimau.index import (
+    TE_SHIMAU_GRAMMAR_EXPRESSION as TE_SHIMAU_GRAMMAR_EXPRESSION,
+)
+from src.grammar_rules.rules.te_wa_ikenai.index import (
+    TE_WA_IKENAI_GRAMMAR_EXPRESSION as TE_WA_IKENAI_GRAMMAR_EXPRESSION,
+)
+from src.grammar_rules.rules.te_yaru.index import (
+    TE_YARU_EXPRESSION as TE_YARU_EXPRESSION,
+)
+from src.grammar_rules.rules.teha_chiya_jiya.index import (
+    TEHA_CHIYA_JIYA_EXPRESSION as TEHA_CHIYA_JIYA_EXPRESSION,
+)
+from src.grammar_rules.rules.temoraitai.index import (
+    TEMORAITAI_EXPRESSION as TEMORAITAI_EXPRESSION,
+)
+from src.grammar_rules.rules.teyamanai.index import (
+    TEYAMANAI_GRAMMAR_EXPRESSION as TEYAMANAI_GRAMMAR_EXPRESSION,
+)
+from src.grammar_rules.rules.to_iu_kiku.index import (
+    TO_IU_KIKU_EXPRESSION as TO_IU_KIKU_EXPRESSION,
+)
+from src.grammar_rules.rules.to_omou.index import (
+    TO_OMOU_GRAMMAR_EXPRESSION as TO_OMOU_GRAMMAR_EXPRESSION,
+)
+from src.grammar_rules.rules.toii_toiina.index import (
+    TOII_TOIINA_EXPRESSION as TOII_TOIINA_EXPRESSION,
+)
+from src.grammar_rules.rules.toiu.index import TOIU_EXPRESSION as TOIU_EXPRESSION
+from src.grammar_rules.rules.toiukotoda.index import (
+    TOIUKOTODA_EXPRESSION as TOIUKOTODA_EXPRESSION,
+)
+from src.grammar_rules.rules.toiukotoha.index import (
+    TOIUKOTOHA_EXPRESSION as TOIUKOTOHA_EXPRESSION,
+)
+from src.grammar_rules.rules.toiukotoninaru.index import (
+    TOIUKOTONINARU_EXPRESSION as TOIUKOTONINARU_EXPRESSION,
+)
+from src.grammar_rules.rules.toiunoha.index import (
+    TOIUNOHA_EXPRESSION as TOIUNOHA_EXPRESSION,
+)
+from src.grammar_rules.rules.toiuyori.index import (
+    TOIUYORI_EXPRESSION as TOIUYORI_EXPRESSION,
+)
+from src.grammar_rules.rules.toka.index import TOKA_EXPRESSION as TOKA_EXPRESSION
+from src.grammar_rules.rules.toki.index import TOKI_EXPRESSION as TOKI_EXPRESSION
+from src.grammar_rules.rules.tokoroda.index import (
+    TOKORODA_EXPRESSION as TOKORODA_EXPRESSION,
+)
+from src.grammar_rules.rules.tokoroni_tokorohe.index import (
+    TOKORONI_TOKOROHE_EXPRESSION as TOKORONI_TOKOROHE_EXPRESSION,
+)
+from src.grammar_rules.rules.tokoroo.index import (
+    TOKOROO_EXPRESSION as TOKOROO_EXPRESSION,
+)
 from src.grammar_rules.rules.toshitara_tosureba.index import (
-    TOSHITARA_TOSUREBA_EXPRESSION,
+    TOSHITARA_TOSUREBA_EXPRESSION as TOSHITARA_TOSUREBA_EXPRESSION,
 )
-from src.grammar_rules.rules.toshite.index import TOSHITE_EXPRESSION
-from src.grammar_rules.rules.toshiteha.index import TOSHITEHA_EXPRESSION
-from src.grammar_rules.rules.toshitemo.index import TOSHITEMO_EXPRESSION
-from src.grammar_rules.rules.tosuruto.index import TOSURUTO_EXPRESSION
-from src.grammar_rules.rules.tsuideni.index import TSUIDENI_EXPRESSION
-from src.grammar_rules.rules.tsuke.index import TSUKE_EXPRESSION
-from src.grammar_rules.rules.tsumorida.index import TSUMORIDA_EXPRESSION
-from src.grammar_rules.rules.tsupanashi.index import TSUPANASHI_EXPRESSION
-from src.grammar_rules.rules.tsupoi.index import TSUPOI_EXPRESSION
-from src.grammar_rules.rules.tsuzukeru.index import TSUZUKERU_EXPRESSION
-from src.grammar_rules.rules.tte.index import TTE_EXPRESSION
-from src.grammar_rules.rules.ttekoto_ttewake.index import TTEKOTO_TTEWAKE_EXPRESSION
-from src.grammar_rules.rules.uchini.index import UCHINI_EXPRESSION
-from src.grammar_rules.rules.wake_da.index import WAKE_DA, WAKE_NEGATIVE
-from src.grammar_rules.rules.wake_tsutewake.index import WAKE_TSUTEWAKE_EXPRESSION
-from src.grammar_rules.rules.wakeganai.index import WAKEGANAI_EXPRESSION
-from src.grammar_rules.rules.wakenihaikanai.index import WAKENIHAIKANAI_EXPRESSION
-from src.grammar_rules.rules.ya_toka.index import YA_TOKA_EXPRESSION
-from src.grammar_rules.rules.yasui_nikui.index import YASUI_NIKUI_EXPRESSION
-from src.grammar_rules.rules.yori.index import YORI_EXPRESSION
-from src.grammar_rules.rules.yoteida.index import YOTEIDA_EXPRESSION
-from src.grammar_rules.rules.you_da.index import YOU_DA_GRAMMAR_EXPRESSION
-from src.grammar_rules.rules.you_ni.index import YOU_NI_GRAMMAR_EXPRESSION
-from src.grammar_rules.rules.you_ni_iu_tanomu.index import YOU_NI_IU_TANOMU_EXPRESSION
-from src.grammar_rules.rules.you_ni_mieru.index import YOU_NI_MIERU_EXPRESSION
-from src.grammar_rules.rules.you_ni_naru.index import YOU_NI_NARU_EXPRESSION
-from src.grammar_rules.rules.you_ni_suru.index import YOU_NI_SURU_EXPRESSION
-from src.grammar_rules.rules.you_to_omou.index import YOU_TO_OMOU_EXPRESSION
-from src.grammar_rules.rules.you_to_suru.index import YOU_TO_SURU_EXPRESSION
-from src.grammar_rules.rules.youdehanaika.index import YOUDEHANAIKA_EXPRESSION
+from src.grammar_rules.rules.toshite.index import (
+    TOSHITE_EXPRESSION as TOSHITE_EXPRESSION,
+)
+from src.grammar_rules.rules.toshiteha.index import (
+    TOSHITEHA_EXPRESSION as TOSHITEHA_EXPRESSION,
+)
+from src.grammar_rules.rules.toshitemo.index import (
+    TOSHITEMO_EXPRESSION as TOSHITEMO_EXPRESSION,
+)
+from src.grammar_rules.rules.tosuruto.index import (
+    TOSURUTO_EXPRESSION as TOSURUTO_EXPRESSION,
+)
+from src.grammar_rules.rules.tsuideni.index import (
+    TSUIDENI_EXPRESSION as TSUIDENI_EXPRESSION,
+)
+from src.grammar_rules.rules.tsuke.index import TSUKE_EXPRESSION as TSUKE_EXPRESSION
+from src.grammar_rules.rules.tsumorida.index import (
+    TSUMORIDA_EXPRESSION as TSUMORIDA_EXPRESSION,
+)
+from src.grammar_rules.rules.tsupanashi.index import (
+    TSUPANASHI_EXPRESSION as TSUPANASHI_EXPRESSION,
+)
+from src.grammar_rules.rules.tsupoi.index import TSUPOI_EXPRESSION as TSUPOI_EXPRESSION
+from src.grammar_rules.rules.tsuzukeru.index import (
+    TSUZUKERU_EXPRESSION as TSUZUKERU_EXPRESSION,
+)
+from src.grammar_rules.rules.tte.index import TTE_EXPRESSION as TTE_EXPRESSION
+from src.grammar_rules.rules.ttekoto_ttewake.index import (
+    TTEKOTO_TTEWAKE_EXPRESSION as TTEKOTO_TTEWAKE_EXPRESSION,
+)
+from src.grammar_rules.rules.uchini.index import UCHINI_EXPRESSION as UCHINI_EXPRESSION
+from src.grammar_rules.rules.wake_da.index import WAKE_DA as WAKE_DA
+from src.grammar_rules.rules.wake_da.index import WAKE_NEGATIVE as WAKE_NEGATIVE
+from src.grammar_rules.rules.wake_tsutewake.index import (
+    WAKE_TSUTEWAKE_EXPRESSION as WAKE_TSUTEWAKE_EXPRESSION,
+)
+from src.grammar_rules.rules.wakeganai.index import (
+    WAKEGANAI_EXPRESSION as WAKEGANAI_EXPRESSION,
+)
+from src.grammar_rules.rules.wakenihaikanai.index import (
+    WAKENIHAIKANAI_EXPRESSION as WAKENIHAIKANAI_EXPRESSION,
+)
+from src.grammar_rules.rules.ya_toka.index import (
+    YA_TOKA_EXPRESSION as YA_TOKA_EXPRESSION,
+)
+from src.grammar_rules.rules.yasui_nikui.index import (
+    YASUI_NIKUI_EXPRESSION as YASUI_NIKUI_EXPRESSION,
+)
+from src.grammar_rules.rules.yori.index import YORI_EXPRESSION as YORI_EXPRESSION
+from src.grammar_rules.rules.yoteida.index import (
+    YOTEIDA_EXPRESSION as YOTEIDA_EXPRESSION,
+)
+from src.grammar_rules.rules.you_da.index import (
+    YOU_DA_GRAMMAR_EXPRESSION as YOU_DA_GRAMMAR_EXPRESSION,
+)
+from src.grammar_rules.rules.you_ni.index import (
+    YOU_NI_GRAMMAR_EXPRESSION as YOU_NI_GRAMMAR_EXPRESSION,
+)
+from src.grammar_rules.rules.you_ni_iu_tanomu.index import (
+    YOU_NI_IU_TANOMU_EXPRESSION as YOU_NI_IU_TANOMU_EXPRESSION,
+)
+from src.grammar_rules.rules.you_ni_mieru.index import (
+    YOU_NI_MIERU_EXPRESSION as YOU_NI_MIERU_EXPRESSION,
+)
+from src.grammar_rules.rules.you_ni_naru.index import (
+    YOU_NI_NARU_EXPRESSION as YOU_NI_NARU_EXPRESSION,
+)
+from src.grammar_rules.rules.you_ni_suru.index import (
+    YOU_NI_SURU_EXPRESSION as YOU_NI_SURU_EXPRESSION,
+)
+from src.grammar_rules.rules.you_to_omou.index import (
+    YOU_TO_OMOU_EXPRESSION as YOU_TO_OMOU_EXPRESSION,
+)
+from src.grammar_rules.rules.you_to_suru.index import (
+    YOU_TO_SURU_EXPRESSION as YOU_TO_SURU_EXPRESSION,
+)
+from src.grammar_rules.rules.youdehanaika.index import (
+    YOUDEHANAIKA_EXPRESSION as YOUDEHANAIKA_EXPRESSION,
+)
 
 GRAMMAR_EXPRESSIONS = frozenset(rule.expression for rule in RULES)
 LEGACY_GRAMMAR_EXPRESSIONS = {expression + ' (grammar)': expression for expression in GRAMMAR_EXPRESSIONS}

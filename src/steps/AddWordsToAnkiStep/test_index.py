@@ -1,3 +1,4 @@
+# ruff: noqa: B023 -- Loop fixtures are invoked synchronously before the next iteration.
 import json
 import tempfile
 import unittest
@@ -42,22 +43,22 @@ class AddWordsToAnkiStepTests(unittest.TestCase):
             with self.subTest(answer=answer):
                 clock = [100.0]
                 actions = []
-                def fake(action, params=None, *, actions=actions, clock=clock, **kwargs):
+                def fake(action, params=None, **kwargs):
                     actions.append(action)
                     clock[0] += 2.0
                     if action == 'modelNames': return ['Custom']
                     if action == 'findNotes': return []
                     if action == 'addNotes': return [1]
                     raise AssertionError(action)
-                def input_after_delay(_, clock=clock, answer=answer):
+                def input_after_delay(_):
                     clock[0] += 60.0
                     if answer is None:
                         raise EOFError()
                     return answer
                 step = AddWordsToAnkiStep(AnkiConfig(model='Custom', output_only=False))
                 events = []
-                pipeline = Pipeline([step], on_progress=lambda *args, events=events, **kwargs: events.append(kwargs))
-                with patch('time.perf_counter', side_effect=lambda clock=clock: clock[0]), \
+                pipeline = Pipeline([step], on_progress=lambda *args, **kwargs: events.append(kwargs))
+                with patch('time.perf_counter', side_effect=lambda: clock[0]), \
                         patch('src.steps.AddWordsToAnkiStep.index.anki_invoke', side_effect=fake), \
                         patch('builtins.input', side_effect=input_after_delay), patch('builtins.print'):
                     pipeline.run(Artifact({'犬': make_stats()}))
@@ -81,7 +82,13 @@ class AddWordsToAnkiStepTests(unittest.TestCase):
             clock[0] += 25.0
             raise KeyboardInterrupt()
         pipeline = Pipeline([AddWordsToAnkiStep(AnkiConfig(model='Custom', output_only=False))])
-        with patch('time.perf_counter', side_effect=lambda clock=clock: clock[0]), patch('src.steps.AddWordsToAnkiStep.index.anki_invoke', side_effect=fake), patch('builtins.input', side_effect=interrupt), patch('builtins.print'), self.assertRaises(KeyboardInterrupt):
+        with (
+            patch('time.perf_counter', side_effect=lambda: clock[0]),
+            patch('src.steps.AddWordsToAnkiStep.index.anki_invoke', side_effect=fake),
+            patch('builtins.input', side_effect=interrupt),
+            patch('builtins.print'),
+            self.assertRaises(KeyboardInterrupt),
+        ):
             pipeline.run(Artifact({'犬': make_stats()}))
         self.assertEqual(pipeline.wait_seconds, 25.0)
         self.assertEqual(pipeline.duration, 0.0)
@@ -106,7 +113,11 @@ class AddWordsToAnkiStepTests(unittest.TestCase):
             return 'n'
         step = AddWordsToAnkiStep(AnkiConfig(model='Custom', output_only=False))
         display = ConsoleProgress(output, 1)
-        with patch('src.steps.AddWordsToAnkiStep.index.anki_invoke', side_effect=fake), patch('builtins.input', side_effect=decline), display.capture_step_output():
+        with (
+            patch('src.steps.AddWordsToAnkiStep.index.anki_invoke', side_effect=fake),
+            patch('builtins.input', side_effect=decline),
+            display.capture_step_output(),
+        ):
             Pipeline([step], on_progress=display.progress, on_stage_record=display.stage).run(Artifact(words))
         self.assertIn('100.0% Comparing notes...', seen_at_prompt[0])
         self.assertEqual(step.outcome['status'], 'cancelled')
@@ -117,7 +128,7 @@ class AddWordsToAnkiStepTests(unittest.TestCase):
             with self.subTest(words=words):
                 events = []
                 calls = []
-                def fake(action, params=None, *, calls=calls):
+                def fake(action, params=None):
                     calls.append(action)
                     if action == 'modelNames': return ['Custom']
                     if action == 'findNotes': return []
@@ -125,7 +136,7 @@ class AddWordsToAnkiStepTests(unittest.TestCase):
                     raise AssertionError(action)
                 with patch('builtins.input', return_value=answer), patch('builtins.print'):
                     export_words_to_anki('Deck', words, 'Custom', invoke=fake,
-                                         progress_handler=lambda *args, events=events: events.append(args))
+                                         progress_handler=lambda *args: events.append(args))
                 for phase in ('Fetching existing notes from Anki...', 'Preparing comparison...', 'Comparing notes...'):
                     self.assertTrue(any(current == total for current, total, message in events if message == phase), phase)
                 if words:
@@ -190,7 +201,7 @@ class AddWordsToAnkiStepTests(unittest.TestCase):
         for output_only in (True, False):
             with self.subTest(output_only=output_only), tempfile.TemporaryDirectory() as directory:
                 plan_path = Path(directory) / "anki-plan.json"
-                def decline(_prompt, plan_path=plan_path):
+                def decline(_prompt):
                     self.assertTrue(plan_path.exists())
                     return "n"
                 step = AddWordsToAnkiStep(AnkiConfig(model="Custom", output_only=output_only, prune=True), plan_path)
@@ -255,7 +266,7 @@ class AddWordsToAnkiStepTests(unittest.TestCase):
         for output_only, answer in [(True, "y"), (False, "n"), (False, None), (False, "y")]:
             with self.subTest(output_only=output_only, answer=answer):
                 calls = []
-                def fake(action, params=None, *, calls=calls):
+                def fake(action, params=None):
                     calls.append(action)
                     if action == "modelNames": return []
                     if action == "findNotes": return []
@@ -281,7 +292,7 @@ class AddWordsToAnkiStepTests(unittest.TestCase):
                                              (False, "n", False, "cancelled"),
                                              (False, "y", True, "applying")]:
             with self.subTest(mode=mode, answer=answer):
-                def fake(action, params=None, *, fail=fail):
+                def fake(action, params=None):
                     if action == "modelNames": return ["Custom"]
                     if action == "findNotes": return []
                     if action == "addNotes" and fail: raise RuntimeError("network failure")

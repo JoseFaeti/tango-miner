@@ -1,5 +1,4 @@
-# Legacy module name retained for import compatibility.
-# ruff: noqa: N999
+# ruff: noqa: N999 -- Preserve established public module names.
 """Read-only, memory-mapped JMdict data for spawned worker processes."""
 import hashlib
 import json
@@ -107,7 +106,7 @@ class SharedIndex:
     """Small private hash directory and shared, read-only mapped entry data."""
     def __init__(self, path, dictionary_hash):
         digest, _ = _identity(dictionary_hash)
-        self.file = Path(path).open('rb')  # noqa: SIM115 - owned until SharedIndex.close()
+        self.file = Path(path).open('rb')  # noqa: SIM115 -- The mapped index owns this handle until close().
         try:
             self.mapping = mmap.mmap(self.file.fileno(), 0, access=mmap.ACCESS_READ)
             magic, slots, count, length, expected, _ = _HEADER.unpack_from(self.mapping)

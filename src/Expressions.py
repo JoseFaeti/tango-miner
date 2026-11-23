@@ -1,5 +1,4 @@
-# Legacy module name retained for import compatibility.
-# ruff: noqa: N999
+# ruff: noqa: N999 -- Preserve established public module names.
 """Match a curated inventory against aligned Sudachi token streams."""
 import json
 from dataclasses import asdict, dataclass
