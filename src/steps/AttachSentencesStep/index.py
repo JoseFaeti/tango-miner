@@ -6,9 +6,11 @@ from itertools import count
 from src.Artifact import Artifact
 from src.PipelineStep import PipelineStep
 from src.RunConfig import SentencesConfig
+from src.SegmentedSentence import SegmentedSentence as SegmentedSentence  # noqa: PLC0414 - compatibility export
 from src.steps.ProcessingStep.index import ProcessingStep
 from src.steps.TokenizeStep.index import is_valid_sentence
 from src.WordStats import Sentence
+from src.WordStats import WordStats as WordStats  # noqa: PLC0414 - compatibility export
 
 # ---------------------------------------------------------------------------
 # Config
