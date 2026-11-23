@@ -52,7 +52,7 @@ class TokoroomirutoTests(unittest.TestCase):
         stage.add_cards(words)
         self.assertIn('帰る', words)
         self.assertEqual(words[RULE.expression].sentences[0].surface_form, 'ところを見ると')
-        self.assertIn(TOKOROO_RULE.expression, words)
+        self.assertNotIn(TOKOROO_RULE.expression, words)
         self.assertIn(RULE, RULES)
         self.assertIn(RULE.expression, GRAMMAR_EXPRESSIONS)
         self.assertEqual(LEGACY_GRAMMAR_EXPRESSIONS[RULE.expression + ' (grammar)'], RULE.expression)

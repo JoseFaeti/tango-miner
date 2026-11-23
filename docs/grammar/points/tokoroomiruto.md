@@ -16,5 +16,5 @@ Judging from.
   Focused tests cover Sudachi forms, boundaries, identity and reservation.
 - Literal seeing and literal places can have the same form and are also matched;
   the rule does not distinguish inference from those readings. The overlapping
-  〜ところを card is also retained. Other variants and predicate forms remain
+  〜ところを card is not inferred from this pattern. Other variants and predicate forms remain
   unverified.
