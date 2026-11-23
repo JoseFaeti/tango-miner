@@ -6,8 +6,8 @@ import sys
 import tomllib
 
 ROOT = Path(__file__).resolve().parent.parent
-TESTED_DATE = "2026-10-31"
-TESTED_SHA256 = "3214e9b77728d3d0e67a8bf5609d25b3bc8922e0103f1c5538fb74b078e81f41"
+TESTED_DATE = "2026-11-23"
+TESTED_SHA256 = "d66a8ac5e9e363368d86a2f8957accb3da10cc5df5b459c5b15647041f2e7d7b"
 
 
 def check_dictionary():

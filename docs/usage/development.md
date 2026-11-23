@@ -79,8 +79,8 @@ in the pipeline, a known gap in recall.
 ## JMdict test baseline
 
 Integration tests use the configured English-only legacy `JMdict_e` XML. The
-tested snapshot was generated **2026-10-31**; the SHA-256 of the uncompressed
-XML is `3214e9b77728d3d0e67a8bf5609d25b3bc8922e0103f1c5538fb74b078e81f41`.
+tested snapshot was generated **2026-11-23**; the SHA-256 of the uncompressed
+XML is `d66a8ac5e9e363368d86a2f8957accb3da10cc5df5b459c5b15647041f2e7d7b`.
 This is a data dependency: different editions can change token merging and
 definitions. It is not the `JMdict_e_NG` format.
 
