@@ -126,7 +126,8 @@ class GrammarStep(PipelineStep):
                                         if merged[t['index']].get('analysis_rule') in
                                         ('jmdict_surface_merge', 'jmdict_nandemo_arimasen',
                                          'jmdict_me_wo_samasu', 'jmdict_me_wo_tsuburu',
-                                         'jmdict_nemuri_ni_tsuku', 'jmdict_itai_me_ni_au')]
+                                         'jmdict_nemuri_ni_tsuku', 'jmdict_itai_me_ni_au',
+                                         'jmdict_todome_wo_sasu')]
                     for rule_id, endings in (('kaneru', ('かねる', '兼ねる')),
                                              ('toosu', ('通す', 'とおす'))):
                         if any(rule.id == rule_id for rule, _, _ in proposals):

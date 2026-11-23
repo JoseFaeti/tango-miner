@@ -549,6 +549,46 @@ class TokenizerIntegrationTests(unittest.TestCase):
         tokens[2]['grammar_reserved'] = True
         self.assertNotIn('目を覚ます', [t['lemma'] for t in combine_tokens_jmdict(tokens, self.jmdict)])
 
+    def test_todome_wo_sasu_source_forms_and_boundaries(self):
+        from pathlib import Path
+
+        from src.Artifact import Artifact
+        from src.Grammar import ExcludeGrammarTokensStep, GrammarStep
+        from src.steps.TokenizeStep.index import tokenize_raw_sentences
+
+        examples = [
+            ('あの時、とどめを刺さなかった自分を悔いるのじゃ！', 'とどめを刺さ'),
+            ('クレイラは、そのあと、…召喚魔法でとどめをさされた！！', 'とどめをささ'),
+            ('CLOUDよ、ルーファウスにとどめをささなかったのか？', 'とどめをささ'),
+            ('とどめを刺した。', 'とどめを刺し'),
+            ('とどめをさす。', 'とどめをさす'),
+        ]
+        raw = tokenize_raw_sentences([text for text, _ in examples],
+                                     tag='source', source_path=Path('source.txt'))
+        stage = GrammarStep(prefer_expressions=True)
+        reserved = ExcludeGrammarTokensStep(stage).process(stage.process(Artifact(raw)))
+        for sentence, (_, surface) in zip(reserved.data, examples):
+            with self.subTest(text=sentence.text):
+                merged = combine_tokens_jmdict(sentence.tokens, self.jmdict)
+                self.assertIn('とどめを刺す', [t['lemma'] for t in merged], repr(sentence.tokens))
+                word = next(t for t in merged if t['lemma'] == 'とどめを刺す')
+                self.assertEqual(word['surface'], surface)
+                self.assertTrue(word['dictionary_expression'])
+                self.assertEqual(word['analysis_rule'], 'jmdict_todome_wo_sasu')
+                self.assertEqual(''.join(c.surface for c in word['components']), surface)
+                self.assertEqual(len(word['components']), 3)
+                self.assertEqual(''.join(t['surface'] for t in merged), sentence.text)
+        for text in ('とどめが刺さった。', 'とどめを、刺した。',
+                     'とどめを指した。', '針を刺した。', 'とどめを待った。'):
+            with self.subTest(text=text):
+                tokens = tokenize_sentence(text)
+                merged = combine_tokens_jmdict(tokens, self.jmdict)
+                self.assertNotIn('とどめを刺す', [t['lemma'] for t in merged])
+                self.assertEqual(''.join(t['surface'] for t in merged), text)
+        tokens = tokenize_sentence('とどめを刺した。')
+        tokens[1]['grammar_reserved'] = True
+        self.assertNotIn('とどめを刺す', [t['lemma'] for t in combine_tokens_jmdict(tokens, self.jmdict)])
+
     def test_mi_wo_kawasu_source_forms_and_boundaries(self):
         examples = [
             ('いつも通りまずは基本のみかわしきゃく。', 'みかわし'),

@@ -41,6 +41,8 @@ Dictionary expression merging recognizes inflected 目をつぶる while retaini
 the source components. It also recognizes inflected ピンと来る, including
 the dialectal negative ピンとこん, while retaining the source components.
 Inflected 眠りにつく is likewise recognized with its original components.
+Inflected とどめを刺す, including kana さす and passive forms, is recognized
+with its original components.
 Dictionary expression merging also recognizes 気が利く, 気を利かす (including
 気を利かせる), and 口をきく, including omitted を and potential forms,
 while retaining the source components.
