@@ -28,23 +28,22 @@ def main():
     sys.stdout.flush()
     sys.stderr.flush()
     saved = [os.dup(1), os.dup(2)]
-    sink = tempfile.TemporaryFile(mode="w+b")  # noqa: SIM115 - Closed after descriptors are restored.
-    os.dup2(sink.fileno(), 1)
-    os.dup2(sink.fileno(), 2)
-    exit_code = None
-    try:
-        with contextlib.redirect_stdout(captured), contextlib.redirect_stderr(captured):
-            runner = unittest.TextTestRunner(stream=output, verbosity=0, buffer=True)
-            arguments = sys.argv if len(sys.argv) > 1 else [sys.argv[0], "discover", "-s", "."]
-            program = unittest.main(module=None, argv=arguments, testRunner=runner, exit=False)
-    except SystemExit as exc:
-        exit_code = exc.code or 0
-    finally:
-        os.dup2(saved[0], 1)
-        os.dup2(saved[1], 2)
-        for descriptor in saved:
-            os.close(descriptor)
-        sink.close()
+    with tempfile.TemporaryFile(mode='w+b') as sink:
+        os.dup2(sink.fileno(), 1)
+        os.dup2(sink.fileno(), 2)
+        exit_code = None
+        try:
+            with contextlib.redirect_stdout(captured), contextlib.redirect_stderr(captured):
+                runner = unittest.TextTestRunner(stream=output, verbosity=0, buffer=True)
+                arguments = sys.argv if len(sys.argv) > 1 else [sys.argv[0], "discover", "-s", "."]
+                program = unittest.main(module=None, argv=arguments, testRunner=runner, exit=False)
+        except SystemExit as exc:
+            exit_code = exc.code or 0
+        finally:
+            os.dup2(saved[0], 1)
+            os.dup2(saved[1], 2)
+            for descriptor in saved:
+                os.close(descriptor)
     if exit_code is not None:
         if exit_code:
             sys.stderr.write(captured.getvalue())

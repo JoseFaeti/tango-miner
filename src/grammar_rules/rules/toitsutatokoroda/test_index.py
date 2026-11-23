@@ -18,6 +18,13 @@ class ToitsutatokorodaTests(unittest.TestCase):
             self.skipTest(f'Sudachi full dictionary unavailable: {exc}')
         cases = {
             '参加者は百人といったところだ。': 'といったところだ',
+            'さすが勇者の血を継ぐものといったところかしら。': 'といったところ',
+            '百人といったところかな。': 'といったところ',
+            '百人といったところ？': 'といったところ',
+            '百人といったところ': 'といったところ',
+            '特殊な合金といった方が近いでしょうか。': None,
+            '犬などといった動物が好きだ。': None,
+            '百人といったところ、次へ進む。': None,
             '費用は一万円と言ったところです。': 'と言ったところです',
             '時間は一時間といったところだった。': 'といったところだった',
             '人数は十人といった所でした。': 'といった所でした',
@@ -35,6 +42,38 @@ class ToitsutatokorodaTests(unittest.TestCase):
                 self.assertIsNone(error)
                 self.assertEqual([text[a:b] for a, b in match_toitsutatokoroda(aligned)],
                                  [] if expected is None else [expected], raw)
+
+    def test_reported_sentences_through_grammar_stage(self):
+        from sudachipy import dictionary, tokenizer
+
+        from src.grammar_rules.rules.toitsuta.index import RULE as EXAMPLES
+
+        analyzer = dictionary.Dictionary(config_path='sudachi.config.json', dict='full').create()
+        cases = (
+            ('さすが勇者の血を継ぐものといったところかしら。', True),
+            ('特殊な合金といった方が近いでしょうか。', False),
+        )
+        for text, assessment in cases:
+            with self.subTest(text=text):
+                raw = [tok(m.surface(), m.dictionary_form(), m.part_of_speech())
+                       for m in analyzer.tokenize(text, tokenizer.Tokenizer.SplitMode.C)]
+                stage = GrammarStep()
+                data = stage.process(Artifact([sentence(text, raw)]))
+                ExcludeGrammarTokensStep(stage).process(data)
+                words = {}
+                stage.add_cards(words)
+                self.assertNotIn(EXAMPLES.expression, words)
+                self.assertEqual(RULE.expression in words, assessment)
+                reserved = [t['surface'] for t in data.data[0].tokens
+                            if t.get('grammar_reserved')]
+                if assessment:
+                    self.assertEqual(words[RULE.expression].sentences[0].surface_form,
+                                     'といったところ')
+                    self.assertTrue(all(s in reserved for s in ('と', 'いっ', 'た', 'ところ')))
+                    self.assertNotIn('もの', reserved)
+                else:
+                    self.assertFalse(any(t.get('grammar_reserved') for t in data.data[0].tokens
+                                         if t['surface'] in ('いっ', '合金')))
 
     def test_card_identity_and_reservation(self):
         tokens = [tok('百人', '百人', ('名詞',)), tok('と', 'と', ('助詞', '格助詞')),
