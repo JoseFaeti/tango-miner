@@ -20,8 +20,18 @@ class NishitaraNisurebaTests(unittest.TestCase):
                  '子供にしたら大変だ。': 'にしたら', '私に したら困る。': None,
                  '彼としたら困る。': None, '仕事をしたら帰る。': None,
                  '彼にしてみれば当然だ。': None, '私にする。': None,
-                 # Choosing a noun is structurally ambiguous and retained.
-                 'お茶にしたらどうですか。': 'にしたら'}
+                 'お茶にしたらどうですか。': None,
+                 'ローストチキンにしたら食いごたえがあると思うぜ？': None,
+                 'いいかげんに諦めて別ショットで記事にしたら？': None,
+                 'りを前にすれば王女様だって元気をとりもどすかもしれないよ。': None,
+                 '彼をリーダーにしたら困る。': None,
+                 '彼を先生にすればいい。': None,
+                 '彼を目の前にしたら驚いた。': None,
+                 '先生にすれば当然だ。': 'にすれば',
+                 '政府にしたら難しい問題だ。': 'にしたら',
+                 '田中にすれば迷惑だ。': 'にすれば',
+                 '私たちにしたら意外だ。': 'にしたら',
+                 '彼を学生にすればいい。': None}
         for text, expected in cases.items():
             with self.subTest(text=text):
                 raw = [tok(m.surface(), m.dictionary_form(), m.part_of_speech())
