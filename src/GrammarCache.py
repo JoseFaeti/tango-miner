@@ -10,6 +10,7 @@ from time import perf_counter
 
 from src.CachePaths import remove_legacy_entries
 from src.Grammar import GrammarOccurrences
+from src.Grammar import GrammarStep as GrammarStep  # noqa: PLC0414 - compatibility export
 from src.grammar_rules.registry import RULES
 from src.StageCache import MERGE_SOURCE_DEPENDENCIES, _bytes, _input_key_data
 from src.WordStats import Sentence
