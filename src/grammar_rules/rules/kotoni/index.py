@@ -3,7 +3,6 @@ KOTONI_EXPRESSION = '〜ことに'
 from src.grammar_rules.base import GrammarRule
 from src.grammar_rules.helpers import adjacent
 
-
 REACTIONS = {'嬉しい', 'うれしい', '悲しい', '哀しい', '悔しい', '恐ろしい',
              'ありがたい', '有り難い', '幸い', '残念', '不思議', '意外',
              '奇妙', '遺憾', '幸運', '不幸', '驚く', '困る'}
@@ -20,9 +19,7 @@ def match_kotoni(tokens):
             continue
         pos = predicate['pos']
         if (predicate['lemma'] in REACTIONS and pos[:1] == ['形容詞']
-                and len(pos) >= 6 and pos[5].startswith('連体形')):
-            pass
-        elif (predicate['surface'] in ('な', 'た') and pos[:1] == ['助動詞']
+                and len(pos) >= 6 and pos[5].startswith('連体形')) or (predicate['surface'] in ('な', 'た') and pos[:1] == ['助動詞']
               and len(pos) >= 6 and pos[5].startswith('連体形') and i >= 2
               and adjacent(tokens[i - 2], predicate)
               and tokens[i - 2]['lemma'] in REACTIONS

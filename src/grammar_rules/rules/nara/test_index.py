@@ -1,10 +1,12 @@
 import unittest
 from unittest.mock import patch
+
 from src.Artifact import Artifact
-from src.Grammar import GrammarStep, ExcludeGrammarTokensStep
+from src.Grammar import ExcludeGrammarTokensStep, GrammarStep
 from src.grammar_rules.alignment import aligned_tokens
 from src.grammar_rules.rules.nara.index import RULE, match_nara
 from src.grammar_rules.rules.te_iru.test_index import sentence, tok
+
 
 class NaraTests(unittest.TestCase):
     def test_analyzer_forms_and_controls(self):
@@ -44,8 +46,7 @@ class NaraTests(unittest.TestCase):
         self.assertIn('学生', words)
         self.assertIn('分かる', words)
         item = source()
-        merged = [dict(surface='学生なら', lemma='学生なら', pos=('exp',),
-                       analysis_rule='jmdict_surface_merge'), item.tokens[-1]]
+        merged = [{'surface': '学生なら', 'lemma': '学生なら', 'pos': ('exp',), 'analysis_rule': 'jmdict_surface_merge'}, item.tokens[-1]]
         stage = GrammarStep(rules=(RULE,), prefer_expressions=True)
         with patch('src.steps.MergeTokensStep.index.get_jmdict'), patch('src.steps.MergeTokensStep.index.combine_tokens_jmdict', return_value=merged):
             result = ExcludeGrammarTokensStep(stage).process(stage.process(Artifact([item])))

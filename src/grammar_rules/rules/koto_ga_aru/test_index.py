@@ -1,7 +1,7 @@
 import unittest
 
 from src.Artifact import Artifact
-from src.Grammar import GrammarStep, ExcludeGrammarTokensStep
+from src.Grammar import ExcludeGrammarTokensStep, GrammarStep
 from src.grammar_rules.alignment import aligned_tokens
 from src.grammar_rules.rules.koto_ga_aru.index import RULE, match_experience
 from src.grammar_rules.rules.te_iru.test_index import sentence, tok
@@ -67,21 +67,20 @@ class ExperienceTests(unittest.TestCase):
 
     def test_shared_negative_helper_accepts_opted_in_verb_stems(self):
         from src.grammar_rules.helpers import negative_predicate_end
-        tokens = [dict(surface='いか', lemma='いく', pos=['動詞'], span=[0, 2]),
-                  dict(surface='なかっ', lemma='ない', pos=['助動詞'], span=[2, 5]),
-                  dict(surface='た', lemma='た', pos=['助動詞'], span=[5, 6])]
-        args = dict(polite_lemma='いく', polite_stems={'いき'},
-                    plain_lemma='いく', plain_stems={'いか'})
+        tokens = [{'surface': 'いか', 'lemma': 'いく', 'pos': ['動詞'], 'span': [0, 2]},
+                  {'surface': 'なかっ', 'lemma': 'ない', 'pos': ['助動詞'], 'span': [2, 5]},
+                  {'surface': 'た', 'lemma': 'た', 'pos': ['助動詞'], 'span': [5, 6]}]
+        args = {'polite_lemma': 'いく', 'polite_stems': {'いき'}, 'plain_lemma': 'いく', 'plain_stems': {'いか'}}
         self.assertEqual(negative_predicate_end(tokens, 0, **args), 2)
         self.assertIsNone(negative_predicate_end(tokens[:-1], 0, **args))
         self.assertIsNone(negative_predicate_end(tokens, 0, polite_lemma='いく', polite_stems={'いき'}))
 
     def test_incomplete_negative_suffix_is_not_reserved(self):
         from src.grammar_rules.helpers import negative_predicate_end
-        tokens = [dict(surface='あり', lemma='ある', pos=['動詞'], span=[0, 2]),
-                  dict(surface='ませ', lemma='ます', pos=['助動詞'], span=[2, 4]),
-                  dict(surface='ん', lemma='ぬ', pos=['助動詞'], span=[4, 5]),
-                  dict(surface='でし', lemma='です', pos=['助動詞'], span=[5, 7])]
+        tokens = [{'surface': 'あり', 'lemma': 'ある', 'pos': ['動詞'], 'span': [0, 2]},
+                  {'surface': 'ませ', 'lemma': 'ます', 'pos': ['助動詞'], 'span': [2, 4]},
+                  {'surface': 'ん', 'lemma': 'ぬ', 'pos': ['助動詞'], 'span': [4, 5]},
+                  {'surface': 'でし', 'lemma': 'です', 'pos': ['助動詞'], 'span': [5, 7]}]
         self.assertIsNone(negative_predicate_end(tokens, 0, polite_lemma='ある', polite_stems={'あり'}))
         tokens.pop()
         self.assertEqual(negative_predicate_end(tokens, 0, polite_lemma='ある', polite_stems={'あり'}), 2)

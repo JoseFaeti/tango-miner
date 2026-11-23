@@ -3,9 +3,9 @@ import unittest
 from src.Artifact import Artifact
 from src.Grammar import ExcludeGrammarTokensStep, GrammarStep
 from src.grammar_rules.alignment import aligned_tokens
-from src.grammar_rules.rules.te_iru.test_index import sentence, tok
 from src.grammar_rules.rules.naide.index import RULE as SHORT_RULE
 from src.grammar_rules.rules.naidehasumanai.index import RULE, match_naidehasumanai
+from src.grammar_rules.rules.te_iru.test_index import sentence, tok
 
 
 class NaidehasumanaiTests(unittest.TestCase):

@@ -2,10 +2,10 @@ import unittest
 
 from src.Artifact import Artifact
 from src.Grammar import ExcludeGrammarTokensStep, GrammarStep
-from src.GrammarConstants import TSUZUKERU_EXPRESSION
 from src.grammar_rules.alignment import aligned_tokens
-from src.grammar_rules.rules.tsuzukeru.index import match_tsuzukeru
 from src.grammar_rules.rules.te_iru.test_index import sentence, tok
+from src.grammar_rules.rules.tsuzukeru.index import match_tsuzukeru
+from src.GrammarConstants import TSUZUKERU_EXPRESSION
 
 
 class TsuzukeruTests(unittest.TestCase):

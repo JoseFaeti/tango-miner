@@ -2,11 +2,10 @@
 YOU_NI_GRAMMAR_EXPRESSION = '〜ように'
 from src.grammar_rules.base import GrammarRule
 from src.grammar_rules.helpers import adjacent
-from src.grammar_rules.rules.you_ni_naru.index import match_you_ni_naru
-from src.grammar_rules.rules.you_ni_suru.index import match_you_ni_suru
 from src.grammar_rules.rules.you_ni_iu_tanomu.index import match_you_ni_iu_tanomu
 from src.grammar_rules.rules.you_ni_mieru.index import match_you_ni_mieru
-
+from src.grammar_rules.rules.you_ni_naru.index import match_you_ni_naru
+from src.grammar_rules.rules.you_ni_suru.index import match_you_ni_suru
 
 RULE = GrammarRule(order=150,
     id='you_ni', expression=YOU_NI_GRAMMAR_EXPRESSION, reading='ように',

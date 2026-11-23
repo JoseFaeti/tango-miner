@@ -1,4 +1,6 @@
 """Alternative examples marked by repeated なり."""
+from itertools import pairwise
+
 from src.grammar_rules.base import GrammarRule
 from src.grammar_rules.helpers import adjacent
 
@@ -14,7 +16,7 @@ def match_narinari(tokens):
                 and marker['pos'][:1] in (['助詞'], ['接尾辞'])
                 and (nominal or verb) and adjacent(before, marker)):
             markers.append(i)
-    for first, second in zip(markers, markers[1:]):
+    for first, second in pairwise(markers):
         between = tokens[first + 1:second]
         if (not between or between[0]['surface'] == 'の'
                 or any(t['surface'] in ('。', '！', '？', '!', '?', '\n') for t in between)):

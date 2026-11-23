@@ -1,11 +1,13 @@
+# Legacy public module names are retained for import compatibility.
+# ruff: noqa: N999
 import time
-
 from abc import ABC, abstractmethod
 from contextlib import contextmanager
 from dataclasses import dataclass
 from typing import Any
 
 from src.steps.ProcessingStep.index import ProcessingStep
+
 
 class PipelineStep(ABC):
     _progress_handler = None

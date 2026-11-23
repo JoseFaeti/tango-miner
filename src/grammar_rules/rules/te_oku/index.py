@@ -1,7 +1,12 @@
 """Source-aligned verb て-form + おく, including supported contractions."""
 TE_OKU_GRAMMAR_EXPRESSION = '〜ておく'
 from src.grammar_rules.base import GrammarRule
-from src.grammar_rules.helpers import adjacent, next_matches, polite_suffix_end, negative_suffix_end
+from src.grammar_rules.helpers import (
+    adjacent,
+    negative_suffix_end,
+    next_matches,
+    polite_suffix_end,
+)
 
 
 def match_te_oku(tokens):

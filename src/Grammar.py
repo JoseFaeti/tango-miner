@@ -1,24 +1,27 @@
 """Shared stages for collecting and scoring registered grammar rules."""
-from dataclasses import dataclass, field
+# Ruff: preserve the established public module name.
+# ruff: noqa: N999
 from bisect import bisect_right
+from dataclasses import dataclass, field
 from functools import lru_cache
 from time import perf_counter
 
 from src.grammar_rules.alignment import aligned_tokens
-from src.TokenizedSentence import TokenizedSentence
-from src.PipelineStep import PipelineStep
-from src.WordStats import Sentence, WordStats
-from src.steps.ProcessingStep.index import ProcessingStep
-from src.steps.TokenizeStep.index import is_valid_sentence, is_useless
-from src.grammar_rules.base import GrammarRule
-from src.grammar_rules.registry import RULES
+from src.grammar_rules.base import GrammarRule  # noqa: F401 - compatibility exports
 from src.grammar_rules.dispatch import RuleDispatch
+from src.grammar_rules.registry import RULES
+from src.grammar_rules.rules.monono.index import match_monono  # noqa: F401 - compatibility exports
+from src.grammar_rules.rules.nda.index import match_nda  # noqa: F401 - compatibility exports
+from src.grammar_rules.rules.tai.index import match_tai  # noqa: F401 - compatibility exports
+from src.grammar_rules.rules.te_iru.index import match_te_iru  # noqa: F401 - compatibility exports
+from src.grammar_rules.rules.te_shimau.index import match_te_shimau  # noqa: F401 - compatibility exports
+
 # Preserve existing imports for callers of the former single-module API.
-from src.grammar_rules.rules.te_iru.index import match_te_iru
-from src.grammar_rules.rules.nda.index import match_nda
-from src.grammar_rules.rules.tai.index import match_tai
-from src.grammar_rules.rules.te_shimau.index import match_te_shimau
-from src.grammar_rules.rules.monono.index import match_monono
+from src.PipelineStep import PipelineStep
+from src.steps.ProcessingStep.index import ProcessingStep
+from src.steps.TokenizeStep.index import is_useless, is_valid_sentence
+from src.TokenizedSentence import TokenizedSentence
+from src.WordStats import Sentence, WordStats
 
 
 class _PrecedenceDictionary:
@@ -101,7 +104,10 @@ class GrammarStep(PipelineStep):
             if proposals and self.prefer_expressions:
                 # Use the established dictionary merger as evidence of a complete
                 # expression, before deciding which analysis owns the occurrence.
-                from src.steps.MergeTokensStep.index import combine_tokens_jmdict, get_jmdict
+                from src.steps.MergeTokensStep.index import (
+                    combine_tokens_jmdict,
+                    get_jmdict,
+                )
                 if not dictionary_loaded:
                     with self.performance_phase('expression_dictionary'):
                         dictionary = _PrecedenceDictionary(get_jmdict(self.dictionary_path))

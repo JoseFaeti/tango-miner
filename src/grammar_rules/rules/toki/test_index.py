@@ -2,10 +2,10 @@ import unittest
 
 from src.Artifact import Artifact
 from src.Grammar import GrammarStep
-from src.GrammarConstants import TOKI_EXPRESSION
 from src.grammar_rules.alignment import aligned_tokens
-from src.grammar_rules.rules.toki.index import match_toki
 from src.grammar_rules.rules.te_iru.test_index import sentence, tok
+from src.grammar_rules.rules.toki.index import match_toki
+from src.GrammarConstants import TOKI_EXPRESSION
 
 
 class TokiTests(unittest.TestCase):

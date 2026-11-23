@@ -1,10 +1,10 @@
 '''Predicate-attached explanatory and partial-negative わけ.'''
 WAKE_DA = '〜わけだ'
 WAKE_NEGATIVE = '〜わけではない'
+from src.grammar_rules.base import GrammarRule
+from src.grammar_rules.helpers import adjacent, negative_predicate_end, next_matches
 from src.grammar_rules.rules.toiuwakeda.index import match_toiuwakeda
 from src.grammar_rules.rules.toiuwakedehanai.index import match_toiuwakedehanai
-from src.grammar_rules.base import GrammarRule
-from src.grammar_rules.helpers import adjacent, next_matches, negative_predicate_end
 
 
 def matches(tokens, negative):

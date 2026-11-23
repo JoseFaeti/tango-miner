@@ -216,8 +216,9 @@ class TokenizerIntegrationTests(unittest.TestCase):
                 else:
                     self.assertIn('なんでもない', [t['lemma'] for t in merged])
         from pathlib import Path
+
         from src.Artifact import Artifact
-        from src.Grammar import GrammarStep, ExcludeGrammarTokensStep
+        from src.Grammar import ExcludeGrammarTokensStep, GrammarStep
         from src.steps.TokenizeStep.index import tokenize_raw_sentences
 
         raw = tokenize_raw_sentences(['べつになんでもありませんよ。'],
@@ -295,8 +296,9 @@ class TokenizerIntegrationTests(unittest.TestCase):
         tokens[2]['grammar_reserved'] = True
         self.assertNotIn('痛い目にあう', [t['lemma'] for t in combine_tokens_jmdict(tokens, self.jmdict)])
         from pathlib import Path
+
         from src.Artifact import Artifact
-        from src.Grammar import GrammarStep, ExcludeGrammarTokensStep
+        from src.Grammar import ExcludeGrammarTokensStep, GrammarStep
         from src.steps.TokenizeStep.index import tokenize_raw_sentences
 
         raw = tokenize_raw_sentences(['痛い目にあわないうちにとっととけえりな！'],
@@ -331,8 +333,9 @@ class TokenizerIntegrationTests(unittest.TestCase):
         self.assertNotIn('眠りにつく', [t['lemma'] for t in combine_tokens_jmdict(tokens, self.jmdict)])
 
         from pathlib import Path
+
         from src.Artifact import Artifact
-        from src.Grammar import GrammarStep, ExcludeGrammarTokensStep
+        from src.Grammar import ExcludeGrammarTokensStep, GrammarStep
         from src.steps.TokenizeStep.index import tokenize_raw_sentences
 
         raw = tokenize_raw_sentences(['眠りにつきます。', '眠りにつき、大地の骨となる。'],
@@ -461,8 +464,9 @@ class TokenizerIntegrationTests(unittest.TestCase):
                 merged = combine_tokens_jmdict(tokenize_sentence(sentence), self.jmdict)
                 self.assertNotIn('目をつぶる', [t['lemma'] for t in merged])
         from pathlib import Path
+
         from src.Artifact import Artifact
-        from src.Grammar import GrammarStep, ExcludeGrammarTokensStep
+        from src.Grammar import ExcludeGrammarTokensStep, GrammarStep
         from src.steps.TokenizeStep.index import tokenize_raw_sentences
 
         raw = tokenize_raw_sentences(['目をつぶってきた。', '目をつぶってる。'],
@@ -479,8 +483,9 @@ class TokenizerIntegrationTests(unittest.TestCase):
 
     def test_me_wo_samasu_inflections_and_boundary(self):
         from pathlib import Path
+
         from src.Artifact import Artifact
-        from src.Grammar import GrammarStep, ExcludeGrammarTokensStep
+        from src.Grammar import ExcludeGrammarTokensStep, GrammarStep
         from src.steps.TokenizeStep.index import tokenize_raw_sentences
 
         examples = [
@@ -613,13 +618,17 @@ class TokenizerIntegrationTests(unittest.TestCase):
     def test_tokenizer_construction_has_no_deprecation_warning(self):
         import warnings
         from unittest.mock import patch
+
         from src.steps.TokenizeStep import index as tokenize_step
 
-        with patch.object(tokenize_step, "_tokenizer", None), patch.object(tokenize_step, "_tokenizer_identity", None):
-            with warnings.catch_warnings():
-                warnings.simplefilter("error", DeprecationWarning)
-                analyzer = tokenize_step.get_tokenizer(identity="deprecation-test")
-                self.assertTrue(analyzer.tokenize("日本語", TOKENIZER_MODE))
+        with (
+            patch.object(tokenize_step, "_tokenizer", None),
+            patch.object(tokenize_step, "_tokenizer_identity", None),
+            warnings.catch_warnings(),
+        ):
+            warnings.simplefilter("error", DeprecationWarning)
+            analyzer = tokenize_step.get_tokenizer(identity="deprecation-test")
+            self.assertTrue(analyzer.tokenize("日本語", TOKENIZER_MODE))
 
     def test_sudachi_tokenizes_a_sentence_with_expected_metadata(self):
         tokens = tokenize_sentence("彼はすでに家に帰っている。")

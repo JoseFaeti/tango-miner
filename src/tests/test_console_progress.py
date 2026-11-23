@@ -98,9 +98,11 @@ class ConsoleProgressTests(unittest.TestCase):
         output = io.StringIO()
         display = ConsoleProgress(output, 1)
         pipeline = Pipeline([BrokenStep()], on_progress=display.progress, on_stage_record=display.stage)
-        with self.assertRaisesRegex(ValueError, 'broken'):
-            with display.capture_step_output():
-                pipeline.run(Artifact([]))
+        with (
+            self.assertRaisesRegex(ValueError, 'broken'),
+            display.capture_step_output(),
+        ):
+            pipeline.run(Artifact([]))
         self.assertIn('[00:00 1/1] Broken... failed', output.getvalue())
 
 

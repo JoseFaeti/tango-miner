@@ -6,14 +6,14 @@ from unittest.mock import patch
 
 from src.Artifact import Artifact
 from src.Pipeline import Pipeline
-from src.steps.ProcessingStep.index import ProcessingStep
-from src.TokenizedSentence import TokenizedSentence
-from src.TokenProvenance import TokenComponent
 from src.steps.MergeTokensStep.index import combine_tokens_jmdict
 from src.steps.OccurrenceDiagnosticsStep.index import OccurrenceDiagnosticsStep
+from src.steps.ProcessingStep.index import ProcessingStep
 from src.steps.WriteOutputStep.index import write_candidate_diagnostics
-from tests.helpers import make_stats
 from src.tests.test_token_provenance import Dictionary, token
+from src.TokenizedSentence import TokenizedSentence
+from src.TokenProvenance import TokenComponent
+from tests.helpers import make_stats
 
 
 class OccurrenceDiagnosticsTests(unittest.TestCase):

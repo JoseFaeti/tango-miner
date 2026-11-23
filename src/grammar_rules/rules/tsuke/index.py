@@ -1,11 +1,13 @@
 """Source-aligned recall and confirmation particle っけ."""
+from itertools import pairwise
+
 TSUKE_EXPRESSION = '〜っけ'
 from src.grammar_rules.base import GrammarRule
 from src.grammar_rules.helpers import adjacent
 
 
 def match_tsuke(tokens):
-    for previous, marker in zip(tokens, tokens[1:]):
+    for previous, marker in pairwise(tokens):
         if (marker['surface'] == 'っけ' and marker['lemma'] == 'っけ'
                 and marker['pos'][:2] == ['助詞', '終助詞']
                 and adjacent(previous, marker)

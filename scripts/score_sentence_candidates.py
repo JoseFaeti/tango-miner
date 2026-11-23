@@ -50,7 +50,7 @@ def score(sample, labels, predictions):
             continue
         annotations = label.get('annotations')
         if not isinstance(annotations, list):
-            raise ValueError(f'{key}: annotations must be a list')
+            raise TypeError(f'{key}: annotations must be a list')
         gold = []
         for annotation in annotations:
             alternatives = annotation.get('alternatives')
@@ -65,14 +65,14 @@ def score(sample, labels, predictions):
             continue
         candidates = prediction.get('candidates')
         if not isinstance(candidates, list):
-            raise ValueError(f'{key}: candidates must be a list, or abstain/error must be set')
+            raise TypeError(f'{key}: candidates must be a list, or abstain/error must be set')
         proposed = [validate_candidate(p, text) for p in candidates]
         if len(set(proposed)) != len(proposed):
             raise ValueError(f'{key}: duplicate predictions')
         # Maximum bipartite matching prevents one proposal from satisfying
         # multiple overlapping gold items and handles alternative answers.
         matched = {}
-        def augment(index, visited):
+        def augment(index, visited, *, gold=gold, matched=matched, proposed=proposed):
             for candidate in gold[index]:
                 if candidate not in proposed or candidate in visited:
                     continue

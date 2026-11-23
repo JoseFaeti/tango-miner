@@ -1,8 +1,7 @@
 """Rule for tai."""
 TAI_GRAMMAR_EXPRESSION = '〜たい'
 from src.grammar_rules.base import GrammarRule
-from src.grammar_rules.helpers import adjacent, next_matches, adjective_inflection_end
-
+from src.grammar_rules.helpers import adjacent, adjective_inflection_end, next_matches
 
 RULE = GrammarRule(order=159,
     id='tai', expression=TAI_GRAMMAR_EXPRESSION, reading='たい',

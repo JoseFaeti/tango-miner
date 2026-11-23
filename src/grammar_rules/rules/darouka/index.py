@@ -1,4 +1,6 @@
 """Questions and conjectures ending in だろうか."""
+from itertools import pairwise
+
 from src.grammar_rules.base import GrammarRule
 from src.grammar_rules.helpers import adjacent
 
@@ -6,7 +8,7 @@ DAROUKA_EXPRESSION = '〜だろうか'
 
 
 def match_darouka(tokens):
-    for copula, ka in zip(tokens, tokens[1:]):
+    for copula, ka in pairwise(tokens):
         if ((copula['lemma'], copula['surface']) in (('だ', 'だろう'), ('です', 'でしょう'))
                 and copula['pos'][:1] == ['助動詞']
                 and ka['surface'] == ka['lemma'] == 'か'

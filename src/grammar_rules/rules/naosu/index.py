@@ -1,7 +1,12 @@
 """Repeated action expressed by a compound verb ending in 直す."""
 NAOSU_GRAMMAR_EXPRESSION = '〜直す'
 from src.grammar_rules.base import GrammarRule
-from src.grammar_rules.helpers import adjacent, next_matches, negative_suffix_end, polite_suffix_end
+from src.grammar_rules.helpers import (
+    adjacent,
+    negative_suffix_end,
+    next_matches,
+    polite_suffix_end,
+)
 
 
 def match_naosu(tokens):

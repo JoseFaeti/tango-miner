@@ -1,6 +1,12 @@
 """Save a complete comparison against the preceding completed run."""
 from src.PipelineStep import PipelineStep
-from src.RunComparison import ScoredExampleError, build_change_report, completed_runs, load_run, write_change_report
+from src.RunComparison import (
+    ScoredExampleError,
+    build_change_report,
+    completed_runs,
+    load_run,
+    write_change_report,
+)
 
 
 class CompareOutputStep(PipelineStep):

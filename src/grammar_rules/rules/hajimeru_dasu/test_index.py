@@ -2,10 +2,10 @@ import unittest
 
 from src.Artifact import Artifact
 from src.Grammar import ExcludeGrammarTokensStep, GrammarStep
-from src.GrammarConstants import HAJIMERU_DASU_EXPRESSION
 from src.grammar_rules.alignment import aligned_tokens
 from src.grammar_rules.rules.hajimeru_dasu.index import match_hajimeru_dasu
 from src.grammar_rules.rules.te_iru.test_index import sentence, tok
+from src.GrammarConstants import HAJIMERU_DASU_EXPRESSION
 
 
 class HajimeruDasuTests(unittest.TestCase):

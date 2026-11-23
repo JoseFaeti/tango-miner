@@ -2,10 +2,10 @@ import unittest
 
 from src.Artifact import Artifact
 from src.Grammar import GrammarStep
-from src.GrammarConstants import YASUI_NIKUI_EXPRESSION
 from src.grammar_rules.alignment import aligned_tokens
 from src.grammar_rules.rules.te_iru.test_index import sentence, tok
 from src.grammar_rules.rules.yasui_nikui.index import match_yasui_nikui
+from src.GrammarConstants import YASUI_NIKUI_EXPRESSION
 
 
 class YasuiNikuiTests(unittest.TestCase):

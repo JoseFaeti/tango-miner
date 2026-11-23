@@ -1,6 +1,10 @@
 import unittest
 
-from src.grammar_rules.helpers import polite_suffix_end, positive_verb_end, negative_predicate_end
+from src.grammar_rules.helpers import (
+    negative_predicate_end,
+    polite_suffix_end,
+    positive_verb_end,
+)
 from src.grammar_rules.rules.te_iku.index import match_te_iku
 
 
@@ -42,7 +46,7 @@ class PoliteSuffixTests(unittest.TestCase):
     def test_shared_verb_helpers_keep_form_constraints(self):
         base = [('あり', 'ある', '動詞')]
         neg = tokens(base + [('ませ', 'ます', '助動詞'), ('ん', 'ぬ', '助動詞')])
-        args = dict(lemma='ある', base_forms={'ある'}, past_stems={'あっ'}, polite_stems={'あり'})
+        args = {'lemma': 'ある', 'base_forms': {'ある'}, 'past_stems': {'あっ'}, 'polite_stems': {'あり'}}
         self.assertIsNone(positive_verb_end(neg, 0, **args))
         self.assertEqual(negative_predicate_end(neg, 0, polite_lemma='ある', polite_stems={'あり'}), 2)
         self.assertIsNone(negative_predicate_end(neg[:-1], 0, polite_lemma='ある', polite_stems={'あり'}))

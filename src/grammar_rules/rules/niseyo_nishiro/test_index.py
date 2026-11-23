@@ -1,12 +1,12 @@
 import unittest
 
 from src.Artifact import Artifact
-from src.Grammar import GrammarStep, ExcludeGrammarTokensStep
-from src.GrammarConstants import GRAMMAR_EXPRESSIONS, LEGACY_GRAMMAR_EXPRESSIONS
+from src.Grammar import ExcludeGrammarTokensStep, GrammarStep
 from src.grammar_rules.alignment import aligned_tokens
 from src.grammar_rules.registry import RULES
 from src.grammar_rules.rules.niseyo_nishiro.index import RULE, match_niseyo_nishiro
 from src.grammar_rules.rules.te_iru.test_index import sentence, tok
+from src.GrammarConstants import GRAMMAR_EXPRESSIONS, LEGACY_GRAMMAR_EXPRESSIONS
 
 
 class NiseyoNishiroTests(unittest.TestCase):
@@ -17,12 +17,23 @@ class NiseyoNishiroTests(unittest.TestCase):
         except (ImportError, OSError, RuntimeError) as exc:
             self.skipTest(f'Sudachi full dictionary unavailable: {exc}')
         cases = {
-            '雨にせよ出かける。': ['にせよ'],
+            '雨にせよ出かける。': [],  # An isolated noun is ambiguous.
             '行くにしろ時間がない。': ['にしろ'],
             '高いにせよ買いたい。': ['にせよ'],
             '何にしろ早い。': ['にしろ'],
             '雨にせよ雪にしろ行く。': ['にせよ', 'にしろ'],
-            '彼にしろ。': ['にしろ'],  # Also a literal imperative.
+            '彼にしろ。': [],
+            '残りの薄汚いエルフ、コボルト、反逆者の仲間は皆殺しにしろ。': [],
+            '皆殺しにせよ。': [],
+            '学生にしろ先生にしろ参加できる。': ['にしろ', 'にしろ'],
+            '学生にせよ、先生にしろ参加できる。': ['にせよ', 'にしろ'],
+            '学生にしろ。先生にしろ。': [],
+            '学生にしろ\n先生にしろ。': [],
+            'どちらにしろ行く。': ['にしろ'],
+            'いずれにせよ行く。': ['にせよ'],
+            'どうにしろ行く。': ['にしろ'],
+            'どんな理由があるにせよ許されない。': ['にせよ'],
+            '高かったにしろ買いたい。': ['にしろ'],
             '雨に せよ出かける。': [],
             'にせよ、無理だ。': [],
             '仕事をしろ。': [],
@@ -48,8 +59,8 @@ class NiseyoNishiroTests(unittest.TestCase):
             self.assertEqual(list(match_niseyo_nishiro(tokens)), [])
 
     def test_reservation_and_identity(self):
-        source = sentence('雨にせよ明日は出かける予定だ。', [
-            tok('雨', '雨', ('名詞',)), tok('に', 'に', ('助詞',)),
+        source = sentence('何にせよ明日は出かける予定だ。', [
+            tok('何', '何', ('代名詞',)), tok('に', 'に', ('助詞',)),
             tok('せよ', 'する', ('動詞',)), tok('明日', '明日', ('名詞',)),
             tok('は', 'は', ('助詞',)), tok('出かける', '出かける', ('動詞',)),
             tok('予定', '予定', ('名詞',)), tok('だ', 'だ', ('助動詞',)),
@@ -66,3 +77,14 @@ class NiseyoNishiroTests(unittest.TestCase):
         self.assertIn(RULE, RULES)
         self.assertIn(RULE.expression, GRAMMAR_EXPRESSIONS)
         self.assertEqual(LEGACY_GRAMMAR_EXPRESSIONS[RULE.expression + ' (grammar)'], RULE.expression)
+
+    def test_command_is_not_reserved(self):
+        source = sentence('皆殺しにしろ。', [
+            tok('皆殺し', '皆殺し', ('名詞',)), tok('に', 'に', ('助詞',)),
+            tok('しろ', 'する', ('動詞',)), tok('。', '。', ('補助記号',))])
+        stage = GrammarStep()
+        artifact = ExcludeGrammarTokensStep(stage).process(stage.process(Artifact([source])))
+        self.assertFalse(any(t.get('grammar_reserved') for t in artifact.data[0].tokens))
+        words = {}
+        stage.add_cards(words)
+        self.assertNotIn(RULE.expression, words)

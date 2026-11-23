@@ -1,4 +1,6 @@
 """Taking the opportunity to do something else."""
+from itertools import pairwise
+
 from src.grammar_rules.base import GrammarRule
 from src.grammar_rules.helpers import adjacent
 
@@ -6,7 +8,7 @@ TSUIDENI_EXPRESSION = '〜ついでに'
 
 
 def match_tsuideni(tokens):
-    for noun, particle in zip(tokens, tokens[1:]):
+    for noun, particle in pairwise(tokens):
         if (noun['surface'] == 'ついで' and noun['lemma'] == 'ついで'
                 and noun['pos'][:1] == ['名詞']
                 and particle['surface'] == 'に' and particle['lemma'] == 'に'

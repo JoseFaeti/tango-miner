@@ -2,13 +2,13 @@ import unittest
 
 from src.Artifact import Artifact
 from src.Grammar import ExcludeGrammarTokensStep, GrammarStep
-from src.GrammarConstants import GRAMMAR_EXPRESSIONS
 from src.grammar_rules.alignment import aligned_tokens
 from src.grammar_rules.registry import RULES
-from src.grammar_rules.rules.tosareteiru.index import RULE, match_tosareteiru
-from src.grammar_rules.rules.tosareru.index import RULE as BASE
 from src.grammar_rules.rules.te_iru.index import RULE as ASPECT
 from src.grammar_rules.rules.te_iru.test_index import sentence, tok
+from src.grammar_rules.rules.tosareru.index import RULE as BASE
+from src.grammar_rules.rules.tosareteiru.index import RULE, match_tosareteiru
+from src.GrammarConstants import GRAMMAR_EXPRESSIONS
 
 
 class TosareteiruTests(unittest.TestCase):

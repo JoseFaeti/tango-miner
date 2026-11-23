@@ -14,9 +14,7 @@ def match_koto_ni_naru(tokens):
         pos = predicate['pos']
         if not adjacent(predicate, koto) or len(pos) < 6:
             continue
-        if pos[:1] == ['動詞'] and pos[5].startswith(('終止形', '連体形')):
-            pass
-        elif (predicate['lemma'] == 'ない' and predicate['surface'] == 'ない'
+        if pos[:1] == ['動詞'] and pos[5].startswith(('終止形', '連体形')) or (predicate['lemma'] == 'ない' and predicate['surface'] == 'ない'
               and pos[:1] == ['助動詞'] and pos[5].startswith(('終止形', '連体形'))
               and i >= 2 and adjacent(tokens[i - 2], predicate)
               and tokens[i - 2]['pos'][:1] == ['動詞']

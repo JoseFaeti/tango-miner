@@ -4,9 +4,11 @@ import tempfile
 import unittest
 from pathlib import Path
 
-from src.steps.WriteOutputStep.index import write_final_file, write_candidate_diagnostics
+from src.steps.WriteOutputStep.index import (
+    write_candidate_diagnostics,
+    write_final_file,
+)
 from src.WordStats import Sentence
-
 from tests.helpers import make_stats
 
 
@@ -28,7 +30,7 @@ class WriteOutputStepTests(unittest.TestCase):
             with path.open(encoding="utf-8", newline="") as stream:
                 self.assertEqual(list(csv.reader(stream)), [])
             with (Path(tmp) / "out.dropped.csv").open(encoding="utf-8", newline="") as stream:
-                self.assertEqual(list(csv.reader(stream))[0][1], "会える")
+                self.assertEqual(next(csv.reader(stream))[1], "会える")
             with (Path(tmp) / "out.sentence.csv").open(encoding="utf-8", newline="") as stream:
                 self.assertEqual(list(csv.reader(stream))[1][:3], ["会える", "0.0", "会えるかな"])
 

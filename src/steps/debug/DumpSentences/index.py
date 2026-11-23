@@ -1,7 +1,7 @@
-from src.CachePaths import CACHE_DIR
-
 from src.Artifact import Artifact
+from src.CachePaths import CACHE_DIR
 from src.PipelineStep import PipelineStep
+
 
 class DumpSentences(PipelineStep):
 	def __init__(self, filename: str = "sentences.txt"):

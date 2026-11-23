@@ -2,7 +2,7 @@ import unittest
 from unittest.mock import patch
 
 from src.Artifact import Artifact
-from src.Grammar import GrammarStep, ExcludeGrammarTokensStep
+from src.Grammar import ExcludeGrammarTokensStep, GrammarStep
 from src.grammar_rules.alignment import aligned_tokens
 from src.grammar_rules.rules.koto_ni_naru.index import RULE, match_koto_ni_naru
 from src.grammar_rules.rules.te_iru.test_index import sentence, tok
@@ -63,8 +63,7 @@ class KotoNiNaruTests(unittest.TestCase):
             tok('行く', '行く', ('動詞', '一般', '*', '*', '五段', '終止形-一般')),
             tok('ことになる', 'ことになる', ('名詞', '普通名詞')),
             tok('よ。', 'よ', ('助詞',))])
-        merged = [source.tokens[0], dict(surface='行くことになる', lemma='行くことになる',
-                  pos=('exp',), analysis_rule='jmdict_surface_merge'), source.tokens[-1]]
+        merged = [source.tokens[0], {'surface': '行くことになる', 'lemma': '行くことになる', 'pos': ('exp',), 'analysis_rule': 'jmdict_surface_merge'}, source.tokens[-1]]
         stage = GrammarStep(rules=(RULE,), prefer_expressions=True)
         with patch('src.steps.MergeTokensStep.index.get_jmdict'), \
              patch('src.steps.MergeTokensStep.index.combine_tokens_jmdict', return_value=merged):

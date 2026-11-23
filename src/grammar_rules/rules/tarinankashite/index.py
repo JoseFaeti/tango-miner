@@ -6,7 +6,7 @@ from src.grammar_rules.helpers import adjacent, next_matches
 
 def match_tarinankashite(tokens):
     for i in range(1, len(tokens) - 3):
-        predicate, particle, nanka, suru, te = tokens[i - 1:i + 4]
+        predicate, particle, nanka, _suru, te = tokens[i - 1:i + 4]
         pos = predicate['pos']
         if (particle['surface'] not in ('たり', 'だり')
                 or particle['lemma'] != particle['surface']

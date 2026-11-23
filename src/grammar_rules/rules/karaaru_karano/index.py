@@ -4,7 +4,6 @@ import re
 from src.grammar_rules.base import GrammarRule
 from src.grammar_rules.helpers import adjacent
 
-
 KARAARU_KARANO_EXPRESSION = '〜からある / 〜からの'
 _NUMBER = re.compile(r'^[0-9０-９一二三四五六七八九十百千万億兆]+')
 

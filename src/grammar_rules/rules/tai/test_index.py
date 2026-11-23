@@ -2,12 +2,12 @@ import unittest
 
 from src.Artifact import Artifact
 from src.Grammar import GrammarStep
-from src.grammar_rules.rules.tai.index import match_tai
-from src.GrammarConstants import TAI_GRAMMAR_EXPRESSION as EXPRESSION
 from src.grammar_rules.alignment import aligned_tokens
+from src.grammar_rules.rules.tai.index import match_tai
+from src.grammar_rules.rules.te_iru.test_index import sentence, tok
+from src.GrammarConstants import TAI_GRAMMAR_EXPRESSION as EXPRESSION
 from src.steps.AddWordsToAnkiStep.index import export_words_to_anki
 from src.steps.AddWordsToAnkiStep.test_index import note
-from src.grammar_rules.rules.te_iru.test_index import sentence, tok
 
 
 class TaiCardTests(unittest.TestCase):
@@ -66,8 +66,7 @@ class TaiCardTests(unittest.TestCase):
         raw = [tok('高けれ', '高い', ('形容詞',)), tok('ば', 'ば', ('助詞',))]
         tokens, error = aligned_tokens('高ければ', raw)
         self.assertIsNone(error)
-        kwargs = dict(lemma='高い', pos='形容詞', base='高い', past_stem='高かっ',
-                      continuative_stem='高く', conditional_stem='高けれ')
+        kwargs = {'lemma': '高い', 'pos': '形容詞', 'base': '高い', 'past_stem': '高かっ', 'continuative_stem': '高く', 'conditional_stem': '高けれ'}
         self.assertEqual(adjective_inflection_end(tokens, 0, forms=('conditional',), **kwargs), 1)
         self.assertIsNone(adjective_inflection_end(tokens, 0, forms=('base',), **kwargs))
 

@@ -2,10 +2,10 @@ import unittest
 
 from src.Artifact import Artifact
 from src.Grammar import ExcludeGrammarTokensStep, GrammarStep
-from src.GrammarConstants import UCHINI_EXPRESSION
 from src.grammar_rules.alignment import aligned_tokens
-from src.grammar_rules.rules.uchini.index import match_uchini
 from src.grammar_rules.rules.te_iru.test_index import sentence, tok
+from src.grammar_rules.rules.uchini.index import match_uchini
+from src.GrammarConstants import UCHINI_EXPRESSION
 
 
 class UchiniTests(unittest.TestCase):

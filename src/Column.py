@@ -1,4 +1,7 @@
+# Legacy public module names are retained for import compatibility.
+# ruff: noqa: N999
 from enum import IntEnum
+
 
 class Column(IntEnum):
     WORD = 0

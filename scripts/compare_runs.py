@@ -11,8 +11,14 @@ from pathlib import Path
 # Support direct invocation as well as imports from tests and other scripts.
 if __package__ in (None, ""):
     sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
-from src.RunComparison import completed_runs, load_run, build_change_report, write_change_report
 from src.ReportCLI import query
+from src.RunComparison import (
+    build_change_report,
+    completed_runs,
+    load_run,
+    write_change_report,
+)
+
 
 def describe(candidate):
     if candidate is None:
@@ -21,7 +27,7 @@ def describe(candidate):
 
 
 def plain_examples(value):
-    value = re.sub(r"<br\s*/?>", "\n", value, flags=re.I)
+    value = re.sub(r"<br\s*/?>", "\n", value, flags=re.IGNORECASE)
     return html.unescape(re.sub(r"<[^>]*>", "", value))
 
 

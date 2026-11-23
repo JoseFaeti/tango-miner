@@ -1,21 +1,21 @@
-from pathlib import Path
-from src.CachePaths import CACHE_DIR
 import hashlib
 import importlib.metadata
 import importlib.util
 import json
 import re
 import sys
+from pathlib import Path
 
-from sudachipy import dictionary, tokenizer as sudachi_tokenizer
+from sudachipy import dictionary
+from sudachipy import tokenizer as sudachi_tokenizer
 
 from src.Artifact import Artifact
+from src.CachePaths import CACHE_DIR
 from src.PipelineStep import PipelineStep
 from src.RunConfig import TokenizerConfig
-from src.TokenizedSentence import TokenizedSentence
-from src.TokenCache import TokenCache
 from src.steps.ProcessingStep.index import ProcessingStep
-
+from src.TokenCache import TokenCache
+from src.TokenizedSentence import TokenizedSentence
 
 RE_TAG = re.compile(r"\[(.+?)\]")
 RE_SMALL_KANA_END = re.compile(r"[っゃゅょァィゥェォッャュョー]+$")
@@ -214,10 +214,9 @@ def tokenize(
 ):
     """Compatibility helper that executes the three token-processing stages."""
     if not isinstance(input_path, list):
-        raise ValueError("tokenize() now only accepts list[str] sentences")
+        raise ValueError("tokenize() now only accepts list[str] sentences")  # noqa: TRY004 - preserve caller contract
 
     from src.steps.BuildWordStatsStep.index import build_word_stats
-    from src.steps.MergeTokensStep.index import combine_tokens_jmdict, get_jmdict
 
     origin = source_path or Path("<memory>")
     raw_sentences = tokenize_raw_sentences(
@@ -328,10 +327,7 @@ def is_useless(token: dict) -> bool:
         if not ("ァ" <= c <= "ン" or c == "ー"):
             all_katakana = False
 
-    if all_katakana and not has_kanji(lemma):
-        return True
-
-    return False
+    return bool(all_katakana and not has_kanji(lemma))
 
 
 def is_japanese_char(c: str) -> bool:
@@ -392,10 +388,7 @@ def looks_like_guide_header(text: str) -> bool:
         return True
 
     guide_labels = ("行き方", "入手方法", "戦闘開始時")
-    if any(term in text for term in guide_labels) and len(text) < 20:
-        return True
-
-    return False
+    return any(term in text for term in guide_labels) and len(text) < 20
 
 # Backward-compatible imports for callers of the former combined module.
 from src.steps.MergeTokensStep.index import combine_tokens_jmdict, get_jmdict

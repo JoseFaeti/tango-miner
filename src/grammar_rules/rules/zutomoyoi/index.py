@@ -2,7 +2,6 @@
 from src.grammar_rules.base import GrammarRule
 from src.grammar_rules.helpers import adjacent
 
-
 EXPRESSION = '〜ずともよい'
 _FORMS = frozenset(('ずともよい', 'ずとも良い', 'ずともいい',
                     'ずともよかった', 'ずとも良かった'))

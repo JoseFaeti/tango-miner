@@ -2,10 +2,10 @@ import unittest
 
 from src.Artifact import Artifact
 from src.Grammar import GrammarStep
-from src.grammar_rules.rules.monono.index import match_monono
-from src.GrammarConstants import MONONO_GRAMMAR_EXPRESSION as EXPRESSION
 from src.grammar_rules.alignment import aligned_tokens
+from src.grammar_rules.rules.monono.index import match_monono
 from src.grammar_rules.rules.te_iru.test_index import sentence, tok
+from src.GrammarConstants import MONONO_GRAMMAR_EXPRESSION as EXPRESSION
 
 
 class MononoTests(unittest.TestCase):
@@ -24,7 +24,7 @@ class MononoTests(unittest.TestCase):
             '買うものの名前。': False,
             '買ったものの。': False,
         }
-        for text, expected in cases.items():
+        for text in cases:
             with self.subTest(text=text):
                 raw = [tok(m.surface(), m.dictionary_form(), m.part_of_speech())
                        for m in analyzer.tokenize(text, tokenizer.Tokenizer.SplitMode.C)]

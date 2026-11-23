@@ -2,12 +2,12 @@ import unittest
 
 from src.Artifact import Artifact
 from src.Grammar import ExcludeGrammarTokensStep, GrammarStep
-from src.GrammarConstants import GRAMMAR_EXPRESSIONS, LEGACY_GRAMMAR_EXPRESSIONS
 from src.grammar_rules.alignment import aligned_tokens
 from src.grammar_rules.registry import RULES
 from src.grammar_rules.rules.te_iru.test_index import sentence, tok
 from src.grammar_rules.rules.toiu.index import match_toiu
 from src.grammar_rules.rules.toiumonono.index import RULE, match_toiumonono
+from src.GrammarConstants import GRAMMAR_EXPRESSIONS, LEGACY_GRAMMAR_EXPRESSIONS
 
 
 class ToiumononoTests(unittest.TestCase):

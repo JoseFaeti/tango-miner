@@ -1,13 +1,13 @@
+from dataclasses import replace
+
 from src.Artifact import Artifact
 from src.PipelineStep import PipelineStep
 from src.SegmentedSentence import SegmentedSentence
+from src.steps.ProcessingStep.index import ProcessingStep
+from src.steps.TokenizeStep.index import is_useless, kata_to_hira
 from src.TokenizedSentence import TokenizedSentence
 from src.TokenProvenance import token_components
 from src.WordStats import WordStats
-from src.steps.ProcessingStep.index import ProcessingStep
-from src.steps.TokenizeStep.index import is_useless, kata_to_hira
-from dataclasses import replace
-
 
 PROGRESS_INTERVAL = 200
 

@@ -1,8 +1,8 @@
 import unittest
 from pathlib import Path
 
-from src.TokenizedSentence import TokenizedSentence
 from src.steps.BuildWordStatsStep.index import build_word_stats
+from src.TokenizedSentence import TokenizedSentence
 
 
 class EligibilityCacheTest(unittest.TestCase):

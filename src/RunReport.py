@@ -1,3 +1,5 @@
+# Legacy public module names are retained for import compatibility.
+# ruff: noqa: N999
 """Render a bounded, human-readable overview from the recorded run summary."""
 from pathlib import Path
 

@@ -1,6 +1,12 @@
 """Verb te-form followed by 済む (suffice)."""
 from src.grammar_rules.base import GrammarRule
-from src.grammar_rules.helpers import adjacent, has_next, negative_suffix_end, next_matches, polite_suffix_end
+from src.grammar_rules.helpers import (
+    adjacent,
+    has_next,
+    negative_suffix_end,
+    next_matches,
+    polite_suffix_end,
+)
 
 TESUMU_EXPRESSION = '〜てすむ'
 

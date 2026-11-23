@@ -1,4 +1,6 @@
 """Paired examples marked by といわず."""
+from itertools import pairwise
+
 from src.grammar_rules.base import GrammarRule
 from src.grammar_rules.helpers import adjacent
 
@@ -17,7 +19,7 @@ def match_toiwazutoiwazu(tokens):
                            ((before, particle), (particle, verb), (verb, negative)))):
             continue
         markers.append((i, i + 2))
-    for (first, end), (second, second_end) in zip(markers, markers[1:]):
+    for (first, end), (second, second_end) in pairwise(markers):
         between = tokens[end + 1:second]
         if (not between or any(t['surface'] in ('。', '！', '？', '!', '?', '\n')
                                for t in between)):

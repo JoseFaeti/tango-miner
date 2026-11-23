@@ -4,7 +4,8 @@ from src.Artifact import Artifact
 from src.Grammar import GrammarStep
 from src.grammar_rules.alignment import aligned_tokens
 from src.grammar_rules.rules.nikui_zurai_gatai.index import (
-    NIKUI_ZURAI_GATAI_EXPRESSION, match_nikui_zurai_gatai,
+    NIKUI_ZURAI_GATAI_EXPRESSION,
+    match_nikui_zurai_gatai,
 )
 from src.grammar_rules.rules.te_iru.test_index import sentence, tok
 from src.grammar_rules.rules.yasui_nikui.index import YASUI_NIKUI_EXPRESSION

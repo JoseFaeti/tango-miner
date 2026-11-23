@@ -1,4 +1,6 @@
 """A literary negative state continuing unchanged: ぬまま."""
+from itertools import pairwise
+
 from src.grammar_rules.base import GrammarRule
 from src.grammar_rules.helpers import adjacent
 from src.grammar_rules.rules.mama.index import match_mama
@@ -10,7 +12,7 @@ NUMAMA_EXPRESSION = '〜ぬまま'
 def match_numama(tokens):
     negative_spans = {tuple(span) for span in match_nu_n(tokens)}
     mama_spans = set(match_mama(tokens))
-    for negative, marker in zip(tokens, tokens[1:]):
+    for negative, marker in pairwise(tokens):
         if (negative['surface'] == 'ぬ' and tuple(negative['span']) in negative_spans
                 and tuple(marker['span']) in mama_spans and adjacent(negative, marker)):
             yield negative['span'][0], marker['span'][1]

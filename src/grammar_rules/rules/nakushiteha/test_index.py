@@ -1,7 +1,7 @@
 import unittest
 
 from src.Artifact import Artifact
-from src.Grammar import GrammarStep, ExcludeGrammarTokensStep
+from src.Grammar import ExcludeGrammarTokensStep, GrammarStep
 from src.grammar_rules.alignment import aligned_tokens
 from src.grammar_rules.rules.nakushite.index import RULE as SHORT_RULE
 from src.grammar_rules.rules.nakushiteha.index import RULE, match_nakushiteha

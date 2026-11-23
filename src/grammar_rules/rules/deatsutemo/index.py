@@ -1,4 +1,6 @@
 """Concessive form of the formal copula."""
+from itertools import pairwise
+
 from src.grammar_rules.base import GrammarRule
 from src.grammar_rules.helpers import adjacent
 from src.grammar_rules.rules.deatsute.index import match_deatsute
@@ -6,7 +8,7 @@ from src.grammar_rules.rules.deatsute.index import match_deatsute
 
 def match_deatsutemo(tokens):
     endings = {end: start for start, end in match_deatsute(tokens)}
-    for previous, mo in zip(tokens, tokens[1:]):
+    for previous, mo in pairwise(tokens):
         start = endings.get(previous['span'][1])
         if (start is not None and mo['surface'] == 'も'
                 and mo['pos'][:1] == ['助詞'] and adjacent(previous, mo)):

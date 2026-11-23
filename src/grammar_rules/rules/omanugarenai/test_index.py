@@ -1,13 +1,13 @@
 import unittest
 
 from src.Artifact import Artifact
-from src.Grammar import GrammarStep, ExcludeGrammarTokensStep
-from src.GrammarConstants import GRAMMAR_EXPRESSIONS
+from src.Grammar import ExcludeGrammarTokensStep, GrammarStep
 from src.grammar_rules.alignment import aligned_tokens
 from src.grammar_rules.registry import RULES
-from src.grammar_rules.rules.omanugarenai.index import RULE
 from src.grammar_rules.rules.nai.index import RULE as NAI
+from src.grammar_rules.rules.omanugarenai.index import RULE
 from src.grammar_rules.rules.te_iru.test_index import sentence, tok
+from src.GrammarConstants import GRAMMAR_EXPRESSIONS
 
 
 class OmanugarenaiTests(unittest.TestCase):

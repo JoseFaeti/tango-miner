@@ -1,22 +1,22 @@
+import json
 from contextlib import nullcontext
 from pathlib import Path
-import json
 
 from src.Artifact import Artifact
 from src.JMDict import JMDict
 from src.PipelineStep import PipelineStep
 from src.RunConfig import resolve_config
-from src.TokenizedSentence import TokenizedSentence
 from src.steps.ProcessingStep.index import ProcessingStep
+from src.TokenizedSentence import TokenizedSentence
 
-
-PROGRESS_INTERVAL = 200
-
-from .helpers import _is_split_kana_noun, _is_contracted_kana_verb, has_kanji
-from .grammar_guards import _is_inflection_misread_as_noun
-from .recovery import _repair_kigahen_boundaries, _repair_chigee_boundary, _repair_warui_koto_boundary
+from .grammar_guards import _is_inflection_misread_as_noun  # noqa: F401 - compatibility exports
+from .helpers import _is_contracted_kana_verb, _is_split_kana_noun, has_kanji  # noqa: F401 - compatibility exports
 from .merger import combine_tokens_jmdict
-
+from .recovery import (  # noqa: F401 - compatibility exports
+    _repair_chigee_boundary,
+    _repair_kigahen_boundaries,
+    _repair_warui_koto_boundary,
+)
 
 PROGRESS_INTERVAL = 200
 

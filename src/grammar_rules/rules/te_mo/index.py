@@ -2,8 +2,8 @@
 TE_MO_GRAMMAR_EXPRESSION = '〜ても'
 from src.grammar_rules.base import GrammarRule
 from src.grammar_rules.helpers import adjacent, next_matches
-from src.grammar_rules.rules.te_mo_ii.index import match_te_mo_ii
 from src.grammar_rules.rules.nakutemoii.index import match_nakutemoii
+from src.grammar_rules.rules.te_mo_ii.index import match_te_mo_ii
 
 
 def match_te_mo(tokens):

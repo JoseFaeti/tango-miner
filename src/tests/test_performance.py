@@ -1,16 +1,16 @@
 import json
 import tempfile
 import unittest
-from unittest.mock import patch
 from pathlib import Path
+from unittest.mock import patch
 
 from src.Artifact import Artifact
+from src.Grammar import GrammarStep
 from src.Pipeline import Pipeline
 from src.PipelineStep import PipelineStep
-from src.RunConfig import resolve_config
-from src.Grammar import GrammarStep
-from src.StageCache import StageCache
 from src.RunArchive import write_performance, write_stage_record
+from src.RunConfig import resolve_config
+from src.StageCache import StageCache
 from src.tests.test_grammar_cache import fixture
 
 
@@ -52,9 +52,11 @@ class PerformanceTests(unittest.TestCase):
                 if data['status'] != 'running':
                     write_performance(tmp, pipeline.performance)
             pipeline = Pipeline([step], cache=cache, on_stage_record=record, profiling=True)
-            with patch('src.GrammarCache._input_key_data', side_effect=KeyboardInterrupt):
-                with self.assertRaises(KeyboardInterrupt):
-                    pipeline.run(Artifact(fixture()))
+            with (
+                patch('src.GrammarCache._input_key_data', side_effect=KeyboardInterrupt),
+                self.assertRaises(KeyboardInterrupt),
+            ):
+                pipeline.run(Artifact(fixture()))
             data = json.loads((Path(tmp) / 'performance.json').read_text(encoding='utf-8'))
             stage = json.loads(next((Path(tmp) / 'steps').glob('*.json')).read_text(encoding='utf-8'))
             self.assertEqual(data['steps']['1']['name'], 'GrammarStep')

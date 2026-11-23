@@ -4,7 +4,10 @@ from src.Artifact import Artifact
 from src.Grammar import ExcludeGrammarTokensStep, GrammarStep
 from src.grammar_rules.alignment import aligned_tokens
 from src.grammar_rules.rules.te_iru.test_index import sentence, tok
-from src.grammar_rules.rules.tsutsuaru.index import TSUTSUARU_EXPRESSION, match_tsutsuaru
+from src.grammar_rules.rules.tsutsuaru.index import (
+    TSUTSUARU_EXPRESSION,
+    match_tsutsuaru,
+)
 
 
 class TsutsuaruTests(unittest.TestCase):

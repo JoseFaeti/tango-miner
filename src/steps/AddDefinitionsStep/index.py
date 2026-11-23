@@ -1,7 +1,7 @@
-from src.CachePaths import CACHE_DIR
 from pathlib import Path
 
 from src.Artifact import Artifact
+from src.CachePaths import CACHE_DIR
 from src.PipelineStep import PipelineStep
 from src.steps.MergeTokensStep.index import get_jmdict
 from src.steps.ProcessingStep.index import ProcessingStep

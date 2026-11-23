@@ -1,3 +1,5 @@
+# Legacy public module names are retained for import compatibility.
+# ruff: noqa: N999
 """Read and compare archived CSV outputs without mining or contacting Anki."""
 import csv
 import html
@@ -66,15 +68,15 @@ def report_examples(value):
     if not value or value == "no sentences :(":
         return []
     result = []
-    for part in re.split(r"<br\s*/?>\s*<br\s*/?>", value, flags=re.I):
+    for part in re.split(r"<br\s*/?>\s*<br\s*/?>", value, flags=re.IGNORECASE):
         match = re.fullmatch(
             r"(.*?)<br\s*/?>\s*<span\s+class=['\"]tag sentence-tag['\"]>(.*?)</span>",
-            part, flags=re.I | re.S)
+            part, flags=re.IGNORECASE | re.DOTALL)
         if not match:
             raise ValueError(f"Malformed example: {part!r}")
         if re.search(r" - [+-]?(?:\d+(?:\.\d*)?|\.\d+)(?:[eE][+-]?\d+)?$", match.group(2)):
             raise ScoredExampleError(f"Scored example is not supported: {part!r}")
-        text = re.sub(r"<(?!/?span\b)[^>]*>", "", match.group(1), flags=re.I)
+        text = re.sub(r"<(?!/?span\b)[^>]*>", "", match.group(1), flags=re.IGNORECASE)
         result.append({"text": html.unescape(text)})
     return result
 

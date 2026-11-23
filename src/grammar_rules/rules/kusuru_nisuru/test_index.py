@@ -1,11 +1,11 @@
 import unittest
 
 from src.Artifact import Artifact
-from src.Grammar import GrammarStep, ExcludeGrammarTokensStep
-from src.GrammarConstants import KUSURU_NISURU_EXPRESSION
+from src.Grammar import ExcludeGrammarTokensStep, GrammarStep
 from src.grammar_rules.alignment import aligned_tokens
 from src.grammar_rules.rules.kusuru_nisuru.index import match_kusuru_nisuru
 from src.grammar_rules.rules.te_iru.test_index import sentence, tok
+from src.GrammarConstants import KUSURU_NISURU_EXPRESSION
 
 
 class MakeChooseTests(unittest.TestCase):

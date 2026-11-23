@@ -1,11 +1,11 @@
 import unittest
 
 from src.Artifact import Artifact
-from src.Grammar import GrammarStep, ExcludeGrammarTokensStep
-from src.GrammarConstants import MASHOU_YOU_EXPRESSION
+from src.Grammar import ExcludeGrammarTokensStep, GrammarStep
 from src.grammar_rules.alignment import aligned_tokens
 from src.grammar_rules.rules.mashou_you.index import match_mashou_you
 from src.grammar_rules.rules.te_iru.test_index import sentence, tok
+from src.GrammarConstants import MASHOU_YOU_EXPRESSION
 
 
 class MashouYouTests(unittest.TestCase):

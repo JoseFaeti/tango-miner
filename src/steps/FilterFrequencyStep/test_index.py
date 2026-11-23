@@ -1,13 +1,12 @@
-from collections import OrderedDict
 import unittest
+from collections import OrderedDict
 
 from src.Artifact import Artifact
 from src.Pipeline import Pipeline
 from src.steps.FilterFrequencyStep.index import FilterFrequencyStep, filter_useful_words
 from src.steps.ProcessingStep.index import ProcessingStep
-
-from tests.helpers import make_stats
 from src.TokenProvenance import TokenComponent
+from tests.helpers import make_stats
 
 
 class FilterFrequencyStepTests(unittest.TestCase):

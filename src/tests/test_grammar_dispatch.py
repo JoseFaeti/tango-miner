@@ -5,10 +5,10 @@ from pathlib import Path
 from src.Artifact import Artifact
 from src.Grammar import ExcludeGrammarTokensStep, GrammarStep
 from src.grammar_rules.alignment import aligned_tokens
-from src.grammar_rules.dispatch import RuleDispatch, SURFACE_TRIGGERS
+from src.grammar_rules.dispatch import SURFACE_TRIGGERS, RuleDispatch
 from src.grammar_rules.registry import RULES
-from src.steps.TokenizeStep.index import tokenize_raw_sentences
 from src.grammar_rules.rules.te_iru.test_index import tok
+from src.steps.TokenizeStep.index import tokenize_raw_sentences
 
 
 class GrammarDispatchTests(unittest.TestCase):

@@ -1,8 +1,13 @@
 """Rule for te_shimau."""
 TE_SHIMAU_GRAMMAR_EXPRESSION = '〜てしまう'
 from src.grammar_rules.base import GrammarRule
-from src.grammar_rules.helpers import polite_suffix_end, has_next, next_matches, negative_suffix_end, positive_verb_end
-
+from src.grammar_rules.helpers import (
+    has_next,
+    negative_suffix_end,
+    next_matches,
+    polite_suffix_end,
+    positive_verb_end,
+)
 
 RULE = GrammarRule(order=160,
     id='te_shimau', expression=TE_SHIMAU_GRAMMAR_EXPRESSION, reading='てしまう',
