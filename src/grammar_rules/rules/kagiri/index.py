@@ -10,10 +10,15 @@ def match_kagiri(tokens):
         predicate = (pos[:1] in (['動詞'], ['助動詞'], ['形容詞'])
                      and len(pos) >= 6 and pos[5].startswith(('連体形', '終止形'))
                      and anchor['lemma'] not in ('ない', '無い'))
-        nominal = (anchor['surface'] == 'の' and pos[:1] == ['助詞']
-                   and i >= 2 and tokens[i - 2]['pos'][:1] in (['名詞'], ['代名詞'])
-                   and adjacent(tokens[i - 2], anchor))
-        if not (predicate or nominal):
+        # Auxiliary endings need a verbal/adjectival host; な alone is not
+        # evidence for the conditional (残念な限り is an extreme-degree use).
+        host = i - 1
+        while host >= 0 and tokens[host]['pos'][:1] == ['助動詞']:
+            if host == 0 or not adjacent(tokens[host - 1], tokens[host]):
+                break
+            host -= 1
+        predicate = predicate and tokens[host]['pos'][:1] in (['動詞'], ['形容詞'])
+        if not predicate:
             continue
         if (kagiri['surface'] not in ('限り', 'かぎり')
                 or kagiri['lemma'] not in ('限り', '限る', 'かぎり', 'かぎる')
