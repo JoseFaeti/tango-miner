@@ -1,17 +1,17 @@
 """Run a corpus check with Anki disabled, a saved log and compact comparison."""
 import argparse
-from dataclasses import asdict, replace
 import json
 import os
-from pathlib import Path
 import subprocess
 import sys
 import tempfile
+from dataclasses import asdict, replace
+from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT))
-from src.RunConfig import resolve_config
 from scripts.compare_runs import compact_report, completed_runs, load_run
+from src.RunConfig import resolve_config
 
 
 def config_toml(config):

@@ -3,11 +3,11 @@ from pathlib import Path
 from unittest.mock import patch
 
 from src.Artifact import Artifact
-from src.Grammar import GrammarStep, ExcludeGrammarTokensStep
+from src.Grammar import ExcludeGrammarTokensStep, GrammarStep
 from src.grammar_rules.alignment import aligned_tokens
-from src.grammar_rules.rules.te_oku.index import RULE, match_te_oku
 from src.grammar_rules.rules.tara.index import RULE as TARA_RULE
 from src.grammar_rules.rules.te_iru.test_index import sentence, tok
+from src.grammar_rules.rules.te_oku.index import RULE, match_te_oku
 
 
 class TeOkuTests(unittest.TestCase):
@@ -41,9 +41,9 @@ class TeOkuTests(unittest.TestCase):
                                  [] if expected is None else [expected])
 
     def test_incomplete_gapped_and_misleading_tokens(self):
-        verb = dict(surface='買っ', lemma='買う', pos=['動詞', '一般', '*', '*', '*', '連用形'], span=[0, 2])
-        te = dict(surface='て', lemma='て', pos=['助詞', '接続助詞'], span=[2, 3])
-        oku = dict(surface='おい', lemma='おく', pos=['動詞', '非自立可能'], span=[3, 5])
+        verb = {'surface': '買っ', 'lemma': '買う', 'pos': ['動詞', '一般', '*', '*', '*', '連用形'], 'span': [0, 2]}
+        te = {'surface': 'て', 'lemma': 'て', 'pos': ['助詞', '接続助詞'], 'span': [2, 3]}
+        oku = {'surface': 'おい', 'lemma': 'おく', 'pos': ['動詞', '非自立可能'], 'span': [3, 5]}
         self.assertEqual(list(match_te_oku([verb, te, oku])), [])
         oku['surface'] = 'おく'
         oku['span'] = [4, 6]
@@ -121,10 +121,10 @@ class TeOkuTests(unittest.TestCase):
                 self.assertEqual(stage.occurrences[RULE.id].count, expected)
 
     def test_real_merger_and_lexical_component_evidence(self):
-        from src.TokenizedSentence import TokenizedSentence
-        from src.steps.TokenizeStep.index import tokenize_raw_sentences
-        from src.steps.MergeTokensStep.index import combine_tokens_jmdict, get_jmdict
         from src.steps.BuildWordStatsStep.index import build_word_stats
+        from src.steps.MergeTokensStep.index import combine_tokens_jmdict, get_jmdict
+        from src.steps.TokenizeStep.index import tokenize_raw_sentences
+        from src.TokenizedSentence import TokenizedSentence
 
         try:
             dictionary = get_jmdict()
@@ -157,10 +157,10 @@ class TeOkuTests(unittest.TestCase):
         self.assertTrue(any(t.get('grammar_reserved') for t in reserved[-1].tokens))
 
     def test_archived_overlapping_expressions_and_verb(self):
-        from src.TokenizedSentence import TokenizedSentence
-        from src.steps.TokenizeStep.index import tokenize_raw_sentences
-        from src.steps.MergeTokensStep.index import combine_tokens_jmdict, get_jmdict
         from src.steps.BuildWordStatsStep.index import build_word_stats
+        from src.steps.MergeTokensStep.index import combine_tokens_jmdict, get_jmdict
+        from src.steps.TokenizeStep.index import tokenize_raw_sentences
+        from src.TokenizedSentence import TokenizedSentence
 
         try:
             dictionary = get_jmdict()

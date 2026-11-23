@@ -1,26 +1,33 @@
-import unittest
 import csv
 import json
 import tempfile
+import unittest
 from pathlib import Path
 
-from src.Expressions import find_expressions, inventory, validate_inventory
-from src.TokenizedSentence import TokenizedSentence
-from src.steps.TokenizeStep.index import tokenize_raw_sentences
 from src.Artifact import Artifact
-from src.Expressions import ExpressionStep, AddExpressionCandidatesStep
-from src.Grammar import GrammarStep, ExcludeGrammarTokensStep
+from src.Expressions import (
+    AddExpressionCandidatesStep,
+    ExpressionStep,
+    find_expressions,
+    inventory,
+    validate_inventory,
+)
+from src.Grammar import ExcludeGrammarTokensStep, GrammarStep
+from src.grammar_rules.rules.sou_da.index import HEARSAY
 from src.grammar_rules.rules.te_iru.index import RULE as TE_IRU
 from src.grammar_rules.rules.te_shimau.index import RULE as TE_SHIMAU
-from src.grammar_rules.rules.sou_da.index import HEARSAY
-from src.steps.BuildWordStatsStep.index import BuildWordStatsStep
 from src.steps.AddDefinitionsStep.index import AddDefinitionsStep
-from src.steps.FilterFrequencyStep.index import FilterFrequencyStep
-from src.steps.MergeTokensStep.index import MergeTokensStep
-from src.steps.MergeTokensStep.index import get_jmdict
 from src.steps.AttachSentencesStep.index import attach_sentences
+from src.steps.BuildWordStatsStep.index import BuildWordStatsStep
+from src.steps.FilterFrequencyStep.index import FilterFrequencyStep
+from src.steps.MergeTokensStep.index import MergeTokensStep, get_jmdict
 from src.steps.ScoreWordStep.index import score_words
-from src.steps.WriteOutputStep.index import write_final_file, write_candidate_diagnostics
+from src.steps.TokenizeStep.index import tokenize_raw_sentences
+from src.steps.WriteOutputStep.index import (
+    write_candidate_diagnostics,
+    write_final_file,
+)
+from src.TokenizedSentence import TokenizedSentence
 
 
 class ExpressionMatchingTests(unittest.TestCase):

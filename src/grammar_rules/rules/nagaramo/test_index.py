@@ -2,10 +2,10 @@ import unittest
 
 from src.Artifact import Artifact
 from src.Grammar import ExcludeGrammarTokensStep, GrammarStep
-from src.GrammarConstants import NAGARAMO_EXPRESSION, NAGARA_GRAMMAR_EXPRESSION
 from src.grammar_rules.alignment import aligned_tokens
 from src.grammar_rules.rules.nagaramo.index import match_nagaramo
 from src.grammar_rules.rules.te_iru.test_index import sentence, tok
+from src.GrammarConstants import NAGARA_GRAMMAR_EXPRESSION, NAGARAMO_EXPRESSION
 
 
 class NagaramoTests(unittest.TestCase):

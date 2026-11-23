@@ -2,12 +2,12 @@ import unittest
 
 from src.Artifact import Artifact
 from src.Grammar import ExcludeGrammarTokensStep, GrammarStep
-from src.GrammarConstants import GRAMMAR_EXPRESSIONS
 from src.grammar_rules.alignment import aligned_tokens
 from src.grammar_rules.registry import RULES
 from src.grammar_rules.rules.ga.index import RULE, match_ga
 from src.grammar_rules.rules.koto_ga_dekiru.index import RULE as KOTO_GA_DEKIRU
 from src.grammar_rules.rules.te_iru.test_index import sentence, tok
+from src.GrammarConstants import GRAMMAR_EXPRESSIONS
 
 
 class GaTests(unittest.TestCase):

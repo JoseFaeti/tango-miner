@@ -9,7 +9,7 @@ EXPRESSION = '〜ところによると'
 def match_tokoroniyoruto(tokens):
     attribution = set(match_niyoruto_niyoreba(tokens))
     for i in range(1, len(tokens) - 3):
-        previous, noun, ni, verb, ending = tokens[i - 1:i + 4]
+        previous, noun, ni, _verb, ending = tokens[i - 1:i + 4]
         pos = previous['pos']
         predicate = (pos[:1] in (['動詞'], ['形容詞']) and len(pos) >= 6
                      and pos[5].startswith('連体形'))

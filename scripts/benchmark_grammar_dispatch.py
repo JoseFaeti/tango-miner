@@ -1,20 +1,20 @@
 """Compare grammar dispatch paths on bounded, retokenized archived examples."""
 import argparse
 import csv
+import json
+import sys
 from dataclasses import replace
 from hashlib import sha256
-import json
 from pathlib import Path
-import sys
 from time import perf_counter
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 from src.Artifact import Artifact
 from src.Grammar import ExcludeGrammarTokensStep, GrammarStep
-from src.GrammarCache import _encode
 from src.grammar_rules.alignment import aligned_tokens
 from src.grammar_rules.dispatch import RuleDispatch
 from src.grammar_rules.registry import RULES
+from src.GrammarCache import _encode
 from src.steps.MergeTokensStep.index import get_jmdict
 from src.steps.TokenizeStep.index import tokenize_raw_sentences
 

@@ -2,10 +2,10 @@ import unittest
 
 from src.Artifact import Artifact
 from src.Grammar import ExcludeGrammarTokensStep, GrammarStep
-from src.GrammarConstants import MAENI_ATODE_EXPRESSION
 from src.grammar_rules.alignment import aligned_tokens
 from src.grammar_rules.rules.maeni_atode.index import match_maeni_atode
 from src.grammar_rules.rules.te_iru.test_index import sentence, tok
+from src.GrammarConstants import MAENI_ATODE_EXPRESSION
 
 
 class MaeniAtodeTests(unittest.TestCase):

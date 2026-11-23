@@ -3,10 +3,10 @@ import unittest
 from src.Artifact import Artifact
 from src.Grammar import ExcludeGrammarTokensStep, GrammarStep
 from src.grammar_rules.registry import RULES
-from src.grammar_rules.rules.tatokorode.index import RULE
-from src.grammar_rules.rules.tokorode.index import RULE as TOKORODE
 from src.grammar_rules.rules.tatokoro.index import RULE as TATOKORO
+from src.grammar_rules.rules.tatokorode.index import RULE
 from src.grammar_rules.rules.te_iru.test_index import sentence, tok
+from src.grammar_rules.rules.tokorode.index import RULE as TOKORODE
 
 
 class TatokorodeTests(unittest.TestCase):

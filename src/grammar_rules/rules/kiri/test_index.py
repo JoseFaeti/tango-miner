@@ -1,10 +1,10 @@
 import unittest
 
+from src.Artifact import Artifact
+from src.Grammar import GrammarStep
 from src.grammar_rules.alignment import aligned_tokens
 from src.grammar_rules.rules.kiri.index import KIRI_EXPRESSION, match_kiri
 from src.grammar_rules.rules.te_iru.test_index import sentence, tok
-from src.Artifact import Artifact
-from src.Grammar import GrammarStep
 
 
 class KiriTests(unittest.TestCase):

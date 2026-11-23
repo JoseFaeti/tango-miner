@@ -1,10 +1,10 @@
 import unittest
 
 from src.Artifact import Artifact
-from src.Grammar import GrammarStep, ExcludeGrammarTokensStep
+from src.Grammar import ExcludeGrammarTokensStep, GrammarStep
 from src.grammar_rules.alignment import aligned_tokens
-from src.grammar_rules.rules.baii_taraii.index import RULE, match_baii_taraii
 from src.grammar_rules.rules.ba.index import RULE as BA
+from src.grammar_rules.rules.baii_taraii.index import RULE, match_baii_taraii
 from src.grammar_rules.rules.tara.index import RULE as TARA
 from src.grammar_rules.rules.te_iru.test_index import sentence, tok
 

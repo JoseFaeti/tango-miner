@@ -5,7 +5,7 @@ from src.grammar_rules.helpers import adjacent, negative_suffix_end, polite_suff
 
 def match_zunihaokanai(tokens):
     for i in range(1, len(tokens) - 4):
-        verb, zu, ni, wa, oku, suffix = tokens[i - 1:i + 5]
+        verb, zu, ni, wa, oku, _suffix = tokens[i - 1:i + 5]
         if not (verb['pos'][:1] in (['動詞'], ['助動詞']) and len(verb['pos']) >= 6
                 and (verb['pos'][:1] == ['動詞'] or verb['lemma'] in ('せる', 'させる', 'れる', 'られる'))
                 and verb['pos'][5].startswith('未然形')

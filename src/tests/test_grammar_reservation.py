@@ -2,12 +2,12 @@ import unittest
 from unittest.mock import patch
 
 from src.Artifact import Artifact
-from src.Grammar import GrammarStep, ExcludeGrammarTokensStep, GrammarRule
-from src.grammar_rules.rules.te_kuru.index import RULE
+from src.Grammar import ExcludeGrammarTokensStep, GrammarRule, GrammarStep
 from src.grammar_rules.rules.nda.index import RULE as NDA_RULE
-from src.steps.MergeTokensStep.index import combine_tokens_jmdict
-from src.steps.BuildWordStatsStep.index import build_word_stats
 from src.grammar_rules.rules.te_iru.test_index import sentence, tok
+from src.grammar_rules.rules.te_kuru.index import RULE
+from src.steps.BuildWordStatsStep.index import build_word_stats
+from src.steps.MergeTokensStep.index import combine_tokens_jmdict
 
 
 class Dictionary:
@@ -21,10 +21,11 @@ class Dictionary:
 class GrammarReservationTests(unittest.TestCase):
     def test_tsukiau_examples_remain_lexical_with_overlapping_grammar(self):
         from pathlib import Path
+
         from src.grammar_rules.rules.au.index import RULE as AU
         from src.grammar_rules.rules.te_hoshii.index import RULE as TE_HOSHII
-        from src.steps.TokenizeStep.index import tokenize_raw_sentences
         from src.steps.MergeTokensStep.index import get_jmdict
+        from src.steps.TokenizeStep.index import tokenize_raw_sentences
         from src.TokenizedSentence import TokenizedSentence
 
         texts = ['ったくいちいちテメェの遊びに付き合ってられるか。',
@@ -48,9 +49,10 @@ class GrammarReservationTests(unittest.TestCase):
 
     def test_expression_starting_inside_grammar_remains_lexical(self):
         from pathlib import Path
+
         from src.grammar_rules.rules.te_kara.index import RULE as TE_KARA
-        from src.steps.TokenizeStep.index import tokenize_raw_sentences
         from src.steps.MergeTokensStep.index import get_jmdict
+        from src.steps.TokenizeStep.index import tokenize_raw_sentences
         from src.TokenizedSentence import TokenizedSentence
 
         texts = ['劫火と戦ってからというもの自分の力に自信がついた気がする。',
@@ -66,9 +68,10 @@ class GrammarReservationTests(unittest.TestCase):
 
     def test_gomu_examples_keep_compound_and_grammar(self):
         from pathlib import Path
+
         from src.grammar_rules.rules.gomu.index import RULE as GOMU
-        from src.steps.TokenizeStep.index import tokenize_raw_sentences
         from src.steps.MergeTokensStep.index import get_jmdict
+        from src.steps.TokenizeStep.index import tokenize_raw_sentences
         from src.TokenizedSentence import TokenizedSentence
 
         texts = ['確かにこれ以上人々を巻き込むわけにはいかないか。',
@@ -100,8 +103,9 @@ class GrammarReservationTests(unittest.TestCase):
 
     def test_completion_and_concessive_overlap_preserves_both_grammar_cards(self):
         from pathlib import Path
-        from src.grammar_rules.rules.te_shimau.index import RULE as TE_SHIMAU
+
         from src.grammar_rules.rules.te_mo.index import RULE as TE_MO
+        from src.grammar_rules.rules.te_shimau.index import RULE as TE_SHIMAU
         from src.steps.TokenizeStep.index import tokenize_raw_sentences
 
         try:
@@ -225,12 +229,13 @@ class GrammarReservationTests(unittest.TestCase):
 
     def test_archived_expressions_overlap_start_of_grammar(self):
         from pathlib import Path
-        from src.TokenizedSentence import TokenizedSentence
-        from src.steps.TokenizeStep.index import tokenize_raw_sentences
-        from src.steps.MergeTokensStep.index import combine_tokens_jmdict, get_jmdict
-        from src.steps.BuildWordStatsStep.index import build_word_stats
+
         from src.grammar_rules.rules.sou_da.index import APPEARANCE
         from src.grammar_rules.rules.te_mo.index import RULE as TE_MO
+        from src.steps.BuildWordStatsStep.index import build_word_stats
+        from src.steps.MergeTokensStep.index import combine_tokens_jmdict, get_jmdict
+        from src.steps.TokenizeStep.index import tokenize_raw_sentences
+        from src.TokenizedSentence import TokenizedSentence
 
         try:
             dictionary = get_jmdict()
@@ -379,18 +384,18 @@ class GrammarReservationTests(unittest.TestCase):
 
     def test_kigahen_repair_does_not_change_reserved_components(self):
         from src.steps.MergeTokensStep.index import _repair_kigahen_boundaries
-        tokens = [dict(surface='気が変', lemma='気が変', pos=('形状詞',), grammar_reserved=True),
-                  dict(surface='わっ', lemma='わる', pos=('動詞',)),
-                  dict(surface='たら', lemma='た', pos=('助動詞',), grammar_reserved=True)]
+        tokens = [{'surface': '気が変', 'lemma': '気が変', 'pos': ('形状詞',), 'grammar_reserved': True},
+                  {'surface': 'わっ', 'lemma': 'わる', 'pos': ('動詞',)},
+                  {'surface': 'たら', 'lemma': 'た', 'pos': ('助動詞',), 'grammar_reserved': True}]
         class PresentDictionary:
             def lookup_word(self, word): return [word]
         self.assertEqual(_repair_kigahen_boundaries(tokens, PresentDictionary()), tokens)
 
     def test_passive_guard_sees_reserved_connective(self):
         from src.steps.MergeTokensStep.index import _is_inflection_misread_as_noun
-        tokens = [dict(surface='覆わ', lemma='覆う', pos=('動詞', '*', '*', '*', '*', '未然形')),
-                  dict(surface='れ', lemma='れる', pos=('助動詞', '*')),
-                  dict(surface='て', lemma='て', pos=('助詞', '接続助詞'), grammar_reserved=True)]
+        tokens = [{'surface': '覆わ', 'lemma': '覆う', 'pos': ('動詞', '*', '*', '*', '*', '未然形')},
+                  {'surface': 'れ', 'lemma': 'れる', 'pos': ('助動詞', '*')},
+                  {'surface': 'て', 'lemma': 'て', 'pos': ('助詞', '接続助詞'), 'grammar_reserved': True}]
         entry = {'senses': [{'pos': ['noun (common)']}]}
         self.assertTrue(_is_inflection_misread_as_noun(tokens, 0, 2, entry))
 

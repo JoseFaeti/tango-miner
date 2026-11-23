@@ -2,13 +2,13 @@ import unittest
 
 from src.Artifact import Artifact
 from src.Grammar import ExcludeGrammarTokensStep, GrammarStep
-from src.GrammarConstants import GRAMMAR_EXPRESSIONS
 from src.grammar_rules.alignment import aligned_tokens
 from src.grammar_rules.registry import RULES
 from src.grammar_rules.rules.kagiri.index import match_kagiri
 from src.grammar_rules.rules.kagirideha.index import match_kagirideha
 from src.grammar_rules.rules.naikagiri.index import RULE, match_naikagiri
 from src.grammar_rules.rules.te_iru.test_index import sentence, tok
+from src.GrammarConstants import GRAMMAR_EXPRESSIONS
 
 
 class NaikagiriTests(unittest.TestCase):

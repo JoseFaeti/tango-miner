@@ -47,7 +47,7 @@ class NaimonodemonaiTests(unittest.TestCase):
         words = {}
         stage.add_cards(words)
         self.assertEqual(words[RULE.expression].sentences[0].surface_form, 'ないものでもない')
-        from src.GrammarConstants import GRAMMAR_EXPRESSIONS
         from src.grammar_rules.registry import RULES
+        from src.GrammarConstants import GRAMMAR_EXPRESSIONS
         self.assertIn(RULE.expression, GRAMMAR_EXPRESSIONS)
         self.assertIn(RULE, RULES)

@@ -1,7 +1,7 @@
 """Verb-stem そうもない, expressing an unlikely event."""
 SOU_MO_NAI_EXPRESSION = '〜そうもない'
 from src.grammar_rules.base import GrammarRule
-from src.grammar_rules.helpers import adjacent, next_matches, adjective_inflection_end
+from src.grammar_rules.helpers import adjacent, adjective_inflection_end, next_matches
 
 
 def match_sou_mo_nai(tokens):

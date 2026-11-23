@@ -5,7 +5,6 @@ listed here, and replacement rules with the same ID, are always invoked.
 """
 from src.grammar_rules.registry import RULES
 
-
 SURFACE_TRIGGERS = {
     'tte': ('って',),
     'toiu': ('いう', '言う'),

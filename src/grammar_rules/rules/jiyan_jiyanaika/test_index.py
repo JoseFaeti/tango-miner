@@ -1,11 +1,11 @@
 import unittest
 
-from src.grammar_rules.alignment import aligned_tokens
-from src.grammar_rules.rules.jiyan_jiyanaika.index import match_jiyan_jiyanaika
-from src.grammar_rules.rules.te_iru.test_index import tok, sentence
-from src.GrammarConstants import JIYAN_JIYANAIKA_EXPRESSION as EXPRESSION
 from src.Artifact import Artifact
 from src.Grammar import GrammarStep
+from src.grammar_rules.alignment import aligned_tokens
+from src.grammar_rules.rules.jiyan_jiyanaika.index import match_jiyan_jiyanaika
+from src.grammar_rules.rules.te_iru.test_index import sentence, tok
+from src.GrammarConstants import JIYAN_JIYANAIKA_EXPRESSION as EXPRESSION
 
 
 class JiyanTests(unittest.TestCase):

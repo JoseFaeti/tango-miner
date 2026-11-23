@@ -2,9 +2,8 @@
 NAI_GRAMMAR_EXPRESSION = '〜ない'
 from src.grammar_rules.base import GrammarRule
 from src.grammar_rules.helpers import adjacent, negative_suffix_end
-from src.grammar_rules.rules.nakutemoii.index import match_nakutemoii
 from src.grammar_rules.rules.nakunaru.index import match_nakunaru
-
+from src.grammar_rules.rules.nakutemoii.index import match_nakutemoii
 
 RULE = GrammarRule(order=155,
     id='verbal_nai', expression=NAI_GRAMMAR_EXPRESSION, reading='ない',

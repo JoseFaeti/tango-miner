@@ -2,7 +2,6 @@
 from src.grammar_rules.base import GrammarRule
 from src.grammar_rules.helpers import adjacent, adjective_inflection_end, next_matches
 
-
 NIKUI_ZURAI_GATAI_EXPRESSION = '〜にくい / 〜づらい / 〜がたい'
 RULE = GrammarRule(
     order=110, id='nikui_zurai_gatai', expression=NIKUI_ZURAI_GATAI_EXPRESSION,

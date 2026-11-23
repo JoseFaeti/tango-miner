@@ -1,8 +1,8 @@
 """Tentative negative conjecture or suggestion with verbal まいか."""
 from src.grammar_rules.base import GrammarRule
 from src.grammar_rules.helpers import next_matches
-from src.grammar_rules.rules.mai.index import match_mai
 from src.grammar_rules.rules.dehaarumaika.index import match_dehaarumaika
+from src.grammar_rules.rules.mai.index import match_mai
 
 MAIKA_EXPRESSION = '〜まいか'
 

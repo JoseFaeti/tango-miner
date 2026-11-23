@@ -1,13 +1,13 @@
 import unittest
 
 from src.Artifact import Artifact
-from src.Grammar import GrammarStep, ExcludeGrammarTokensStep
+from src.Grammar import ExcludeGrammarTokensStep, GrammarStep
 from src.grammar_rules.alignment import aligned_tokens
 from src.grammar_rules.registry import RULES
-from src.grammar_rules.rules.you_ni_naru.index import RULE, match_you_ni_naru
-from src.grammar_rules.rules.you_ni.index import RULE as YOU_NI
 from src.grammar_rules.rules.te_iru.index import RULE as TE_IRU
 from src.grammar_rules.rules.te_iru.test_index import sentence, tok
+from src.grammar_rules.rules.you_ni.index import RULE as YOU_NI
+from src.grammar_rules.rules.you_ni_naru.index import RULE, match_you_ni_naru
 
 
 class YouNiNaruTests(unittest.TestCase):

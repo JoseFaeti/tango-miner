@@ -1,8 +1,7 @@
 """Rule for te_iru."""
 TE_IRU_GRAMMAR_EXPRESSION = '〜ている'
 from src.grammar_rules.base import GrammarRule
-from src.grammar_rules.helpers import polite_suffix_end, has_next, negative_suffix_end
-
+from src.grammar_rules.helpers import has_next, negative_suffix_end, polite_suffix_end
 
 RULE = GrammarRule(order=157,
     id='te_iru', expression=TE_IRU_GRAMMAR_EXPRESSION, reading='ている',
@@ -50,9 +49,7 @@ def match_te_iru(tokens):
             # Sudachi can merge the contracted connective and negative.
             end = i
         elif token['pos'][:1] == ['助動詞'] and token['lemma'] in ('てる', 'でる'):
-            if token['surface'] in ('てる', 'でる', 'てよう', 'でよう', 'てろ', 'でろ'):
-                end = i
-            elif (token['surface'] in ('てん', 'でん') and has_next(tokens, i)
+            if token['surface'] in ('てる', 'でる', 'てよう', 'でよう', 'てろ', 'でろ') or (token['surface'] in ('てん', 'でん') and has_next(tokens, i)
                   and tokens[i + 1]['surface'] == 'の'
                   and tokens[i + 1]['pos'][:2] in (['助詞', '準体助詞'], ['助詞', '終助詞'])):
                 end = i

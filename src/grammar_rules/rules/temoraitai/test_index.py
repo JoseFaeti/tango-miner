@@ -2,10 +2,10 @@ import unittest
 
 from src.Artifact import Artifact
 from src.Grammar import ExcludeGrammarTokensStep, GrammarStep
-from src.GrammarConstants import TEMORAITAI_EXPRESSION, TAI_GRAMMAR_EXPRESSION
 from src.grammar_rules.alignment import aligned_tokens
-from src.grammar_rules.rules.temoraitai.index import match_temoraitai
 from src.grammar_rules.rules.te_iru.test_index import sentence, tok
+from src.grammar_rules.rules.temoraitai.index import match_temoraitai
+from src.GrammarConstants import TAI_GRAMMAR_EXPRESSION, TEMORAITAI_EXPRESSION
 
 
 class TemoraitaiTests(unittest.TestCase):

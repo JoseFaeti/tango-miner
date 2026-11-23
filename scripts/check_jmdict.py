@@ -1,9 +1,9 @@
 """Check the configured JMdict against the tested dictionary snapshot."""
 import argparse
 import hashlib
-from pathlib import Path
 import sys
 import tomllib
+from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
 TESTED_DATE = "2026-11-23"

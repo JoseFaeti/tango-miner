@@ -2,7 +2,7 @@ import unittest
 from unittest.mock import patch
 
 from src.Artifact import Artifact
-from src.Grammar import GrammarStep, ExcludeGrammarTokensStep
+from src.Grammar import ExcludeGrammarTokensStep, GrammarStep
 from src.grammar_rules.alignment import aligned_tokens
 from src.grammar_rules.rules.te_iku.index import RULE, match_te_iku
 from src.grammar_rules.rules.te_iru.test_index import sentence, tok
@@ -62,9 +62,9 @@ class TeIkuTests(unittest.TestCase):
         self.assertEqual(stage.occurrences[RULE.id].count, 0)
 
     def test_incomplete_and_gapped_forms(self):
-        tokens = [dict(surface='歩い', lemma='歩く', pos=['動詞', '*', '*', '*', '*', '連用形'], span=[0, 2]),
-                  dict(surface='て', lemma='て', pos=['助詞', '接続助詞'], span=[2, 3]),
-                  dict(surface='いっ', lemma='いく', pos=['動詞', '非自立可能'], span=[3, 5])]
+        tokens = [{'surface': '歩い', 'lemma': '歩く', 'pos': ['動詞', '*', '*', '*', '*', '連用形'], 'span': [0, 2]},
+                  {'surface': 'て', 'lemma': 'て', 'pos': ['助詞', '接続助詞'], 'span': [2, 3]},
+                  {'surface': 'いっ', 'lemma': 'いく', 'pos': ['動詞', '非自立可能'], 'span': [3, 5]}]
         self.assertEqual(list(match_te_iku(tokens)), [])
         tokens[-1]['surface'] = 'いく'
         tokens[-1]['span'] = [4, 6]

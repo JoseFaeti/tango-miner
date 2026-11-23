@@ -1,7 +1,11 @@
 """Volitional verb + とする: attempt or be about to do something."""
 YOU_TO_SURU_EXPRESSION = '〜ようとする'
 from src.grammar_rules.base import GrammarRule
-from src.grammar_rules.helpers import next_matches, positive_verb_end, negative_predicate_end
+from src.grammar_rules.helpers import (
+    negative_predicate_end,
+    next_matches,
+    positive_verb_end,
+)
 
 
 def match_you_to_suru(tokens):

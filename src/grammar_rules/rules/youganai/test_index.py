@@ -1,9 +1,9 @@
 import unittest
 
 from src.grammar_rules.alignment import aligned_tokens
-from src.grammar_rules.rules.te_iru.test_index import tok
-from src.grammar_rules.rules.youganai.index import match_youganai, RULE
 from src.grammar_rules.registry import RULES
+from src.grammar_rules.rules.te_iru.test_index import tok
+from src.grammar_rules.rules.youganai.index import RULE, match_youganai
 
 
 class YouganaiTests(unittest.TestCase):

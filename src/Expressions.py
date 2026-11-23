@@ -1,17 +1,17 @@
+# ruff: noqa: N999 -- Preserve established public module names.
 """Match a curated inventory against aligned Sudachi token streams."""
+import json
 from dataclasses import asdict, dataclass
 from functools import lru_cache
 from itertools import islice
-import json
 from pathlib import Path
 
 from src.grammar_rules.alignment import aligned_tokens
-from src.TokenProvenance import token_components
 from src.PipelineStep import PipelineStep
-from src.WordStats import WordStats
 from src.steps.ProcessingStep.index import ProcessingStep
 from src.steps.TokenizeStep.index import is_useless
-
+from src.TokenProvenance import token_components
+from src.WordStats import WordStats
 
 INVENTORY_PATH = Path(__file__).resolve().parent.parent / 'data' / 'expressions.json'
 
@@ -125,7 +125,7 @@ def _reanalyze_end(text, start, prefix, entry, boundaries):
     fragment = text[offset:]
     if not any(fragment.startswith(verb[:-1]) for verb in entry['verb']):
         return None
-    from src.steps.TokenizeStep.index import get_tokenizer, TOKENIZER_MODE
+    from src.steps.TokenizeStep.index import TOKENIZER_MODE, get_tokenizer
     nodes = get_tokenizer().tokenize(fragment, TOKENIZER_MODE)
     if not nodes:
         return None
@@ -139,9 +139,7 @@ def _reanalyze_end(text, start, prefix, entry, boundaries):
     for node in islice(nodes, 1, None):
         pos = node.part_of_speech()
         if (expected_pos == '形容詞' and previous_surface.endswith('く')
-                and pos[0] == '形容詞' and node.dictionary_form() == 'ない'):
-            end += len(node.surface())
-        elif pos[0] == '助動詞':
+                and pos[0] == '形容詞' and node.dictionary_form() == 'ない') or pos[0] == '助動詞':
             end += len(node.surface())
         elif pos[:2] == ('助詞', '接続助詞') and node.surface() in {'て', 'で', 'ば'}:
             end += len(node.surface())

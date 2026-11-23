@@ -7,7 +7,7 @@ from src.grammar_rules.rules.nai.index import match_nai
 def match_naidehasumanai(tokens):
     starts = {start for start, _ in match_nai(tokens)}
     for i in range(len(tokens) - 4):
-        negative, de, wa, sumu, suffix = tokens[i:i + 5]
+        negative, de, wa, sumu, _suffix = tokens[i:i + 5]
         if not (negative['span'][0] in starts and negative['surface'] == 'ない'
                 and de['surface'] == 'で' and de['pos'][:1] in (['助詞'], ['助動詞'])
                 and wa['surface'] == 'は' and wa['pos'][:1] == ['助詞']

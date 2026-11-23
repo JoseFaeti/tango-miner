@@ -1,22 +1,21 @@
-import unittest
+# ruff: noqa: B023 -- Loop fixtures are invoked synchronously before the next iteration.
 import json
 import tempfile
+import unittest
 from pathlib import Path
-from unittest.mock import Mock
-from unittest.mock import patch
+from unittest.mock import Mock, patch
 
+from src.Artifact import Artifact
+from src.Pipeline import Pipeline
+from src.RunConfig import AnkiConfig
 from src.steps.AddWordsToAnkiStep.index import (
     AddWordsToAnkiStep,
-    anki_invoke,
     anki_fields_differ_from_stats,
+    anki_invoke,
     export_words_to_anki,
     word_to_anki_fields,
 )
-from src.RunConfig import AnkiConfig
-from src.Artifact import Artifact
-from src.Pipeline import Pipeline
 from src.WordStats import Sentence
-
 from tests.helpers import make_stats
 
 
@@ -83,11 +82,14 @@ class AddWordsToAnkiStepTests(unittest.TestCase):
             clock[0] += 25.0
             raise KeyboardInterrupt()
         pipeline = Pipeline([AddWordsToAnkiStep(AnkiConfig(model='Custom', output_only=False))])
-        with patch('time.perf_counter', side_effect=lambda: clock[0]), \
-                patch('src.steps.AddWordsToAnkiStep.index.anki_invoke', side_effect=fake), \
-                patch('builtins.input', side_effect=interrupt), patch('builtins.print'):
-            with self.assertRaises(KeyboardInterrupt):
-                pipeline.run(Artifact({'犬': make_stats()}))
+        with (
+            patch('time.perf_counter', side_effect=lambda: clock[0]),
+            patch('src.steps.AddWordsToAnkiStep.index.anki_invoke', side_effect=fake),
+            patch('builtins.input', side_effect=interrupt),
+            patch('builtins.print'),
+            self.assertRaises(KeyboardInterrupt),
+        ):
+            pipeline.run(Artifact({'犬': make_stats()}))
         self.assertEqual(pipeline.wait_seconds, 25.0)
         self.assertEqual(pipeline.duration, 0.0)
         self.assertEqual(pipeline.stage_records[0]['status'], 'failed')
@@ -95,6 +97,7 @@ class AddWordsToAnkiStepTests(unittest.TestCase):
 
     def test_comparison_reaches_100_before_prompt_even_if_final_candidate_is_skipped(self):
         from io import StringIO
+
         from src.ConsoleProgress import ConsoleProgress
         reviewed = make_stats()
         reviewed.needs_review = True
@@ -110,10 +113,12 @@ class AddWordsToAnkiStepTests(unittest.TestCase):
             return 'n'
         step = AddWordsToAnkiStep(AnkiConfig(model='Custom', output_only=False))
         display = ConsoleProgress(output, 1)
-        with patch('src.steps.AddWordsToAnkiStep.index.anki_invoke', side_effect=fake), \
-                patch('builtins.input', side_effect=decline):
-            with display.capture_step_output():
-                Pipeline([step], on_progress=display.progress, on_stage_record=display.stage).run(Artifact(words))
+        with (
+            patch('src.steps.AddWordsToAnkiStep.index.anki_invoke', side_effect=fake),
+            patch('builtins.input', side_effect=decline),
+            display.capture_step_output(),
+        ):
+            Pipeline([step], on_progress=display.progress, on_stage_record=display.stage).run(Artifact(words))
         self.assertIn('100.0% Comparing notes...', seen_at_prompt[0])
         self.assertEqual(step.outcome['status'], 'cancelled')
         self.assertNotIn('Preparing actions...', output.getvalue())
@@ -152,6 +157,7 @@ class AddWordsToAnkiStepTests(unittest.TestCase):
 
     def test_output_only_reports_plan_after_progress_without_mutations(self):
         from io import StringIO
+
         from src.ConsoleProgress import ConsoleProgress
 
         calls = []

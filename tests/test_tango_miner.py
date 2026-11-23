@@ -1,23 +1,28 @@
-import unittest
-import tempfile
-import json
 import io
-from contextlib import redirect_stdout, redirect_stderr
+import json
+import tempfile
+import unittest
+from contextlib import redirect_stderr, redirect_stdout
 from pathlib import Path
 from unittest.mock import patch
 
-from tango_miner import MIN_FREQUENCY_DEFAULT, process_script, resolve_directory_output_path, notify_run
-from src.steps.AddWordsToAnkiStep.index import AddWordsToAnkiStep
+from src.Expressions import AddExpressionCandidatesStep, ExpressionStep
 from src.steps.AddDefinitionsStep.index import AddDefinitionsStep
-from src.steps.WriteOutputStep.index import WriteOutputStep
-from src.steps.TokenizeStep.index import RawTokenizeStep
-from src.steps.GatherInputFilesStep.index import GatherInputFilesStep
-from src.steps.FilterFrequencyStep.index import FilterFrequencyStep
-from src.steps.ScoreWordStep.index import ScoreWordStep
+from src.steps.AddWordsToAnkiStep.index import AddWordsToAnkiStep
 from src.steps.AttachSentencesStep.index import AttachSentencesStep
+from src.steps.FilterFrequencyStep.index import FilterFrequencyStep
+from src.steps.GatherInputFilesStep.index import GatherInputFilesStep
 from src.steps.MergeTokensStep.index import MergeTokensStep
 from src.steps.OccurrenceDiagnosticsStep.index import OccurrenceDiagnosticsStep
-from src.Expressions import ExpressionStep, AddExpressionCandidatesStep
+from src.steps.ScoreWordStep.index import ScoreWordStep
+from src.steps.TokenizeStep.index import RawTokenizeStep
+from src.steps.WriteOutputStep.index import WriteOutputStep
+from tango_miner import (
+    MIN_FREQUENCY_DEFAULT,
+    notify_run,
+    process_script,
+    resolve_directory_output_path,
+)
 
 
 class TangoMinerTests(unittest.TestCase):
@@ -55,7 +60,7 @@ class TangoMinerTests(unittest.TestCase):
                     pipeline = factory.return_value
                     pipeline.duration = 1.0
                     pipeline.stage_records = []
-                    def run(artifact):
+                    def run(artifact, failure=failure):
                         step = factory.call_args.kwargs['steps'][0]
                         factory.call_args.kwargs['on_stage_record'](1, step, {'name': type(step).__name__, 'status': 'running'})
                         print('step output')
@@ -108,6 +113,7 @@ class TangoMinerTests(unittest.TestCase):
 
     def test_real_pipeline_archives_expression_and_grammar_evidence(self):
         import csv
+
         from src.steps.MergeTokensStep.index import get_jmdict
 
         with tempfile.TemporaryDirectory() as tmp:

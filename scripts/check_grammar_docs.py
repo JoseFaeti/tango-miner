@@ -12,7 +12,7 @@ from urllib.parse import unquote
 
 ROOT = Path(__file__).resolve().parent.parent
 GRAMMAR = ROOT / 'docs' / 'grammar'
-ENTRY = re.compile(r'^- \[([ ~x])\] \[(.*?)\]\((points/[^)]+\.md)\)$', re.M)
+ENTRY = re.compile(r'^- \[([ ~x])\] \[(.*?)\]\((points/[^)]+\.md)\)$', re.MULTILINE)
 
 
 def check() -> list[str]:
@@ -48,7 +48,7 @@ def check() -> list[str]:
             body = point.read_text(encoding='utf-8')
             if not body.startswith(f'# {name}\n'):
                 errors.append(f'{point}: title differs from index')
-            if not re.search(rf'^Status: \[{re.escape(status)}\]$', body, re.M):
+            if not re.search(rf'^Status: \[{re.escape(status)}\]$', body, re.MULTILINE):
                 errors.append(f'{point}: status differs from index')
             for filename in re.findall(r'\]\(../../../src/grammar_rules/rules/(\w+)\.py\)', body):
                 rule = ROOT / 'src' / 'grammar_rules' / 'rules' / f'{filename}.py'

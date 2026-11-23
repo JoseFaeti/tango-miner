@@ -3,7 +3,6 @@ TARA_GRAMMAR_EXPRESSION = '〜たら'
 from src.grammar_rules.base import GrammarRule
 from src.grammar_rules.helpers import adjacent
 
-
 RULE = GrammarRule(order=154,
     id='conditional_tara', expression=TARA_GRAMMAR_EXPRESSION, reading='たら',
     meaning='if; when; after; once',

@@ -1,3 +1,4 @@
+# ruff: noqa: N999 -- Preserve established public module names.
 """Create an auditable, non-overwriting output directory for each run."""
 import json
 import subprocess
@@ -6,8 +7,8 @@ from pathlib import Path
 
 
 def _git(repo, *args, allow_difference=False):
-    result = subprocess.run(["git", "-C", str(repo), *args], stdout=subprocess.PIPE,
-                            stderr=subprocess.PIPE, check=False)
+    result = subprocess.run(["git", "-C", str(repo), *args], capture_output=True,
+                            check=False)
     if result.returncode not in ((0, 1) if allow_difference else (0,)):
         raise RuntimeError(result.stderr.decode("utf-8", errors="replace").strip())
     return result.stdout
@@ -89,8 +90,9 @@ def _file_identity(path):
 
 def collect_dependencies(config):
     """Record versions and actual dictionary/config file hashes where discoverable."""
-    import importlib.metadata as metadata
     import platform
+    from importlib import metadata
+
     from src.Expressions import INVENTORY_PATH
     result = {"python": platform.python_version(), "packages": {}, "files": {}}
     names = ["SudachiPy"]

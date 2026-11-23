@@ -1,7 +1,11 @@
 """Making something a state, or choosing a noun."""
 KUSURU_NISURU_EXPRESSION = '〜くする / 〜にする'
 from src.grammar_rules.base import GrammarRule
-from src.grammar_rules.helpers import adjacent, positive_verb_end, negative_predicate_end
+from src.grammar_rules.helpers import (
+    adjacent,
+    negative_predicate_end,
+    positive_verb_end,
+)
 
 
 def match_kusuru_nisuru(tokens):
@@ -11,9 +15,7 @@ def match_kusuru_nisuru(tokens):
             continue
         pos = before['pos']
         if (pos[:1] == ['形容詞'] and before['surface'].endswith('く')
-                and len(pos) >= 6 and pos[5].startswith('連用形')):
-            start = i - 1
-        elif (before['surface'] == 'に' and before['lemma'] in ('に', 'だ')
+                and len(pos) >= 6 and pos[5].startswith('連用形')) or (before['surface'] == 'に' and before['lemma'] in ('に', 'だ')
               and pos[:1] in (['助詞'], ['助動詞']) and i >= 2
               and adjacent(tokens[i - 2], before)
               and tokens[i - 2]['pos'][:1] in (['名詞'], ['形状詞'])

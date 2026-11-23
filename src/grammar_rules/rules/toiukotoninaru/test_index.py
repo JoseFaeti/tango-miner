@@ -1,12 +1,12 @@
 import unittest
 
 from src.Artifact import Artifact
-from src.Grammar import GrammarStep, ExcludeGrammarTokensStep
+from src.Grammar import ExcludeGrammarTokensStep, GrammarStep
 from src.grammar_rules.alignment import aligned_tokens
 from src.grammar_rules.registry import RULES
+from src.grammar_rules.rules.koto_ni_naru.index import RULE as KOTO
 from src.grammar_rules.rules.te_iru.test_index import sentence, tok
 from src.grammar_rules.rules.toiu.index import RULE as SHORT
-from src.grammar_rules.rules.koto_ni_naru.index import RULE as KOTO
 from src.grammar_rules.rules.toiukotoninaru.index import RULE, match_toiukotoninaru
 
 

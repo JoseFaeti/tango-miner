@@ -4,8 +4,8 @@ from src.Artifact import Artifact
 from src.Grammar import ExcludeGrammarTokensStep, GrammarStep
 from src.grammar_rules.alignment import aligned_tokens
 from src.grammar_rules.registry import RULES
-from src.grammar_rules.rules.toosu.index import RULE, match_toosu
 from src.grammar_rules.rules.te_iru.test_index import sentence, tok
+from src.grammar_rules.rules.toosu.index import RULE, match_toosu
 
 
 class ToosuTests(unittest.TestCase):
@@ -53,8 +53,9 @@ class ToosuTests(unittest.TestCase):
 
     def test_dictionary_compounds_take_precedence(self):
         from pathlib import Path
-        from src.steps.TokenizeStep.index import tokenize_raw_sentences
+
         from src.steps.MergeTokensStep.index import combine_tokens_jmdict, get_jmdict
+        from src.steps.TokenizeStep.index import tokenize_raw_sentences
 
         try:
             dictionary = get_jmdict()

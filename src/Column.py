@@ -1,4 +1,6 @@
+# ruff: noqa: N999 -- Preserve established public module names.
 from enum import IntEnum
+
 
 class Column(IntEnum):
     WORD = 0

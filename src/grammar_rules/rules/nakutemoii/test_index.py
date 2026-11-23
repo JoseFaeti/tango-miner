@@ -1,13 +1,13 @@
 import unittest
 
 from src.Artifact import Artifact
-from src.Grammar import GrammarStep, ExcludeGrammarTokensStep
+from src.Grammar import ExcludeGrammarTokensStep, GrammarStep
 from src.grammar_rules.alignment import aligned_tokens
-from src.grammar_rules.rules.nakutemoii.index import RULE, match_nakutemoii
 from src.grammar_rules.rules.nai.index import match_nai
+from src.grammar_rules.rules.nakutemoii.index import RULE, match_nakutemoii
+from src.grammar_rules.rules.te_iru.test_index import sentence, tok
 from src.grammar_rules.rules.te_mo.index import match_te_mo
 from src.grammar_rules.rules.te_mo_ii.index import match_te_mo_ii
-from src.grammar_rules.rules.te_iru.test_index import sentence, tok
 
 
 class NakutemoiiTests(unittest.TestCase):

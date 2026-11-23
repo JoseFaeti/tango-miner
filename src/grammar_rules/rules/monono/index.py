@@ -3,7 +3,6 @@ MONONO_GRAMMAR_EXPRESSION = '〜ものの'
 from src.grammar_rules.base import GrammarRule
 from src.grammar_rules.helpers import adjacent
 
-
 RULE = GrammarRule(order=161,
     id='concessive_monono', expression=MONONO_GRAMMAR_EXPRESSION, reading='ものの',
     meaning='although; even though; but',

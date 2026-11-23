@@ -1,20 +1,27 @@
-import unittest
 import csv
-from pathlib import Path
 import tempfile
+import unittest
+from pathlib import Path
 from unittest.mock import patch
 
 from src.Artifact import Artifact
-from src.Grammar import GrammarStep, GrammarRule, GrammarPositionStep, AddGrammarCardsStep
-from src.grammar_rules.rules.te_iru.index import RULE as TE_IRU, match_te_iru
-from src.grammar_rules.rules.nda.index import RULE as NDA, match_nda
+from src.Grammar import (
+    AddGrammarCardsStep,
+    GrammarPositionStep,
+    GrammarRule,
+    GrammarStep,
+)
 from src.grammar_rules.alignment import aligned_tokens
+from src.grammar_rules.rules.nda.index import RULE as NDA
+from src.grammar_rules.rules.nda.index import match_nda
+from src.grammar_rules.rules.te_iru.index import RULE as TE_IRU
+from src.grammar_rules.rules.te_iru.index import match_te_iru
 from src.GrammarConstants import TE_IRU_GRAMMAR_EXPRESSION as EXPRESSION
-from src.TokenizedSentence import TokenizedSentence
 from src.steps.AddWordsToAnkiStep.index import export_words_to_anki
-from tests.helpers import make_stats
 from src.steps.AddWordsToAnkiStep.test_index import note
+from src.TokenizedSentence import TokenizedSentence
 from tango_miner import process_script
+from tests.helpers import make_stats
 
 
 def tok(surface, lemma, pos):
@@ -148,10 +155,10 @@ class TeIruCardTests(unittest.TestCase):
         self.assertEqual(card.tags, {'source'})
 
     def test_all_matched_sources_reach_shared_scoring_and_sentence_selection(self):
-        from src.SegmentedSentence import SegmentedSentence
         from src.RunConfig import SentencesConfig
-        from src.steps.ScoreWordStep.index import score_words
+        from src.SegmentedSentence import SegmentedSentence
         from src.steps.AttachSentencesStep.index import attach_sentences
+        from src.steps.ScoreWordStep.index import score_words
 
         first = self.valid()
         second_tokens = [{**token, 'surface': token['surface'].replace('今日', '明日')} for token in first.tokens]
@@ -176,9 +183,9 @@ class TeIruCardTests(unittest.TestCase):
 
     def test_grammar_spans_survive_word_collection_and_invalid_sentence_skips(self):
         from src.Grammar import ExcludeGrammarTokensStep
+        from src.steps.AttachSentencesStep.index import attach_sentences
         from src.steps.BuildWordStatsStep.index import build_word_stats
         from src.steps.ScoreWordStep.index import score_words
-        from src.steps.AttachSentencesStep.index import attach_sentences
 
         source = self.valid()
         for token in source.tokens:
@@ -234,7 +241,7 @@ class TeIruCardTests(unittest.TestCase):
         existing = note(123, EXPRESSION, fields={'Meaning': 'user edited'})
         for words in ({}, {EXPRESSION: make_stats()}):
             actions, plans = [], []
-            def invoke(action, params=None):
+            def invoke(action, params=None, actions=actions):
                 actions.append(action)
                 if action == 'modelNames': return ['Custom']
                 if action == 'findNotes': return [123]
@@ -260,7 +267,7 @@ class TeIruCardTests(unittest.TestCase):
                 existing = note(123, EXPRESSION, tags=['grammar', 'custom'],
                                 fields={'Meaning': 'user edit'})
                 plans = []
-                def invoke(action, params=None):
+                def invoke(action, params=None, existing=existing):
                     if action == 'modelNames': return ['Custom']
                     if action == 'findNotes': return [123]
                     if action == 'notesInfo': return [existing]

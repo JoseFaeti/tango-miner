@@ -1,3 +1,4 @@
+# ruff: noqa: N999 -- Preserve established public module names.
 """Bounded, read-only queries over archived pipeline records."""
 import argparse
 import json

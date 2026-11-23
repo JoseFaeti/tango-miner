@@ -5,6 +5,8 @@ from src.Grammar import GrammarStep
 from src.grammar_rules.alignment import aligned_tokens
 from src.grammar_rules.rules.nukide_nukinishite.index import (
     NUKIDE_NUKINISHITE_GRAMMAR_EXPRESSION as EXPRESSION,
+)
+from src.grammar_rules.rules.nukide_nukinishite.index import (
     match_nukide_nukinishite,
 )
 from src.grammar_rules.rules.te_iru.test_index import sentence, tok

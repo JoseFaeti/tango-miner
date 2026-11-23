@@ -1,5 +1,6 @@
 from enum import IntEnum
 
+
 class ProcessingStep(IntEnum):
     TOKENIZING = 0
     FILTERING = 1

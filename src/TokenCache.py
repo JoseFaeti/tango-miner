@@ -1,3 +1,4 @@
+# ruff: noqa: N999 -- Preserve established public module names.
 import hashlib
 import json
 import os

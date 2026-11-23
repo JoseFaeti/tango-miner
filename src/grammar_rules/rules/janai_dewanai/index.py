@@ -1,8 +1,10 @@
 """Negative copula attached to a nominal predicate."""
 JANAI_DEWANAI_EXPRESSION = 'じゃない / ではない'
 from src.grammar_rules.base import GrammarRule
-from src.grammar_rules.helpers import adjacent, next_matches, negative_predicate_end
-from src.grammar_rules.rules.toitsutemokagondehanai.index import match_toitsutemokagondehanai
+from src.grammar_rules.helpers import adjacent, negative_predicate_end, next_matches
+from src.grammar_rules.rules.toitsutemokagondehanai.index import (
+    match_toitsutemokagondehanai,
+)
 
 
 def match_janai_dewanai(tokens):

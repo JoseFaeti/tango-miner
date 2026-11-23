@@ -1,11 +1,17 @@
 import unittest
 
 from src.Artifact import Artifact
-from src.Grammar import GrammarStep, ExcludeGrammarTokensStep
+from src.Grammar import ExcludeGrammarTokensStep, GrammarStep
 from src.grammar_rules.alignment import aligned_tokens
-from src.grammar_rules.rules.te_wa_ikenai.index import RULE, NARANAI_RULE, match_te_wa_ikenai, match_te_wa_naranai
-from src.grammar_rules.rules.teha_chiya_jiya.index import RULE as GENERAL_RULE, match_teha
 from src.grammar_rules.rules.te_iru.test_index import sentence, tok
+from src.grammar_rules.rules.te_wa_ikenai.index import (
+    NARANAI_RULE,
+    RULE,
+    match_te_wa_ikenai,
+    match_te_wa_naranai,
+)
+from src.grammar_rules.rules.teha_chiya_jiya.index import RULE as GENERAL_RULE
+from src.grammar_rules.rules.teha_chiya_jiya.index import match_teha
 
 
 class TeWaIkenaiTests(unittest.TestCase):

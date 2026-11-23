@@ -1,13 +1,17 @@
 import unittest
 
 from src.Artifact import Artifact
-from src.Grammar import GrammarStep, ExcludeGrammarTokensStep
+from src.Grammar import ExcludeGrammarTokensStep, GrammarStep
 from src.grammar_rules.alignment import aligned_tokens
-from src.grammar_rules.rules.youmononara.index import RULE, YOUMONONARA_EXPRESSION, match_youmononara
+from src.grammar_rules.rules.mashou_you.index import RULE as VOLITIONAL
 from src.grammar_rules.rules.mononara.index import RULE as MONONARA
 from src.grammar_rules.rules.nara.index import RULE as NARA
-from src.grammar_rules.rules.mashou_you.index import RULE as VOLITIONAL
 from src.grammar_rules.rules.te_iru.test_index import sentence, tok
+from src.grammar_rules.rules.youmononara.index import (
+    RULE,
+    YOUMONONARA_EXPRESSION,
+    match_youmononara,
+)
 
 
 class YoumononaraTests(unittest.TestCase):

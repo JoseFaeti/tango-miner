@@ -1,8 +1,13 @@
 """Polite benefactive auxiliaries following a verb's te-form."""
 TE_POLITE_BENEFACTIVE_EXPRESSION = '〜ていただく / 〜てくださる / 〜て差し上げる'
 from src.grammar_rules.base import GrammarRule
-from src.grammar_rules.helpers import adjacent, next_matches, negative_suffix_end, polite_suffix_end, positive_verb_end
-
+from src.grammar_rules.helpers import (
+    adjacent,
+    negative_suffix_end,
+    next_matches,
+    polite_suffix_end,
+    positive_verb_end,
+)
 
 FORMS = {
     'いただく': ('いただく', 'いただい', 'いただき', 'いただか', 'いただけ', 'いただこう'),
