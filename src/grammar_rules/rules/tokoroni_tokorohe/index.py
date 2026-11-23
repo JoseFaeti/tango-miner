@@ -17,12 +17,15 @@ def match_tokoroni_tokorohe(tokens):
                 and adjacent(previous, noun) and adjacent(noun, particle)):
             continue
         pos = previous['pos']
-        predicate = (pos[:1] in (['動詞'], ['形容詞']) and len(pos) >= 6
+        predicate = (pos[:1] == ['動詞'] and len(pos) >= 6
                      and pos[5].startswith('連体形'))
         auxiliary = (pos[:1] == ['助動詞'] and len(pos) >= 6
-                     and pos[5].startswith('連体形') and i >= 2
-                     and tokens[i - 2]['pos'][:1] in (['動詞'], ['形容詞'], ['形状詞'], ['名詞'], ['助動詞'])
-                     and adjacent(tokens[i - 2], previous))
+                     and pos[5].startswith('連体形'))
+        if auxiliary:
+            j = i - 1
+            while j > 0 and tokens[j]['pos'][:1] == ['助動詞'] and adjacent(tokens[j - 1], tokens[j]):
+                j -= 1
+            auxiliary = tokens[j]['pos'][:1] == ['動詞']
         if predicate or auxiliary:
             yield noun['span'][0], particle['span'][1]
 
