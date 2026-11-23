@@ -24,6 +24,14 @@ def match_youga_youto(tokens):
         if (particle['surface'] not in ('が', 'と') or particle['pos'][:1] != ['助詞']
                 or not adjacent(tokens[end], particle)):
             continue
+        # Sudachi can misread the item after なかれ as a volitional verb in
+        # an unpunctuated noun list (なかれやくそうとキメラ...).
+        if (particle['surface'] == 'と' and i > 0 and end + 2 < len(tokens)
+                and tokens[i - 1]['surface'] == 'なかれ'
+                and adjacent(tokens[i - 1], verb)
+                and adjacent(particle, tokens[end + 2])
+                and tokens[end + 2]['pos'][:1] == ['名詞']):
+            continue
         if particle['surface'] == 'と' and end + 2 < len(tokens):
             following = tokens[end + 2]
             if adjacent(particle, following) and following['lemma'] in ('する', '思う', 'おもう'):

@@ -20,6 +20,10 @@ class YougaYoutoTests(unittest.TestCase):
             '何を食べようと構わない。': ['食べようと'],
             '誰が来ようが関係ない。': ['来ようが'],
             '何をしようと自由だ。': ['しようと'],
+            '王になろうが構わない。': ['なろうが'],
+            'まとめ買い忘れるなかれやくそうとキメラのつばさだ。': [],
+            '薬草とキメラのつばさだ。': [],
+            '薬をやくそうと構わない。': ['やくそうと'],
             '行こうと思う。': [],
             '食べようとする。': [],
             '行こうが行くまいが関係ない。': [],
@@ -31,6 +35,26 @@ class YougaYoutoTests(unittest.TestCase):
             with self.subTest(text=text):
                 raw = [tok(m.surface(), m.dictionary_form(), m.part_of_speech())
                        for m in analyzer.tokenize(text, tokenizer.Tokenizer.SplitMode.C)]
+                tokens, error = aligned_tokens(text, raw)
+                self.assertIsNone(error)
+                self.assertEqual([text[a:b] for a, b in match_youga_youto(tokens)], expected)
+
+    def test_token_boundaries_and_split_volitional(self):
+        cases = [
+            ('食べようと', [tok('食べ', '食べる', ('動詞', '一般', '*', '*', '下一段', '未然形')),
+                         tok('よう', 'よう', ('助動詞',)), tok('と', 'と', ('助詞',))], ['食べようと']),
+            ('なろうが', [tok('なろう', 'なる', ('動詞', '一般', '*', '*', '五段', '意志推量形')),
+                        tok('が', 'が', ('助詞',))], ['なろうが']),
+            ('やくそうと', [tok('やくそう', '薬草', ('名詞',)), tok('と', 'と', ('助詞',))], []),
+            ('食べ ようと', [tok('食べ', '食べる', ('動詞', '一般', '*', '*', '下一段', '未然形')),
+                          tok('よう', 'よう', ('助動詞',)), tok('と', 'と', ('助詞',))], []),
+            ('食べよう と', [tok('食べ', '食べる', ('動詞', '一般', '*', '*', '下一段', '未然形')),
+                          tok('よう', 'よう', ('助動詞',)), tok('と', 'と', ('助詞',))], []),
+            ('食べようと', [tok('食べ', '食べる', ('動詞', '一般', '*', '*', '下一段', '未然形')),
+                         tok('よう', 'よう', ('名詞',)), tok('と', 'と', ('助詞',))], []),
+        ]
+        for text, raw, expected in cases:
+            with self.subTest(text=text, raw=raw):
                 tokens, error = aligned_tokens(text, raw)
                 self.assertIsNone(error)
                 self.assertEqual([text[a:b] for a, b in match_youga_youto(tokens)], expected)
