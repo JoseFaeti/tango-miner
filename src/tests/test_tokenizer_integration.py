@@ -345,7 +345,8 @@ class TokenizerIntegrationTests(unittest.TestCase):
 
         texts = ['必要とされる人のみが永遠の命をあたえられる世が！',
                  '必要とされた。', '必要とされています。', '必要とする。',
-                 '必要としない。']
+                 '必要としない。',
+                 '禁断の古代呪法のために、たくさんの魂を必要とされている。']
         for prefer in (False, True):
             raw = tokenize_raw_sentences(texts, tag='source', source_path=Path('source.txt'))
             stage = GrammarStep(rules=(BASE, ASPECT), prefer_expressions=prefer)
@@ -356,6 +357,7 @@ class TokenizerIntegrationTests(unittest.TestCase):
             self.assertNotIn(ASPECT.expression, words)
             for source in reserved.data:
                 with self.subTest(text=source.text, prefer=prefer):
+                    self.assertFalse(any(t.get('grammar_reserved') for t in source.tokens))
                     merged = combine_tokens_jmdict(source.tokens, self.jmdict)
                     expression = next(t for t in merged if t['lemma'] == '必要とする')
                     self.assertTrue(expression['dictionary_expression'])
