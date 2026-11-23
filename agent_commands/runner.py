@@ -1,11 +1,10 @@
 """Shared command-line behavior for the exposed script bridges."""
 import contextlib
 import os
-from pathlib import Path
 import runpy
 import sys
 import traceback
-
+from pathlib import Path
 
 _SIMPLE_HELP = {
     'next_grammar': 'Print the next unchecked grammar point as JSON.',
@@ -60,7 +59,7 @@ def run(command):
                         print(exc.code, file=sys.stderr)
                         raise SystemExit(1)
                     raise
-                except Exception:
+                except Exception:  # noqa: BLE001 - silent CLI boundary suppresses all exceptions
                     traceback.print_exc()
                     raise SystemExit(1)
     finally:

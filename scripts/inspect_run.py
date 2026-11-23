@@ -68,7 +68,7 @@ def main(argv=None):
             if item['status'] != 'valid' and item['definition']:
                 print('  review: definition present; CSV does not record the reason')
             # Each CSV example is separated by two HTML line breaks.
-            examples = re.split(r'(?:<br\s*/?>\s*){2}', item['examples'], flags=re.I)
+            examples = re.split(r'(?:<br\s*/?>\s*){2}', item['examples'], flags=re.IGNORECASE)
             for example in examples[:args.examples]:
                 print(f"  example: {clip(plain_examples(example), args.width)}")
         missing = [w for w in args.word if w not in rows]

@@ -4,8 +4,8 @@ from src.Artifact import Artifact
 from src.Grammar import ExcludeGrammarTokensStep, GrammarStep
 from src.grammar_rules.alignment import aligned_tokens
 from src.grammar_rules.rules.koto_wa_nai.index import match_koto_wa_nai
-from src.grammar_rules.rules.naikotohanai.index import RULE, match_naikotohanai
 from src.grammar_rules.rules.nai.index import RULE as NAI_RULE
+from src.grammar_rules.rules.naikotohanai.index import RULE, match_naikotohanai
 from src.grammar_rules.rules.te_iru.test_index import sentence, tok
 
 
@@ -54,7 +54,7 @@ class NaikotohanaiTests(unittest.TestCase):
         self.assertEqual(words[RULE.expression].frequency, 1)
         self.assertEqual(words[RULE.expression].sentences[0].surface_form, 'ないことはない')
         self.assertEqual(words[NAI_RULE.expression].frequency, 1)
-        from src.GrammarConstants import GRAMMAR_EXPRESSIONS
         from src.grammar_rules.registry import RULES
+        from src.GrammarConstants import GRAMMAR_EXPRESSIONS
         self.assertIn(RULE.expression, GRAMMAR_EXPRESSIONS)
         self.assertIn(RULE, RULES)

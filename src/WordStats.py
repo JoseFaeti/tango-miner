@@ -1,6 +1,9 @@
+# Legacy module name retained for import compatibility.
+# ruff: noqa: N999
 import re
 from dataclasses import dataclass, field
 from html import escape
+
 from src.TokenProvenance import TokenComponent
 
 

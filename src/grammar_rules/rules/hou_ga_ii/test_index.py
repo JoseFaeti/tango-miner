@@ -1,7 +1,7 @@
 import unittest
 
 from src.Artifact import Artifact
-from src.Grammar import GrammarStep, ExcludeGrammarTokensStep
+from src.Grammar import ExcludeGrammarTokensStep, GrammarStep
 from src.grammar_rules.alignment import aligned_tokens
 from src.grammar_rules.rules.hou_ga_ii.index import RULE, match_hou_ga_ii
 from src.grammar_rules.rules.ta_hou_ga_ii.index import match_ta_hou_ga_ii

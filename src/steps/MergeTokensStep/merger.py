@@ -3,23 +3,23 @@
 from src.JMDict import JMDict
 from src.TokenProvenance import token_components
 
-from .helpers import (
-    _has_useful_kana_only_sense,
-    _is_prefixed_kana_noun,
-    _is_split_kana_noun,
-    _is_contracted_kana_verb,
-    _is_noun_arige,
-    has_kanji,
-    is_dictionary_expression,
-)
 from .grammar_guards import (
     _crosses_incompatible_grammar,
-    _is_past_predicate_misread_as_expression,
-    _is_particle_boundary_misread,
-    _is_inflection_misread_as_noun,
     _is_auxiliary_oru_misread,
+    _is_inflection_misread_as_noun,
     _is_kigakawatta_predicate,
+    _is_particle_boundary_misread,
+    _is_past_predicate_misread_as_expression,
     _is_prenominal_entry_in_past_predicate,
+)
+from .helpers import (
+    _has_useful_kana_only_sense,
+    _is_contracted_kana_verb,
+    _is_noun_arige,
+    _is_prefixed_kana_noun,
+    _is_split_kana_noun,
+    has_kanji,
+    is_dictionary_expression,
 )
 from .recovery import prepare_tokens
 

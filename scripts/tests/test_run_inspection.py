@@ -8,9 +8,10 @@ import unittest
 from pathlib import Path
 from unittest.mock import patch
 
-from scripts.check_corpus import config_toml, main as check_main
-from src.RunConfig import resolve_config
+from scripts.check_corpus import config_toml
+from scripts.check_corpus import main as check_main
 from scripts.tests.test_compare_runs import make_run
+from src.RunConfig import resolve_config
 
 ROOT = Path(__file__).resolve().parents[2]
 
@@ -22,7 +23,7 @@ class RunInspectionTests(unittest.TestCase):
             make_run(root, '2026-10-27_1200_abc', [('猫', 10), ('犬', 3)])
             result = subprocess.run([sys.executable, '-X', 'utf8', str(ROOT / 'scripts' / 'inspect_run.py'),
                                      '--runs-dir', str(root), '--word', '猫', '--word', '鳥',
-                                     '--examples', '0', '--width', '5'], capture_output=True, text=True, encoding='utf8')
+                                     '--examples', '0', '--width', '5'], check=False, capture_output=True, text=True, encoding='utf8')
             self.assertEqual(result.returncode, 0, result.stderr)
             self.assertIn('猫 | valid | frequency 10', result.stdout)
             self.assertIn('Absent: 鳥', result.stdout)
@@ -38,7 +39,7 @@ class RunInspectionTests(unittest.TestCase):
             (run / 'occurrences.jsonl').write_text('\n'.join(json.dumps(row, ensure_ascii=False) for _ in range(5)), encoding='utf8')
             result = subprocess.run([sys.executable, '-X', 'utf8', str(ROOT / 'scripts' / 'inspect_run.py'),
                                      str(run), '--word', '猫', '--occurrences', '--examples', '1'],
-                                    capture_output=True, text=True, encoding='utf8')
+                                    check=False, capture_output=True, text=True, encoding='utf8')
             self.assertEqual(result.returncode, 0, result.stderr)
             self.assertIn('猫 occurrences: 5', result.stdout)
             self.assertEqual(result.stdout.count('sample:'), 1)
@@ -49,7 +50,7 @@ class RunInspectionTests(unittest.TestCase):
             row = {'candidate': '猫', 'review_reasons': ['expression_frequency_or_source_coverage']}
             (run / 'candidate-diagnostics.jsonl').write_text(json.dumps(row), encoding='utf8')
             result = subprocess.run([sys.executable, '-X', 'utf8', str(ROOT / 'scripts' / 'inspect_run.py'),
-                                     str(run), '--word', '猫'], capture_output=True, text=True, encoding='utf8')
+                                     str(run), '--word', '猫'], check=False, capture_output=True, text=True, encoding='utf8')
             self.assertEqual(result.returncode, 0, result.stderr)
             self.assertIn('review reasons: expression_frequency_or_source_coverage', result.stdout)
 

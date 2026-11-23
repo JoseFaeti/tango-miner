@@ -3,7 +3,6 @@ KOTO_GA_ARU_OCCASIONAL = '〜ことがある'
 from src.grammar_rules.base import GrammarRule
 from src.grammar_rules.helpers import adjacent, next_matches, positive_verb_end
 
-
 RULE = GrammarRule(order=151,
     id='koto_ga_aru_occasional', expression=KOTO_GA_ARU_OCCASIONAL,
     reading='ことがある',

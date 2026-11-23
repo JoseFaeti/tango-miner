@@ -1,9 +1,9 @@
 import json
-from pathlib import Path
 import subprocess
 import sys
 import tempfile
 import unittest
+from pathlib import Path
 
 from src.RunConfig import RunConfig, resolve_config
 
@@ -11,6 +11,7 @@ from src.RunConfig import RunConfig, resolve_config
 class RunConfigTests(unittest.TestCase):
     def test_default_config_is_loaded_by_cli(self):
         from dataclasses import replace
+
         from tango_miner import corpus_path_from_env
         config = resolve_config('config.toml')
         if config.input.path is None:
@@ -19,10 +20,11 @@ class RunConfigTests(unittest.TestCase):
         self.assertEqual(json.loads(config.to_json()), json.loads(result.stdout))
 
     def test_env_input_fallback_and_explicit_precedence(self):
-        from unittest.mock import patch
-        from tango_miner import process_script
         import contextlib
         import io
+        from unittest.mock import patch
+
+        from tango_miner import process_script
         with tempfile.TemporaryDirectory() as directory:
             root = Path(directory)
             config = root / 'config.toml'

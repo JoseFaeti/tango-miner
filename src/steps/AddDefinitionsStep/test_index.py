@@ -1,14 +1,15 @@
-import unittest
 import tempfile
+import unittest
 from pathlib import Path
 from unittest.mock import patch
 
-from src.steps.AddDefinitionsStep.index import add_and_filter_for_definitions, AddDefinitionsStep
 from src.Artifact import Artifact
 from src.Pipeline import Pipeline
-from src.steps.ProcessingStep.index import ProcessingStep
+from src.steps.AddDefinitionsStep.index import (
+    AddDefinitionsStep,
+    add_and_filter_for_definitions,
+)
 from src.steps.MergeTokensStep.index import MergeTokensStep
-
 from tests.helpers import make_stats
 
 

@@ -1,13 +1,14 @@
+# Legacy module name retained for import compatibility.
+# ruff: noqa: N999
 """Read-only, memory-mapped JMdict data for spawned worker processes."""
 import hashlib
 import json
 import mmap
-import os
-from pathlib import Path
 import struct
 import sys
 import tempfile
 import zlib
+from pathlib import Path
 
 from src.CachePaths import remove_legacy_entries
 from src.JMDict import JMDict
@@ -51,7 +52,7 @@ def _valid(path, dictionary_digest):
 
 def prepare_shared_index(dictionary_path, dictionary_hash, cache_dir):
     """Return a verified immutable index, creating it atomically when absent."""
-    dictionary_digest, signature = _identity(dictionary_hash)
+    dictionary_digest, _signature = _identity(dictionary_hash)
     directory = Path(cache_dir) / 'shared-jmdict-v2'
     directory.mkdir(parents=True, exist_ok=True)
     path = directory / 'index.bin'
@@ -106,7 +107,7 @@ class SharedIndex:
     """Small private hash directory and shared, read-only mapped entry data."""
     def __init__(self, path, dictionary_hash):
         digest, _ = _identity(dictionary_hash)
-        self.file = Path(path).open('rb')
+        self.file = Path(path).open('rb')  # noqa: SIM115 - owned until SharedIndex.close()
         try:
             self.mapping = mmap.mmap(self.file.fileno(), 0, access=mmap.ACCESS_READ)
             magic, slots, count, length, expected, _ = _HEADER.unpack_from(self.mapping)

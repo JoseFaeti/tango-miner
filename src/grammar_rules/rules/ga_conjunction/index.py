@@ -1,10 +1,12 @@
 """Clause-linking and introductory conjunctive particle が."""
+import itertools
+
 from src.grammar_rules.base import GrammarRule
 from src.grammar_rules.helpers import adjacent
 
 
 def match_ga_conjunction(tokens):
-    for previous, marker in zip(tokens, tokens[1:]):
+    for previous, marker in itertools.pairwise(tokens):
         pos = previous['pos']
         if (marker['surface'] == 'が' and marker['lemma'] == 'が'
                 and marker['pos'][:2] == ['助詞', '接続助詞']

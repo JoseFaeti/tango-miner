@@ -1,16 +1,16 @@
+import heapq
+from bisect import bisect_right
+from collections import defaultdict
+from itertools import count
+
 from src.Artifact import Artifact
 from src.PipelineStep import PipelineStep
 from src.RunConfig import SentencesConfig
+from src.SegmentedSentence import SegmentedSentence as SegmentedSentence  # noqa: PLC0414 - compatibility export
 from src.steps.ProcessingStep.index import ProcessingStep
 from src.steps.TokenizeStep.index import is_valid_sentence
-from src.SegmentedSentence import SegmentedSentence
-from src.WordStats import Sentence, WordStats
-
-from collections import defaultdict
-from itertools import count
-import heapq
-import re
-from bisect import bisect_right
+from src.WordStats import Sentence
+from src.WordStats import WordStats as WordStats  # noqa: PLC0414 - compatibility export
 
 # ---------------------------------------------------------------------------
 # Config
@@ -119,19 +119,16 @@ def attach_sentences(word_data, segmented_sentences, progress_handler=None, conf
         if scores:
             mean = sum(scores) / len(scores)
             variance = sum((x - mean) ** 2 for x in scores) / len(scores)
-            sentence_difficulty = _percentile(scores, 0.9)
             sorted_scores = sorted(scores)
         else:
             mean = 0.0
             variance = 0.0
-            sentence_difficulty = 0.0
             sorted_scores = []
 
         # ------------------------------------------------------------
         # PHASE 2: sentence-level penalties (once per sentence)
         # ------------------------------------------------------------
         text = seg.text
-        text_len = len(text)
         low_quality = not is_valid_sentence(text)
 
         penalty = _sentence_penalty_fast(
@@ -345,7 +342,7 @@ def _sentence_dedupe_key_fast(text: str) -> str:
     if ">" not in text:
         return text
 
-    prefix, body = text.split(">", 1)
+    _prefix, body = text.split(">", 1)
 
     if body and any("\u4e00" <= c <= "\u9fff" for c in body):
         return body.strip()

@@ -1,7 +1,12 @@
 """An uncontrollable feeling expressed with て仕方がない."""
 from src.grammar_rules.base import GrammarRule
-from src.grammar_rules.helpers import (adjacent, adjective_inflection_end,
-                                       negative_suffix_end, next_matches, polite_suffix_end)
+from src.grammar_rules.helpers import (
+    adjacent,
+    adjective_inflection_end,
+    negative_suffix_end,
+    next_matches,
+    polite_suffix_end,
+)
 
 TESHIKATAGANAI_EXPRESSION = '〜てしかたがない / 〜てしょうがない'
 

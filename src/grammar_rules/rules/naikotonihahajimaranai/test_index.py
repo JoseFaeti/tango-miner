@@ -3,8 +3,11 @@ import unittest
 from src.Artifact import Artifact
 from src.Grammar import ExcludeGrammarTokensStep, GrammarStep
 from src.grammar_rules.alignment import aligned_tokens
-from src.grammar_rules.rules.naikotonihahajimaranai.index import RULE, match_naikotonihahajimaranai
 from src.grammar_rules.rules.naikotoniha.index import RULE as SHORT_RULE
+from src.grammar_rules.rules.naikotonihahajimaranai.index import (
+    RULE,
+    match_naikotonihahajimaranai,
+)
 from src.grammar_rules.rules.te_iru.test_index import sentence, tok
 
 
@@ -51,7 +54,7 @@ class NaikotonihahajimaranaiTests(unittest.TestCase):
         self.assertIn('行く', words)
         self.assertEqual(words[RULE.expression].sentences[0].surface_form, 'ないことには始まらない')
         self.assertIn(SHORT_RULE.expression, words)
-        from src.GrammarConstants import GRAMMAR_EXPRESSIONS
         from src.grammar_rules.registry import RULES
+        from src.GrammarConstants import GRAMMAR_EXPRESSIONS
         self.assertIn(RULE.expression, GRAMMAR_EXPRESSIONS)
         self.assertIn(RULE, RULES)

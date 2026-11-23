@@ -1,6 +1,9 @@
+# Legacy module name retained for import compatibility.
+# ruff: noqa: N999
 """Shared location for application cache files."""
 
 from pathlib import Path
+
 import appdirs
 
 CACHE_DIR = Path(appdirs.user_cache_dir("tango_miner"))

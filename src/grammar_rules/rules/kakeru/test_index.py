@@ -2,10 +2,10 @@ import unittest
 
 from src.Artifact import Artifact
 from src.Grammar import ExcludeGrammarTokensStep, GrammarStep
-from src.GrammarConstants import KAKERU_EXPRESSION
 from src.grammar_rules.alignment import aligned_tokens
 from src.grammar_rules.rules.kakeru.index import match_kakeru
 from src.grammar_rules.rules.te_iru.test_index import sentence, tok
+from src.GrammarConstants import KAKERU_EXPRESSION
 
 
 class KakeruTests(unittest.TestCase):

@@ -1,18 +1,26 @@
-import tempfile
-import json
 import hashlib
+import json
+import tempfile
 import unittest
 from pathlib import Path
 from unittest.mock import patch
 
 from src.Artifact import Artifact
 from src.Pipeline import Pipeline
-from src.StageCache import StageCache, MERGE_SOURCE_DEPENDENCIES, _source_fingerprint, _pack_token, _unpack_token, _input_key_data, _bytes
-from src.TokenProvenance import TokenComponent
-from src.TokenizedSentence import TokenizedSentence
+from src.StageCache import (
+    MERGE_SOURCE_DEPENDENCIES,
+    StageCache,
+    _bytes,
+    _input_key_data,
+    _pack_token,
+    _source_fingerprint,
+    _unpack_token,
+)
+from src.steps.BuildWordStatsStep.index import BuildWordStatsStep
 from src.steps.MergeTokensStep.index import MergeTokensStep
 from src.steps.TokenizeStep.index import RawTokenizeStep
-from src.steps.BuildWordStatsStep.index import BuildWordStatsStep
+from src.TokenizedSentence import TokenizedSentence
+from src.TokenProvenance import TokenComponent
 
 
 def sentence(name, text):

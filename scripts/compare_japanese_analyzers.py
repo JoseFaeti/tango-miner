@@ -134,7 +134,7 @@ def analyze(samples, analyzer, metadata):
         try:
             tokens = analyzer(case['text'])
             rows.append({'id': case['id'], 'analyzer': metadata, 'tokens': tokens, 'error': None})
-        except Exception as exc:
+        except Exception as exc:  # noqa: BLE001 - record arbitrary analyzer failures per sample
             rows.append({'id': case['id'], 'analyzer': metadata, 'tokens': [],
                          'error': f'{type(exc).__name__}: {exc}'})
     return rows

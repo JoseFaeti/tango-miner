@@ -2,10 +2,10 @@ import unittest
 
 from src.Artifact import Artifact
 from src.Grammar import GrammarStep
-from src.GrammarConstants import NJIYANAI_NODEHANAI_EXPRESSION as EXPRESSION
 from src.grammar_rules.alignment import aligned_tokens
 from src.grammar_rules.rules.njiyanai_nodehanai.index import match_njiyanai_nodehanai
 from src.grammar_rules.rules.te_iru.test_index import sentence, tok
+from src.GrammarConstants import NJIYANAI_NODEHANAI_EXPRESSION as EXPRESSION
 
 
 class NegativeExplanatoryTests(unittest.TestCase):

@@ -1,11 +1,11 @@
 import unittest
 
-from src.Grammar import GrammarStep
 from src.Artifact import Artifact
-from src.GrammarConstants import GRAMMAR_EXPRESSIONS
+from src.Grammar import GrammarStep
 from src.grammar_rules.alignment import aligned_tokens
 from src.grammar_rules.rules.te_goran.index import RULE, match_te_goran
 from src.grammar_rules.rules.te_iru.test_index import sentence, tok
+from src.GrammarConstants import GRAMMAR_EXPRESSIONS
 
 
 class TeGoranTests(unittest.TestCase):

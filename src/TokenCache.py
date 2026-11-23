@@ -1,3 +1,5 @@
+# Legacy module name retained for import compatibility.
+# ruff: noqa: N999
 import hashlib
 import json
 import os

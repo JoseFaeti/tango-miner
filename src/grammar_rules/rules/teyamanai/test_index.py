@@ -1,10 +1,13 @@
 import unittest
 
-from src.grammar_rules.alignment import aligned_tokens
-from src.grammar_rules.rules.te_iru.test_index import sentence, tok
-from src.grammar_rules.rules.teyamanai.index import match_teyamanai, TEYAMANAI_GRAMMAR_EXPRESSION
 from src.Artifact import Artifact
 from src.Grammar import GrammarStep
+from src.grammar_rules.alignment import aligned_tokens
+from src.grammar_rules.rules.te_iru.test_index import sentence, tok
+from src.grammar_rules.rules.teyamanai.index import (
+    TEYAMANAI_GRAMMAR_EXPRESSION,
+    match_teyamanai,
+)
 
 
 class TeyamanaiTests(unittest.TestCase):

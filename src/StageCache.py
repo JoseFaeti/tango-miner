@@ -1,17 +1,19 @@
+# Legacy module name retained for import compatibility.
+# ruff: noqa: N999
 """Cache deterministic stage results without putting cache logic in steps."""
 import hashlib
-from dataclasses import replace
 import json
 import sys
 import tempfile
+from dataclasses import replace
 from itertools import groupby
 from pathlib import Path
 
-from src.CachePaths import remove_legacy_entries
 from src.Artifact import Artifact
+from src.CachePaths import remove_legacy_entries
+from src.steps.MergeTokensStep.index import MergeTokensStep
 from src.TokenizedSentence import TokenizedSentence
 from src.TokenProvenance import TokenComponent
-from src.steps.MergeTokensStep.index import MergeTokensStep
 
 
 def _pack_token(token):
@@ -31,7 +33,7 @@ def _pack_token(token):
 def _unpack_token(value):
     values, pos, pos_tuple, components = value
     if not isinstance(values, dict) or not isinstance(pos, list) or not isinstance(pos_tuple, bool):
-        raise ValueError("Invalid cached token")
+        raise ValueError("Invalid cached token")  # noqa: TRY004 - cache rejection uses ValueError
     token = dict(values)
     token["pos"] = tuple(pos) if pos_tuple else pos
     if components is not None:
@@ -97,7 +99,7 @@ def _unpack_changes(original, changes):
             result.append(sentence)
             continue
         if not isinstance(tokens, list):
-            raise ValueError("Invalid cached sentence")
+            raise ValueError("Invalid cached sentence")  # noqa: TRY004 - cache rejection uses ValueError
         restored = []
         for token in tokens:
             if type(token) is int:

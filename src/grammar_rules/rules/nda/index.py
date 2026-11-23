@@ -1,8 +1,11 @@
 """Rule for nda."""
 NDA_GRAMMAR_EXPRESSION = '〜んだ'
 from src.grammar_rules.base import GrammarRule
-from src.grammar_rules.helpers import adjacent, negative_suffix_end, negative_predicate_end
-
+from src.grammar_rules.helpers import (
+    adjacent,
+    negative_predicate_end,
+    negative_suffix_end,
+)
 
 RULE = GrammarRule(order=158,
     id='explanatory_nda', expression=NDA_GRAMMAR_EXPRESSION, reading='んだ',

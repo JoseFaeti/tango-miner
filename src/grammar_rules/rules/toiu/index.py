@@ -2,18 +2,18 @@
 TOIU_EXPRESSION = '〜という / 〜っていう'
 from src.grammar_rules.base import GrammarRule
 from src.grammar_rules.helpers import adjacent
-from src.grammar_rules.rules.toiuwakeda.index import match_toiuwakeda
-from src.grammar_rules.rules.toiuwakedehanai.index import match_toiuwakedehanai
 from src.grammar_rules.rules.toiukotoda.index import match_toiukotoda
-from src.grammar_rules.rules.toiukotoninaru.index import match_toiukotoninaru
 from src.grammar_rules.rules.toiukotoha.index import match_toiukotoha
-from src.grammar_rules.rules.toiunoha.index import match_toiunoha
-from src.grammar_rules.rules.toiuyori.index import match_toiuyori
+from src.grammar_rules.rules.toiukotoninaru.index import match_toiukotoninaru
 from src.grammar_rules.rules.toiumonoda.index import match_toiumonoda
 from src.grammar_rules.rules.toiumonodehanai.index import match_toiumonodehanai
 from src.grammar_rules.rules.toiumonodemonai.index import match_toiumonodemonai
 from src.grammar_rules.rules.toiumonogaaru.index import match_toiumonogaaru
 from src.grammar_rules.rules.toiumonono.index import match_toiumonono
+from src.grammar_rules.rules.toiunoha.index import match_toiunoha
+from src.grammar_rules.rules.toiuwakeda.index import match_toiuwakeda
+from src.grammar_rules.rules.toiuwakedehanai.index import match_toiuwakedehanai
+from src.grammar_rules.rules.toiuyori.index import match_toiuyori
 
 
 def match_toiu(tokens):

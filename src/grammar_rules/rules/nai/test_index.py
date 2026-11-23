@@ -1,11 +1,13 @@
 import unittest
 
 from src.Artifact import Artifact
-from src.Grammar import GrammarStep, ExcludeGrammarTokensStep
+from src.Grammar import ExcludeGrammarTokensStep, GrammarStep
+from src.grammar_rules.alignment import aligned_tokens
+from src.grammar_rules.rules.elliptical_obligation.index import (
+    match_elliptical_obligation,
+)
 from src.grammar_rules.rules.nai.index import RULE, match_nai
 from src.grammar_rules.rules.obligation.index import match_obligation
-from src.grammar_rules.rules.elliptical_obligation.index import match_elliptical_obligation
-from src.grammar_rules.alignment import aligned_tokens
 from src.grammar_rules.rules.te_iru.test_index import sentence, tok
 
 

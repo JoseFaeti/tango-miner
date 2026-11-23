@@ -2,11 +2,11 @@ import unittest
 
 from src.Artifact import Artifact
 from src.Grammar import ExcludeGrammarTokensStep, GrammarStep
-from src.GrammarConstants import GRAMMAR_EXPRESSIONS
 from src.grammar_rules.alignment import aligned_tokens
 from src.grammar_rules.registry import RULES
 from src.grammar_rules.rules.te_iru.test_index import sentence, tok
 from src.grammar_rules.rules.toitsuta.index import RULE, match_toitsuta
+from src.GrammarConstants import GRAMMAR_EXPRESSIONS
 
 
 class ToitsutaTests(unittest.TestCase):
@@ -20,6 +20,12 @@ class ToitsutaTests(unittest.TestCase):
             'りんごやみかんといった果物が好きだ。': 'といった',
             '犬と言った動物を飼う。': 'と言った',
             '百人といったところだ。': None,
+            'さすが勇者の血を継ぐものといったところかしら。': None,
+            '特殊な合金といった方が近いでしょうか。': None,
+            '特殊な合金と言ったほうが近い。': None,
+            '百人といったところに行く。': None,
+            '犬などといった動物が好きだ。': 'といった',
+            '東京や大阪といった都市を訪ねる。': 'といった',
             '彼は行くと言った。': None,
             '友達と行った店だ。': None,
             '彼は行くといったら帰った。': None,

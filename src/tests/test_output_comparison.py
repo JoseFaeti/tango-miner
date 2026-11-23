@@ -4,10 +4,10 @@ import tempfile
 import unittest
 from pathlib import Path
 
+from scripts.tests.test_compare_runs import make_run
 from src.Artifact import Artifact
 from src.RunComparison import build_change_report, load_run
 from src.steps.CompareOutputStep.index import CompareOutputStep
-from scripts.tests.test_compare_runs import make_run
 
 
 class OutputComparisonTests(unittest.TestCase):
@@ -98,7 +98,7 @@ class OutputComparisonTests(unittest.TestCase):
         with tempfile.TemporaryDirectory() as tmp:
             root = Path(tmp)
             make_run(root, '2026-10-27_1200_a', [])
-            bad = make_run(root, '2026-10-27_1201_b', [('猫', 1)], [('猫', 1)])
+            make_run(root, '2026-10-27_1201_b', [('猫', 1)], [('猫', 1)])
             current = make_run(root, '2026-10-27_1202_c', [], status='running')
             with self.assertRaisesRegex(ValueError, 'Duplicate candidate'):
                 CompareOutputStep(current / 'output.csv').process(Artifact({}))

@@ -1,9 +1,8 @@
-import xml.etree.ElementTree as ET
+# Legacy module name retained for import compatibility.
+# ruff: noqa: N999
 import re
-
+import xml.etree.ElementTree as ET
 from pathlib import Path
-from typing import List, Dict
-
 
 # Priority bonuses (secondary to nfXX)
 PRI_BONUS = {
@@ -30,7 +29,7 @@ NOUN_POS = {
 }
 
 
-def is_noun_sense(sense: Dict) -> bool:
+def is_noun_sense(sense: dict) -> bool:
     """Return True if all POS tags of a sense are noun types."""
     return bool(sense["pos"]) and all(
         pos.startswith("noun")
@@ -38,7 +37,7 @@ def is_noun_sense(sense: Dict) -> bool:
     )
 
 
-def should_skip_short_kana_noun(word: str, entry: Dict) -> bool:
+def should_skip_short_kana_noun(word: str, entry: dict) -> bool:
     """
     Skip 1-2 character kana-only words when every sense is a noun.
     """
@@ -102,7 +101,7 @@ class JMDict:
 
         return {"ent_seq": entry.findtext("ent_seq"), "kanji": k_list, "reading": r_list, "senses": senses}
 
-    def lookup_word(self, word: str) -> List[Dict]:
+    def lookup_word(self, word: str) -> list[dict]:
         """Return all entries for this word (raw structured JMdict data)."""
         result = self.index.get(word, [])
 
@@ -110,7 +109,7 @@ class JMDict:
 
         return result if isinstance(result, list) else [result]
 
-    def get_best_entry(self, word: str) -> Dict:
+    def get_best_entry(self, word: str) -> dict:
         entries = self.lookup_word(word)
 
         if not entries:
@@ -471,7 +470,7 @@ class JMDict:
 
         return "<br>".join(english_defs) or None
 
-    def get_reading(self, entry: Dict, word: str = None) -> str:
+    def get_reading(self, entry: dict, word: str | None = None) -> str:
         """Return the most appropriate reading for a JMdict entry."""
         readings = entry["reading"]
 
@@ -506,8 +505,6 @@ class JMDict:
     def _best_entries(self, entries, search_word, tie_break="all"):
         if not entries:
             return []
-
-        kana_only = KANA_RE.fullmatch(search_word) is not None
 
         def score_tags(tags):
             score = 0

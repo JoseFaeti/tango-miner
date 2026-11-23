@@ -1,18 +1,23 @@
 import tempfile
-from dataclasses import replace
 import unittest
+from dataclasses import replace
 from pathlib import Path
 from unittest.mock import patch
 
 from src.Artifact import Artifact
-from src.Grammar import GrammarStep, ExcludeGrammarTokensStep, GrammarPositionStep, AddGrammarCardsStep
+from src.Grammar import (
+    AddGrammarCardsStep,
+    ExcludeGrammarTokensStep,
+    GrammarPositionStep,
+    GrammarStep,
+)
 from src.Pipeline import Pipeline
 from src.StageCache import StageCache
 from src.TokenizedSentence import TokenizedSentence
 
 
 def fixture(text='読んでいる。'):
-    tokens = [dict(surface=s, lemma=l, base_form=l, reading=s, pos=p) for s, l, p in [
+    tokens = [{'surface': s, 'lemma': l, 'base_form': l, 'reading': s, 'pos': p} for s, l, p in [
         ('読ん', '読む', ('動詞', '一般')), ('で', 'で', ('助詞', '接続助詞')),
         ('いる', 'いる', ('動詞', '非自立可能')), ('。', '。', ('補助記号', '句点'))]]
     return [TokenizedSentence(text, 'source', Path('source.txt'), tokens)]

@@ -1,7 +1,12 @@
 """Indirect instructions with ように言う or 頼む."""
 YOU_NI_IU_TANOMU_EXPRESSION = '〜ように言う / 頼む'
 from src.grammar_rules.base import GrammarRule
-from src.grammar_rules.helpers import adjacent, next_matches, positive_verb_end, negative_predicate_end
+from src.grammar_rules.helpers import (
+    adjacent,
+    negative_predicate_end,
+    next_matches,
+    positive_verb_end,
+)
 
 
 def match_you_ni_iu_tanomu(tokens):
@@ -10,9 +15,7 @@ def match_you_ni_iu_tanomu(tokens):
         pos = predicate['pos']
         if not adjacent(predicate, you) or len(pos) < 6:
             continue
-        if pos[:1] == ['動詞'] and pos[5].startswith(('終止形', '連体形')):
-            pass
-        elif (predicate['surface'] == 'ない' and predicate['lemma'] == 'ない'
+        if pos[:1] == ['動詞'] and pos[5].startswith(('終止形', '連体形')) or (predicate['surface'] == 'ない' and predicate['lemma'] == 'ない'
               and pos[:1] == ['助動詞'] and pos[5].startswith(('終止形', '連体形'))
               and i >= 2 and adjacent(tokens[i - 2], predicate)
               and tokens[i - 2]['pos'][:1] == ['動詞']

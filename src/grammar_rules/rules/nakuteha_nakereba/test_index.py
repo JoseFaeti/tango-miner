@@ -1,11 +1,14 @@
 import unittest
 
 from src.Artifact import Artifact
-from src.Grammar import GrammarStep, ExcludeGrammarTokensStep
+from src.Grammar import ExcludeGrammarTokensStep, GrammarStep
 from src.grammar_rules.alignment import aligned_tokens
-from src.grammar_rules.rules.nakuteha_nakereba.index import RULE, match_nakuteha_nakereba
-from src.grammar_rules.rules.obligation.index import match_obligation
 from src.grammar_rules.rules.ba.index import match_ba
+from src.grammar_rules.rules.nakuteha_nakereba.index import (
+    RULE,
+    match_nakuteha_nakereba,
+)
+from src.grammar_rules.rules.obligation.index import match_obligation
 from src.grammar_rules.rules.te_iru.test_index import sentence, tok
 
 

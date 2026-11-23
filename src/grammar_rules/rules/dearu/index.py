@@ -15,9 +15,7 @@ def match_dearu(tokens):
             continue
         if aru['surface'] == 'ある':
             end = i + 1
-        elif aru['surface'] == 'あっ' and next_matches(tokens, i + 1, 'た', '助動詞', 'た'):
-            end = i + 2
-        elif aru['surface'] == 'あれ' and next_matches(tokens, i + 1, 'ば', '助詞', 'ば'):
+        elif aru['surface'] == 'あっ' and next_matches(tokens, i + 1, 'た', '助動詞', 'た') or aru['surface'] == 'あれ' and next_matches(tokens, i + 1, 'ば', '助詞', 'ば'):
             end = i + 2
         else:
             continue

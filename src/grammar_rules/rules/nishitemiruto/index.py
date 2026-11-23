@@ -2,7 +2,6 @@
 from src.grammar_rules.base import GrammarRule
 from src.grammar_rules.helpers import adjacent
 
-
 NISHITEMIRUTO_EXPRESSION = '〜にしてみると'
 
 

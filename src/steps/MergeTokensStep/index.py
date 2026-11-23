@@ -1,22 +1,27 @@
+import json
 from contextlib import nullcontext
 from pathlib import Path
-import json
 
 from src.Artifact import Artifact
 from src.JMDict import JMDict
 from src.PipelineStep import PipelineStep
 from src.RunConfig import resolve_config
-from src.TokenizedSentence import TokenizedSentence
 from src.steps.ProcessingStep.index import ProcessingStep
+from src.TokenizedSentence import TokenizedSentence
 
+from .grammar_guards import (
+    _is_inflection_misread_as_noun as _is_inflection_misread_as_noun,  # noqa: PLC0414 - compatibility export
+)
+from .helpers import _is_contracted_kana_verb as _is_contracted_kana_verb  # noqa: PLC0414 - compatibility export
+from .helpers import _is_split_kana_noun as _is_split_kana_noun  # noqa: PLC0414 - compatibility export
+from .helpers import has_kanji as has_kanji  # noqa: PLC0414 - compatibility export
+from .recovery import _repair_chigee_boundary as _repair_chigee_boundary  # noqa: PLC0414 - compatibility export
+from .recovery import _repair_kigahen_boundaries as _repair_kigahen_boundaries  # noqa: PLC0414 - compatibility export
+from .recovery import _repair_warui_koto_boundary as _repair_warui_koto_boundary  # noqa: PLC0414 - compatibility export
 
 PROGRESS_INTERVAL = 200
 
-from .helpers import _is_split_kana_noun, _is_contracted_kana_verb, has_kanji
-from .grammar_guards import _is_inflection_misread_as_noun
-from .recovery import _repair_kigahen_boundaries, _repair_chigee_boundary, _repair_warui_koto_boundary
 from .merger import combine_tokens_jmdict
-
 
 PROGRESS_INTERVAL = 200
 

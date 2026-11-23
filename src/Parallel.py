@@ -1,10 +1,11 @@
+# Legacy module name retained for import compatibility.
+# ruff: noqa: N999
 """Bounded, ordered process work for grammar and token merging."""
+import hashlib
+import warnings
 from collections import deque
 from concurrent.futures import ProcessPoolExecutor
-import hashlib
 from pathlib import Path
-import warnings
-
 
 
 class ParallelPool:
@@ -30,10 +31,10 @@ class ParallelPool:
                 actual = hashlib.file_digest(stream, 'sha256').hexdigest()
             if actual != self.dictionary_hash.lower():
                 return None, ()
-            from src.SharedJMDict import prepare_shared_index, install_worker_index
+            from src.SharedJMDict import install_worker_index, prepare_shared_index
             index_path = prepare_shared_index(dictionary_path, self.dictionary_hash, self.cache_dir)
             return install_worker_index, (index_path, dictionary_path, self.dictionary_hash)
-        except Exception as exc:
+        except Exception as exc:  # noqa: BLE001 - any shared-index failure must fall back
             warnings.warn(f'Shared JMdict index unavailable; workers will load separate dictionaries: {exc}',
                           RuntimeWarning)
             return None, ()
@@ -114,6 +115,6 @@ def merge_batch(args):
             packed = None
         else:
             positions = {id(token): index for index, token in enumerate(sentence.tokens)}
-            packed = [positions[id(token)] if id(token) in positions else token for token in merged]
+            packed = [positions.get(id(token), token) for token in merged]
         results.append((packed, rejected))
     return results

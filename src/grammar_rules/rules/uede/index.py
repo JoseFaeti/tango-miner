@@ -2,7 +2,6 @@
 from src.grammar_rules.base import GrammarRule
 from src.grammar_rules.helpers import adjacent
 
-
 UEDE_EXPRESSION = '〜上で'
 
 # These nouns can describe a sphere of activity rather than a physical surface.

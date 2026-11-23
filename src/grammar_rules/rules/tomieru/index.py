@@ -1,6 +1,11 @@
 """Predicate-attached と見える expressing an inference."""
 from src.grammar_rules.base import GrammarRule
-from src.grammar_rules.helpers import adjacent, next_matches, positive_verb_end, negative_predicate_end
+from src.grammar_rules.helpers import (
+    adjacent,
+    negative_predicate_end,
+    next_matches,
+    positive_verb_end,
+)
 
 
 def match_tomieru(tokens):

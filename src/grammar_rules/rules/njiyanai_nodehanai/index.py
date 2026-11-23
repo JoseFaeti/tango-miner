@@ -8,10 +8,10 @@ def match_njiyanai_nodehanai(tokens):
     for start, end in match_nda(tokens):
         surface = ''.join(t['surface'] for t in tokens
                           if start <= t['span'][0] and t['span'][1] <= end)
-        if surface.startswith(('んじゃ', 'んでは', 'のじゃ', 'のでは')):
-            # The shared rule also accepts affirmative ではある / じゃある.
-            if not surface.startswith(('んではある', 'のではある', 'んじゃある', 'のじゃある')):
-                yield start, end
+        # The shared rule also accepts affirmative ではある / じゃある.
+        if (surface.startswith(('んじゃ', 'んでは', 'のじゃ', 'のでは'))
+                and not surface.startswith(('んではある', 'のではある', 'んじゃある', 'のじゃある'))):
+            yield start, end
 
 
 RULE = GrammarRule(order=65, id='njiyanai_nodehanai', expression=NJIYANAI_NODEHANAI_EXPRESSION,

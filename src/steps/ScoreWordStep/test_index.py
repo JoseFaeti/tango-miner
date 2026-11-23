@@ -1,12 +1,14 @@
 import unittest
 
-from src.RunConfig import ScoringConfig
 from src.Artifact import Artifact
 from src.Pipeline import Pipeline
-from src.steps.ScoreWordStep.index import ScoreWordStep
-from src.steps.ProcessingStep.index import ProcessingStep
-from src.steps.ScoreWordStep.index import calculate_score, score_words, tag_diversity_factor
-
+from src.RunConfig import ScoringConfig
+from src.steps.ScoreWordStep.index import (
+    ScoreWordStep,
+    calculate_score,
+    score_words,
+    tag_diversity_factor,
+)
 from tests.helpers import make_stats
 
 

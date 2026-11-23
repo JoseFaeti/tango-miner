@@ -1,3 +1,5 @@
+# Legacy module name retained for import compatibility.
+# ruff: noqa: N999
 """Bounded, read-only queries over archived pipeline records."""
 import argparse
 import json

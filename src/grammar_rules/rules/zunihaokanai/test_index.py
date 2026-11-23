@@ -1,11 +1,11 @@
 import unittest
 
 from src.Artifact import Artifact
-from src.Grammar import GrammarStep, ExcludeGrammarTokensStep
+from src.Grammar import ExcludeGrammarTokensStep, GrammarStep
 from src.grammar_rules.alignment import aligned_tokens
-from src.grammar_rules.rules.zunihaokanai.index import RULE, match_zunihaokanai
-from src.grammar_rules.rules.zuni.index import RULE as SHORT_RULE
 from src.grammar_rules.rules.te_iru.test_index import sentence, tok
+from src.grammar_rules.rules.zuni.index import RULE as SHORT_RULE
+from src.grammar_rules.rules.zunihaokanai.index import RULE, match_zunihaokanai
 
 
 class ZunihaokanaiTests(unittest.TestCase):

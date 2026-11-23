@@ -2,10 +2,10 @@ import unittest
 from pathlib import Path
 
 from src.RunConfig import resolve_config
-from src.TokenizedSentence import TokenizedSentence
 from src.steps.BuildWordStatsStep.index import PotentialFormResolver, build_word_stats
 from src.steps.MergeTokensStep.index import get_jmdict
 from src.steps.TokenizeStep.index import get_tokenizer, sudachi_node_to_dict
+from src.TokenizedSentence import TokenizedSentence
 
 
 class PotentialFormsTest(unittest.TestCase):

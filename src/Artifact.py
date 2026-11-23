@@ -1,11 +1,13 @@
+# Legacy module name retained for import compatibility.
+# ruff: noqa: N999
 from dataclasses import dataclass, field
 from pathlib import Path
-from typing import Any, Optional
+from typing import Any
 
 
 @dataclass
 class Artifact:
     data: Any
-    tmpdir: Optional[Path] = None
+    tmpdir: Path | None = None
     is_path: bool = True
     sentences: list = field(default_factory=list)

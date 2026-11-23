@@ -1,17 +1,23 @@
-import unittest
 import tempfile
-from unittest.mock import Mock, patch
+import unittest
 from pathlib import Path
+from unittest.mock import Mock, patch
 
 from src.Artifact import Artifact
 from src.Pipeline import Pipeline
-from src.TokenizedSentence import TokenizedSentence
-from src.TokenCache import TokenCache
 from src.RunConfig import TokenizerConfig
 from src.steps.BuildWordStatsStep.index import BuildWordStatsStep
 from src.steps.MergeTokensStep.index import MergeTokensStep
-from src.steps.TokenizeStep.index import (RawTokenizeStep, tokenize_raw_sentences, tokenizer_fingerprint,
-                                    tokenizer_source_fingerprint, TOKENIZER_SOURCE_DEPENDENCIES, get_tokenizer)
+from src.steps.TokenizeStep.index import (
+    TOKENIZER_SOURCE_DEPENDENCIES,
+    RawTokenizeStep,
+    get_tokenizer,
+    tokenize_raw_sentences,
+    tokenizer_fingerprint,
+    tokenizer_source_fingerprint,
+)
+from src.TokenCache import TokenCache
+from src.TokenizedSentence import TokenizedSentence
 
 
 class TokenizerPipelineTests(unittest.TestCase):

@@ -2,10 +2,10 @@ import unittest
 
 from src.Artifact import Artifact
 from src.Grammar import ExcludeGrammarTokensStep, GrammarStep
-from src.GrammarConstants import ARU_IRU_EXPRESSION
 from src.grammar_rules.alignment import aligned_tokens
 from src.grammar_rules.rules.aru_iru.index import RULE, match_aru_iru
 from src.grammar_rules.rules.te_iru.test_index import sentence, tok
+from src.GrammarConstants import ARU_IRU_EXPRESSION
 
 
 class AruIruTests(unittest.TestCase):

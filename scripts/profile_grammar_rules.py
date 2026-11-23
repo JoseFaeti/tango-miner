@@ -8,8 +8,8 @@ from pathlib import Path
 from time import perf_counter
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
-from src.grammar_rules.registry import RULES
 from src.grammar_rules.alignment import aligned_tokens
+from src.grammar_rules.registry import RULES
 
 
 def main():

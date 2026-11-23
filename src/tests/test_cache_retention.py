@@ -1,9 +1,9 @@
-from pathlib import Path
 import tempfile
 import unittest
+from pathlib import Path
 
-from src.TokenCache import TokenCache
 from src.CachePaths import remove_legacy_entries
+from src.TokenCache import TokenCache
 
 
 class CacheRetentionTests(unittest.TestCase):

@@ -1,13 +1,13 @@
-import unittest
 import io
+import unittest
 from contextlib import redirect_stderr
 from pathlib import Path
 
 from src.Artifact import Artifact
 from src.Grammar import GrammarStep
 from src.Pipeline import Pipeline
-from src.TokenizedSentence import TokenizedSentence
 from src.steps.ProcessingStep.index import ProcessingStep
+from src.TokenizedSentence import TokenizedSentence
 
 
 class GrammarProgressTests(unittest.TestCase):

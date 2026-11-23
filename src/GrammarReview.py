@@ -1,11 +1,13 @@
+# Legacy module name retained for import compatibility.
+# ruff: noqa: N999
 """Sample historical grammar proposals for local, human review without mining."""
 import argparse
-from collections import Counter, defaultdict
 import hashlib
 import heapq
 import json
-from pathlib import Path
 import sys
+from collections import Counter, defaultdict
+from pathlib import Path
 
 
 def sample(path, per_stratum, seed):

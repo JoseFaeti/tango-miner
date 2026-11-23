@@ -1,17 +1,17 @@
 import unittest
 
-from src.grammar_rules.alignment import aligned_tokens
-from src.grammar_rules.rules.te_iru.test_index import tok
-from src.grammar_rules.rules.te_iru.test_index import sentence
 from src.Artifact import Artifact
-from src.Grammar import GrammarStep, ExcludeGrammarTokensStep
-from src.GrammarConstants import GRAMMAR_EXPRESSIONS, LEGACY_GRAMMAR_EXPRESSIONS
+from src.Grammar import ExcludeGrammarTokensStep, GrammarStep
+from src.grammar_rules.alignment import aligned_tokens
 from src.grammar_rules.rules.omonotomosezu.index import RULE
+from src.grammar_rules.rules.te_iru.test_index import sentence, tok
+from src.GrammarConstants import GRAMMAR_EXPRESSIONS, LEGACY_GRAMMAR_EXPRESSIONS
 
 
 class OmonotomosezuTests(unittest.TestCase):
     def test_analyzer_forms_and_controls(self):
         from sudachipy import dictionary, tokenizer
+
         from src.grammar_rules.rules.omonotomosezu.index import match_omonotomosezu
         analyzer = dictionary.Dictionary(config_path='sudachi.config.json', dict='full').create()
         cases = {
