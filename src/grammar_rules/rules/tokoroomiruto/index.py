@@ -1,14 +1,14 @@
 """Attributive predicate + ところを見ると, an inference from evidence."""
 from src.grammar_rules.base import GrammarRule
 from src.grammar_rules.helpers import adjacent
-from src.grammar_rules.rules.tokoroo.index import match_tokoroo
+from src.grammar_rules.rules.tokoroo.index import match_tokoroo_prefix
 
 
 EXPRESSION = '〜ところを見ると'
 
 
 def match_tokoroomiruto(tokens):
-    prefixes = set(match_tokoroo(tokens))
+    prefixes = set(match_tokoroo_prefix(tokens))
     for i in range(len(tokens) - 3):
         noun, particle, verb, ending = tokens[i:i + 4]
         if ((noun['span'][0], particle['span'][1]) in prefixes

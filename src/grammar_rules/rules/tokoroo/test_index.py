@@ -20,8 +20,13 @@ class TokorooTests(unittest.TestCase):
             '帰るところを呼び止めた。': 'ところを',
             '寝ているところを起こされた。': 'ところを',
             '困っていたところを助けられた。': 'ところを',
-            '静かなところを探す。': 'ところを',
-            '昨日行った所を見た。': '所を',
+            '危ないところを助けてくれて、ありがとうございました…！': 'ところを',
+            '盗んでいるところを捕まえた。': 'ところを',
+            '忙しいところを邪魔した。': 'ところを',
+            'まさか大魔王の城が崩れるところを見られるとは！': None,
+            'しかし…恥ずかしいところを見せてしまったようじゃな。': None,
+            '静かなところを探す。': None,
+            '昨日行った所を見た。': None,
             'ところを見た。': None,
             '帰るところに来た。': None,
             '帰るところ を見た。': None,
@@ -36,11 +41,11 @@ class TokorooTests(unittest.TestCase):
                                  [] if expected is None else [expected], raw)
 
     def test_card_reservation(self):
-        source = sentence('彼が帰るところを見た。', [
+        source = sentence('彼が帰るところを呼び止めた。', [
             tok('彼が', '彼', ('名詞',)),
             tok('帰る', '帰る', ('動詞', '一般', '*', '*', '五段-ラ行', '連体形-一般')),
             tok('ところ', 'ところ', ('名詞',)), tok('を', 'を', ('助詞',)),
-            tok('見た。', '見る', ('動詞',))])
+            tok('呼び止めた。', '呼び止める', ('動詞',))])
         stage = GrammarStep(rules=(RULE,))
         data = stage.process(Artifact([source, source]))
         ExcludeGrammarTokensStep(stage).process(data)
