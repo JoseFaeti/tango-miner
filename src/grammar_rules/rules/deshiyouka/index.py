@@ -1,5 +1,5 @@
 """Polite questions ending in でしょうか."""
-from itertools import pairwise
+import itertools
 
 from src.grammar_rules.base import GrammarRule
 from src.grammar_rules.rules.darouka.index import match_darouka
@@ -8,7 +8,7 @@ DESHIYOUKA_EXPRESSION = '〜でしょうか'
 
 
 def match_deshiyouka(tokens):
-    for copula, ka in pairwise(tokens):
+    for copula, ka in itertools.pairwise(tokens):
         if copula['surface'] == 'でしょう':
             yield from match_darouka((copula, ka))
 

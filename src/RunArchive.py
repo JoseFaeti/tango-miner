@@ -1,5 +1,4 @@
-# Legacy public module names are retained for import compatibility.
-# ruff: noqa: N999
+# ruff: noqa: N999 -- Preserve established public module names.
 """Create an auditable, non-overwriting output directory for each run."""
 import json
 import subprocess
@@ -8,7 +7,8 @@ from pathlib import Path
 
 
 def _git(repo, *args, allow_difference=False):
-    result = subprocess.run(["git", "-C", str(repo), *args], capture_output=True, check=False)
+    result = subprocess.run(["git", "-C", str(repo), *args], capture_output=True,
+                            check=False)
     if result.returncode not in ((0, 1) if allow_difference else (0,)):
         raise RuntimeError(result.stderr.decode("utf-8", errors="replace").strip())
     return result.stdout

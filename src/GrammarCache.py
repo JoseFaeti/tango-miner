@@ -1,5 +1,4 @@
-# Legacy public module names are retained for import compatibility.
-# ruff: noqa: N999
+# ruff: noqa: N999 -- Preserve established public module names.
 """Cache the state produced by the registered grammar analysis stage."""
 import hashlib
 import json

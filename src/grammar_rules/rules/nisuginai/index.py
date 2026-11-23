@@ -22,8 +22,8 @@ def match_nisuginai(tokens):
                 or sugi['pos'][:1] != ['動詞']):
             continue
         end = negative_suffix_end(tokens, i + 2, pos='助動詞', conditional=True)
-        if suffix['surface'] == 'なく' and suffix['lemma'] == 'ない' and (
-                next_matches(tokens, i + 2, 'て', '助詞', 'て')):
+        if suffix['surface'] == 'なく' and suffix['lemma'] == 'ない' and \
+                next_matches(tokens, i + 2, 'て', '助詞', 'て'):
             end = i + 3
         if suffix['lemma'] == 'ます':
             end = polite_suffix_end(tokens, i + 2, forms=('negative',))

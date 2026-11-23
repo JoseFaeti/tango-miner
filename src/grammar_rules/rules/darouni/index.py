@@ -1,5 +1,5 @@
 """Conjecture followed by contrastive に."""
-from itertools import pairwise
+import itertools
 
 from src.grammar_rules.base import GrammarRule
 from src.grammar_rules.helpers import adjacent
@@ -8,7 +8,7 @@ DAROUNI_EXPRESSION = '〜だろうに'
 
 
 def match_darouni(tokens):
-    for copula, ni in pairwise(tokens):
+    for copula, ni in itertools.pairwise(tokens):
         if ((copula['lemma'], copula['surface']) in (('だ', 'だろう'), ('です', 'でしょう'))
                 and copula['pos'][:1] == ['助動詞']
                 and ni['surface'] == ni['lemma'] == 'に'

@@ -420,6 +420,25 @@ def _merge_me_wo_tsuburu(parts, jmdict):
     }
 
 
+def _merge_hitsuyou_to_suru(parts, jmdict):
+    noun, particle, verb = parts
+    if not (noun['surface'] == noun['lemma'] == '必要'
+            and particle['surface'] == 'と' and particle['pos'][0] == '助詞'
+            and verb['lemma'] == 'する' and verb['pos'][0] == '動詞'):
+        return None
+    word = '必要とする'
+    entry = jmdict.get_best_entry(word) if jmdict.lookup_word(word) else None
+    if not is_dictionary_expression(entry):
+        return None
+    return {
+        'surface': ''.join(t['surface'] for t in parts),
+        'lemma': word, 'base_form': word, 'reading': jmdict.get_reading(entry, word),
+        'pos': ['exp', '*', '*', '*', '*', '*'], 'dictionary_expression': True,
+        'analysis_rule': 'jmdict_hitsuyou_to_suru',
+        'components': tuple(c for token in parts for c in token_components(token)),
+    }
+
+
 def _merge_nemuri_ni_tsuku(parts, jmdict):
     noun, particle, verb = parts
     if not (noun['surface'] == noun['lemma'] == '眠り'
@@ -628,6 +647,7 @@ def combine_tokens_jmdict(
                          or _merge_me_wo_tsuburu(token_list[i:i + 3], jmdict)
                          or _merge_me_wo_samasu(token_list[i:i + 3], jmdict)
                          or _merge_mi_wo_kawasu(token_list[i:i + 3], jmdict)
+                         or _merge_hitsuyou_to_suru(token_list[i:i + 3], jmdict)
                          or _merge_nemuri_ni_tsuku(token_list[i:i + 3], jmdict)
                          or _merge_pinto_kuru(token_list[i:i + 3], jmdict))
             if candidate is not None:

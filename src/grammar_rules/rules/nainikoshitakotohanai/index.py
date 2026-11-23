@@ -1,5 +1,5 @@
 """It is preferable that the preceding action or state does not occur."""
-from itertools import pairwise
+import itertools
 
 from src.grammar_rules.base import GrammarRule
 from src.grammar_rules.helpers import adjacent
@@ -10,7 +10,7 @@ NAINIKOSHITAKOTOHANAI_EXPRESSION = '〜ないに越したことはない'
 
 def match_nainikoshitakotohanai(tokens):
     suffixes = dict(match_nikoshitakotohanai(tokens))
-    for negative, marker in pairwise(tokens):
+    for negative, marker in itertools.pairwise(tokens):
         if (negative['surface'] == 'ない' and negative['lemma'] == 'ない'
                 and negative['pos'][:1] in (['助動詞'], ['形容詞'])
                 and adjacent(negative, marker) and marker['span'][0] in suffixes):

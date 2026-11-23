@@ -70,7 +70,8 @@ class ExperienceTests(unittest.TestCase):
         tokens = [{'surface': 'いか', 'lemma': 'いく', 'pos': ['動詞'], 'span': [0, 2]},
                   {'surface': 'なかっ', 'lemma': 'ない', 'pos': ['助動詞'], 'span': [2, 5]},
                   {'surface': 'た', 'lemma': 'た', 'pos': ['助動詞'], 'span': [5, 6]}]
-        args = {'polite_lemma': 'いく', 'polite_stems': {'いき'}, 'plain_lemma': 'いく', 'plain_stems': {'いか'}}
+        args = {'polite_lemma': 'いく', 'polite_stems': {'いき'},
+                    'plain_lemma': 'いく', 'plain_stems': {'いか'}}
         self.assertEqual(negative_predicate_end(tokens, 0, **args), 2)
         self.assertIsNone(negative_predicate_end(tokens[:-1], 0, **args))
         self.assertIsNone(negative_predicate_end(tokens, 0, polite_lemma='いく', polite_stems={'いき'}))

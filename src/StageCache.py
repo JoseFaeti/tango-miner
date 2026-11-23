@@ -1,5 +1,4 @@
-# Legacy public module names are retained for import compatibility.
-# ruff: noqa: N999
+# ruff: noqa: N999 -- Preserve established public module names.
 """Cache deterministic stage results without putting cache logic in steps."""
 import hashlib
 import json
@@ -33,7 +32,7 @@ def _pack_token(token):
 def _unpack_token(value):
     values, pos, pos_tuple, components = value
     if not isinstance(values, dict) or not isinstance(pos, list) or not isinstance(pos_tuple, bool):
-        raise ValueError("Invalid cached token")  # noqa: TRY004 - malformed input uses the reader's ValueError contract.
+        raise ValueError("Invalid cached token")  # noqa: TRY004 -- Preserve the established ValueError validation contract.
     token = dict(values)
     token["pos"] = tuple(pos) if pos_tuple else pos
     if components is not None:
@@ -99,7 +98,7 @@ def _unpack_changes(original, changes):
             result.append(sentence)
             continue
         if not isinstance(tokens, list):
-            raise ValueError("Invalid cached sentence")  # noqa: TRY004 - malformed input uses the reader's ValueError contract.
+            raise ValueError("Invalid cached sentence")  # noqa: TRY004 -- Preserve the established ValueError validation contract.
         restored = []
         for token in tokens:
             if type(token) is int:

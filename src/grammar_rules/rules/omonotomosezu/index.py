@@ -1,5 +1,5 @@
 """Concessive 〜をものともせず (に)."""
-from itertools import pairwise
+import itertools
 
 from src.grammar_rules.base import GrammarRule
 from src.grammar_rules.helpers import adjacent
@@ -13,7 +13,7 @@ def match_omonotomosezu(tokens):
         parts = tokens[i:i + 6]
         if (previous['pos'][:1] in (['補助記号'], ['空白'])
                 or not adjacent(previous, parts[0])
-                or not all(adjacent(a, b) for a, b in pairwise(parts))):
+                or not all(adjacent(a, b) for a, b in itertools.pairwise(parts))):
             continue
         wo, mono, to, mo, se, zu = parts
         if not (wo['surface'] == 'を' and wo['pos'][:1] == ['助詞']

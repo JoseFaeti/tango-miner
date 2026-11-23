@@ -1,5 +1,5 @@
 """Nominal suffixes for an intended audience or suitability."""
-from itertools import pairwise
+import itertools
 
 from src.grammar_rules.base import GrammarRule
 from src.grammar_rules.helpers import adjacent
@@ -8,7 +8,7 @@ MUKE_MUKI_EXPRESSION = '〜向け / 〜向き'
 
 
 def match_muke_muki(tokens):
-    for previous, token in pairwise(tokens):
+    for previous, token in itertools.pairwise(tokens):
         if (adjacent(previous, token)
                 and previous['pos'][:1] in (['名詞'], ['代名詞'])
                 and token['surface'] in ('向け', 'むけ', '向き', 'むき')

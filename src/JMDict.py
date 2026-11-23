@@ -1,5 +1,4 @@
-# Legacy public module names are retained for import compatibility.
-# ruff: noqa: N999
+# ruff: noqa: N999 -- Preserve established public module names.
 import re
 import xml.etree.ElementTree as ET
 from pathlib import Path
@@ -505,7 +504,6 @@ class JMDict:
     def _best_entries(self, entries, search_word, tie_break="all"):
         if not entries:
             return []
-
 
         def score_tags(tags):
             score = 0

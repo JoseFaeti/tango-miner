@@ -1,5 +1,5 @@
 """Paired examples marked by といい."""
-from itertools import pairwise
+import itertools
 
 from src.grammar_rules.base import GrammarRule
 from src.grammar_rules.helpers import adjacent
@@ -16,7 +16,7 @@ def match_toiitoii(tokens):
                 and particle['surface'] == 'と' and particle['pos'][:2] == ['助詞', '格助詞']
                 and marker and adjacent(before, particle) and adjacent(particle, word)):
             markers.append(i)
-    for first, second in pairwise(markers):
+    for first, second in itertools.pairwise(markers):
         between = tokens[first + 2:second]
         if not between or any(t['surface'] in ('。', '！', '？', '!', '?', '\n') for t in between):
             continue

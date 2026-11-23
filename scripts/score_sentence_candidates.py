@@ -50,7 +50,7 @@ def score(sample, labels, predictions):
             continue
         annotations = label.get('annotations')
         if not isinstance(annotations, list):
-            raise TypeError(f'{key}: annotations must be a list')
+            raise ValueError(f'{key}: annotations must be a list')  # noqa: TRY004 - Invalid review data uses ValueError.
         gold = []
         for annotation in annotations:
             alternatives = annotation.get('alternatives')
@@ -65,7 +65,7 @@ def score(sample, labels, predictions):
             continue
         candidates = prediction.get('candidates')
         if not isinstance(candidates, list):
-            raise TypeError(f'{key}: candidates must be a list, or abstain/error must be set')
+            raise ValueError(f'{key}: candidates must be a list, or abstain/error must be set')  # noqa: TRY004 - Invalid review data uses ValueError.
         proposed = [validate_candidate(p, text) for p in candidates]
         if len(set(proposed)) != len(proposed):
             raise ValueError(f'{key}: duplicate predictions')

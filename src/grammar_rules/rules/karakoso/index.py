@@ -1,5 +1,5 @@
 """Emphatic causal からこそ."""
-from itertools import pairwise
+import itertools
 
 from src.grammar_rules.base import GrammarRule
 from src.grammar_rules.helpers import adjacent
@@ -10,7 +10,7 @@ KARAKOSO_EXPRESSION = '〜からこそ'
 
 def match_karakoso(tokens):
     causal_spans = set(match_kara_node(tokens))
-    for kara, koso in pairwise(tokens):
+    for kara, koso in itertools.pairwise(tokens):
         if (tuple(kara['span']) in causal_spans and kara['surface'] == 'から'
                 and adjacent(kara, koso) and koso['surface'] == 'こそ'
                 and koso['lemma'] == 'こそ' and koso['pos'][:2] == ['助詞', '係助詞']):

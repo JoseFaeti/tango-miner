@@ -1,7 +1,7 @@
 from __future__ import annotations
 
+import itertools
 import re
-from itertools import pairwise
 from pathlib import Path
 
 from src.Artifact import Artifact
@@ -363,7 +363,7 @@ def is_indented_continuation_mode(lines: list[str]) -> bool:
     if len(set(indents)) < 2:
         return False
 
-    continuations = sum(1 for a, b in pairwise(indents) if b > a)
+    continuations = sum(1 for a, b in itertools.pairwise(indents) if b > a)
     return continuations / (len(indents) - 1) >= 0.25
 
 

@@ -66,7 +66,8 @@ class TaiCardTests(unittest.TestCase):
         raw = [tok('高けれ', '高い', ('形容詞',)), tok('ば', 'ば', ('助詞',))]
         tokens, error = aligned_tokens('高ければ', raw)
         self.assertIsNone(error)
-        kwargs = {'lemma': '高い', 'pos': '形容詞', 'base': '高い', 'past_stem': '高かっ', 'continuative_stem': '高く', 'conditional_stem': '高けれ'}
+        kwargs = {'lemma': '高い', 'pos': '形容詞', 'base': '高い', 'past_stem': '高かっ',
+                      'continuative_stem': '高く', 'conditional_stem': '高けれ'}
         self.assertEqual(adjective_inflection_end(tokens, 0, forms=('conditional',), **kwargs), 1)
         self.assertIsNone(adjective_inflection_end(tokens, 0, forms=('base',), **kwargs))
 

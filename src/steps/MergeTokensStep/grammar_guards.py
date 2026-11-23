@@ -23,10 +23,13 @@ def _crosses_incompatible_grammar(tokens: list[dict], entry) -> bool:
 
     # A noun followed by the inflected stem of する is not a noun or
     # adverb formed by joining the two surfaces (こと + し != ことし).
-    return (first["pos"][0] == "名詞" and second["pos"][0] == "動詞"
-            and second["lemma"] == "する" and second["surface"] != "する"
-            and all(tag.startswith(("noun", "adverb")) for tag in tags)
-            and not any("verb" in tag and not tag.startswith("adverb") or "expression" in tag for tag in tags))
+    return bool(
+        first["pos"][0] == "名詞" and second["pos"][0] == "動詞"
+        and second["lemma"] == "する" and second["surface"] != "する"
+        and all(tag.startswith(("noun", "adverb")) for tag in tags)
+        and not any("verb" in tag and not tag.startswith("adverb") or "expression" in tag
+                    for tag in tags)
+    )
 
 def _is_past_predicate_misread_as_expression(tokens, start, end, entry):
     """Keep verb evidence when a past form only resembles an interjection."""

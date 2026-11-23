@@ -308,6 +308,39 @@ class TokenizerIntegrationTests(unittest.TestCase):
         merged = combine_tokens_jmdict(reserved.data[0].tokens, self.jmdict)
         self.assertIn('痛い目にあう', [t['lemma'] for t in merged])
 
+    def test_hitsuyou_to_suru_lexical_passive(self):
+        from pathlib import Path
+
+        from src.Artifact import Artifact
+        from src.Grammar import ExcludeGrammarTokensStep, GrammarStep
+        from src.grammar_rules.rules.tosareru.index import RULE as BASE
+        from src.grammar_rules.rules.tosareteiru.index import RULE as ASPECT
+        from src.steps.TokenizeStep.index import tokenize_raw_sentences
+
+        texts = ['必要とされる人のみが永遠の命をあたえられる世が！',
+                 '必要とされた。', '必要とされています。', '必要とする。',
+                 '必要としない。']
+        for prefer in (False, True):
+            raw = tokenize_raw_sentences(texts, tag='source', source_path=Path('source.txt'))
+            stage = GrammarStep(rules=(BASE, ASPECT), prefer_expressions=prefer)
+            reserved = ExcludeGrammarTokensStep(stage).process(stage.process(Artifact(raw)))
+            words = {}
+            stage.add_cards(words)
+            self.assertNotIn(BASE.expression, words)
+            self.assertNotIn(ASPECT.expression, words)
+            for source in reserved.data:
+                with self.subTest(text=source.text, prefer=prefer):
+                    merged = combine_tokens_jmdict(source.tokens, self.jmdict)
+                    expression = next(t for t in merged if t['lemma'] == '必要とする')
+                    self.assertTrue(expression['dictionary_expression'])
+                    self.assertEqual(''.join(c.surface for c in expression['components']),
+                                     expression['surface'])
+                    self.assertEqual([c.lemma for c in expression['components']],
+                                     ['必要', 'と', 'する'])
+        for text in ('問題とされる。', '必要と、される。', '必要だとされる。'):
+            merged = combine_tokens_jmdict(tokenize_sentence(text), self.jmdict)
+            self.assertNotIn('必要とする', [t['lemma'] for t in merged])
+
     def test_nemuri_ni_tsuku_inflections(self):
         for sentence in [
             'マナを生み出す新たなマナの樹となって眠りにつきます。',

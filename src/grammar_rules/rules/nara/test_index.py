@@ -46,7 +46,8 @@ class NaraTests(unittest.TestCase):
         self.assertIn('学生', words)
         self.assertIn('分かる', words)
         item = source()
-        merged = [{'surface': '学生なら', 'lemma': '学生なら', 'pos': ('exp',), 'analysis_rule': 'jmdict_surface_merge'}, item.tokens[-1]]
+        merged = [{'surface': '学生なら', 'lemma': '学生なら', 'pos': ('exp',),
+                       'analysis_rule': 'jmdict_surface_merge'}, item.tokens[-1]]
         stage = GrammarStep(rules=(RULE,), prefer_expressions=True)
         with patch('src.steps.MergeTokensStep.index.get_jmdict'), patch('src.steps.MergeTokensStep.index.combine_tokens_jmdict', return_value=merged):
             result = ExcludeGrammarTokensStep(stage).process(stage.process(Artifact([item])))

@@ -6,6 +6,9 @@ from src.grammar_rules.helpers import adjacent, next_matches, positive_verb_end
 def match_tosareru(tokens):
     for i in range(1, len(tokens) - 2):
         previous, to = tokens[i - 1:i + 1]
+        # 必要とする is lexical even in its passive forms.
+        if previous['lemma'] == '必要':
+            continue
         pos = previous['pos']
         predicate = (pos[:1] in (['動詞'], ['形容詞'], ['助動詞'])
                      and len(pos) >= 6 and pos[5].startswith(('終止形', '連体形')))

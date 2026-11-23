@@ -1,5 +1,5 @@
 """Noun + のいかんにかかわらず: regardless of the circumstances."""
-from itertools import pairwise
+import itertools
 
 from src.grammar_rules.base import GrammarRule
 from src.grammar_rules.rules.ikannikakawarazu.index import match_ikannikakawarazu
@@ -7,7 +7,7 @@ from src.grammar_rules.rules.ikannikakawarazu.index import match_ikannikakawaraz
 
 def match_noikannikakawarazu(tokens):
     suffixes = dict(match_ikannikakawarazu(tokens))
-    for previous, marker in pairwise(tokens):
+    for previous, marker in itertools.pairwise(tokens):
         if (previous['surface'] == 'の' and previous['pos'][:1] == ['助詞']
                 and marker['span'][0] in suffixes):
             yield previous['span'][0], suffixes[marker['span'][0]]

@@ -19,6 +19,12 @@ class TosareteiruTests(unittest.TestCase):
         except (ImportError, OSError, RuntimeError) as exc:
             self.skipTest(f'Sudachi full dictionary unavailable: {exc}')
         cases = {
+            '必要とされる人のみが永遠の命をあたえられる世が！': None,
+            '必要とされた。': None,
+            '必要とされます。': None,
+            '必要とされている。': None,
+            '問題とされている。': 'とされている',
+            '必要だとされている。': 'とされている',
             '彼は天才とされている。': 'とされている',
             '原因は事故だとされていた。': 'とされていた',
             '重要とされています。': 'とされています',

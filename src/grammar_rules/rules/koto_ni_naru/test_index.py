@@ -63,7 +63,8 @@ class KotoNiNaruTests(unittest.TestCase):
             tok('行く', '行く', ('動詞', '一般', '*', '*', '五段', '終止形-一般')),
             tok('ことになる', 'ことになる', ('名詞', '普通名詞')),
             tok('よ。', 'よ', ('助詞',))])
-        merged = [source.tokens[0], {'surface': '行くことになる', 'lemma': '行くことになる', 'pos': ('exp',), 'analysis_rule': 'jmdict_surface_merge'}, source.tokens[-1]]
+        merged = [source.tokens[0], {'surface': '行くことになる', 'lemma': '行くことになる',
+                  'pos': ('exp',), 'analysis_rule': 'jmdict_surface_merge'}, source.tokens[-1]]
         stage = GrammarStep(rules=(RULE,), prefer_expressions=True)
         with patch('src.steps.MergeTokensStep.index.get_jmdict'), \
              patch('src.steps.MergeTokensStep.index.combine_tokens_jmdict', return_value=merged):

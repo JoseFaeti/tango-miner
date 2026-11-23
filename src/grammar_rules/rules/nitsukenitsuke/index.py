@@ -1,5 +1,5 @@
 """Paired につけ alternatives."""
-from itertools import pairwise
+import itertools
 
 from src.grammar_rules.base import GrammarRule
 from src.grammar_rules.helpers import adjacent
@@ -29,7 +29,7 @@ def match_nitsukenitsuke(tokens):
             if following['pos'][:1] == ['助動詞'] or following['surface'] in ('て', 'ても', 'ては'):
                 continue
         markers.append((i, end))
-    for (first, end), (second, _) in pairwise(markers):
+    for (first, end), (second, _) in itertools.pairwise(markers):
         between = tokens[end + 1:second]
         if not between or any(t['surface'] in ('。', '！', '？', '!', '?', '\n') for t in between):
             continue

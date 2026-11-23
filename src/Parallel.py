@@ -1,5 +1,4 @@
-# Legacy public module names are retained for import compatibility.
-# ruff: noqa: N999
+# ruff: noqa: N999 -- Preserve established public module names.
 """Bounded, ordered process work for grammar and token merging."""
 import hashlib
 import warnings
@@ -34,7 +33,7 @@ class ParallelPool:
             from src.SharedJMDict import install_worker_index, prepare_shared_index
             index_path = prepare_shared_index(dictionary_path, self.dictionary_hash, self.cache_dir)
             return install_worker_index, (index_path, dictionary_path, self.dictionary_hash)
-        except Exception as exc:  # noqa: BLE001 - shared-index failures must fall back to private dictionaries.
+        except Exception as exc:  # noqa: BLE001 -- Optional index failures fall back to per-worker loading.
             warnings.warn(f'Shared JMdict index unavailable; workers will load separate dictionaries: {exc}',
                           RuntimeWarning)
             return None, ()

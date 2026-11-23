@@ -1,5 +1,5 @@
 """First occurrence at a temporal milestone: にして初めて."""
-from itertools import pairwise
+import itertools
 
 from src.grammar_rules.base import GrammarRule
 from src.grammar_rules.helpers import adjacent
@@ -8,7 +8,7 @@ from src.grammar_rules.rules.nishite.index import match_nishite
 
 def match_nishitehajimete(tokens):
     starts = {end: start for start, end in match_nishite(tokens)}
-    for te, first in pairwise(tokens):
+    for te, first in itertools.pairwise(tokens):
         start = starts.get(te['span'][1])
         if (start is not None and adjacent(te, first)
                 and first['surface'] in ('初めて', 'はじめて')

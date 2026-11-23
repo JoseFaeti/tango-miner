@@ -1,5 +1,4 @@
-# Legacy public module names are retained for import compatibility.
-# ruff: noqa: N999
+# ruff: noqa: N999 -- Preserve established public module names.
 """Sample historical grammar proposals for local, human review without mining."""
 import argparse
 import hashlib

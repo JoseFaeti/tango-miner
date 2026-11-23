@@ -62,7 +62,8 @@ class BaTests(unittest.TestCase):
         source = sentence('この本を読めば分かるよ。', [
             tok('この本を', '本', ('名詞',)), tok('読め', '読む', ('動詞', '一般', '*', '*', '五段', '仮定形-一般')),
             tok('ば', 'ば', ('助詞', '接続助詞')), tok('分かるよ。', '分かる', ('動詞',))])
-        merged = [source.tokens[0], {'surface': '読めば', 'lemma': '読めば', 'pos': ('exp',), 'analysis_rule': 'jmdict_surface_merge'}, source.tokens[-1]]
+        merged = [source.tokens[0], {'surface': '読めば', 'lemma': '読めば', 'pos': ('exp',),
+                       'analysis_rule': 'jmdict_surface_merge'}, source.tokens[-1]]
         stage = GrammarStep(rules=(RULE,), prefer_expressions=True)
         with patch('src.steps.MergeTokensStep.index.get_jmdict'), \
              patch('src.steps.MergeTokensStep.index.combine_tokens_jmdict', return_value=merged):

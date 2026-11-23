@@ -1,20 +1,21 @@
+# ruff: noqa: N999 -- Preserve established public module names.
+# ruff: noqa: PLC0414 -- Explicit aliases preserve compatibility re-exports.
 """Shared stages for collecting and scoring registered grammar rules."""
-# Ruff: preserve the established public module name.
-# ruff: noqa: N999
+# Explicit re-exports preserve the former single-module API.
 from bisect import bisect_right
 from dataclasses import dataclass, field
 from functools import lru_cache
 from time import perf_counter
 
 from src.grammar_rules.alignment import aligned_tokens
-from src.grammar_rules.base import GrammarRule  # noqa: F401 - compatibility exports
+from src.grammar_rules.base import GrammarRule as GrammarRule
 from src.grammar_rules.dispatch import RuleDispatch
 from src.grammar_rules.registry import RULES
-from src.grammar_rules.rules.monono.index import match_monono  # noqa: F401 - compatibility exports
-from src.grammar_rules.rules.nda.index import match_nda  # noqa: F401 - compatibility exports
-from src.grammar_rules.rules.tai.index import match_tai  # noqa: F401 - compatibility exports
-from src.grammar_rules.rules.te_iru.index import match_te_iru  # noqa: F401 - compatibility exports
-from src.grammar_rules.rules.te_shimau.index import match_te_shimau  # noqa: F401 - compatibility exports
+from src.grammar_rules.rules.monono.index import match_monono as match_monono
+from src.grammar_rules.rules.nda.index import match_nda as match_nda
+from src.grammar_rules.rules.tai.index import match_tai as match_tai
+from src.grammar_rules.rules.te_iru.index import match_te_iru as match_te_iru
+from src.grammar_rules.rules.te_shimau.index import match_te_shimau as match_te_shimau
 
 # Preserve existing imports for callers of the former single-module API.
 from src.PipelineStep import PipelineStep

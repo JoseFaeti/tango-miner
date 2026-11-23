@@ -1,5 +1,5 @@
 """Paired alternatives marked by としても."""
-from itertools import pairwise
+import itertools
 
 from src.grammar_rules.base import GrammarRule
 from src.grammar_rules.rules.toshitemo.index import match_toshitemo
@@ -9,7 +9,7 @@ TOSHITEMOTOSHITEMO_EXPRESSION = '〜としても〜としても'
 
 def match_toshitemotoshitemo(tokens):
     markers = list(match_toshitemo(tokens))
-    for (start, end), (next_start, _) in pairwise(markers):
+    for (start, end), (next_start, _) in itertools.pairwise(markers):
         between = [t for t in tokens if end <= t['span'][0] and t['span'][1] <= next_start]
         if (not between or any(t['surface'] in ('。', '！', '？', '!', '?', '\n')
                                for t in between)

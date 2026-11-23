@@ -1,5 +1,4 @@
-# Legacy public module names are retained for import compatibility.
-# ruff: noqa: N999
+# ruff: noqa: N999 -- Preserve established public module names.
 """Read and compare archived CSV outputs without mining or contacting Anki."""
 import csv
 import html

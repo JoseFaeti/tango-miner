@@ -29,7 +29,7 @@ class AgentCommandTests(unittest.TestCase):
             [sys.executable, '-m', 'tango_miner.run_tests',
              'src.tests.test_parallel_pipeline.ParallelPipelineTests.test_ordered_map_handles_uneven_batches'],
             cwd=ROOT, capture_output=True, timeout=60,
-        check=False)
+            check=False)
         self.assertEqual(result.returncode, 0, result.stderr)
 
     def test_silent_preserves_failure_status(self):
@@ -80,11 +80,11 @@ class AgentCommandTests(unittest.TestCase):
                 script = subprocess.run(
                     [sys.executable, f'scripts/{command}.py', *args],
                     cwd=ROOT, capture_output=True,
-                check=False)
+                    check=False)
                 module = subprocess.run(
                     [sys.executable, '-m', f'tango_miner.{command}', *args],
                     cwd=ROOT, capture_output=True,
-                check=False)
+                    check=False)
                 self.assertEqual(module.returncode, script.returncode)
                 # argparse includes the executable path in usage text.
                 if command == 'next_grammar':
