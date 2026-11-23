@@ -86,6 +86,46 @@ class ExpressionMatchingTests(unittest.TestCase):
         self.assertEqual(results[1][0][1], '青筋を立てた')
         self.assertEqual(results[2][0][1], '青筋を立てない')
 
+    def test_itai_me_wo_miru_sources_and_inflections(self):
+        texts = ['マヒになった時に同じことをすると痛い目を見るよ。',
+                 '真田明彦お遊び気分だと痛い目を見るぞ、天田。',
+                 '少し痛い目を見て、お帰りいただこうか！',
+                 '痛い目を見た。', '痛い目を見ない。', '痛い目を見ます。',
+                 '痛い目をみた。', '痛い目を見れば。', '痛い目を見させる。']
+        surfaces = ['痛い目を見る', '痛い目を見る', '痛い目を見て',
+                    '痛い目を見た', '痛い目を見ない', '痛い目を見ます',
+                    '痛い目をみた', '痛い目を見れば', '痛い目を見させる']
+        for text, surface, matches in zip(texts, surfaces, self.match(*texts)):
+            with self.subTest(text=text):
+                self.assertIn(('痛い目を見る', surface, False, surface), matches)
+        controls = ['痛い目を開ける。', '痛い目にあう。', '目を見る。',
+                    '痛い目を、見る。', '痛い目薬を見る。']
+        for text, matches in zip(controls, self.match(*controls)):
+            with self.subTest(text=text):
+                self.assertNotIn('痛い目を見る', [match[0] for match in matches])
+
+    def test_itai_me_wo_miru_candidate_definition_and_components(self):
+        raw = tokenize_raw_sentences(['少し痛い目を見て、お帰りいただこうか！'],
+                                     tag='source', source_path=Path('test.txt'))
+        artifact = Artifact(raw)
+        expression = ExpressionStep()
+        expression.process(artifact)
+        build = BuildWordStatsStep()
+        build.start_time = None
+        artifact = AddExpressionCandidatesStep(expression).process(build.process(artifact))
+        definitions = AddDefinitionsStep()
+        definitions.start_time = None
+        artifact = definitions.process(artifact)
+        stats = artifact.data['痛い目を見る']
+        self.assertEqual(stats.reading, 'いたいめをみる')
+        self.assertIn('to suffer the consequences', stats.definition)
+        self.assertEqual(stats.frequency, 1)
+        self.assertTrue(stats.needs_review)
+        self.assertEqual(sum(stats.component_counts.values()), 1)
+        self.assertEqual(artifact.sentences[0].lemma_surfaces['痛い目を見る'], '痛い目を見て')
+        for word in ('痛い', '目', '見る'):
+            self.assertIn(word, artifact.data)
+
     def test_inochi_wo_tsunagu_source_and_variants(self):
         texts = ['ふたつの星が重なる異界の幻影ジタンテラに生まれガイアに生きて命をつなぐ。',
                  '薬で命を繋いだ。', '命をつないでいる。', '糸をつなぐ。']

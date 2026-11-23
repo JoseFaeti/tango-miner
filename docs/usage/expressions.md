@@ -17,6 +17,11 @@ patterns can also have literal uses. The list is deliberately extensible and
 is not an exhaustive idiom dictionary.
 命をつなぐ is also recognized, including inflected and 繋ぐ spellings;
 its context may refer to sustaining life or continuing life across generations.
+痛い目を見る (いたいめをみる) is recognized with 見る and みる inflections,
+including 痛い目を見て. Its gloss covers unpleasant experiences, suffering
+consequences and learning the hard way. The existing boundary recovery matches
+the multi-token 痛い目 prefix; component candidates remain eligible and the
+expression retains the usual literal-use review flag.
 The canonical spelling and reading of each inventory entry are checked against
 the tested JMdict snapshot. 命をつなぐ is present in that snapshot; its inventory
 entry also captures inflected occurrences while preserving component candidates.

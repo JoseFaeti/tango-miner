@@ -3,6 +3,21 @@
   "source": "Original verb entries: OpenMWE corpus idiom inventory, https://github.com/nlp-waseda/OpenMWE; see OPENMWE-LICENSE.txt. Additional entries cite sources individually.",
   "entries": [
     {
+      "expression": "痛い目を見る",
+      "reading": "いたいめをみる",
+      "noun": [
+        "痛い目"
+      ],
+      "particle": "を",
+      "verb": [
+        "見る",
+        "みる"
+      ],
+      "meaning": "to have a painful or unpleasant experience; to suffer the consequences; to learn the hard way; to get hurt or be taught a lesson",
+      "reference": "https://kotowaza.jitenon.jp/kotowaza/5049.php",
+      "verb_class": "ichidan"
+    },
+    {
       "expression": "命をつなぐ",
       "reading": "いのちをつなぐ",
       "noun": [
