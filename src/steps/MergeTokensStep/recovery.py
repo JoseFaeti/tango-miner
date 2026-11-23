@@ -5,6 +5,46 @@ from src.TokenProvenance import token_components
 from .helpers import is_dictionary_expression
 
 
+def _repair_keru_constructions(tokens):
+    """Distinguish contracted ていける and dialectal けっども from kicking."""
+    result = []
+    i = 0
+    while i < len(tokens):
+        token = tokens[i]
+        previous = tokens[i - 2:i]
+        following = tokens[i + 1:i + 3]
+        if (token['surface'] == token['lemma'] == 'ける'
+                and token['pos'][0] == '動詞' and len(previous) == 2
+                and previous[0]['pos'][0] == '動詞'
+                and len(previous[0]['pos']) >= 6
+                and previous[0]['pos'][5].startswith('連用形')
+                and previous[1]['surface'] in ('て', 'で')
+                and previous[1]['pos'][:2] in (['助詞', '接続助詞'], ('助詞', '接続助詞'))):
+            result.append({**token, 'lemma': 'いける', 'base_form': 'いける',
+                           'pos': ('動詞', '非自立可能', '*', '*', '下一段-カ行', '終止形-一般'),
+                           'components': token_components(token),
+                           'analysis_rule': 'te_ikeru_contraction'})
+        elif (token['surface'] == 'けっ' and token['lemma'] == 'ける'
+              and token['pos'][0] == '動詞' and i > 0
+              and tokens[i - 1]['pos'][0] in ('動詞', '形容詞', '助動詞')
+              and len(tokens[i - 1]['pos']) >= 6
+              and tokens[i - 1]['pos'][5].startswith(('終止形', '連体形'))
+              and len(following) == 2
+              and [t['surface'] for t in following] == ['ど', 'も']
+              and all(t['pos'][0] == '助詞' for t in following)):
+            parts = [token, *following]
+            result.append({'surface': 'けっども', 'lemma': 'けれども',
+                           'base_form': 'けれども', 'reading': 'けっども',
+                           'pos': ('助詞', '接続助詞', '*', '*', '*', '*'),
+                           'components': tuple(c for t in parts for c in token_components(t)),
+                           'analysis_rule': 'keddomo_boundary'})
+            i += 2
+        else:
+            result.append(token)
+        i += 1
+    return result
+
+
 def _repair_naribikae(tokens):
     """Recover the rearrange menu label and its potential verb form."""
     result = []
@@ -648,6 +688,7 @@ def prepare_tokens(token_list, jmdict):
     def repair_run(run):
         present = {token['surface'] for token in run}
         for triggers, repair in (
+            (('ける', 'けっ'), _repair_keru_constructions),
             (('ならび',), _repair_naribikae),
             (('ど力',), _repair_imaichido_boundary),
             (('めい',), _repair_mei_boundaries),

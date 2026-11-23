@@ -33,6 +33,32 @@ class TokenizerIntegrationTests(unittest.TestCase):
         # These tests deliberately exercise the real Sudachi and JMdict data.
         cls.jmdict = get_jmdict()
 
+    def test_keru_constructions_and_kicking_controls(self):
+        cases = (
+            ('これからは仲良くやってけるに違いないわい。', 'ける', 'いける'),
+            ('まあムリだと思うけっども、３０回以上れんぞくでとべたら', 'けっども', 'けれども'),
+        )
+        for text, surface, lemma in cases:
+            with self.subTest(text=text):
+                merged = combine_tokens_jmdict(tokenize_sentence(text), self.jmdict)
+                self.assertNotIn('ける', [t['lemma'] for t in merged])
+                repaired = next(t for t in merged if t['surface'] == surface)
+                self.assertEqual(repaired['lemma'], lemma)
+                self.assertEqual(''.join(c.surface for c in repaired['components']), surface)
+        for text in ('ボールをける。', 'ボールをけった。', 'ボールをけって。',
+                     'ボールをければ。', 'ボールをけられる。', '走って蹴る。',
+                     '走って、ける。'):
+            with self.subTest(text=text):
+                raw = tokenize_sentence(text)
+                merged = combine_tokens_jmdict(raw, self.jmdict)
+                expected = [t for t in raw if t['lemma'] in ('ける', '蹴る')]
+                self.assertTrue(expected)
+                self.assertTrue(any(t['lemma'] in ('ける', '蹴る') for t in merged))
+        tokens = tokenize_sentence(cases[0][0])
+        next(t for t in tokens if t['surface'] == 'ける')['grammar_reserved'] = True
+        merged = combine_tokens_jmdict(tokens, self.jmdict)
+        self.assertTrue(any(t['lemma'] == 'ける' and t.get('grammar_reserved') for t in merged))
+
     def test_uru_compounds_and_inflections(self):
         for text, surface in (
             ('今までの展開から考えるとじゅうぶんありえると思うわ。', 'ありえる'),

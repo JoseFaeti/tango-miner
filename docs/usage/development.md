@@ -24,6 +24,11 @@ The あわせて expression remains available for totals; after a case-marked �
 Source-boundary repairs also distinguish the colloquial ズラかろう and selected
 からさ contexts from analyzer misreadings of からい. Other ambiguous からさ
 occurrences retain the analyzer's adjective analysis for review.
+Token repair distinguishes contracted やってける (auxiliary いける) and
+predicate-attached けっども (けれども) from the verb ける (蹴る), retaining
+original components. Verb-supported kicking inflections remain eligible.
+The contraction repair currently covers terminal てける / でける only; it
+does not add potential forms to the 〜ていく grammar card.
 Kana しょうめい before する or できる is recovered as an ambiguous compound,
 and めい界 as 冥界, retaining analyzer components.
 The menu label ならびかえ before で and the potential form ならびかえられる
