@@ -1,7 +1,12 @@
 """Predicate-attached ように見える expressing an appearance."""
 YOU_NI_MIERU_EXPRESSION = '〜ように見える'
 from src.grammar_rules.base import GrammarRule
-from src.grammar_rules.helpers import adjacent, next_matches, positive_verb_end, negative_predicate_end
+from src.grammar_rules.helpers import (
+    adjacent,
+    negative_predicate_end,
+    next_matches,
+    positive_verb_end,
+)
 
 
 def match_you_ni_mieru(tokens):

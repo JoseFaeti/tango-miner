@@ -3,14 +3,18 @@ import json
 import subprocess
 import tempfile
 import unittest
+from dataclasses import replace
 from datetime import datetime
 from pathlib import Path
 
 from src.Artifact import Artifact
-from src.RunArchive import create_run_archive, collect_dependencies, write_run_summary, write_stage_record
-from src.RunConfig import RunConfig, TokenizerConfig, DictionaryConfig
-from dataclasses import replace
-from unittest.mock import patch
+from src.RunArchive import (
+    collect_dependencies,
+    create_run_archive,
+    write_run_summary,
+    write_stage_record,
+)
+from src.RunConfig import DictionaryConfig, RunConfig, TokenizerConfig
 from src.steps.GatherInputFilesStep.index import GatherInputFilesStep
 
 
@@ -21,7 +25,7 @@ class RunArchiveTests(unittest.TestCase):
             repo.mkdir()
             def git(*args):
                 return subprocess.run(["git", "-C", str(repo), *args], check=True,
-                                      stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+                                      capture_output=True)
             git("init")
             git("config", "user.email", "test@example.invalid")
             git("config", "user.name", "Test")

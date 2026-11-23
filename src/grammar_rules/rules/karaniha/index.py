@@ -3,7 +3,6 @@ from src.grammar_rules.base import GrammarRule
 from src.grammar_rules.helpers import adjacent
 from src.grammar_rules.rules.kara_node.index import match_kara_node
 
-
 KARANIHA_EXPRESSION = '〜からには'
 
 

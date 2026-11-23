@@ -2,8 +2,8 @@
 BA_GRAMMAR_EXPRESSION = '〜ば'
 from src.grammar_rules.base import GrammarRule
 from src.grammar_rules.helpers import adjacent
-from src.grammar_rules.rules.obligation.index import match_obligation
 from src.grammar_rules.rules.nakuteha_nakereba.index import match_nakuteha_nakereba
+from src.grammar_rules.rules.obligation.index import match_obligation
 
 
 def match_ba(tokens):

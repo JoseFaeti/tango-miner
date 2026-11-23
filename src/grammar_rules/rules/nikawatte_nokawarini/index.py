@@ -16,9 +16,7 @@ def match_nikawatte_nokawarini(tokens):
                 and head['surface'] in ('代わっ', 'かわっ')
                 and head['lemma'] in ('代わる', 'かわる')
                 and head['pos'][:1] == ['動詞']
-                and tail['surface'] == 'て' and tail['pos'][:1] == ['助詞']):
-            yield particle['span'][0], tail['span'][1]
-        elif (particle['surface'] == 'の'
+                and tail['surface'] == 'て' and tail['pos'][:1] == ['助詞']) or (particle['surface'] == 'の'
               and head['surface'] in ('代わり', 'かわり')
               and head['lemma'] in ('代わり', 'かわり')
               and head['pos'][:1] == ['名詞']

@@ -3,7 +3,6 @@ OBLIGATION_GRAMMAR_EXPRESSION = '〜なければならない'
 from src.grammar_rules.base import GrammarRule
 from src.grammar_rules.helpers import adjacent
 
-
 # Precompute the complete forms and all prefixes once, rather than rebuilding
 # the same strings for each token in every sentence.
 _PREFIXES = {"なければ", "なきゃ", "なけりゃ", "なくては", "なくちゃ", "ないと"}

@@ -1,16 +1,15 @@
 import json
 import time
 import urllib.request
-from collections import OrderedDict
 from functools import partial
 from pathlib import Path
 from typing import Any
 
 from src.Artifact import Artifact
+from src.GrammarConstants import GRAMMAR_EXPRESSIONS, LEGACY_GRAMMAR_EXPRESSIONS
 from src.PipelineStep import PipelineStep, ProgressEvent
 from src.RunConfig import AnkiConfig
 from src.steps.ProcessingStep.index import ProcessingStep
-from src.GrammarConstants import GRAMMAR_EXPRESSIONS, LEGACY_GRAMMAR_EXPRESSIONS
 
 ANKI_CONNECT_URL = AnkiConfig().endpoint
 DECK_NAME = AnkiConfig().deck
@@ -427,11 +426,7 @@ def anki_fields_differ_from_stats(note, stats) -> bool:
         s.to_html() for s in stats.sentences
     ) if stats.sentences else ""
     
-    if stats_sentence != note_sentence:
-        # print(f'sentences differ: {stats_sentence} != {note_sentence}')
-        return True
-
-    return False
+    return stats_sentence != note_sentence
 
 
 def ensure_model_exists(model_name: str, invoke=None):

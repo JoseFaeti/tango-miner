@@ -3,7 +3,6 @@ from src.grammar_rules.base import GrammarRule
 from src.grammar_rules.helpers import next_matches
 from src.grammar_rules.rules.zu.index import match_zu
 
-
 EXPRESSION = '〜ずして'
 
 

@@ -1,15 +1,20 @@
-import unittest
 import json
 import os
 import tempfile
-from unittest.mock import patch
+import unittest
 from pathlib import Path
+from unittest.mock import patch
 
-from src.TokenizedSentence import TokenizedSentence
 from src.Artifact import Artifact
 from src.Pipeline import Pipeline
 from src.steps.BuildWordStatsStep.index import build_word_stats
-from src.steps.MergeTokensStep.index import combine_tokens_jmdict, MergeTokensStep, get_jmdict, _is_split_kana_noun
+from src.steps.MergeTokensStep.index import (
+    MergeTokensStep,
+    _is_split_kana_noun,
+    combine_tokens_jmdict,
+    get_jmdict,
+)
+from src.TokenizedSentence import TokenizedSentence
 
 
 def token(surface, lemma, pos):
@@ -30,8 +35,12 @@ class Dictionary:
 
 class ProvenanceTests(unittest.TestCase):
     def test_iwaku_arige_dictionary_merge_and_controls(self):
-        from src.steps.TokenizeStep.index import get_tokenizer, TOKENIZER_MODE, sudachi_node_to_dict
         from src.steps.MergeTokensStep.helpers import _is_noun_arige
+        from src.steps.TokenizeStep.index import (
+            TOKENIZER_MODE,
+            get_tokenizer,
+            sudachi_node_to_dict,
+        )
 
         dictionary = get_jmdict()
         for sentence in ('いわくありげな宮殿がたたずむ。', '曰くありげな宮殿。'):
@@ -52,7 +61,11 @@ class ProvenanceTests(unittest.TestCase):
         self.assertFalse(_is_noun_arige(parts[:2], dictionary.lookup_word('いわくありげ')))
 
     def test_moushi_noun_boundaries_and_controls(self):
-        from src.steps.TokenizeStep.index import get_tokenizer, TOKENIZER_MODE, sudachi_node_to_dict
+        from src.steps.TokenizeStep.index import (
+            TOKENIZER_MODE,
+            get_tokenizer,
+            sudachi_node_to_dict,
+        )
 
         cases = [
             ('しかし、きみ達、ずいぶん体力をしょうもうしているな？', '消耗', ['しょう', 'もう']),
@@ -78,7 +91,11 @@ class ProvenanceTests(unittest.TestCase):
                 self.assertFalse(any(t.get('analysis_rule') == 'moushi_noun_boundary' for t in result))
 
     def test_karai_source_boundaries_and_adjective_controls(self):
-        from src.steps.TokenizeStep.index import get_tokenizer, TOKENIZER_MODE, sudachi_node_to_dict
+        from src.steps.TokenizeStep.index import (
+            TOKENIZER_MODE,
+            get_tokenizer,
+            sudachi_node_to_dict,
+        )
 
         cases = [
             ('さっさと虹色の枝ってのをいただいてこの暑い国からズラかろうぜ。', False, 'ズラかる'),
@@ -232,9 +249,9 @@ class ProvenanceTests(unittest.TestCase):
             self.assertFalse(output.with_suffix('.jsonl.tmp').exists())
             before = output.read_bytes()
             with patch('src.steps.MergeTokensStep.index.get_jmdict', return_value=Dictionary()), \
-                 patch('src.steps.MergeTokensStep.index.combine_tokens_jmdict', side_effect=RuntimeError('failure')):
-                with self.assertRaises(RuntimeError):
-                    stage.process(Artifact(sentences))
+                 patch('src.steps.MergeTokensStep.index.combine_tokens_jmdict', side_effect=RuntimeError('failure')), \
+                self.assertRaises(RuntimeError):
+                stage.process(Artifact(sentences))
             self.assertEqual(output.read_bytes(), before)
 
     def test_merge_retains_immutable_original_components(self):

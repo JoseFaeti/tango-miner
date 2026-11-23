@@ -1,6 +1,11 @@
 """Possibility expressed by a verb's continuative form plus 得る."""
 from src.grammar_rules.base import GrammarRule
-from src.grammar_rules.helpers import adjacent, next_matches, negative_suffix_end, polite_suffix_end
+from src.grammar_rules.helpers import (
+    adjacent,
+    negative_suffix_end,
+    next_matches,
+    polite_suffix_end,
+)
 
 URU_ENAI_EXPRESSION = '〜得る / 〜得ない'
 

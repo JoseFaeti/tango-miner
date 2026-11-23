@@ -1,8 +1,9 @@
-from dataclasses import asdict, dataclass, fields, replace
+# ruff: noqa: N999 -- Preserve established public module names.
 import json
 import math
-from pathlib import Path
 import tomllib
+from dataclasses import asdict, dataclass, fields, replace
+from pathlib import Path
 from urllib.parse import urlsplit
 
 
@@ -128,7 +129,7 @@ def resolve_config(path=None, overrides=None) -> RunConfig:
         for section in ("input", "tokenizer", "merge", "parallel", "dictionary", "filter", "scoring", "sentences", "output", "debug", "profiling", "anki"):
             values = data.get(section, {})
             if not isinstance(values, dict):
-                raise ValueError(f"[{section}] must be a table")
+                raise ValueError(f"[{section}] must be a table")  # noqa: TRY004 -- Preserve the established ValueError validation contract.
             config = replace(config, **{section: _update_section(section, getattr(config, section), values)})
     for section, values in (overrides or {}).items():
         config = replace(config, **{section: _update_section(section, getattr(config, section), values)})

@@ -1,7 +1,9 @@
 """Topicalized formal occasion: に際しては."""
 from src.grammar_rules.base import GrammarRule
 from src.grammar_rules.helpers import adjacent
-from src.grammar_rules.rules.niatatsute_nisaishite.index import match_niatatsute_nisaishite
+from src.grammar_rules.rules.niatatsute_nisaishite.index import (
+    match_niatatsute_nisaishite,
+)
 
 
 def match_nisaishiteha(tokens):

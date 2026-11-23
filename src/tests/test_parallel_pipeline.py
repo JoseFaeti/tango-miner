@@ -1,18 +1,17 @@
 import hashlib
-import json
-from pathlib import Path
 import tempfile
 import unittest
 import xml.etree.ElementTree as ET
 from concurrent.futures import ProcessPoolExecutor
+from pathlib import Path
 
 from src.Artifact import Artifact
-from src.Grammar import GrammarStep, ExcludeGrammarTokensStep
-from src.Pipeline import Pipeline
+from src.Grammar import ExcludeGrammarTokensStep, GrammarStep
 from src.Parallel import ordered_map
+from src.Pipeline import Pipeline
 from src.StageCache import StageCache
-from src.TokenizedSentence import TokenizedSentence
 from src.steps.MergeTokensStep.index import MergeTokensStep
+from src.TokenizedSentence import TokenizedSentence
 
 
 def token(surface, lemma, pos):

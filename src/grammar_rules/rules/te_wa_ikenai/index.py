@@ -3,7 +3,6 @@ TE_WA_IKENAI_GRAMMAR_EXPRESSION = '〜てはいけない'
 from src.grammar_rules.base import GrammarRule
 from src.grammar_rules.helpers import adjacent
 
-
 _FORMS = frozenset(prefix + ending for prefix in ('ては', 'では', 'ちゃ', 'じゃ')
                    for ending in ('いけない', 'いけなかった', 'いけません', 'いけませんでした'))
 _NARANAI_FORMS = frozenset(prefix + ending for prefix in ('ては', 'では', 'ちゃ', 'じゃ')

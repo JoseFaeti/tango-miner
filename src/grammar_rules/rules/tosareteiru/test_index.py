@@ -2,13 +2,13 @@ import unittest
 
 from src.Artifact import Artifact
 from src.Grammar import ExcludeGrammarTokensStep, GrammarStep
-from src.GrammarConstants import GRAMMAR_EXPRESSIONS
 from src.grammar_rules.alignment import aligned_tokens
 from src.grammar_rules.registry import RULES
-from src.grammar_rules.rules.tosareteiru.index import RULE, match_tosareteiru
-from src.grammar_rules.rules.tosareru.index import RULE as BASE
 from src.grammar_rules.rules.te_iru.index import RULE as ASPECT
 from src.grammar_rules.rules.te_iru.test_index import sentence, tok
+from src.grammar_rules.rules.tosareru.index import RULE as BASE
+from src.grammar_rules.rules.tosareteiru.index import RULE, match_tosareteiru
+from src.GrammarConstants import GRAMMAR_EXPRESSIONS
 
 
 class TosareteiruTests(unittest.TestCase):
@@ -19,6 +19,12 @@ class TosareteiruTests(unittest.TestCase):
         except (ImportError, OSError, RuntimeError) as exc:
             self.skipTest(f'Sudachi full dictionary unavailable: {exc}')
         cases = {
+            '必要とされる人のみが永遠の命をあたえられる世が！': None,
+            '必要とされた。': None,
+            '必要とされます。': None,
+            '必要とされている。': None,
+            '問題とされている。': 'とされている',
+            '必要だとされている。': 'とされている',
             '彼は天才とされている。': 'とされている',
             '原因は事故だとされていた。': 'とされていた',
             '重要とされています。': 'とされています',

@@ -1,14 +1,12 @@
 from __future__ import annotations
 
+import itertools
 import re
-import statistics
 from pathlib import Path
-from typing import List
 
 from src.Artifact import Artifact
 from src.PipelineStep import PipelineStep
 from src.steps.ProcessingStep.index import ProcessingStep
-
 
 # -------------------------------------------------------------------
 # Precompiled regex (module scope = zero re-init cost per step)
@@ -91,9 +89,7 @@ def normalize_sentence_boundaries(text: str, min_lines: int = 5):
 
     if mode == "indented_continuation":
         sentences = join_indented_continuations(lines)
-    elif mode == "line_dialogue":
-        sentences = join_wrapped_lines(lines)
-    elif mode == "sentence_list":
+    elif mode == "line_dialogue" or mode == "sentence_list":
         sentences = join_wrapped_lines(lines)
     elif mode == "paragraph":
         sentences = join_paragraph_lines(lines)
@@ -112,7 +108,7 @@ def normalize_sentence_boundaries(text: str, min_lines: int = 5):
 # Mode detection
 # -------------------------------------------------------------------
 
-def detect_mode(lines: List[str], min_lines: int = 5) -> str:
+def detect_mode(lines: list[str], min_lines: int = 5) -> str:
     clean = [l for l in lines if l]
     n = len(clean)
 
@@ -261,12 +257,12 @@ def join_paragraph_lines(lines: list[str]) -> list[str]:
     return result
 
 
-def sentence_per_line(lines: List[str]) -> List[str]:
+def sentence_per_line(lines: list[str]) -> list[str]:
     # minimal allocation, no strip
     return [l.strip() for l in lines if l.strip()]
 
 
-def merge_hard_wrap(text: str) -> List[str]:
+def merge_hard_wrap(text: str) -> list[str]:
     text = RE_HARD_WRAP_JOIN.sub("　", text)
     text = RE_MULTI_NEWLINE.sub("\n\n", text)
     text = RE_WHITESPACE.sub("　", text)
@@ -275,7 +271,7 @@ def merge_hard_wrap(text: str) -> List[str]:
     return [s for s in sentences if s]
 
 
-def paragraph_based(text: str) -> List[str]:
+def paragraph_based(text: str) -> list[str]:
     text = RE_MULTI_NEWLINE.sub("\n\n", text)
     text = RE_WHITESPACE.sub("　", text)
 
@@ -291,7 +287,7 @@ def paragraph_based(text: str) -> List[str]:
     return out
 
 
-def fallback(text: str) -> List[str]:
+def fallback(text: str) -> list[str]:
     return split_sentences_fast(text)
 
 
@@ -299,7 +295,7 @@ def fallback(text: str) -> List[str]:
 # Sentence splitting
 # -------------------------------------------------------------------
 
-def split_sentences_fast(text: str) -> List[str]:
+def split_sentences_fast(text: str) -> list[str]:
     parts = RE_SENT_SPLIT.split(text)
     return [p for p in parts if p]
 
@@ -367,7 +363,7 @@ def is_indented_continuation_mode(lines: list[str]) -> bool:
     if len(set(indents)) < 2:
         return False
 
-    continuations = sum(1 for a, b in zip(indents, indents[1:]) if b > a)
+    continuations = sum(1 for a, b in itertools.pairwise(indents) if b > a)
     return continuations / (len(indents) - 1) >= 0.25
 
 

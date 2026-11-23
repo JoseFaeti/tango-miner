@@ -1,13 +1,13 @@
 import unittest
 
 from src.Artifact import Artifact
-from src.Grammar import GrammarStep, ExcludeGrammarTokensStep
+from src.Grammar import ExcludeGrammarTokensStep, GrammarStep
 from src.grammar_rules.alignment import aligned_tokens
 from src.grammar_rules.registry import RULES
-from src.grammar_rules.rules.toiumonoda.index import RULE, match_toiumonoda
-from src.grammar_rules.rules.toiu.index import match_toiu
 from src.grammar_rules.rules.monoda.index import match_monoda
 from src.grammar_rules.rules.te_iru.test_index import sentence, tok
+from src.grammar_rules.rules.toiu.index import match_toiu
+from src.grammar_rules.rules.toiumonoda.index import RULE, match_toiumonoda
 
 
 class ToiumonodaTests(unittest.TestCase):

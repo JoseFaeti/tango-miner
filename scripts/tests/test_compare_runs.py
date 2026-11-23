@@ -6,7 +6,15 @@ import tempfile
 import unittest
 from pathlib import Path
 
-from scripts.compare_runs import compact_report, completed_runs, load_run, main, overview_report, sentence_coverage, report
+from scripts.compare_runs import (
+    compact_report,
+    completed_runs,
+    load_run,
+    main,
+    overview_report,
+    report,
+    sentence_coverage,
+)
 
 
 def make_run(root, name, valid, dropped=(), status="completed"):

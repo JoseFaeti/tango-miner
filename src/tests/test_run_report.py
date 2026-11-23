@@ -23,6 +23,7 @@ class RunReportTests(unittest.TestCase):
 
     def test_pipeline_writes_report_on_failure(self):
         from unittest.mock import patch
+
         from tango_miner import process_script
 
         with tempfile.TemporaryDirectory() as tmp:

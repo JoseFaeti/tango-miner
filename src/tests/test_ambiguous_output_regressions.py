@@ -8,8 +8,8 @@ silently changes the displayed source form into an unrelated dictionary word.
 
 import unittest
 
-from src.steps.MergeTokensStep.index import combine_tokens_jmdict, get_jmdict
 from src.steps.FilterFrequencyStep.index import filter_useful_words
+from src.steps.MergeTokensStep.index import combine_tokens_jmdict, get_jmdict
 from src.steps.TokenizeStep.index import (
     TOKENIZER_MODE,
     get_tokenizer,
@@ -224,7 +224,10 @@ class AmbiguousOutputRegressionTests(unittest.TestCase):
                 self.assertIn(expected, words)
 
     def test_boundary_repairs_preserve_original_components_and_controls(self):
-        from src.steps.MergeTokensStep.index import _repair_chigee_boundary, _repair_warui_koto_boundary
+        from src.steps.MergeTokensStep.index import (
+            _repair_chigee_boundary,
+            _repair_warui_koto_boundary,
+        )
         colloquial = raw_tokens('それはちげぇよ。')
         repaired = _repair_chigee_boundary(colloquial)
         candidate = next(t for t in repaired if t['lemma'] == 'ちげぇ')
@@ -346,7 +349,7 @@ class AmbiguousOutputRegressionTests(unittest.TestCase):
 
     def test_kigahen_repair_uses_reserved_conditional_as_context(self):
         from src.Artifact import Artifact
-        from src.Grammar import GrammarStep, ExcludeGrammarTokensStep
+        from src.Grammar import ExcludeGrammarTokensStep, GrammarStep
         from src.grammar_rules.rules.tara.index import RULE
         from src.grammar_rules.rules.te_iru.test_index import sentence
 

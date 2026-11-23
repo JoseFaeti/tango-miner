@@ -1,11 +1,10 @@
 import tempfile
 import unittest
 from pathlib import Path
+from unittest.mock import Mock
 
 from src.JMDict import JMDict
 from src.TokenProvenance import TokenComponent
-from unittest.mock import Mock
-
 
 XML = """<?xml version="1.0" encoding="UTF-8"?>
 <JMdict>

@@ -1,52 +1,56 @@
 #!/usr/bin/env python3
 
 import argparse
-from contextlib import redirect_stderr, redirect_stdout
 import traceback
+from contextlib import redirect_stderr, redirect_stdout
 from dataclasses import replace
 from pathlib import Path
 
 # Allow selected agent commands to run as python -m tango_miner.<command>.
 __path__ = [str(Path(__file__).resolve().parent / 'agent_commands')]
-import sys
-from src.CachePaths import CACHE_DIR
-from tempfile import TemporaryDirectory
-from os import path
 import os
-from urllib.request import Request, urlopen
-from urllib.parse import urlsplit
+import sys
+from tempfile import TemporaryDirectory
 from urllib.error import HTTPError
+from urllib.parse import urlsplit
+from urllib.request import Request, urlopen
 
 from src.Artifact import Artifact
-from src.Column import Column
-from src.Pipeline import Pipeline
+from src.CachePaths import CACHE_DIR
 from src.ConsoleProgress import ConsoleProgress
+from src.Expressions import AddExpressionCandidatesStep, ExpressionStep
+from src.Grammar import (
+    AddGrammarCardsStep,
+    ExcludeGrammarTokensStep,
+    GrammarPositionStep,
+    GrammarStep,
+)
+from src.Pipeline import Pipeline
+from src.RunArchive import (
+    collect_dependencies,
+    create_run_archive,
+    write_run_summary,
+    write_stage_record,
+)
 from src.RunConfig import resolve_config
-from src.RunArchive import write_stage_record, create_run_archive, collect_dependencies, write_run_summary
 from src.RunReport import write_run_report
-from src.steps.CompareOutputStep.index import CompareOutputStep
 from src.StageCache import StageCache
-
 from src.steps.AddDefinitionsStep.index import AddDefinitionsStep
 from src.steps.AddWordsToAnkiStep.index import AddWordsToAnkiStep
 from src.steps.AttachSentencesStep.index import AttachSentencesStep
-from src.steps.GatherInputFilesStep.index import GatherInputFilesStep
+from src.steps.BuildWordStatsStep.index import BuildWordStatsStep
+from src.steps.CompareOutputStep.index import CompareOutputStep
+from src.steps.debug.DumpSentences.index import DumpSentences
 from src.steps.ExtractSentencesStep.index import ExtractSentencesStep
+from src.steps.FilterFrequencyStep.index import FilterFrequencyStep
+from src.steps.GatherInputFilesStep.index import GatherInputFilesStep
+from src.steps.MergeTokensStep.index import MergeTokensStep
 from src.steps.NormalizeSentences.index import NormalizeSentences
-from src.steps.ProcessingStep.index import ProcessingStep
+from src.steps.OccurrenceDiagnosticsStep.index import OccurrenceDiagnosticsStep
 from src.steps.ReadFilesStep.index import ReadFilesStep
 from src.steps.ScoreWordStep.index import ScoreWordStep
 from src.steps.TokenizeStep.index import RawTokenizeStep
-from src.steps.MergeTokensStep.index import MergeTokensStep
-from src.steps.BuildWordStatsStep.index import BuildWordStatsStep
-from src.steps.FilterFrequencyStep.index import FilterFrequencyStep
 from src.steps.WriteOutputStep.index import WriteOutputStep
-from src.steps.OccurrenceDiagnosticsStep.index import OccurrenceDiagnosticsStep
-from src.Grammar import GrammarStep, GrammarPositionStep, AddGrammarCardsStep, ExcludeGrammarTokensStep
-from src.Expressions import ExpressionStep, AddExpressionCandidatesStep
-
-from src.steps.debug.DumpSentences.index import DumpSentences
-
 
 MIN_FREQUENCY_DEFAULT = 4
 
@@ -224,7 +228,7 @@ def process_script(argv=None):
         log = log_path.open("w", encoding="utf-8", newline="\n")
         silent_archive_ready = True
         log.write(f"Min frequency: {min_frequency}\nInput: {input_path_obj}\nOutput: {final_path}\n")
-        silent_stream = open(os.devnull, "w", encoding="utf-8") if args.silent else None
+        silent_stream = open(os.devnull, "w", encoding="utf-8") if args.silent else None  # noqa: SIM115 - Closed with the pipeline log in finally.
         display = ConsoleProgress(silent_stream or sys.stdout, len(active_steps), verbose=args.verbose, log=log)
 
         def record_stage(index, step, record):
@@ -306,7 +310,7 @@ def notify_run(summary, run_dir):
     except ValueError:
         print("Warning: ntfy notification failed: NTFY_URL must be a full HTTP(S) topic URL.", file=sys.stderr)
         return "failed (invalid topic URL)"
-    except Exception as exc:
+    except Exception as exc:  # noqa: BLE001 - Optional notification must not change pipeline result.
         print(f"Warning: ntfy notification failed ({type(exc).__name__}).", file=sys.stderr)
         return f"failed ({type(exc).__name__})"
 

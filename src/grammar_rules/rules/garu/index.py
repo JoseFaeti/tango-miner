@@ -1,6 +1,11 @@
 """Outward signs of a feeling or desire expressed by 〜がる."""
 from src.grammar_rules.base import GrammarRule
-from src.grammar_rules.helpers import adjacent, negative_suffix_end, next_matches, polite_suffix_end
+from src.grammar_rules.helpers import (
+    adjacent,
+    negative_suffix_end,
+    next_matches,
+    polite_suffix_end,
+)
 
 GARU_GRAMMAR_EXPRESSION = '〜がる'
 

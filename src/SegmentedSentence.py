@@ -1,3 +1,4 @@
+# ruff: noqa: N999 -- Preserve established public module names.
 from dataclasses import dataclass, field
 from pathlib import Path
 

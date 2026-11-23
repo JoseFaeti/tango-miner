@@ -3,7 +3,10 @@ import unittest
 from src.Artifact import Artifact
 from src.Grammar import ExcludeGrammarTokensStep, GrammarStep
 from src.grammar_rules.alignment import aligned_tokens
-from src.grammar_rules.rules.nikoshitakotohanai.index import RULE, match_nikoshitakotohanai
+from src.grammar_rules.rules.nikoshitakotohanai.index import (
+    RULE,
+    match_nikoshitakotohanai,
+)
 from src.grammar_rules.rules.te_iru.test_index import sentence, tok
 
 
@@ -48,7 +51,7 @@ class NikoshitakotohanaiTests(unittest.TestCase):
         stage.add_cards(words)
         self.assertIn('早い', words)
         self.assertEqual(words[RULE.expression].sentences[0].surface_form, 'に越したことはない')
-        from src.GrammarConstants import GRAMMAR_EXPRESSIONS
         from src.grammar_rules.registry import RULES
+        from src.GrammarConstants import GRAMMAR_EXPRESSIONS
         self.assertIn(RULE.expression, GRAMMAR_EXPRESSIONS)
         self.assertIn(RULE, RULES)

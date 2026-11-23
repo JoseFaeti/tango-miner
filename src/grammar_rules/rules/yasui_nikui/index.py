@@ -3,7 +3,6 @@ YASUI_NIKUI_EXPRESSION = '〜やすい / 〜にくい'
 from src.grammar_rules.base import GrammarRule
 from src.grammar_rules.helpers import adjacent, adjective_inflection_end, next_matches
 
-
 RULE = GrammarRule(order=109,
     id='yasui_nikui', expression=YASUI_NIKUI_EXPRESSION,
     reading='やすい / にくい', meaning='easy to do / difficult to do',

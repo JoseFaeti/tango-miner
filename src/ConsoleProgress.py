@@ -1,11 +1,11 @@
+# ruff: noqa: N999 -- Preserve established public module names.
 """Console rendering for pipeline lifecycle and progress events."""
-import re
 import os
+import re
 import shutil
-import unicodedata
 import time
+import unicodedata
 from contextlib import contextmanager, redirect_stdout
-
 
 _LABELS = {
     "GatherInputFilesStep": "Finding input files",

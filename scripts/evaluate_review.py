@@ -20,8 +20,7 @@ from src.JMDict import JMDict
 def write_jsonl(path, rows):
     # Exclusive creation protects human labels and earlier experiments.
     with Path(path).open('x', encoding='utf-8', newline='\n') as stream:
-        for row in rows:
-            stream.write(json.dumps(row, ensure_ascii=False, separators=(',', ':')) + '\n')
+        stream.writelines(json.dumps(row, ensure_ascii=False, separators=(',', ':')) + '\n' for row in rows)
 
 
 def read_jsonl(path):

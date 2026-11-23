@@ -2,12 +2,12 @@ import unittest
 
 from src.Artifact import Artifact
 from src.Grammar import ExcludeGrammarTokensStep, GrammarStep
-from src.GrammarConstants import GRAMMAR_EXPRESSIONS
 from src.grammar_rules.alignment import aligned_tokens
-from src.grammar_rules.rules.toiuto_toieba.index import RULE, match_toiuto_toieba
-from src.grammar_rules.rules.toitsutara_toieba.index import RULE as EXISTING_RULE
 from src.grammar_rules.rules.karayuuto_karaieba.index import RULE as STANDPOINT_RULE
 from src.grammar_rules.rules.te_iru.test_index import sentence, tok
+from src.grammar_rules.rules.toitsutara_toieba.index import RULE as EXISTING_RULE
+from src.grammar_rules.rules.toiuto_toieba.index import RULE, match_toiuto_toieba
+from src.GrammarConstants import GRAMMAR_EXPRESSIONS
 
 
 class ToiutoToiebaTests(unittest.TestCase):

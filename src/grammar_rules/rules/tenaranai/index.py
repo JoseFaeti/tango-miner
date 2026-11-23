@@ -1,6 +1,11 @@
 """An overwhelming feeling or urge expressed with てならない."""
 from src.grammar_rules.base import GrammarRule
-from src.grammar_rules.helpers import adjacent, negative_suffix_end, next_matches, polite_suffix_end
+from src.grammar_rules.helpers import (
+    adjacent,
+    negative_suffix_end,
+    next_matches,
+    polite_suffix_end,
+)
 
 TENARANAI_EXPRESSION = '〜てならない'
 

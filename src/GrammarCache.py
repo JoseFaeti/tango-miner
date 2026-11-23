@@ -1,17 +1,18 @@
+# ruff: noqa: N999 -- Preserve established public module names.
 """Cache the state produced by the registered grammar analysis stage."""
 import hashlib
 import json
 import sys
 import tempfile
-from time import perf_counter
 from dataclasses import asdict
 from pathlib import Path
+from time import perf_counter
 
 from src.CachePaths import remove_legacy_entries
-from src.Grammar import GrammarOccurrences, GrammarStep
-from src.WordStats import Sentence
+from src.Grammar import GrammarOccurrences
 from src.grammar_rules.registry import RULES
-from src.StageCache import _bytes, _input_key_data, MERGE_SOURCE_DEPENDENCIES
+from src.StageCache import MERGE_SOURCE_DEPENDENCIES, _bytes, _input_key_data
+from src.WordStats import Sentence
 
 
 def _fingerprint():

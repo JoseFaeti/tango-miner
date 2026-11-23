@@ -1,5 +1,10 @@
 # 〜とされている
 
+- [Meaning](#meaning)
+- [Verified coverage](#verified-coverage)
+- [Remaining limitations](#remaining-limitations)
+- [Implementation](#implementation)
+
 Status: [~]
 
 ## Meaning
@@ -14,6 +19,10 @@ past, polite and negative forms, predicates, spacing and unrelated passives.
 The preceding expression remains available for lexical processing. The
 `〜とされる` and `〜ている` cards can also match the same occurrence;
 dictionary expression precedence can suppress grammar matches.
+
+The shared [base rule](tosareru.md#verified-coverage) excludes lexical
+`必要とされている` while retaining `問題とされている` and
+`必要だとされている`.
 
 ## Remaining limitations
 

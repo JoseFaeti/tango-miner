@@ -2,10 +2,10 @@ import unittest
 
 from src.Artifact import Artifact
 from src.Grammar import GrammarStep
-from src.GrammarConstants import TE_KURU_GRAMMAR_EXPRESSION as EXPRESSION
 from src.grammar_rules.alignment import aligned_tokens
-from src.grammar_rules.rules.te_kuru.index import match_te_kuru
 from src.grammar_rules.rules.te_iru.test_index import sentence, tok
+from src.grammar_rules.rules.te_kuru.index import match_te_kuru
+from src.GrammarConstants import TE_KURU_GRAMMAR_EXPRESSION as EXPRESSION
 
 
 class TeKuruTests(unittest.TestCase):
@@ -56,9 +56,9 @@ class TeKuruTests(unittest.TestCase):
         self.assertEqual(len(words[EXPRESSION].sentences), 1)
 
     def test_incomplete_or_gapped_tokens_do_not_match(self):
-        base = [dict(surface='降っ', lemma='降る', pos=['動詞', '*', '*', '*', '*', '連用形'], span=[0, 2]),
-                dict(surface='て', lemma='て', pos=['助詞', '接続助詞'], span=[2, 3]),
-                dict(surface='き', lemma='くる', pos=['動詞', '非自立可能'], span=[3, 4])]
+        base = [{'surface': '降っ', 'lemma': '降る', 'pos': ['動詞', '*', '*', '*', '*', '連用形'], 'span': [0, 2]},
+                {'surface': 'て', 'lemma': 'て', 'pos': ['助詞', '接続助詞'], 'span': [2, 3]},
+                {'surface': 'き', 'lemma': 'くる', 'pos': ['動詞', '非自立可能'], 'span': [3, 4]}]
         self.assertEqual(list(match_te_kuru(base)), [])
         base[-1]['span'] = [4, 5]
         self.assertEqual(list(match_te_kuru(base)), [])

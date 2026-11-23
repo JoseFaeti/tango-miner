@@ -3,7 +3,13 @@ import tempfile
 import unittest
 from pathlib import Path
 
-from scripts.compare_japanese_analyzers import align, choose_groups, collect_raw_lines, compare, focus_report
+from scripts.compare_japanese_analyzers import (
+    align,
+    choose_groups,
+    collect_raw_lines,
+    compare,
+    focus_report,
+)
 
 
 class AnalyzerComparisonTests(unittest.TestCase):
@@ -19,7 +25,7 @@ class AnalyzerComparisonTests(unittest.TestCase):
     def test_sampling_keeps_original_lines_and_checks_manifest_hash(self):
         with tempfile.TemporaryDirectory() as temp:
             path = Path(temp) / 'script [Game].txt'
-            raw = '猫！\n  日本語  \nNo Japanese\n'.encode('utf8')
+            raw = '猫！\n  日本語  \nNo Japanese\n'.encode()
             path.write_bytes(raw)
             run = {'manifest': [{'path': str(path), 'sha256': hashlib.sha256(raw).hexdigest()}],
                    'config': {'input': {'encoding': 'utf-8'}}}

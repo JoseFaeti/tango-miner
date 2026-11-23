@@ -2,11 +2,11 @@ import unittest
 
 from src.Artifact import Artifact
 from src.Grammar import ExcludeGrammarTokensStep, GrammarStep
-from src.GrammarConstants import GRAMMAR_EXPRESSIONS, NAIKANA_EXPRESSION
 from src.grammar_rules.alignment import aligned_tokens
 from src.grammar_rules.registry import RULES
 from src.grammar_rules.rules.naikana.index import RULE, match_naikana
 from src.grammar_rules.rules.te_iru.test_index import sentence, tok
+from src.GrammarConstants import GRAMMAR_EXPRESSIONS, NAIKANA_EXPRESSION
 
 
 class NaikanaTests(unittest.TestCase):

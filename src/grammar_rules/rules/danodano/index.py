@@ -1,4 +1,6 @@
 """Repeated だの listing markers."""
+import itertools
+
 from src.grammar_rules.base import GrammarRule
 from src.grammar_rules.helpers import adjacent
 
@@ -12,7 +14,7 @@ def match_danodano(tokens):
                 and no['surface'] == 'の' and no['pos'][:1] == ['助詞']
                 and adjacent(before, da) and adjacent(da, no)):
             markers.append(i)
-    for first, second in zip(markers, markers[1:]):
+    for first, second in itertools.pairwise(markers):
         between = tokens[first + 2:second]
         if not between or any(t['surface'] in ('。', '！', '？', '!', '?', '\n') for t in between):
             continue

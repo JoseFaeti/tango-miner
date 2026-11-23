@@ -1,7 +1,11 @@
 """Changes of state with an adjective or nominal predicate."""
 KUNARU_NINARU_EXPRESSION = '〜くなる / 〜になる'
 from src.grammar_rules.base import GrammarRule
-from src.grammar_rules.helpers import adjacent, next_matches, positive_verb_end, negative_predicate_end
+from src.grammar_rules.helpers import (
+    adjacent,
+    negative_predicate_end,
+    positive_verb_end,
+)
 
 
 def match_kunaru_ninaru(tokens):
@@ -11,9 +15,7 @@ def match_kunaru_ninaru(tokens):
             continue
         pos = before['pos']
         if (pos[:1] == ['形容詞'] and before['surface'].endswith('く')
-                and len(pos) >= 6 and pos[5].startswith('連用形')):
-            start = i - 1
-        elif (before['surface'] == 'に' and before['lemma'] in ('に', 'だ')
+                and len(pos) >= 6 and pos[5].startswith('連用形')) or (before['surface'] == 'に' and before['lemma'] in ('に', 'だ')
               and before['pos'][:1] in (['助詞'], ['助動詞']) and i >= 2
               and adjacent(tokens[i - 2], before)
               and tokens[i - 2]['pos'][:1] in (['名詞'], ['形状詞'])

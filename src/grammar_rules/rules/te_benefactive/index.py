@@ -1,7 +1,13 @@
 """Source-aligned benefactive auxiliaries after a verb's te-form."""
 TE_BENEFACTIVE_EXPRESSION = '〜てあげる / 〜てくれる / 〜てもらう'
 from src.grammar_rules.base import GrammarRule
-from src.grammar_rules.helpers import adjacent, next_matches, polite_suffix_end, negative_suffix_end, positive_verb_end
+from src.grammar_rules.helpers import (
+    adjacent,
+    negative_suffix_end,
+    next_matches,
+    polite_suffix_end,
+    positive_verb_end,
+)
 
 
 def match_te_benefactive(tokens):

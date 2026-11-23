@@ -28,7 +28,7 @@ def main():
     sys.stdout.flush()
     sys.stderr.flush()
     saved = [os.dup(1), os.dup(2)]
-    sink = tempfile.TemporaryFile(mode="w+b")
+    sink = tempfile.TemporaryFile(mode="w+b")  # noqa: SIM115 - Closed after descriptors are restored.
     os.dup2(sink.fileno(), 1)
     os.dup2(sink.fileno(), 2)
     exit_code = None
