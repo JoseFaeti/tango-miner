@@ -4,8 +4,8 @@ from src.Artifact import Artifact
 from src.Grammar import ExcludeGrammarTokensStep, GrammarStep
 from src.grammar_rules.alignment import aligned_tokens
 from src.grammar_rules.rules.mademonai.index import RULE as GENERAL_RULE
-from src.grammar_rules.rules.toiumademonai.index import RULE, match_toiumademonai
 from src.grammar_rules.rules.te_iru.test_index import sentence, tok
+from src.grammar_rules.rules.toiumademonai.index import RULE, match_toiumademonai
 
 
 class ToiumademonaiTests(unittest.TestCase):
@@ -51,7 +51,7 @@ class ToiumademonaiTests(unittest.TestCase):
         self.assertEqual(words[RULE.expression].frequency, 1)
         self.assertEqual(words[GENERAL_RULE.expression].frequency, 1)
         self.assertEqual(stage.occurrences[RULE.id].examples[0].surface_form, 'と言うまでもない')
-        from src.GrammarConstants import GRAMMAR_EXPRESSIONS
         from src.grammar_rules.registry import RULES
+        from src.GrammarConstants import GRAMMAR_EXPRESSIONS
         self.assertIn(RULE.expression, GRAMMAR_EXPRESSIONS)
         self.assertIn(RULE, RULES)

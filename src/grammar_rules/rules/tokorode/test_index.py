@@ -5,8 +5,8 @@ from src.Grammar import ExcludeGrammarTokensStep, GrammarStep
 from src.grammar_rules.alignment import aligned_tokens
 from src.grammar_rules.registry import RULES
 from src.grammar_rules.rules.tatokoro.index import RULE as TATOKORO
-from src.grammar_rules.rules.tokorode.index import RULE, match_tokorode
 from src.grammar_rules.rules.te_iru.test_index import sentence, tok
+from src.grammar_rules.rules.tokorode.index import RULE, match_tokorode
 
 
 class TokorodeTests(unittest.TestCase):

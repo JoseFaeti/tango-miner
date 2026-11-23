@@ -1,6 +1,11 @@
 """Completion or inability to complete a continuative verb."""
 from src.grammar_rules.base import GrammarRule
-from src.grammar_rules.helpers import adjacent, next_matches, negative_suffix_end, polite_suffix_end
+from src.grammar_rules.helpers import (
+    adjacent,
+    negative_suffix_end,
+    next_matches,
+    polite_suffix_end,
+)
 
 KIRU_KIRENAI_EXPRESSION = '〜きる / 〜きれない'
 

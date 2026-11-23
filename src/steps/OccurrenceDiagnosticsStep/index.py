@@ -4,9 +4,9 @@ from dataclasses import asdict
 from pathlib import Path
 
 from src.PipelineStep import PipelineStep
-from src.TokenProvenance import token_components
-from src.steps.TokenizeStep.index import is_useless
 from src.steps.ProcessingStep.index import ProcessingStep
+from src.steps.TokenizeStep.index import is_useless
+from src.TokenProvenance import token_components
 
 PROGRESS_INTERVAL = 2000
 

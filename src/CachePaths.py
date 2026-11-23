@@ -1,6 +1,8 @@
+# ruff: noqa: N999 -- Preserve established public module names.
 """Shared location for application cache files."""
 
 from pathlib import Path
+
 import appdirs
 
 CACHE_DIR = Path(appdirs.user_cache_dir("tango_miner"))

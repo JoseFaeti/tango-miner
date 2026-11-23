@@ -1,4 +1,6 @@
 """Additive だけでなく and its topic-marked and colloquial forms."""
+import itertools
+
 from src.grammar_rules.base import GrammarRule
 from src.grammar_rules.helpers import adjacent
 
@@ -29,7 +31,7 @@ def match_dakedenaku(tokens):
         parts = tokens[i:end + 1]
         if (naku['surface'] == 'なく' and naku['lemma'] == 'ない'
                 and naku['pos'][:1] in (['形容詞'], ['助動詞'])
-                and all(adjacent(a, b) for a, b in zip(parts, parts[1:]))):
+                and all(adjacent(a, b) for a, b in itertools.pairwise(parts))):
             yield dake['span'][0], naku['span'][1]
 
 

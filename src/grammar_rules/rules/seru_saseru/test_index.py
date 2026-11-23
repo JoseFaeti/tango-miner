@@ -1,10 +1,10 @@
 import unittest
 
 from src.Artifact import Artifact
-from src.Grammar import GrammarStep, ExcludeGrammarTokensStep
+from src.Grammar import ExcludeGrammarTokensStep, GrammarStep
 from src.grammar_rules.alignment import aligned_tokens
-from src.grammar_rules.rules.seru_saseru.index import RULE, match_seru_saseru
 from src.grammar_rules.rules.saserareru.index import RULE as PASSIVE
+from src.grammar_rules.rules.seru_saseru.index import RULE, match_seru_saseru
 from src.grammar_rules.rules.te_iru.test_index import sentence, tok
 
 

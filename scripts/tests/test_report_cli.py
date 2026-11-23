@@ -5,8 +5,8 @@ import tempfile
 import unittest
 from pathlib import Path
 
-from src.ReportCLI import query
 from scripts.tests.test_compare_runs import make_run
+from src.ReportCLI import query
 
 
 class ReportCLITests(unittest.TestCase):
@@ -54,8 +54,8 @@ class ReportCLITests(unittest.TestCase):
 
     def test_cli_json_and_error_exit(self):
         cmd = [sys.executable, 'tango_miner.py', 'report', 'performance', '--run', str(self.new), '--regressions', '--json']
-        result = subprocess.run(cmd, capture_output=True, text=True, encoding='utf-8')
+        result = subprocess.run(cmd, capture_output=True, text=True, encoding='utf-8', check=False)
         self.assertEqual(result.returncode, 0, result.stderr)
         self.assertEqual(json.loads(result.stdout)['timings'][0]['stage'], 'MergeTokensStep')
-        result = subprocess.run(cmd[:-3] + ['--run', str(self.new / 'missing')], capture_output=True, text=True)
+        result = subprocess.run(cmd[:-3] + ['--run', str(self.new / 'missing')], capture_output=True, text=True, check=False)
         self.assertNotEqual(result.returncode, 0)

@@ -4,7 +4,8 @@ from src.Artifact import Artifact
 from src.Grammar import ExcludeGrammarTokensStep, GrammarStep
 from src.grammar_rules.alignment import aligned_tokens
 from src.grammar_rules.rules.katoomouto_katoomottara.index import (
-    KATOOMOUTO_KATOOMOTTARA_EXPRESSION, match_katoomouto_katoomottara,
+    KATOOMOUTO_KATOOMOTTARA_EXPRESSION,
+    match_katoomouto_katoomottara,
 )
 from src.grammar_rules.rules.te_iru.test_index import sentence, tok
 

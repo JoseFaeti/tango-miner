@@ -2,7 +2,6 @@
 from src.grammar_rules.base import GrammarRule
 from src.grammar_rules.helpers import adjacent, negative_predicate_end, next_matches
 
-
 HOKANAI_SHIKANAI_EXPRESSION = '〜ほかない / 〜しかない'
 
 

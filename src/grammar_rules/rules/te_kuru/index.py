@@ -1,8 +1,13 @@
 """Source-aligned verb て-form + くる construction."""
 TE_KURU_GRAMMAR_EXPRESSION = '〜てくる'
 from src.grammar_rules.base import GrammarRule
-from src.grammar_rules.helpers import polite_suffix_end, adjacent, next_matches, negative_predicate_end, positive_verb_end
-
+from src.grammar_rules.helpers import (
+    adjacent,
+    negative_predicate_end,
+    next_matches,
+    polite_suffix_end,
+    positive_verb_end,
+)
 
 RULE = GrammarRule(order=156,
     id='te_kuru', expression=TE_KURU_GRAMMAR_EXPRESSION, reading='てくる',
@@ -33,9 +38,7 @@ def match_te_kuru(tokens):
             if end is None:
                 continue
         elif surface in ('き', '来') and not next_matches(tokens, end, 'ない', '助動詞'):
-            if next_matches(tokens, end, 'た', '助動詞'):
-                end += 1
-            elif next_matches(tokens, end, 'て', '助詞', 'て'):
+            if next_matches(tokens, end, 'た', '助動詞') or next_matches(tokens, end, 'て', '助詞', 'て'):
                 end += 1
             elif next_matches(tokens, end, 'ます', '助動詞'):
                 end += 1

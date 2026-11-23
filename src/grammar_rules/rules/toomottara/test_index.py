@@ -3,9 +3,9 @@ import unittest
 from src.Artifact import Artifact
 from src.Grammar import ExcludeGrammarTokensStep, GrammarStep
 from src.grammar_rules.alignment import aligned_tokens
-from src.grammar_rules.rules.toomottara.index import EXPRESSION, RULE, match_toomottara
 from src.grammar_rules.rules.katoomouto_katoomottara.index import RULE as KA_RULE
 from src.grammar_rules.rules.te_iru.test_index import sentence, tok
+from src.grammar_rules.rules.toomottara.index import EXPRESSION, RULE, match_toomottara
 
 
 class ToomottaraTests(unittest.TestCase):

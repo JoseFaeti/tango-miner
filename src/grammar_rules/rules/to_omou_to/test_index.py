@@ -3,8 +3,8 @@ import unittest
 from src.Artifact import Artifact
 from src.Grammar import ExcludeGrammarTokensStep, GrammarStep
 from src.grammar_rules.alignment import aligned_tokens
-from src.grammar_rules.rules.to_omou_to.index import RULE, match_to_omou_to
 from src.grammar_rules.rules.te_iru.test_index import sentence, tok
+from src.grammar_rules.rules.to_omou_to.index import RULE, match_to_omou_to
 
 
 class ToOmouToTests(unittest.TestCase):

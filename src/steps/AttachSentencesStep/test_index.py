@@ -1,10 +1,8 @@
 import unittest
 from pathlib import Path
 
-from src.SegmentedSentence import SegmentedSentence
-from src.TokenProvenance import TokenComponent
-from src.WordStats import Sentence
 from src.RunConfig import SentencesConfig
+from src.SegmentedSentence import SegmentedSentence
 from src.steps.AttachSentencesStep.index import (
     MAX_SENTENCES,
     _percentile,
@@ -13,7 +11,7 @@ from src.steps.AttachSentencesStep.index import (
     _sentence_quality_penalty_fast,
     attach_sentences,
 )
-
+from src.TokenProvenance import TokenComponent
 from tests.helpers import make_stats
 
 
@@ -75,8 +73,8 @@ class AttachSentencesStepTests(unittest.TestCase):
         self.assertEqual(words['猫'].sentences[1].text, '猫。')
 
     def test_short_source_can_support_a_selected_definition(self):
-        from src.steps.TokenizeStep.index import tokenize
         from src.steps.AddDefinitionsStep.index import add_and_filter_for_definitions
+        from src.steps.TokenizeStep.index import tokenize
         words, sentences = tokenize(['できた！'])
         stats = words['できた']
         add_and_filter_for_definitions({'できた': stats}, lambda *args: None, None)
@@ -86,8 +84,8 @@ class AttachSentencesStepTests(unittest.TestCase):
         self.assertFalse(stats.needs_review)
 
     def test_only_conflicting_source_example_is_attached_for_review(self):
-        from src.steps.TokenizeStep.index import tokenize
         from src.steps.AddDefinitionsStep.index import add_and_filter_for_definitions
+        from src.steps.TokenizeStep.index import tokenize
         words, sentences = tokenize(['彼はできた人だ。', 'できた作品を見せてください。'])
         stats = words['できた']
         add_and_filter_for_definitions({'できた': stats}, lambda *args: None, None)

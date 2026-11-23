@@ -1,9 +1,13 @@
 import unittest
 
 from src.Artifact import Artifact
-from src.Grammar import GrammarStep, ExcludeGrammarTokensStep
+from src.Grammar import ExcludeGrammarTokensStep, GrammarStep
 from src.grammar_rules.alignment import aligned_tokens
-from src.grammar_rules.rules.mononara.index import MONONARA_EXPRESSION, RULE, match_mononara
+from src.grammar_rules.rules.mononara.index import (
+    MONONARA_EXPRESSION,
+    RULE,
+    match_mononara,
+)
 from src.grammar_rules.rules.nara.index import RULE as NARA_RULE
 from src.grammar_rules.rules.te_iru.test_index import sentence, tok
 

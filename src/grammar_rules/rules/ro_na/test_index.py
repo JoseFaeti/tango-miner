@@ -3,8 +3,8 @@ import unittest
 from src.Artifact import Artifact
 from src.Grammar import ExcludeGrammarTokensStep, GrammarStep
 from src.grammar_rules.alignment import aligned_tokens
-from src.grammar_rules.rules.ro_na.index import RULE, match_ro_na
 from src.grammar_rules.rules.na.index import RULE as NA_RULE
+from src.grammar_rules.rules.ro_na.index import RULE, match_ro_na
 from src.grammar_rules.rules.te_iru.test_index import sentence, tok
 
 

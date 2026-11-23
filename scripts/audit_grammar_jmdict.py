@@ -1,10 +1,10 @@
 """List exact JMdict matches for registered grammar forms for manual review."""
 import argparse
 import json
-from pathlib import Path
 import sys
 import tomllib
 import xml.etree.ElementTree as ET
+from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(ROOT))

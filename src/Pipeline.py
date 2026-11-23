@@ -1,7 +1,9 @@
+# ruff: noqa: N999 -- Preserve established public module names.
 import time
-from src.Parallel import ParallelPool
-from typing import Iterable, Any, List
+from collections.abc import Iterable
+from typing import Any
 
+from src.Parallel import ParallelPool
 from src.PipelineStep import PipelineStep, ProgressEvent
 
 
@@ -12,7 +14,7 @@ class Pipeline:
         self.workers = workers
         self.profiling = profiling
         self.performance = {}
-        self.steps: List[PipelineStep] = list(steps)
+        self.steps: list[PipelineStep] = list(steps)
         self.on_progress = on_progress
         self.cache = cache
         self.on_stage_record = on_stage_record

@@ -1,11 +1,11 @@
 import unittest
 
-from src.Grammar import GrammarStep
 from src.Artifact import Artifact
-from src.GrammarConstants import DAROU_DESHOU_EXPRESSION
+from src.Grammar import GrammarStep
 from src.grammar_rules.alignment import aligned_tokens
 from src.grammar_rules.rules.darou_deshou.index import match_darou_deshou
 from src.grammar_rules.rules.te_iru.test_index import sentence, tok
+from src.GrammarConstants import DAROU_DESHOU_EXPRESSION
 
 
 class DarouDeshouTests(unittest.TestCase):

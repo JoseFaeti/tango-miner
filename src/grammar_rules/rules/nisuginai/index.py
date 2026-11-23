@@ -1,6 +1,11 @@
 """Limitation expressed by にすぎない."""
 from src.grammar_rules.base import GrammarRule
-from src.grammar_rules.helpers import adjacent, next_matches, negative_suffix_end, polite_suffix_end
+from src.grammar_rules.helpers import (
+    adjacent,
+    negative_suffix_end,
+    next_matches,
+    polite_suffix_end,
+)
 
 NISUGINAI_EXPRESSION = '〜にすぎない'
 
@@ -17,9 +22,9 @@ def match_nisuginai(tokens):
                 or sugi['pos'][:1] != ['動詞']):
             continue
         end = negative_suffix_end(tokens, i + 2, pos='助動詞', conditional=True)
-        if suffix['surface'] == 'なく' and suffix['lemma'] == 'ない':
-            if next_matches(tokens, i + 2, 'て', '助詞', 'て'):
-                end = i + 3
+        if suffix['surface'] == 'なく' and suffix['lemma'] == 'ない' and \
+                next_matches(tokens, i + 2, 'て', '助詞', 'て'):
+            end = i + 3
         if suffix['lemma'] == 'ます':
             end = polite_suffix_end(tokens, i + 2, forms=('negative',))
         if end is not None:

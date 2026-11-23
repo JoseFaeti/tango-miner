@@ -2,10 +2,10 @@ import unittest
 
 from src.Artifact import Artifact
 from src.Grammar import GrammarStep
-from src.GrammarConstants import MONO_MON_EXPRESSION
 from src.grammar_rules.alignment import aligned_tokens
 from src.grammar_rules.rules.mono_mon.index import match_mono_mon
 from src.grammar_rules.rules.te_iru.test_index import sentence, tok
+from src.GrammarConstants import MONO_MON_EXPRESSION
 
 
 class MonoMonTests(unittest.TestCase):

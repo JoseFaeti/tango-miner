@@ -1,10 +1,9 @@
 """Sentence-final elliptical verbal obligations."""
-from functools import lru_cache
+from functools import cache
 
 ELLIPTICAL_OBLIGATION_EXPRESSION = '〜ないと / 〜なくちゃ / 〜なきゃ'
 from src.grammar_rules.base import GrammarRule
 from src.grammar_rules.helpers import adjacent
-
 
 _FORMS = frozenset(('ないと', 'なくちゃ', 'なきゃ'))
 _FINAL_PARTICLES = frozenset(('ね', 'な', 'よ', 'わ', 'ぞ', 'さ'))
@@ -25,7 +24,7 @@ def _at_utterance_end(tokens, index):
     return True
 
 
-@lru_cache(maxsize=None)
+@cache
 def _prefixes(forms):
     return frozenset(form[:i] for form in forms for i in range(1, len(form) + 1))
 

@@ -45,7 +45,7 @@ class KotoWaNaiTests(unittest.TestCase):
         stage.add_cards(words)
         self.assertIn('する', words)
         self.assertEqual(words[RULE.expression].frequency, 1)
-        from src.GrammarConstants import GRAMMAR_EXPRESSIONS
         from src.grammar_rules.registry import RULES
+        from src.GrammarConstants import GRAMMAR_EXPRESSIONS
         self.assertIn(RULE.expression, GRAMMAR_EXPRESSIONS)
         self.assertIn(RULE, RULES)

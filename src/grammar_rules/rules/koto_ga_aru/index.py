@@ -1,8 +1,12 @@
 """Past experience expressed by a verb + たことがある."""
 KOTO_GA_ARU_EXPERIENCE = '〜たことがある'
 from src.grammar_rules.base import GrammarRule
-from src.grammar_rules.helpers import adjacent, next_matches, positive_verb_end, negative_predicate_end
-
+from src.grammar_rules.helpers import (
+    adjacent,
+    negative_predicate_end,
+    next_matches,
+    positive_verb_end,
+)
 
 RULE = GrammarRule(order=152,
     id='koto_ga_aru_experience', expression=KOTO_GA_ARU_EXPERIENCE,

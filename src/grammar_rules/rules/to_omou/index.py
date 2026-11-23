@@ -1,7 +1,12 @@
 """Predicate quotation followed by an inflected form of 思う."""
 TO_OMOU_GRAMMAR_EXPRESSION = '〜と思う'
 from src.grammar_rules.base import GrammarRule
-from src.grammar_rules.helpers import adjacent, next_matches, positive_verb_end, negative_suffix_end
+from src.grammar_rules.helpers import (
+    adjacent,
+    negative_suffix_end,
+    next_matches,
+    positive_verb_end,
+)
 
 
 def _match_to_omou(tokens, *, intention):

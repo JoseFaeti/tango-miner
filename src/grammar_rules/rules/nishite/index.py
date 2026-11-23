@@ -2,7 +2,6 @@
 from src.grammar_rules.base import GrammarRule
 from src.grammar_rules.helpers import adjacent
 
-
 NISHITE_EXPRESSION = '〜にして'
 _TIME_WORDS = {'時', '歳', '才', '年', '日', '月', '週', '時間', '分', '秒',
                '瞬間', '一瞬', '初めて', 'はじめて', '頃', 'ころ'}

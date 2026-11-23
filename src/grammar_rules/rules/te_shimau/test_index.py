@@ -1,13 +1,13 @@
 import unittest
 
 from src.Artifact import Artifact
-from src.Grammar import GrammarStep, ExcludeGrammarTokensStep
+from src.Grammar import ExcludeGrammarTokensStep, GrammarStep
+from src.grammar_rules.alignment import aligned_tokens
+from src.grammar_rules.rules.te_iru.test_index import sentence, tok
 from src.grammar_rules.rules.te_shimau.index import RULE, match_te_shimau
 from src.GrammarConstants import TE_SHIMAU_GRAMMAR_EXPRESSION as EXPRESSION
-from src.grammar_rules.alignment import aligned_tokens
 from src.steps.AddWordsToAnkiStep.index import export_words_to_anki
 from src.steps.AddWordsToAnkiStep.test_index import note
-from src.grammar_rules.rules.te_iru.test_index import sentence, tok
 
 
 class TeShimauTests(unittest.TestCase):

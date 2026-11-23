@@ -2,11 +2,11 @@ import unittest
 
 from src.Artifact import Artifact
 from src.Grammar import ExcludeGrammarTokensStep, GrammarStep
-from src.GrammarConstants import HOSHII_GRAMMAR_EXPRESSION as EXPRESSION
 from src.grammar_rules.alignment import aligned_tokens
 from src.grammar_rules.rules.hoshii.index import match_hoshii
 from src.grammar_rules.rules.te_hoshii.test_index import TeHoshiiTests
 from src.grammar_rules.rules.te_iru.test_index import sentence, tok
+from src.GrammarConstants import HOSHII_GRAMMAR_EXPRESSION as EXPRESSION
 
 
 class HoshiiTests(unittest.TestCase):

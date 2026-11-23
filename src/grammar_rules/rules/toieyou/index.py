@@ -1,10 +1,12 @@
 """Tentative assertion with と言えよう."""
+import itertools
+
 from src.grammar_rules.base import GrammarRule
 from src.grammar_rules.helpers import adjacent
 
 
 def match_toieyou(tokens):
-    for to, verb in zip(tokens, tokens[1:]):
+    for to, verb in itertools.pairwise(tokens):
         if (to['surface'] == 'と' and to['pos'][:2] == ['助詞', '格助詞']
                 and verb['surface'] in ('言えよう', 'いえよう')
                 and verb['lemma'] in ('言える', 'いえる')

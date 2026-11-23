@@ -1,14 +1,14 @@
 """Inspect JMdict and Sudachi coverage of UTF-8 expression candidates."""
 import argparse
 import json
-from pathlib import Path
 import sys
+from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
+from src.Expressions import inventory
 from src.steps.MergeTokensStep.index import get_jmdict
 from src.steps.TokenizeStep.index import tokenize_raw_sentences
-from src.Expressions import inventory
 
 
 def inspect(expressions, dictionary_path=None):
@@ -18,9 +18,6 @@ def inspect(expressions, dictionary_path=None):
     return [
         {'expression': sentence.text,
          'jmdict': bool(dictionary.lookup_word(sentence.text)),
-         'reading': ''.join(token['reading'] for token in sentence.tokens),
-         'reading_in_jmdict': bool(dictionary.lookup_word(
-             ''.join(token['reading'] for token in sentence.tokens))),
          'reading': ''.join(token['reading'] for token in sentence.tokens),
          'reading_in_jmdict': bool(dictionary.lookup_word(
              ''.join(token['reading'] for token in sentence.tokens))),

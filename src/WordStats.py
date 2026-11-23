@@ -1,6 +1,8 @@
+# ruff: noqa: N999 -- Preserve established public module names.
 import re
 from dataclasses import dataclass, field
 from html import escape
+
 from src.TokenProvenance import TokenComponent
 
 

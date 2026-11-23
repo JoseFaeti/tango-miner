@@ -3,8 +3,8 @@ from unittest.mock import patch
 
 from src.GrammarConstants import GRAMMAR_EXPRESSIONS, LEGACY_GRAMMAR_EXPRESSIONS
 from src.steps.AddWordsToAnkiStep.index import export_words_to_anki
-from tests.helpers import make_stats
 from src.steps.AddWordsToAnkiStep.test_index import note
+from tests.helpers import make_stats
 
 
 class GrammarIdentityMigrationTests(unittest.TestCase):

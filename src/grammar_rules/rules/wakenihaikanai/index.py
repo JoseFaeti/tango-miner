@@ -3,7 +3,6 @@ WAKENIHAIKANAI_EXPRESSION = '〜わけにはいかない'
 from src.grammar_rules.base import GrammarRule
 from src.grammar_rules.helpers import adjacent
 
-
 _FORMS = frozenset(wake + particle + ending
                    for wake in ('わけ', '訳') for particle in ('には', 'に')
                    for ending in ('いかない', 'いかなかった', 'いきません', 'いきませんでした',

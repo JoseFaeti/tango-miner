@@ -1,7 +1,12 @@
 """Standalone existence predicates following a subject, topic or location marker."""
 ARU_IRU_EXPRESSION = 'ある / いる'
 from src.grammar_rules.base import GrammarRule
-from src.grammar_rules.helpers import adjacent, next_matches, negative_suffix_end, polite_suffix_end
+from src.grammar_rules.helpers import (
+    adjacent,
+    negative_suffix_end,
+    next_matches,
+    polite_suffix_end,
+)
 from src.grammar_rules.rules.niatsute.index import is_misfortune_au
 
 

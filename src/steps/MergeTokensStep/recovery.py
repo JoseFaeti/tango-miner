@@ -398,7 +398,7 @@ def _repair_kigahen_boundaries(token_list: list[dict], jmdict) -> list[dict]:
                 and ((parts[2]['lemma'] == 'た' and parts[2]['pos'][0] == '助動詞')
                      or (parts[2]['surface'] == 'て' and parts[2]['pos'][0] == '助詞'))
                 and jmdict.lookup_word('変わる')):
-            from src.steps.TokenizeStep.index import get_tokenizer, TOKENIZER_MODE
+            from src.steps.TokenizeStep.index import TOKENIZER_MODE, get_tokenizer
             nodes = get_tokenizer().tokenize('変わっ' + parts[2]['surface'], TOKENIZER_MODE)
             if (nodes and nodes[0].surface() == '変わっ'
                     and nodes[0].dictionary_form() == '変わる'
@@ -473,7 +473,7 @@ def _repair_imperative(token_list: list[dict], index: int, jmdict) -> dict:
             or token_list[index + 1]["surface"] not in {"。", "！", "!", "？", "?", "、", "…", "って"}
             or jmdict.lookup_word(lemma)):
         return token
-    from src.steps.TokenizeStep.index import get_tokenizer, TOKENIZER_MODE, kata_to_hira
+    from src.steps.TokenizeStep.index import TOKENIZER_MODE, get_tokenizer, kata_to_hira
     nodes = get_tokenizer().tokenize(lemma, TOKENIZER_MODE)
     if len(nodes) != 1 or nodes[0].dictionary_form() != lemma:
         return token

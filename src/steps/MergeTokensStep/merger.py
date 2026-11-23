@@ -3,23 +3,23 @@
 from src.JMDict import JMDict
 from src.TokenProvenance import token_components
 
-from .helpers import (
-    _has_useful_kana_only_sense,
-    _is_prefixed_kana_noun,
-    _is_split_kana_noun,
-    _is_contracted_kana_verb,
-    _is_noun_arige,
-    has_kanji,
-    is_dictionary_expression,
-)
 from .grammar_guards import (
     _crosses_incompatible_grammar,
-    _is_past_predicate_misread_as_expression,
-    _is_particle_boundary_misread,
-    _is_inflection_misread_as_noun,
     _is_auxiliary_oru_misread,
+    _is_inflection_misread_as_noun,
     _is_kigakawatta_predicate,
+    _is_particle_boundary_misread,
+    _is_past_predicate_misread_as_expression,
     _is_prenominal_entry_in_past_predicate,
+)
+from .helpers import (
+    _has_useful_kana_only_sense,
+    _is_contracted_kana_verb,
+    _is_noun_arige,
+    _is_prefixed_kana_noun,
+    _is_split_kana_noun,
+    has_kanji,
+    is_dictionary_expression,
 )
 from .recovery import prepare_tokens
 
@@ -420,6 +420,25 @@ def _merge_me_wo_tsuburu(parts, jmdict):
     }
 
 
+def _merge_hitsuyou_to_suru(parts, jmdict):
+    noun, particle, verb = parts
+    if not (noun['surface'] == noun['lemma'] == '必要'
+            and particle['surface'] == 'と' and particle['pos'][0] == '助詞'
+            and verb['lemma'] == 'する' and verb['pos'][0] == '動詞'):
+        return None
+    word = '必要とする'
+    entry = jmdict.get_best_entry(word) if jmdict.lookup_word(word) else None
+    if not is_dictionary_expression(entry):
+        return None
+    return {
+        'surface': ''.join(t['surface'] for t in parts),
+        'lemma': word, 'base_form': word, 'reading': jmdict.get_reading(entry, word),
+        'pos': ['exp', '*', '*', '*', '*', '*'], 'dictionary_expression': True,
+        'analysis_rule': 'jmdict_hitsuyou_to_suru',
+        'components': tuple(c for token in parts for c in token_components(token)),
+    }
+
+
 def _merge_nemuri_ni_tsuku(parts, jmdict):
     noun, particle, verb = parts
     if not (noun['surface'] == noun['lemma'] == '眠り'
@@ -628,6 +647,7 @@ def combine_tokens_jmdict(
                          or _merge_me_wo_tsuburu(token_list[i:i + 3], jmdict)
                          or _merge_me_wo_samasu(token_list[i:i + 3], jmdict)
                          or _merge_mi_wo_kawasu(token_list[i:i + 3], jmdict)
+                         or _merge_hitsuyou_to_suru(token_list[i:i + 3], jmdict)
                          or _merge_nemuri_ni_tsuku(token_list[i:i + 3], jmdict)
                          or _merge_pinto_kuru(token_list[i:i + 3], jmdict))
             if candidate is not None:

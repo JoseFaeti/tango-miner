@@ -2,16 +2,16 @@
 import argparse
 import cProfile
 import csv
-from dataclasses import asdict, is_dataclass
 import hashlib
 import json
-from pathlib import Path
 import sys
+from dataclasses import asdict, is_dataclass
+from pathlib import Path
 from time import perf_counter
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 from src.Artifact import Artifact
-from src.Grammar import GrammarStep, ExcludeGrammarTokensStep
+from src.Grammar import ExcludeGrammarTokensStep, GrammarStep
 from src.steps.MergeTokensStep.index import combine_tokens_jmdict, get_jmdict
 from src.steps.TokenizeStep.index import tokenize_raw_sentences
 

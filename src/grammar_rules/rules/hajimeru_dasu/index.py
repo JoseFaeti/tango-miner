@@ -1,7 +1,12 @@
 """Beginning expressed by a verb compound with 始める or 出す."""
 HAJIMERU_DASU_EXPRESSION = '〜始める / 〜出す'
 from src.grammar_rules.base import GrammarRule
-from src.grammar_rules.helpers import adjacent, next_matches, negative_suffix_end, polite_suffix_end
+from src.grammar_rules.helpers import (
+    adjacent,
+    negative_suffix_end,
+    next_matches,
+    polite_suffix_end,
+)
 
 
 def match_hajimeru_dasu(tokens):

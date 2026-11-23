@@ -1,6 +1,5 @@
 import csv
 import json
-
 from pathlib import Path
 
 from src.Artifact import Artifact
@@ -61,8 +60,7 @@ def write_final_file(input, output_file, progress_handler=None):
         normal_writer = csv.writer(outfile)
         drop_writer = csv.writer(dropfile)
 
-        for word in sorted_words_by_score:
-            word_data = sorted_words_by_score[word]
+        for word, word_data in sorted_words_by_score.items():
 
             writer = drop_writer if word_data.invalid or word_data.needs_review else normal_writer
 
