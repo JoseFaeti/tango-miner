@@ -21,7 +21,6 @@ ambiguity and recall before implementing a rule.
 
 ## Formal and literary candidates
 
-- [ ] [〜につきましては](points/nitsukimashiteha.md)
 - [ ] [〜につけては](points/nitsuketeha.md)
 - [ ] [〜に関し](points/nikanshi.md)
 - [ ] [〜に関しては](points/nikanshiteha.md)

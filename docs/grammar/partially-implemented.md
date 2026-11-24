@@ -1,5 +1,7 @@
 # Partially implemented grammar points
 
+- [~] [〜につきましては](points/nitsukimashiteha.md)
+
 - [~] [〜につき](points/nitsuki.md)
 
 - [~] [〜に伴う](points/nitomonau.md)
