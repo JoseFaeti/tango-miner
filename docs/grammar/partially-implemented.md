@@ -1,5 +1,6 @@
 # Partially implemented grammar points
 
+- [~] [〜に従う](points/nishitagau.md)
 - [~] [〜にしたがい](points/nishitagai.md)
 
 - [~] [〜に対しては](points/nitaishiteha.md)
