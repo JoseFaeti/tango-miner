@@ -816,6 +816,7 @@
 
 - [~] [〜に関し](points/nikanshi.md)
 - [~] [〜に関して / 〜に関する](points/nikanshite-nikansuru.md)
+- [~] [〜に関しては](points/nikanshiteha.md)
 
 - [~] [〜によると / 〜によれば](points/niyoruto-niyoreba.md)
 
