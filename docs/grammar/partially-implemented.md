@@ -3,6 +3,7 @@
 - [~] [〜に応える](points/nikotaeru-99ed4374.md)
 
 - [~] [〜に応えて](points/nikotaete.md)
+- [~] [〜にこたえて](points/nikotaete-c1a6fb62.md)
 
 - [~] [〜に従う](points/nishitagau.md)
 - [~] [〜にしたがい](points/nishitagai.md)

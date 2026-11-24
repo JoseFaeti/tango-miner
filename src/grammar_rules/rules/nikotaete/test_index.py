@@ -19,6 +19,12 @@ class NikotaeteTests(unittest.TestCase):
         cases = {'需要に応えて変える。': 'に応えて',
                  'それに応えて決める。': 'に応えて',
                  '状況にこたえて変える。': 'にこたえて',
+                 '要望にこたえて開催する。': 'にこたえて',
+                 '期待にこたえまして努力する。': 'にこたえまして',
+                 'それにこたえて働く。': 'にこたえて',
+                 '期待にこたえる。': None,
+                 '期待にこたえた成果。': None,
+                 '期待に こたえて働く。': None,
                  '状況に応えまして変える。': 'に応えまして',
                  '声に応えて答える。': 'に応えて',
                  '要求に応える。': None, '状況に応えた対応。': None,
@@ -56,3 +62,27 @@ class NikotaeteTests(unittest.TestCase):
         self.assertIn(RULE, RULES)
         self.assertIn(RULE.expression, GRAMMAR_EXPRESSIONS)
         self.assertEqual(LEGACY_GRAMMAR_EXPRESSIONS[RULE.expression + ' (grammar)'], RULE.expression)
+
+    def test_kana_forms_share_one_card_and_preserve_nouns(self):
+        stage = GrammarStep()
+        sources = []
+        for surface, verb, tail in [('にこたえて', 'こたえ', ['て']),
+                                    ('にこたえまして', 'こたえ', ['まし', 'て']),
+                                    ('に応えて', '応え', ['て'])]:
+            source = sentence('期待' + surface + '価格を調整します。', [
+                tok('期待', '期待', ('名詞',)), tok('に', 'に', ('助詞',)),
+                tok(verb, 'こたえる' if verb == 'こたえ' else '応える', ('動詞',)),
+                *[tok(t, 'ます' if t == 'まし' else t,
+                      ('助動詞',) if t == 'まし' else ('助詞',)) for t in tail],
+                tok('価格を調整します。', '価格', ('名詞',))])
+            sources.append(source)
+        data = ExcludeGrammarTokensStep(stage).process(stage.process(Artifact(sources)))
+        for source, surface in zip(data.data, ['にこたえて', 'にこたえまして', 'に応えて']):
+            self.assertEqual(''.join(t['surface'] for t in source.tokens
+                                     if t.get('grammar_reserved')), surface)
+            self.assertFalse(source.tokens[0].get('grammar_reserved'))
+        words = {'期待': object()}
+        stage.add_cards(words)
+        self.assertEqual(set(words), {'期待', RULE.expression})
+        self.assertEqual({s.surface_form for s in words[RULE.expression].sentences},
+                         {'にこたえて', 'にこたえまして', 'に応えて'})

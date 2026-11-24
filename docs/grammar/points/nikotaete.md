@@ -24,5 +24,6 @@ Kana spelling is ambiguous: physical effects such as 暑さが身にこたえて
 match. No semantic noun whitelist is imposed. Written 答えて (answer a question)
 and 応じて belong to other lexical or grammar readings and do not match.
 Finite に応える and attributive に応えた are outside this rule's scope.
-The separate kana backlog entry overlaps this coverage; consolidation and
-other tokenizations remain unverified.
+The [kana specification](nikotaete-c1a6fb62.md) shares this rule and card identity.
+Tests also verify polite にこたえまして and a single card retaining both kana
+and kanji example surfaces. Other tokenizations remain unverified.
