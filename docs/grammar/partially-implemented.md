@@ -223,6 +223,7 @@
 - [~] [〜にせよ / 〜にしろ](points/niseyo-nishiro.md)
 
 - [~] [〜につけても](points/nitsuketemo.md)
+- [~] [〜につけては](points/nitsuketeha.md)
 
 - [~] [〜につけ](points/nitsuke.md)
 
