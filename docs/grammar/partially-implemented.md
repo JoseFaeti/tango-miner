@@ -1109,3 +1109,4 @@ indicate measured frequency.
 - [~] [〜をはじめとして](points/ohajimetoshite.md)
 - [~] [〜ものを](points/monoo.md)
 - [~] [〜と思うと](points/toomouto.md)
+- [~] [〜に関しての](points/nikanshiteno.md)
