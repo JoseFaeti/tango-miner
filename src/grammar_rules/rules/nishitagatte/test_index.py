@@ -20,6 +20,18 @@ class NishitagatteTests(unittest.TestCase):
             '年を取るにしたがって変わる。': 'にしたがって',
             '増えるに従って変わる。': 'に従って',
             '規則に従って行う。': 'に従って',
+            '説明書に従って組み立てる。': 'に従って',
+            '指示にしたがって作業する。': 'にしたがって',
+            '人口が増えるに従って住宅も増える。': 'に従って',
+            '規則に従ってはならない。': 'に従って',
+            '彼に従って歩く。': 'に従って',
+            '規則に従う。': None,
+            '規則に従った。': None,
+            '規則に従います。': None,
+            '規則に従わない。': None,
+            '取ったに従って変わる。': None,
+            '規則、に従って行う。': None,
+            '規則に、従って行う。': None,
             '彼にしたがって歩く。': 'にしたがって',
             '規則にしたがい行う。': None,
             '従って行う。': None,
@@ -52,3 +64,23 @@ class NishitagatteTests(unittest.TestCase):
         self.assertIn(RULE, RULES)
         self.assertIn(RULE.expression, GRAMMAR_EXPRESSIONS)
         self.assertEqual(LEGACY_GRAMMAR_EXPRESSIONS[RULE.expression + ' (grammar)'], RULE.expression)
+
+    def test_accordance_reservation_and_shared_card(self):
+        stage = GrammarStep()
+        sources = []
+        for verb, lemma in [('従っ', '従う'), ('したがっ', 'したがう')]:
+            sources.append(sentence(f'規則に{verb}て行う。', [
+                tok('規則', '規則', ('名詞',)), tok('に', 'に', ('助詞',)),
+                tok(verb, lemma, ('動詞',)), tok('て', 'て', ('助詞',)),
+                tok('行う', '行う', ('動詞',)), tok('。', '。', ('補助記号',))]))
+        result = ExcludeGrammarTokensStep(stage).process(stage.process(Artifact(sources)))
+        for source, verb in zip(result.data, ['従っ', 'したがっ']):
+            self.assertEqual([t['surface'] for t in source.tokens
+                              if t.get('grammar_reserved')], ['に', verb, 'て'])
+            self.assertFalse(source.tokens[0].get('grammar_reserved', False))
+        words = {'規則': object()}
+        stage.add_cards(words)
+        self.assertEqual(set(words), {'規則', RULE.expression})
+        self.assertTrue(words[RULE.expression].sentences)
+        self.assertTrue(all(s.surface_form in {'に従って', 'にしたがって'}
+                            for s in words[RULE.expression].sentences))

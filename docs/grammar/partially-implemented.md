@@ -779,6 +779,7 @@
 - [~] [〜に伴って](points/nitomonatsute.md)
 
 - [~] [〜にしたがって](points/nishitagatsute.md)
+- [~] [〜に従って](points/nishitagatsute-782f556c.md)
 
 - [~] [〜につれて](points/nitsurete.md)
 - [~] [〜に連れて](points/nitsurete-ee33e117.md)
