@@ -21,7 +21,6 @@ ambiguity and recall before implementing a rule.
 
 ## Formal and literary candidates
 
-- [ ] [〜に応じた](points/nioujita.md)
 - [ ] [〜にしたがい](points/nishitagai.md)
 - [ ] [〜に従う](points/nishitagau.md)
 - [ ] [〜に連れて](points/nitsurete-ee33e117.md)
