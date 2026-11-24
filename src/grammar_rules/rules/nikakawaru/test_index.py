@@ -18,7 +18,7 @@ class NikakawaruTests(unittest.TestCase):
             self.skipTest(f'Sudachi full dictionary unavailable: {exc}')
         cases = {
             '命に関わる問題だ。': 'に関わる', '仕事に関わった。': 'に関わった',
-            '事件に関わっている。': 'に関わって', '教育にかかわる仕事。': 'にかかわる',
+            '事件に関わっている。': None, '教育にかかわる仕事。': 'にかかわる',
             '年齢に関わらず参加できる。': None, '仕事にも関わった。': None,
             '仕事に 関わる。': None, '事件が関わる。': None,
         }

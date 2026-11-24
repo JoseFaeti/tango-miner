@@ -5,7 +5,7 @@ from src.grammar_rules.helpers import adjacent
 NIKAKAWARU_EXPRESSION = '〜に関わる'
 
 
-def match_nikakawaru(tokens):
+def match_nikakawaru(tokens, *, include_te=False):
     for i in range(1, len(tokens) - 1):
         noun, ni, verb = tokens[i - 1:i + 2]
         if (noun['pos'][:1] not in (['名詞'], ['代名詞'])
@@ -20,7 +20,8 @@ def match_nikakawaru(tokens):
               and i + 2 < len(tokens)):
             suffix = tokens[i + 2]
             if (adjacent(verb, suffix)
-                    and (suffix['surface'], suffix['pos'][0]) in (('た', '助動詞'), ('て', '助詞'))):
+                    and ((suffix['surface'], suffix['pos'][0]) == ('た', '助動詞')
+                         or (include_te and (suffix['surface'], suffix['pos'][0]) == ('て', '助詞')))):
                 yield ni['span'][0], suffix['span'][1]
 
 

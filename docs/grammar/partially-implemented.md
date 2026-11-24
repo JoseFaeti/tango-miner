@@ -401,6 +401,7 @@
 - [~] [〜いかんで / 〜いかんによっては](points/ikande-ikanniyotsuteha.md)
 
 - [~] [〜に関わる](points/nikakawaru.md)
+- [~] [〜にかかわって](points/nikakawatsute.md)
 
 - [~] [〜に基づく](points/nimotozuku.md)
 
