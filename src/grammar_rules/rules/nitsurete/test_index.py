@@ -21,7 +21,14 @@ class NitsureteTests(unittest.TestCase):
             '時代の変化につれて変わる。': 'につれて',
             '増えるにつれて変わる。': 'につれて',
             '子供を学校に連れて行く。': None,
-            '年齢に連れて変わる。': None,
+            '年齢に連れて変わる。': 'に連れて',
+            '増えるに連れて変わる。': 'に連れて',
+            '子供を学校に連れて帰った。': None,
+            '子供を学校に連れて来る。': None,
+            '子供を連れて行く。': None,
+            '増えたに連れて変わる。': None,
+            '増えるに 連れて変わる。': None,
+            '増えるに連れ変わる。': None,
             '子供をつれて行く。': None,
             '年を取るにつれ変わる。': None,
             '年を取るに つれて変わる。': None,
@@ -35,6 +42,20 @@ class NitsureteTests(unittest.TestCase):
                 self.assertIsNone(error)
                 self.assertEqual([text[a:b] for a, b in match_nitsurete(tokens)],
                                  [] if expected is None else [expected])
+
+    def test_kanji_reservation_and_identity(self):
+        source = sentence('増えるに連れて変わる。', [
+            tok('増える', '増える', ('動詞',)), tok('に', 'に', ('助詞',)),
+            tok('連れ', '連れる', ('動詞',)), tok('て', 'て', ('助詞',)),
+            tok('変わる。', '変わる', ('動詞',))])
+        stage = GrammarStep()
+        data = ExcludeGrammarTokensStep(stage).process(stage.process(Artifact([source])))
+        self.assertEqual([t['surface'] for t in data.data[0].tokens if t.get('grammar_reserved')],
+                         ['に', '連れ', 'て'])
+        words = {'増える': object()}
+        stage.add_cards(words)
+        self.assertIn('増える', words)
+        self.assertEqual(words[RULE.expression].sentences[0].surface_form, 'に連れて')
 
     def test_reservation_and_identity(self):
         source = sentence('年を取るにつれて寒くなる。', [
