@@ -795,6 +795,7 @@
 - [~] [〜に沿う](points/nisou.md)
 
 - [~] [〜に応じて](points/nioujite.md)
+- [~] [〜に応じ](points/niouji.md)
 
 - [~] [〜に合わせて](points/niawasete.md)
 
