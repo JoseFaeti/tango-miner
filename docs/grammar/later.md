@@ -21,7 +21,6 @@ ambiguity and recall before implementing a rule.
 
 ## Formal and literary candidates
 
-- [ ] [〜に応えて](points/nikotaete.md)
 - [ ] [〜に応える](points/nikotaeru-99ed4374.md)
 - [ ] [〜にこたえて](points/nikotaete-c1a6fb62.md)
 - [ ] [〜にかかわって](points/nikakawatsute.md)
