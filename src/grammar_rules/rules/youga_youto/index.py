@@ -8,10 +8,17 @@ def match_youga_youto(tokens):
     pairs = [span for particle in ('が', 'と')
              for span in match_paired_alternatives(tokens, particle)]
     for i, verb in enumerate(tokens):
-        if verb['pos'][:1] != ['動詞'] or len(verb['pos']) < 6:
+        # Sudachi sometimes tags しよう as a noun even after an object.
+        object_shiyou = (
+            verb['surface'] == 'しよう' and verb['pos'][:1] == ['名詞']
+            and i > 0 and tokens[i - 1]['surface'] == 'を'
+            and tokens[i - 1]['pos'][:1] == ['助詞']
+            and adjacent(tokens[i - 1], verb)
+        )
+        if not object_shiyou and (verb['pos'][:1] != ['動詞'] or len(verb['pos']) < 6):
             continue
         end = i
-        if not verb['pos'][5].startswith('意志推量形'):
+        if not object_shiyou and not verb['pos'][5].startswith('意志推量形'):
             if (not verb['pos'][5].startswith(('連用形', '未然形'))
                     or i + 1 >= len(tokens) or not adjacent(verb, tokens[i + 1])
                     or tokens[i + 1]['surface'] != 'よう'

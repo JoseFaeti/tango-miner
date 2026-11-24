@@ -13,10 +13,13 @@ Even if; regardless of whether an action occurs.
 ## Tracked scope
 
 Recognizes observed volitional verb forms followed directly by が or と,
-including 降ろうが, 食べようと, 来ようが and しようと. Complete paired
+including 降ろうが, 食べようと, 来ようが and しようと. When Sudachi tags
+しよう as a noun, an immediately preceding object particle を permits recovery
+(e.g. 何をしようが自由だ); isolated しようがない remains excluded. Complete paired
 〜ようが〜まいが and 〜ようと〜まいと matches are left to their own rules.
 The common intention and attempt constructions 〜ようと思う and 〜ようとする
-are excluded. Tests cover single-token and split volitionals, adjacency, and
+are excluded, including inflected attempts such as 来ようとしている. Tests cover
+single-token and split volitionals, adjacency, noun controls such as 日曜と, and
 やくそう followed by と. Sudachi analyzes that noun as volitional やくす in
 the reported unpunctuated sentence; the rule suppresses this analysis after
 なかれ when と is followed immediately by a noun. This narrow context can also
