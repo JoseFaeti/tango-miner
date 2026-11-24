@@ -1,0 +1,63 @@
+import unittest
+
+from src.Artifact import Artifact
+from src.Grammar import ExcludeGrammarTokensStep, GrammarStep
+from src.grammar_rules.alignment import aligned_tokens
+from src.grammar_rules.registry import RULES
+from src.grammar_rules.rules.nishitagai.index import RULE, match_nishitagai
+from src.grammar_rules.rules.te_iru.test_index import sentence, tok
+from src.GrammarConstants import GRAMMAR_EXPRESSIONS, LEGACY_GRAMMAR_EXPRESSIONS
+
+
+class NishitagaiTests(unittest.TestCase):
+    def test_analyzer_forms_and_controls(self):
+        try:
+            from sudachipy import dictionary, tokenizer
+            analyzer = dictionary.Dictionary(config_path='sudachi.config.json', dict='full').create()
+        except (ImportError, OSError, RuntimeError) as exc:
+            self.skipTest(f'Sudachi full dictionary unavailable: {exc}')
+        cases = {
+            '人口の増加に従い住宅が増える。': 'に従い',
+            '年を取るに従い変わる。': 'に従い',
+            '変化にしたがい、増える。': 'にしたがい',
+            '変化に従います。': None,
+            '変化に従って増える。': None,
+            '変化に従う問題。': None,
+            '変化を従い増える。': None,
+            '変化に 従い増える。': None,
+            '従い増える。': None,
+            '規則にしたがい作業する。': 'にしたがい',
+            '彼に従い歩く。': 'に従い',
+            '規則に従いました。': None,
+            '規則に従いたい。': None,
+            '規則に従い。': None,
+            '規則に従い': None,
+            '取ったに従い変わる。': None,
+            '規則、に従い行う。': None,
+            '規則に、従い行う。': None,
+        }
+        for text, expected in cases.items():
+            with self.subTest(text=text):
+                raw = [tok(m.surface(), m.dictionary_form(), m.part_of_speech())
+                       for m in analyzer.tokenize(text, tokenizer.Tokenizer.SplitMode.C)]
+                tokens, error = aligned_tokens(text, raw)
+                self.assertIsNone(error)
+                self.assertEqual([text[a:b] for a, b in match_nishitagai(tokens)],
+                                 [] if expected is None else [expected])
+
+    def test_reservation_and_identity(self):
+        source = sentence('人口の増加に従い変わる。', [
+            tok('人口', '人口', ('名詞',)), tok('の', 'の', ('助詞',)),
+            tok('増加', '増加', ('名詞',)), tok('に', 'に', ('助詞',)),
+            tok('従い', '従う', ('動詞',)), tok('変わる。', '変わる', ('動詞',))])
+        stage = GrammarStep()
+        data = ExcludeGrammarTokensStep(stage).process(stage.process(Artifact([source])))
+        self.assertEqual([t['surface'] for t in data.data[0].tokens if t.get('grammar_reserved')],
+                         ['に', '従い'])
+        words = {'増加': object()}
+        stage.add_cards(words)
+        self.assertIn('増加', words)
+        self.assertEqual(words[RULE.expression].sentences[0].surface_form, 'に従い')
+        self.assertIn(RULE, RULES)
+        self.assertIn(RULE.expression, GRAMMAR_EXPRESSIONS)
+        self.assertEqual(LEGACY_GRAMMAR_EXPRESSIONS[RULE.expression + ' (grammar)'], RULE.expression)
