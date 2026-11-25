@@ -23,9 +23,11 @@ class NashiniNashidehaTests(unittest.TestCase):
             '努力無しに進む。': '無しに',
             '努力なしでは成功しない。': 'なしでは',
             '彼の助けなしでは無理だ。': 'なしでは',
+            '彼なしでは決められない。': 'なしでは',
+            '許可無しでは入れない。': '無しでは',
             '梨に触る。': None, 'なしでは困る。': None,
             '努力 なしに成功する。': None, '努力なし に成功する。': None,
-            '努力なしで成功する。': None,
+            '努力なしで成功する。': None, '努力なしで は成功しない。': None,
         }
         for text, expected in cases.items():
             with self.subTest(text=text):
