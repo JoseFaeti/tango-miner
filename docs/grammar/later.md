@@ -24,5 +24,4 @@ ambiguity and recall before implementing a rule.
 
 ## Formal and literary candidates
 
-- [ ] [〜なくて済む](points/nakutesumu.md)
 - [ ] [〜ないで済む](points/naidesumu-32d3efc4.md)
