@@ -21,7 +21,6 @@ ambiguity and recall before implementing a rule.
 
 ## Formal and literary candidates
 
-- [ ] [〜にかまわず](points/nikamawazu.md)
 - [ ] [〜を構わず](points/okamawazu.md)
 - [ ] [〜を押して](points/ooshite.md)
 - [ ] [〜を押し切って](points/ooshikitsute.md)
