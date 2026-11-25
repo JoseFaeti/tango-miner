@@ -73,6 +73,15 @@ def _is_past_predicate_misread_as_expression(tokens, start, end, entry):
 
 def _is_particle_boundary_misread(tokens, start, end):
     """Keep source-supported case particles distinct from similar expressions."""
+    if end - start < 2:
+        return False
+    first, second = tokens[end - 2:end]
+    # The dedicated rule owns 〜につき, including dictionary 一人につき.
+    # Literal verb continuations must also retain their original components.
+    if (first['surface'] == 'に' and tuple(first['pos'][:2]) == ('助詞', '格助詞')
+            and (second['surface'], second['lemma']) in (('つき', 'つく'), ('付き', '付く'))
+            and second['pos'][0] == '動詞'):
+        return True
     if end - start != 2:
         return False
     first, second = tokens[start:end]
