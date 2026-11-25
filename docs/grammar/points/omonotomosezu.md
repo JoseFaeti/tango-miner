@@ -1,5 +1,8 @@
 # 〜をものともせず
 
+- [Meaning](#meaning)
+- [Supported behavior](#supported-behavior)
+
 Status: [~]
 
 ## Meaning
@@ -15,5 +18,6 @@ and reservation and identity integration. The matcher checks token structure,
 not whether the preceding noun is semantically an obstacle.
 
 Other inflections such as をものともしない and alternative tokenizations are
-not covered. The related backlog point 〜をものともせずに shares this card;
-further source evidence and coverage remain to be assessed.
+not covered. The verified [〜をものともせずに](omonotomosezuni.md) variant shares
+this card. Broader inflection and alternative-tokenization coverage remain
+unimplemented.

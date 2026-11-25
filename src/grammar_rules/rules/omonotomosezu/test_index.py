@@ -17,6 +17,16 @@ class OmonotomosezuTests(unittest.TestCase):
         cases = {
             '困難をものともせず進んだ。': 'をものともせず',
             '雨を物ともせずに走った。': 'を物ともせずに',
+            '困難をものともせずに進んだ。': 'をものともせずに',
+            '周囲の反対をものともせずに、計画を進めた。': 'をものともせずに',
+            '太郎をものともせずに走り続けた。': 'をものともせずに',
+            '困難をものともせずにはいられない。': 'をものともせずに',
+            '困難をものともせず、進んだ。': 'をものともせず',
+            'をものともせずに進んだ。': None,
+            '困難にもめげずに進んだ。': None,
+            '困難をものとして考えた。': None,
+            '困難をものともせず。に進んだ。': 'をものともせず',
+            '困難をものともせず に進んだ。': 'をものともせず',
             '困難をものともしない。': None,
             '物ともせずに進んだ。': None,
             '本をものともせずに置いた。': 'をものともせずに',
@@ -47,3 +57,29 @@ class OmonotomosezuTests(unittest.TestCase):
         self.assertEqual(words[RULE.expression].sentences[0].surface_form, 'をものともせず')
         self.assertIn(RULE.expression, GRAMMAR_EXPRESSIONS)
         self.assertEqual(LEGACY_GRAMMAR_EXPRESSIONS[RULE.expression + ' (grammar)'], RULE.expression)
+
+    def test_ni_variants_share_card_and_reserve_complete_span(self):
+        from sudachipy import dictionary, tokenizer
+
+        analyzer = dictionary.Dictionary(config_path='sudachi.config.json', dict='full').create()
+        stage = GrammarStep()
+        sources = []
+        for spelling in ('もの', '物'):
+            text = f'困難を{spelling}ともせずに進んだ。'
+            raw = [tok(m.surface(), m.dictionary_form(), m.part_of_speech())
+                   for m in analyzer.tokenize(text, tokenizer.Tokenizer.SplitMode.C)]
+            sources.append(sentence(text, raw))
+        result = ExcludeGrammarTokensStep(stage).process(stage.process(Artifact(sources)))
+        for source in result.data:
+            suffix = source.tokens[1:8]
+            self.assertTrue(all(t.get('grammar_reserved') for t in suffix))
+            reserved = ''.join(t['surface'] for t in suffix)
+            self.assertIn(reserved, ('をものともせずに', 'を物ともせずに'))
+            obstacle = next(t for t in source.tokens if t['surface'] == '困難')
+            self.assertFalse(obstacle.get('grammar_reserved', False))
+        words = {'困難': object()}
+        stage.add_cards(words)
+        self.assertIn('困難', words)
+        self.assertEqual([key for key in words if 'ものとも' in key], [RULE.expression])
+        self.assertEqual({s.surface_form for s in words[RULE.expression].sentences},
+                         {'をものともせずに', 'を物ともせずに'})
