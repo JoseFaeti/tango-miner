@@ -21,7 +21,6 @@ ambiguity and recall before implementing a rule.
 
 ## Formal and literary candidates
 
-- [ ] [〜を抜きにしては](points/onukinishiteha.md)
 - [ ] [〜を抜きにしても](points/onukinishitemo.md)
 - [ ] [〜抜きでは](points/nukideha.md)
 - [ ] [〜なしでは](points/nashideha.md)
