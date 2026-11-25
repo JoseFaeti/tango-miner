@@ -23,5 +23,3 @@ ambiguity and recall before implementing a rule.
 - [~] [〜はずだった](points/hazudatsuta.md)
 
 ## Formal and literary candidates
-
-- [ ] [〜ないで済む](points/naidesumu-32d3efc4.md)

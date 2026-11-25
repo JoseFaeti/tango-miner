@@ -1,20 +1,11 @@
-# 〜ないですむ
+# 〜ないですむ (alias)
 
-Status: [~]
+- [Alias relationship](#alias-relationship)
 
-## Meaning
+Status: [x]
 
-Avoid having to.
+## Alias relationship
 
-## Implemented behavior
-
-Matches a verbal ないで followed by 済む or すむ, including supported past,
-polite, conditional and negative inflections of 済む. The span starts at
-ない, retaining the preceding verb as lexical evidence. The existing ないで
-rule can also recognize the shorter span; both analyses remain available.
-Tests cover Sudachi forms, lexical controls, reservation and card examples.
-
-Sudachi can analyze unspaced 行かないですんだ as ない + です + ん + だ;
-that ambiguous tokenization is not matched. Other tokenizations and broader
-corpus precision and recall remain unverified. The related なくて済む and
-ずにすむ constructions are separate points.
+This spelling names the same verbal negative + で + 済む construction as
+[〜ないで済む](naidesumu-32d3efc4.md). It uses the existing `naidesumu` rule
+and stable card identity; it is not a separate matcher or card.

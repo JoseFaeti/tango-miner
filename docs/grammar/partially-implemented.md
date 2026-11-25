@@ -629,7 +629,6 @@
 
 - [~] [〜かねる](points/kaneru.md)
 
-- [~] [〜ないですむ](points/naidesumu.md)
 - [~] [〜なくて済む](points/nakutesumu.md)
 
 - [~] [〜てすむ](points/tesumu.md)
