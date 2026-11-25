@@ -17,6 +17,6 @@ def match_niwatatsute(tokens):
 
 
 RULE = GrammarRule(order=-1, id='niwatatsute', expression='〜にわたって',
-                   reading='にわたって', meaning='over a range or period',
+                   reading='にわたって', meaning='throughout; over a period of ...; over a span of ...',
                    match=match_niwatatsute)
 RULES = (RULE,)

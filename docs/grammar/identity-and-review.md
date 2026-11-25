@@ -1,6 +1,20 @@
 # Identity and review
 
+- [Identity and recovery](#identity-and-recovery)
+
+## Identity and recovery
+
 [Grammar documentation](README.md)
+
+After dictionary definition lookup, a lexical candidate is recovered into a
+registered grammar identity only when its exact form matches an expression or
+reading alternative (ignoring attachment markers) and its complete gloss set
+matches that rule. Gloss order, sense numbering and case are ignored; extra or
+different glosses and ambiguous rule matches prevent recovery. This conservative
+check does not infer paraphrases. Recovery runs only with grammar enabled, after
+lexical frequency filtering; it combines counts, tags and component evidence
+and remaps sentence occurrences before scoring. Index means combine the stored
+source contributions; sources shared by both candidates are not deduplicated.
 
 The distinct Expression is the Anki identity. A new card participates in the
 existing preview and confirmation flow. If a note with that exact expression

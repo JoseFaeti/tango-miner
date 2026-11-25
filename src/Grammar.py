@@ -326,6 +326,10 @@ class AddGrammarCardsStep(PipelineStep):
 
     def process(self, artifact):
         self.grammar.add_cards(artifact.data)
+        from src.grammar_rules.dictionary_equivalents import (
+            recover_dictionary_candidates,
+        )
+        recover_dictionary_candidates(artifact.data, artifact.sentences, self.grammar.rules)
         rules = {rule.id: rule for rule in self.grammar.rules}
         for rule in self.grammar.rules:
             if rule.expression in artifact.data:
