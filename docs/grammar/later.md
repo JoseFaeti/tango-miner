@@ -21,7 +21,6 @@ ambiguity and recall before implementing a rule.
 
 ## Formal and literary candidates
 
-- [ ] [〜なしには](points/nashiniha.md)
 - [ ] [〜なしで済む](points/nashidesumu.md)
 - [ ] [〜なくて済む](points/nakutesumu.md)
 - [ ] [〜ないで済む](points/naidesumu-32d3efc4.md)

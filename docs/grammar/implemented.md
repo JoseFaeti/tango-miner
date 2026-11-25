@@ -1,6 +1,7 @@
 # Implemented grammar points
 
 - [x] [〜なしでは](points/nashideha.md)
+- [x] [〜なしには](points/nashiniha.md)
 
 - [x] [〜をものともせずに](points/omonotomosezuni.md)
 - [x] [〜を振り切って](points/ofurikitsute.md)

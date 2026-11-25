@@ -12,8 +12,10 @@ Coverage for なしでは is complete; see the [point-specific
 specification](nashideha.md).
 The rule recognizes adjacent noun or pronoun + なしに / なしでは, including
 無し, and continuative verb forms such as 助け as nominalized antecedents.
-It reserves only the construction, retaining the antecedent. Sudachi full
-dictionary tests cover these forms, spacing, and the lexical noun 梨.
+It reserves only the construction, retaining the antecedent. In a なしには
+sentence, the なしに rule retains its shorter match alongside the separate
+〜なしには card. Sudachi full dictionary tests cover these forms, spacing,
+and the lexical noun 梨.
 
 ## Limitations
 
