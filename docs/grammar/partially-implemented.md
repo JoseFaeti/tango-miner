@@ -1138,3 +1138,5 @@ indicate measured frequency.
 - [~] [〜を押して](points/ooshite.md)
 
 - [~] [〜を押し切って](points/ooshikitsute.md)
+
+- [~] [〜を顧みることなく](points/okaerimirukotonaku.md)
