@@ -25,4 +25,8 @@ Only the adverbial なく form is supported; 関わりがなく, 関わりない
 に関わらず and にもかかわらず are outside this rule. Literal “without
 involvement” readings can share this surface and are retained for review.
 Other analyzer tokenizations and contextual disambiguation remain unverified.
-The separate kana backlog entry describes the same supported spelling.
+Paired conditions (するかしないか), coordinated nouns and 有無 conditions
+are also covered by focused analyzer tests. Repeated kana and kanji occurrences
+are matched independently under the same registered identity.
+The [kana entry](nikakawarinaku-1fc75c06.md) tracks this same partial scope;
+it does not schedule a second rule or card.

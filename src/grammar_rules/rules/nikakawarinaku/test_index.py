@@ -21,6 +21,11 @@ class NikakawarinakuTests(unittest.TestCase):
             '年齢に関わりなく参加できる。': 'に関わりなく',
             '性別に拘わりなく採用する。': 'に拘わりなく',
             '行くかどうかにかかわりなく知らせてください。': 'にかかわりなく',
+            '参加するかしないかにかかわりなく連絡する。': 'にかかわりなく',
+            '年齢や性別にかかわりなく参加できる。': 'にかかわりなく',
+            '経験の有無にかかわりなく応募できる。': 'にかかわりなく',
+            '年齢とはかかわりなく参加できる。': None,
+            '年齢にかかわりはなく参加できる。': None,
             '事件に関わらずに暮らした。': None,
             '雨にもかかわらず出かけた。': None,
             '仕事に関わった。': None,
@@ -72,3 +77,18 @@ class NikakawarinakuTests(unittest.TestCase):
         stage.add_cards(words)
         self.assertIn('年齢', words)
         self.assertEqual(words[RULE.expression].sentences[0].surface_form, 'に関わりなく')
+
+    def test_repeated_spellings_share_one_identity(self):
+        text = '年齢にかかわりなく、性別に関わりなく参加する。'
+        raw = [
+            tok('年齢', '年齢', ('名詞',)), tok('に', 'に', ('助詞',)),
+            tok('かかわり', 'かかわり', ('名詞',)), tok('なく', 'ない', ('形容詞',)),
+            tok('、', '、', ('補助記号',)), tok('性別', '性別', ('名詞',)),
+            tok('に', 'に', ('助詞',)), tok('関わり', '関わる', ('動詞',)),
+            tok('なく', 'ない', ('形容詞',)), tok('参加する。', '参加', ('名詞',)),
+        ]
+        tokens, error = aligned_tokens(text, raw)
+        self.assertIsNone(error)
+        self.assertEqual([text[a:b] for a, b in match_nikakawarinaku(tokens)],
+                         ['にかかわりなく', 'に関わりなく'])
+        self.assertEqual([r for r in RULES if r.reading == 'にかかわりなく'], [RULE])

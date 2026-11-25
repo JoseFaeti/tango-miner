@@ -1131,3 +1131,4 @@ indicate measured frequency.
 - [~] [〜に応じた](points/nioujita.md)
 
 - [~] [〜に関わりなく](points/nikakawarinaku.md)
+- [~] [〜にかかわりなく](points/nikakawarinaku-1fc75c06.md)
