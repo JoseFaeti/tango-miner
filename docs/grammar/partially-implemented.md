@@ -1135,3 +1135,4 @@ indicate measured frequency.
 
 - [~] [〜にかまわず](points/nikamawazu.md)
 - [~] [〜を構わず](points/okamawazu.md)
+- [~] [〜を押して](points/ooshite.md)
