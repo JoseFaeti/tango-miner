@@ -1,5 +1,8 @@
 # Later grammar candidates
 
+* [General and conversational candidates](#general-and-conversational-candidates)
+* [Formal and literary candidates](#formal-and-literary-candidates)
+
 These families are an unordered backlog; their frequency and usefulness have
 not been measured. Some overlap one another or scheduled points and need
 investigation before consolidation. A family entry does not prove every
@@ -21,6 +24,5 @@ ambiguity and recall before implementing a rule.
 
 ## Formal and literary candidates
 
-- [ ] [〜なしで済む](points/nashidesumu.md)
 - [ ] [〜なくて済む](points/nakutesumu.md)
 - [ ] [〜ないで済む](points/naidesumu-32d3efc4.md)
