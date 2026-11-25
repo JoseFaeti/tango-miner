@@ -3,4 +3,5 @@
 - [x] [〜をものともせずに](points/omonotomosezuni.md)
 - [x] [〜を振り切って](points/ofurikitsute.md)
 - [x] [〜を尻目に](points/oshirimeni.md)
+- [x] [〜を抜きにしても](points/onukinishitemo.md)
 - [x] [〜を抜きにしては](points/onukinishiteha.md)
