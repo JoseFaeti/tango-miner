@@ -1,3 +1,3 @@
 # Implemented grammar points
 
-No tracked point has yet been verified as complete to its documented scope.
+- [x] [〜を振り切って](points/ofurikitsute.md)
