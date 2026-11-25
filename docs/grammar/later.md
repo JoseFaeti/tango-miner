@@ -21,7 +21,6 @@ ambiguity and recall before implementing a rule.
 
 ## Formal and literary candidates
 
-- [ ] [〜を尻目に](points/oshirimeni.md)
 - [ ] [〜をものともせずに](points/omonotomosezuni.md)
 - [ ] [〜を顧みることなく](points/okaerimirukotonaku.md)
 - [ ] [〜を抜きにしては](points/onukinishiteha.md)
