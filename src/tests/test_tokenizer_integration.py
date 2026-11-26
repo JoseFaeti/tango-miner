@@ -1,7 +1,9 @@
 """Small end-to-end expectations for the production tokenizer configuration."""
 
 import unittest
+from pathlib import Path
 
+from src.steps.BuildWordStatsStep.index import build_word_stats
 from src.steps.TokenizeStep.index import (
     TOKENIZER_MODE,
     combine_tokens_jmdict,
@@ -9,6 +11,7 @@ from src.steps.TokenizeStep.index import (
     get_tokenizer,
     sudachi_node_to_dict,
 )
+from src.TokenizedSentence import TokenizedSentence
 
 
 def tokenize_sentence(text: str) -> list[dict]:
@@ -299,6 +302,35 @@ class TokenizerIntegrationTests(unittest.TestCase):
                               [t['lemma'] for t in merged])
         merged = combine_tokens_jmdict(tokenize_sentence('時代が下って、文化が変わった。'), self.jmdict)
         self.assertIn('下って', [t['lemma'] for t in merged])
+
+    def test_otte_case_marked_verb_and_adverb(self):
+        for sentence in ('詳細は追って連絡します。', '担当者が追って連絡します。'):
+            with self.subTest(sentence=sentence):
+                adverb_tokens = combine_tokens_jmdict(tokenize_sentence(sentence), self.jmdict)
+                adverb = next(t for t in adverb_tokens if t['lemma'] == '追って')
+                self.assertEqual(adverb['analysis_rule'], 'jmdict_surface_merge')
+
+        for sentence in ('メルを追って遺跡へ', '彼を追って走った。',
+                         '敵を追ってきた。', '後を追ってきたの！',
+                         '私たちが追ってきたのはセフィロスではなかったのか…？',
+                         '今まで私たちが追ってきたのはセフィロスじゃなかったの？',
+                         '魔物たちがどんどん追ってきてたからみんな必死に逃げたの！'):
+            with self.subTest(sentence=sentence):
+                raw = tokenize_sentence(sentence)
+                self.assertTrue(any(t['lemma'] == '追う' and t['pos'][0] == '動詞'
+                                    for t in raw))
+                rejected = []
+                merged = combine_tokens_jmdict(raw, self.jmdict, rejected=rejected)
+                self.assertNotIn('追って', [t['lemma'] for t in merged])
+                self.assertIn('追う', [t['lemma'] for t in merged])
+                self.assertTrue(any(event['reason'] == 'ou_te_case_marked_verb'
+                                    for event in rejected))
+
+                words, _ = build_word_stats([
+                    TokenizedSentence(sentence, 'source', Path('source.txt'), merged)
+                ])
+                self.assertIn('追う', words)
+                self.assertNotIn('追って', words)
 
     def test_itai_me_ni_au_inflections(self):
         for sentence, word, surface in [

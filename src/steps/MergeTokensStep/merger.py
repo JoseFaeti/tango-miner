@@ -225,6 +225,27 @@ def _merge_candidate(token_list, i, j, combined_text, offsets, jmdict, rejected)
             and tuple(token_list[i - 1]['pos'][:2]) == ('助詞', '格助詞')):
         reject('awasete_verb_with_complement')
         return None
+    # Sudachi analyzes both the adverb and verb reading as 追っ + て.
+    if (token_string == '追って' and j - i == 2
+            and token_list[i]['lemma'] == '追う'
+            and token_list[i]['pos'][0] == '動詞'
+            and token_list[i + 1]['surface'] == 'て'
+            and tuple(token_list[i + 1]['pos'][:2]) == ('助詞', '接続助詞')):
+        argument = i - 1
+        while argument >= 0 and token_list[argument]['pos'][0] == '副詞':
+            argument -= 1
+        marker = token_list[argument] if argument >= 0 else None
+        case_marked_object = (marker is not None and marker['surface'] == 'を'
+                              and tuple(marker['pos'][:2]) == ('助詞', '格助詞'))
+        following = token_list[j] if j < n else None
+        case_marked_subject_coming = (
+            marker is not None and marker['surface'] == 'が'
+            and tuple(marker['pos'][:2]) == ('助詞', '格助詞')
+            and following is not None and following['lemma'] == 'くる'
+            and tuple(following['pos'][:2]) == ('動詞', '非自立可能'))
+        if case_marked_object or case_marked_subject_coming:
+            reject('ou_te_case_marked_verb')
+            return None
     if (_is_past_predicate_misread_as_expression(token_list, i, j, match_word)
             or _is_particle_boundary_misread(token_list, i, j)
             or _is_inflection_misread_as_noun(token_list, i, j, match_word)

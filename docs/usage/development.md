@@ -333,6 +333,15 @@ take precedence and reserved grammar tokens are not crossed. These matches can
 be ambiguous with literal object-verb usage; dictionary evidence alone does not
 establish the intended sense.
 
+For `追って`, Sudachi currently produces the same `追っ` (`追う`) plus `て`
+tokens for its adverb and verb readings. A case-marked object `を` before those
+tokens, or a case-marked subject `が` before a `追ってくる` sequence, makes the
+merger keep the verb components so the candidate is associated with `追う`;
+intervening adverbs such as `どんどん` are allowed. A `が`-marked subject
+alone is not enough: the exact JMdict adverb match remains eligible in
+`詳細は追って連絡します` and `担当者が追って連絡します`. Unmarked verb uses
+remain ambiguous under these cues.
+
 
 ## Pipeline performance measurements
 
