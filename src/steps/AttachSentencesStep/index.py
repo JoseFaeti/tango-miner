@@ -199,14 +199,9 @@ def attach_sentences(word_data, segmented_sentences, progress_handler=None, conf
         ws.sentences = [b[2] for b in best]
 
     # ------------------------------------------------------------
-    # FALLBACK — try to fill the configured number of sentences per word
-    #
-    # For words that came out of the primary pass with fewer
-    # sentences than the configured limit (including zero), do a second
-    # sweep over all segmented sentences and attach whatever is
-    # available, ignoring all quality filters.  Worst-case the
-    # learner gets a mediocre sentence; best-case they get
-    # something useful they would otherwise have missed.
+    # FALLBACK — fill the configured limit when distinct examples exist.
+    # Prefer examples compatible with the selected definition, then use
+    # component-conflicting examples as a last resort and flag them for review.
     # ------------------------------------------------------------
     words_needing_fallback = {
         lemma
@@ -215,11 +210,15 @@ def attach_sentences(word_data, segmented_sentences, progress_handler=None, conf
     }
 
     if words_needing_fallback:
-        # Build an index: lemma → list[Sentence] not yet attached
-        fallback_pool = defaultdict(list)
+        fallback_pool = defaultdict(dict)
+        conflicting_pool = defaultdict(dict)
+        attached_keys = {
+            lemma: {_sentence_dedupe_key_fast(sentence.text) for sentence in word_get(lemma).sentences}
+            for lemma in words_needing_fallback
+        }
 
         for seg in segmented_sentences:
-            for lemma, surface in seg.lemma_surfaces.items():
+            for lemma in seg.lemma_surfaces:
                 if lemma not in words_needing_fallback:
                     continue
 
@@ -227,9 +226,16 @@ def attach_sentences(word_data, segmented_sentences, progress_handler=None, conf
                 if ws is None:
                     continue
                 occurrence = _supported_occurrence(seg, lemma, ws)
-                if occurrence is None:
-                    continue
-                surface, span = occurrence
+                compatible = occurrence is not None
+                if compatible:
+                    surface, span = occurrence
+                else:
+                    occurrences = seg.lemma_occurrences.get(lemma)
+                    if occurrences:
+                        surface, span, _components = occurrences[0]
+                    else:
+                        surface = seg.lemma_surfaces[lemma]
+                        span = seg.lemma_spans.get(lemma)
 
                 sentence = Sentence(
                     text = seg.text,
@@ -239,12 +245,13 @@ def attach_sentences(word_data, segmented_sentences, progress_handler=None, conf
                     span = span
                 )
 
-                # skip exact duplicates already attached
-                already = {s.text for s in ws.sentences}
-                if sentence.text not in already:
-                    fallback_pool[lemma].append(sentence)
+                key = _sentence_dedupe_key_fast(sentence.text)
+                if key in attached_keys[lemma]:
+                    continue
+                pool = fallback_pool if compatible else conflicting_pool
+                pool[lemma].setdefault(key, sentence)
 
-        for lemma, pool in fallback_pool.items():
+        for lemma in words_needing_fallback:
             ws = word_get(lemma)
             if ws is None:
                 continue
@@ -253,19 +260,28 @@ def attach_sentences(word_data, segmented_sentences, progress_handler=None, conf
             if needed <= 0:
                 continue
 
-            already = {s.text for s in ws.sentences}
-            for sentence in pool:
-                if needed <= 0:
+            already = attached_keys[lemma]
+            # Use conflicting analyses only when they complete the full quota.
+            available_keys = already.union(fallback_pool[lemma], conflicting_pool[lemma])
+            can_fill_limit = len(available_keys) >= config.max_sentences
+            for pool, is_conflicting in ((fallback_pool[lemma], False), (conflicting_pool[lemma], True)):
+                if is_conflicting and not can_fill_limit:
                     break
-                if sentence.text not in already:
+                for key, sentence in pool.items():
+                    if needed <= 0:
+                        break
+                    if key in already:
+                        continue
                     ws.sentences.append(sentence)
-                    already.add(sentence.text)
+                    already.add(key)
                     needed -= 1
+                    if is_conflicting:
+                        ws.example_review = True
+                        if not ws.jmdict_definition:
+                            ws.needs_review = True
 
-
-    # Only when no definition-compatible source line survived, retain one
-    # conflicting occurrence for human review instead of silently exporting a
-    # sentence-less valid candidate with a potentially misleading definition.
+    # Keep one source-backed review example when no compatible example exists,
+    # even if the source does not contain enough distinct lines to fill the limit.
     missing = {lemma for lemma, ws in word_data.items()
                if not ws.sentences and ws.definition_components is not None}
     if missing:
@@ -274,7 +290,7 @@ def attach_sentences(word_data, segmented_sentences, progress_handler=None, conf
                 ws = word_get(lemma)
                 occurrences = seg.lemma_occurrences.get(lemma)
                 if occurrences:
-                    surface, span, _ = occurrences[0]
+                    surface, span, _components = occurrences[0]
                 else:
                     surface = seg.lemma_surfaces[lemma]
                     span = seg.lemma_spans.get(lemma)

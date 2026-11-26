@@ -54,7 +54,7 @@ class WriteOutputStepTests(unittest.TestCase):
             row = json.loads(path.read_text(encoding='utf-8'))
         self.assertEqual(row['status'], 'valid')
         self.assertEqual(row['review_reasons'], [
-            'expression_frequency_or_source_coverage', 'no_definition_compatible_example'])
+            'expression_frequency_or_source_coverage', 'definition_conflicting_example'])
 
     def test_write_final_file_sorts_by_score_and_splits_invalid_rows(self):
         with tempfile.TemporaryDirectory() as tmp:

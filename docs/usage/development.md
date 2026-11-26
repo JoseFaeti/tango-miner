@@ -2,17 +2,26 @@
 
 [Contents](../usage-reference.md)
 
+## Contents
+
+- [JMdict test baseline](#jmdict-test-baseline)
+- [Performance optimization](#performance-optimization)
+- [Agent command modules](#agent-command-modules)
+- [Tests](#tests)
+- [Pipeline performance measurements](#pipeline-performance-measurements)
 
 Example selection ranks sentences that meet the normal quality checks ahead of
 short, long, or otherwise low-quality source lines, but retains those lines as
 fallbacks. Lines containing the Unicode replacement character are also ranked
 as low quality; recover their original text from an intact source to repair
 them. Input decoding itself is strict. The selector prefers occurrences
-supporting the selected definition. If no compatible source example is
-available, one conflicting occurrence is attached
-and recorded as `no_definition_compatible_example` in candidate diagnostics.
-Candidates with a JMdict definition remain eligible for output even when this
-or another review signal is present. Repeated identical lines do not create distinct examples;
+supporting the selected definition. Component-conflicting source lines are
+used only as a last resort when enough distinct lines exist to fill the
+configured limit. If no occurrence supports the selected definition, one source
+line is kept for review even when the limit cannot be filled. Any conflicting
+line sets the `definition_conflicting_example` candidate diagnostic. Candidates
+with a JMdict definition remain eligible for output even when this or another
+review signal is present. Repeated identical lines do not create distinct examples;
 frequency therefore need not equal the number of available examples.
 Example labels show the source tag without a sentence score. Archive comparisons
 require score-free example labels. If the automatically selected baseline has
@@ -282,10 +291,14 @@ Anki plan when the new identity is unambiguous; conflicts are retained for revie
 source position, frequency and source diversity; they are added after lexical
 filtering and do not use its minimum-frequency threshold. Grammar and lexical
 cards are scored together, and eligible source-aligned grammar occurrences use
-the same sentence ranking, deduplication and fallback as lexical examples. Recognized grammar spans
-are reserved before lexical merging and collection, unless the existing dictionary
-merger identifies a complete expression spanning the construction and its attached
-word; that occurrence is then counted as the expression. Other occurrences and
+the same sentence ranking and deduplication as lexical examples. Fallback fills
+the configured limit from distinct source lines when enough exist, preferring
+component-compatible lines. Component-conflicting lines fill remaining slots
+only when they can complete the limit; if none are compatible, one line is kept
+for review even when the limit remains unfilled. Recognized grammar spans are reserved before lexical merging and
+collection, unless the existing dictionary merger identifies a complete
+expression spanning the construction and its attached word; that occurrence is
+then counted as the expression. Other occurrences and
 eligible attached words remain lexical. See the point specifications for
 construction-specific precedence and reservation. This can change lexical frequencies and may
 place absent lexical notes in an Anki deletion plan when pruning is enabled.

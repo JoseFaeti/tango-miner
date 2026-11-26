@@ -15,12 +15,13 @@ from src.TokenProvenance import TokenComponent
 from tests.helpers import make_stats
 
 
-def seg(text, lemma_surfaces, tag="tag"):
+def seg(text, lemma_surfaces, tag="tag", lemma_components=None):
     return SegmentedSentence(
         text=text,
         tag=tag,
         origin=Path("source.txt"),
         lemma_surfaces=lemma_surfaces,
+        lemma_components=lemma_components or {},
     )
 
 
@@ -53,7 +54,7 @@ class AttachSentencesStepTests(unittest.TestCase):
         self.assertEqual(grammar.sentences[0].span, (7, 10))
         self.assertEqual(grammar.sentences[0].text, words['本'].sentences[0].text)
 
-    def test_examples_and_fallback_require_the_selected_occurrence_analysis(self):
+    def test_conflicting_occurrence_is_skipped_when_it_cannot_fill_the_example_limit(self):
         adverb = (TokenComponent("ようやく", "ようやく", "ようやく", "ようやく", ("副詞",)),)
         noun = (TokenComponent("ようやく", "ようやく", "ようやく", "ようやく", ("名詞",)),)
         target = make_stats(score=500, lemma="ようやく")
@@ -62,6 +63,48 @@ class AttachSentencesStepTests(unittest.TestCase):
                     SegmentedSentence("ようやくを読んだ。", "b", Path("b"), {"ようやく": "ようやく"}, lemma_components={"ようやく": noun})]
         attach_sentences({"ようやく": target}, examples)
         self.assertEqual([s.text for s in target.sentences], ["ようやく着いた。"])
+        self.assertFalse(target.example_review)
+        self.assertFalse(target.needs_review)
+
+    def test_component_conflicts_fill_the_example_limit_when_no_compatible_example_exists(self):
+        selected = (TokenComponent("荒い", "荒い", "荒い", "あらい", ("形容詞",)),)
+        conflicting = (TokenComponent("洗い", "洗い", "洗い", "あらい", ("名詞",)),)
+        target = make_stats(score=500, lemma="あらい")
+        target.definition_components = {selected}
+        examples = [
+            seg("水面が荒い。", {"あらい": "荒い"}, lemma_components={"あらい": conflicting}),
+            seg("洗いが終わった。", {"あらい": "洗い"}, lemma_components={"あらい": conflicting}),
+            seg("この洗いは丁寧だ。", {"あらい": "洗い"}, lemma_components={"あらい": conflicting}),
+            seg("洗いを続けた。", {"あらい": "洗い"}, lemma_components={"あらい": conflicting}),
+        ]
+
+        attach_sentences({"あらい": target}, examples)
+
+        self.assertEqual([sentence.text for sentence in target.sentences], [
+            "水面が荒い。", "洗いが終わった。", "この洗いは丁寧だ。",
+        ])
+        self.assertTrue(target.example_review)
+        self.assertTrue(target.needs_review)
+
+    def test_component_conflicts_backfill_after_compatible_examples(self):
+        selected = (TokenComponent("目標", "目標", "目標", "もくひょう", ("名詞",)),)
+        conflicting = (TokenComponent("目標", "目標", "目標", "もくひょう", ("形容詞",)),)
+        target = make_stats(score=500, lemma="目標")
+        target.definition_components = {selected}
+        target.jmdict_definition = True
+        examples = [
+            seg("目標は明確だった。", {"目標": "目標"}, lemma_components={"目標": selected}),
+            seg("目標が見つかった。", {"目標": "目標"}, lemma_components={"目標": conflicting}),
+            seg("目標を確かめた。", {"目標": "目標"}, lemma_components={"目標": conflicting}),
+        ]
+
+        attach_sentences({"目標": target}, examples)
+
+        self.assertEqual([sentence.text for sentence in target.sentences], [
+            "目標は明確だった。", "目標が見つかった。", "目標を確かめた。",
+        ])
+        self.assertTrue(target.example_review)
+        self.assertFalse(target.needs_review)
 
     def test_source_lines_rejected_by_quality_checks_are_available_as_fallback(self):
         from src.steps.TokenizeStep.index import tokenize
